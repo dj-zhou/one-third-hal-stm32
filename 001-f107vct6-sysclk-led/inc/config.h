@@ -11,8 +11,7 @@ extern "C" {
 // one-third-core includes
 #include "core-utils.h"
 
-void Error_Handler( void );
-
+// ============================================================================
 #ifdef __cplusplus
 }
 #endif

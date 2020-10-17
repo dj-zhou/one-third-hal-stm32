@@ -75,7 +75,9 @@ $(info ====================================)
 
 # =============================================================================
 CFLAGS   = $(CSTD) $(MCU) $(C_DEFS) $(INC:%=-I%) $(OPT)
-CFLAGS  += -Werror=unused-parameter -Werror=unused-variable
+CFLAGS  += -Werror=unused-parameter
+CFLAGS  += -Werror=unused-variable
+CFLAGS  += -Werror=unused-function
 CFLAGS  += -Wall -fdata-sections -ffunction-sections
 CFLAGS  += -MMD -MP -MF"$(@:%.o=%.d)" -g -gdwarf-2
 LDFLAGS  = $(MCU) -specs=nano.specs -T$(LD_SCRIPT) $(LIBDIR) $(LIBS)
@@ -113,7 +115,7 @@ erase:
 	st-flash erase
 
 # -----------------------------------------------------------------------------
-debug: CFLAGS+= -D _DEBUG_SKIP
+debug: CFLAGS+= -D __DEBUG
 debug: CFLAGS+= -D MAKE_TYPE=\"DEBUG\"
 debug: $(OUTPATH)/$(PROJ_NAME).elf
 
