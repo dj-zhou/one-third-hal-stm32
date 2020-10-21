@@ -1,11 +1,13 @@
-#include "config.h"
-#include "crystal.h"
-
 #include "core-utils.h"
 
 // ============================================================================
-#ifdef STM32F107xC
-static HAL_StatusTypeDef f107xC_clockInit( void ) {
+#if defined( RTOS_IS_USED )
+static RtosState_t rtos_state_;
+#endif
+
+// ============================================================================
+#if defined( STM32F107xC )
+static HAL_StatusTypeDef InitClock_F107xC( void ) {
 
     if ( HSE_VALUE == 25000000 ) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -17,14 +19,14 @@ static HAL_StatusTypeDef f107xC_clockInit( void ) {
         RCC_OscInitStruct.HSEPredivValue       = RCC_HSE_PREDIV_DIV5;
         RCC_OscInitStruct.HSIState             = RCC_HSI_ON;
         RCC_OscInitStruct.Prediv1Source        = RCC_PREDIV1_SOURCE_PLL2;
-        RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLMUL           = RCC_PLL_MUL9;
         RCC_OscInitStruct.PLL2.PLL2State       = RCC_PLL2_ON;
         RCC_OscInitStruct.PLL2.PLL2MUL         = RCC_PLL2_MUL8;
         RCC_OscInitStruct.PLL2.HSEPrediv2Value = RCC_HSE_PREDIV2_DIV5;
+        RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL           = RCC_PLL_MUL9;
         if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-            ;  // Error_Handler();
+            ;  // Error_Handler(); TODO
         }
 
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
@@ -37,7 +39,7 @@ static HAL_StatusTypeDef f107xC_clockInit( void ) {
 
         if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 )
              != HAL_OK ) {
-            ;  // Error_Handler();
+            ;  // Error_Handler(); TODO
         }
         // DJ: is this needed?
         __HAL_RCC_PLLI2S_ENABLE();
@@ -45,20 +47,19 @@ static HAL_StatusTypeDef f107xC_clockInit( void ) {
     else {
         // #error not supported.
     }
-
     return HAL_OK;
 }
 #endif
 
 // ============================================================================
 static HAL_StatusTypeDef InitSystemClock( void ) {
-#if ( defined STM32F107xC )
-    return f107xC_clockInit();
+#if defined( STM32F107xC )
+    return InitClock_F107xC();
 #else
 #error InitSystemClock(): TO IMPLEMENT
 #endif
 
-    HAL_Init();
+    HAL_Init();  // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
     return HAL_OK;
 }
 
@@ -86,6 +87,7 @@ static void InitNvicInterrupt( uint8_t group ) {
         break;
     }
 }
+
 // ============================================================================
 static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
     if ( GPIOx == GPIOA ) {
@@ -168,7 +170,7 @@ static void enableUartClock( USART_TypeDef* USARTx ) {
         __HAL_RCC_UART5_CLK_ENABLE();
     }
     else {
-        // do nothing, if the timer is not designed for one family of
+        // do nothing, if the uart/usart is not designed for one family of
         // microcontroller, it will throw an error
     }
 }
@@ -179,7 +181,7 @@ static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
     assert_param( IS_GPIO_MODE( io ) );
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
-#if ( defined STM32F107xC )  // || ( defined STM32F10Xxxxx)
+#if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
     // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
     // therefore we must first disable JTAG and async trace functions to release
     // PB3/PB4 for GPIO use
@@ -236,6 +238,20 @@ static void togglePin( GPIO_TypeDef* GPIOx, uint8_t pin_n ) {
 }
 
 // ============================================================================
+#if defined( RTOS_IS_USED )
+// ----------------------------------------------------------------------------
+static void setRtosState( RtosState_t state ) {
+    rtos_state_ = state;
+}
+
+// ----------------------------------------------------------------------------
+static RtosState_t getRtosState( void ) {
+    return rtos_state_;
+}
+
+#endif  // RTOS_IS_USED
+
+// ============================================================================
 // clang-format off
 CoreUtilsApi_t utils = {
     .initSystemClock  = InitSystemClock   ,
@@ -247,6 +263,9 @@ CoreUtilsApi_t utils = {
     .setPinPull       = setPinPull        ,
     .setPin           = setPin            ,
     .togglePin        = togglePin         ,
-
+#if defined( RTOS_IS_USED )
+    .setRtosState     = setRtosState      ,
+    .getRtosState     = getRtosState      ,
+#endif
 };
 // clang-format on

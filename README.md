@@ -55,17 +55,29 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 #### one-third-core
 
-##### core-utils
+##### `core-utils`
 
 * `initSystemClock()`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
 * `initNvic()`: setup the interrupt group priority.
 * `enableGpioClock()`: To enable the clock of a GPIO group. This function is used by other modules.
 * `enableTimerClock()`: To enable the clock of a Timer. This function is used by other modules.
 * `enableUartClock()`: To enable the clock of a UART/USART group. This function is used by other modules.
+* `setPinMode()`: to set the GPIO mode.
+* `setPinPull()`: to enable internal pull up or pull down resister of a GPIO pin. 
+* `setPin()`: to set a pin as HIGH (true) or LOW (false).
+* `togglePin()`: to toggle a Output GPIO Pin.
+
+##### `core-stime`
+
+System time of this `one-third-core`. The default timer for this system time is SysTick. It is used as the reference clock for other modules, for example, the task scheduler submodule of `stime`.
 
 ### Example Projects
 
 #### `001-f107vct6-sysclk-led`
 
 Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
+
+#### `002-f107vct6-stime`
+
+Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually, since it is not a part of the library).
 
