@@ -70,6 +70,29 @@ static Stime_t GetSysTickTime( void ) {
 }
 
 // ----------------------------------------------------------------------------
+// accurate now. but sometimes loose one tick?
+static void DelayUs( uint32_t us ) {
+    volatile Stime_t cur_time = GetSysTickTime();
+    uint32_t         cur_us   = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
+    uint32_t         final_us = cur_us + ( uint32_t )us;
+    do {
+        cur_time.s  = second_;
+        cur_time.us = tick_ * SYSTICK_MS_SCALE
+                      + ( SYSTICK_RELOAD_VALUE - SysTick->VAL ) / 9;
+        cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
+        // make sure it is not optimized
+        for ( uint8_t i = 0; i < 2; i++ ) {
+            __asm( "MOV R0,R0" );
+        }
+    } while ( cur_us <= final_us );
+}
+
+// ----------------------------------------------------------------------------
+static void DelayMs( uint32_t ms ) {
+    return DelayUs( ms * 1000 );
+}
+
+// ----------------------------------------------------------------------------
 // when the interrupt is called, the value in SysTick->LOAD is reloaded to
 // SysTick->VAL
 void SysTick_Handler( void ) {
@@ -77,23 +100,25 @@ void SysTick_Handler( void ) {
     if ( tick_ >= SYSTICK_1S_OVERFLOW ) {
         tick_ = 0;
         second_++;
-        // utils.togglePin( GPIOC, 6 ); // test only
+        // utils.togglePin( GPIOD, 4 );  // test only
     }
 #ifdef _STIME_USE_SCHEDULER
     Task_Core_Remarks();  // todo
 #endif
 }
+#endif  // STIME_IS_USED
 
 // ============================================================================
+#if defined( STIME_IS_USED )
 // clang-format off
 StimeApi_t stime = {
 #if defined( _STIME_USE_SYSTICK )
     .config  = InitSysTick    ,
     .getTime = GetSysTickTime ,
-    // .delayUs = SysTick_Delay_Us ,
-    // .delayMs = SysTick_Delay_Ms ,
+    .delayUs = DelayUs        ,
+    .delayMs = DelayMs        ,
 #else
-    #error StimeApi_t stime: not implemented
+    #error StimeApi_t stime: not implemented.
 #endif
 
 #ifdef _STIME_USE_SCHEDULER

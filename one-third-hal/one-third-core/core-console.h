@@ -7,27 +7,28 @@ extern "C" {
 
 // if use this library, we must we this module
 #include "config.h"
+#include <stdbool.h>
 #include <stdint.h>
 
 // ============================================================================
 // project interface --------------
 // clang-format off
 
-#if !defined( _CONSOLE_USE_USART1 ) \
- && !defined( _CONSOLE_USE_USART2_PA2_PA3 ) \
- && !defined( _CONSOLE_USE_USART2_PD5_PD6 ) \
- && !defined( _CONSOLE_USE_USART3 ) \
- && !defined( _CONSOLE_USE_UART4 ) \
- && !defined( _CONSOLE_USE_UART5 )
-    #define _CONSOLE_USE_USART2_PA2_PA3 // stm32f103 does not have UART5
+#if !defined( _CONSOLE_USE_USART1_PA9PA10 )  \
+ && !defined( _CONSOLE_USE_USART2_PA2PA3 )   \
+ && !defined( _CONSOLE_USE_USART2_PD5PD6 )   \
+ && !defined( _CONSOLE_USE_USART3_PB10PB11 ) \
+ && !defined( _CONSOLE_USE_UART4 )           \
+ && !defined( _CONSOLE_USE_UART5_PC12PD2 )
+    #define _CONSOLE_USE_USART2_PA2PA3 // stm32f103 does not have UART5
 #endif
 
-#if defined( _CONSOLE_USE_USART1 ) \
- || defined( _CONSOLE_USE_USART2_PA2_PA3 ) \
- || defined( _CONSOLE_USE_USART2_PD5_PD6 ) \
- || defined( _CONSOLE_USE_USART3 ) \
- || defined( _CONSOLE_USE_UART4 ) \
- || defined( _CONSOLE_USE_UART5 )
+#if defined( _CONSOLE_USE_USART1_PA9PA10 )  \
+ || defined( _CONSOLE_USE_USART2_PA2PA3 )   \
+ || defined( _CONSOLE_USE_USART2_PD5PD6 )   \
+ || defined( _CONSOLE_USE_USART3_PB10PB11 ) \
+ || defined( _CONSOLE_USE_UART4 )           \
+ || defined( _CONSOLE_USE_UART5_PC12PD2 )
     #define CONSOLE_IS_USED
 #endif
 // clang-format on
@@ -92,15 +93,14 @@ typedef enum {
 // ============================================================================
 // clang-format off
 typedef struct {
-    SyslogLevel_t  level                                          ;
-    void           ( *config )( uint32_t, uint8_t, char, uint8_t );
-    void           ( *setTxMode )( ConsoleTx_t )                  ;
-    void           ( *enableRxen )( bool )                        ;
-    void           ( *printf )( char* template, ... )             ;
-    void           ( *error )( char* template, ... )              ;
-    char           ( *read )( uint16_t )                          ;
-    void           ( *writeByte )( char )                         ;
-    void           ( *writeStr )( char* )                         ;
+    void   ( *config )( uint32_t, uint8_t, char, uint8_t );
+    void   ( *setTxMode )( ConsoleTx_t )                  ;
+    void   ( *enableRxen )( bool )                        ;
+    void   ( *printf )( char* format, ... )               ;
+    void   ( *writeByte )( char )                         ;
+    void   ( *writeStr )( char* )                         ;
+    void   ( *error )( char* format, ... )                ;
+    char   ( *read )( uint16_t )                          ;
     // command line interface
     uint16_t*         ( *registerCmd )( char* str, CliHandle p ) ;
     void              ( *process )( void )                       ;

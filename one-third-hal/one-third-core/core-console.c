@@ -6,25 +6,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+static uint8_t level_;
 // ============================================================================
 #if defined( CONSOLE_IS_USED )
 
 // clang-format off
-#if ( defined _CONSOLE_USE_USART1 )
+#if defined( _CONSOLE_USE_USART1_PA9PA10 )
    #define CONSOLE_UART  USART1
-#elif ( defined _CONSOLE_USE_USART2_PA2_PA3 ) || ( defined _CONSOLE_USE_USART2_PD5_PD6 )
+#elif defined( _CONSOLE_USE_USART2_PA2PA3 ) || defined( _CONSOLE_USE_USART2_PD5PD6 )
     #define CONSOLE_UART  USART2
-#elif ( defined _CONSOLE_USE_USART3 )
+#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
     #define CONSOLE_UART  USART3
-#elif ( defined _CONSOLE_USE_UART4 )
+#elif defined( _CONSOLE_USE_UART4 )
     #define CONSOLE_UART  UART4
-#elif ( defined _CONSOLE_USE_UART5 )
+#elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     #define CONSOLE_UART  UART5
 #else
     #error CONSOLE not defined
 #endif
 
-#if (defined _CONSOLE_USE_UART4) || (defined _CONSOLE_USE_UART5) 
+#if (defined _CONSOLE_USE_UART4) || (defined _CONSOLE_USE_UART5_PC12PD2) 
 UART_HandleTypeDef hconsole_;
 #else 
 USART_HandleTypeDef hconsole_;
@@ -98,9 +99,13 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
         hconsole_.Init.Parity = UART_PARITY_NONE;
         break;
     }
+    hconsole_.Init.Mode = UART_MODE_TX_RX;
+#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     hconsole_.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-    hconsole_.Init.Mode      = UART_MODE_TX_RX;
-    HAL_UART_Init( &hconsole_ );
+    HAL_UART_Init( &hconsole_ );  // if != HAL_OK ??
+#else
+    HAL_USART_Init( &hconsole_ );  // if != HAL_OK ??
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -112,7 +117,7 @@ void InitUartNvic( uint8_t ch ) {
 
 // ============================================================================
 static void consoleWriteByte( char data ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5 )
+#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     HAL_UART_Transmit( &hconsole_, ( uint8_t* )&data, 1, 10 );
 #else  // to test
     HAL_USART_Transmit( &hconsole_, ( uint8_t* )&data, 1, 10 );
@@ -121,7 +126,7 @@ static void consoleWriteByte( char data ) {
 
 // ============================================================================
 static void consoleWriteStr( char* ptr ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5 )
+#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     HAL_UART_Transmit( &hconsole_, ( uint8_t* )ptr, strlen( ptr ), 10 );
 #else  // to test
     HAL_USART_Transmit( &hconsole_, ( uint8_t* )ptr, strlen( ptr ), 10 );
@@ -129,24 +134,64 @@ static void consoleWriteStr( char* ptr ) {
 }
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART1 )
-#error _CONSOLE_USE_USART1: not implemented.
+#if defined( _CONSOLE_USE_USART1_PA9PA10 )
+#error _CONSOLE_USE_USART1_PA9PA10: not implemented.
 #endif
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART2_PA2_PA3 )
-#error _CONSOLE_USE_USART2_PA2_PA3: not implemented.
+#if defined( _CONSOLE_USE_USART2_PA2PA3 )
+static void Init_USART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
+                                uint8_t stop_b ) {
+    // gpio setting
+    utils.enableGpioClock( GPIOA );
+    InitUartPins( GPIOA, 2, GPIOA, 3 );
+    // usart setting
+    utils.enableUartClock( USART2 );
+    InitUartSettings( USART2, baud_rate, len, parity, stop_b );
+
+    InitUartNvic( USART2_IRQn );
+
+    __HAL_UART_ENABLE( &hconsole_ );
+}
 #endif
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART2_PD5_PD6 )
-#error _CONSOLE_USE_USART2_PD5_PD6: not implemented.
-#endif
+#if defined( _CONSOLE_USE_USART2_PD5PD6 )
+// TODO
+// STM32F107VCT6 does not have USART2 on these pins
+static void Init_USART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
+                                uint8_t stop_b ) {
+    // gpio setting
+    utils.enableGpioClock( GPIOD );
+    InitUartPins( GPIOD, 5, GPIOD, 6 );
+    // usart setting
+    utils.enableUartClock( USART2 );
+    // do not forget those how to do this? do not delete
+    // RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
+    // PinRemapConfig( GPIO_Remap_USART2, ENABLE );
+    InitUartSettings( USART2, baud_rate, len, parity, stop_b );
+
+    InitUartNvic( USART2_IRQn );
+
+    __HAL_UART_ENABLE( &hconsole_ );
+
+    // should I do this?
+    // USART_ClearITPendingBit( USART2, USART_IT_TC );
+}
+#endif  // _CONSOLE_USE_USART2_PD5PD6
+
+// ---------------------------------------------------------------------------
+#if defined( _CONSOLE_USE_USART2_PA2PA3 ) \
+    || defined( _CONSOLE_USE_USART2_PD5PD6 )
+void USART2_IRQHandler( void ) {
+    // todo, cli must use it
+}
+#endif  // _CONSOLE_USE_USART2_PD5PD6
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART3 )
-#error _CONSOLE_USE_USART3: not implemented.
-#endif
+#if defined( _CONSOLE_USE_USART3_PB10PB11 )
+#error _CONSOLE_USE_USART3_PB10PB11: not implemented.
+#endif  // _CONSOLE_USE_USART3_PB10PB11
 
 // ============================================================================
 #if defined( _CONSOLE_USE_UART4 )
@@ -154,7 +199,7 @@ static void consoleWriteStr( char* ptr ) {
 #endif
 
 // ============================================================================
-#ifdef _CONSOLE_USE_UART5
+#ifdef _CONSOLE_USE_UART5_PC12PD2
 
 // ---------------------------------------------------------------------------
 // UART5 test on PC12 (TX) & PD2 (RX)
@@ -178,8 +223,7 @@ static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
 void UART5_IRQHandler( void ) {
     // todo, cli must use it
 }
-
-#endif  // _CONSOLE_USE_UART5
+#endif  // _CONSOLE_USE_UART5_PC12PD2
 
 // ============================================================================
 static char Seek_Signifier( char** str, char* sign_data, char* sign ) {
@@ -464,7 +508,7 @@ static void console_vs_Printf( char* sign_data, char* format, va_list ap ) {
                         printf_f( sign_data, va_arg( ap, double ) );
                     } break;
                     default: {
-                        consoleWriteStr( RED "\r\nprintf(" );
+                        consoleWriteStr( RED "\r\n printf(" );
                         consoleWriteStr( sign_data );
                         consoleWriteStr( ") not supported." NOC );
                     }
@@ -485,12 +529,12 @@ static void console_vs_Printf( char* sign_data, char* format, va_list ap ) {
 }
 
 // ============================================================================
-static void consolePrintf( char* template, ... ) {
-    if ( LOG_INFO <= console.level ) {
+static void consolePrintf( char* format, ... ) {
+    if ( LOG_INFO <= level_ ) {
         char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
         va_list ap;
-        va_start( ap, template );
-        console_vs_Printf( sign_data, template, ap );
+        va_start( ap, format );
+        console_vs_Printf( sign_data, format, ap );
         va_end( ap );
     }
 }
@@ -498,17 +542,19 @@ static void consolePrintf( char* template, ... ) {
 // ============================================================================
 static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
                            uint8_t stop_b ) {
-#if ( defined _CONSOLE_USE_USART1 )
-    Init_USART1_PA9_PA10( baud_rate, len, parity, stop_b );
-#elif ( defined _CONSOLE_USE_USART2_PA2_PA3 )
-    Init_USART2_PA2_PA3( baud_rate, len, parity, stop_b );
-#elif ( defined _CONSOLE_USE_USART2_PD5_PD6 )
-    Init_USART2_PD5_PD6( baud_rate, len, parity, stop_b );
-#elif ( defined _CONSOLE_USE_USART3 )
-    Init_USART3_PB10_PB11( baud_rate, len, parity, stop_b );
-#elif ( defined _CONSOLE_USE_UART4 )
+
+    level_ = LOG_INFO;
+#if defined( _CONSOLE_USE_USART1_PA9PA10 )
+    Init_USART1_PA9PA10( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_USART2_PA2PA3 )
+    Init_USART2_PA2PA3( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_USART2_PD5PD6 )
+    Init_USART2_PD5PD6( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
+    Init_USART3_PB10PB11( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART4 )
 #error console_USART_Config(): _CONSOLE_USE_UART4 not implemented!
-#elif ( defined _CONSOLE_USE_UART5 )
+#elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     InitUART5_PC12PD2( baud_rate, len, parity, stop_b );
 #else
 #error console_USART_Config(): not implemented!
@@ -540,18 +586,70 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
 }
 
 // ============================================================================
+static void consoleTxMode( ConsoleTx_t tx ) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    if ( tx == TX_PP ) {
+        GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    }
+    else if ( tx == TX_OD ) {
+        GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
+    }
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+#if defined( _CONSOLE_USE_USART1_PA9PA10 )
+    GPIO_InitStructure.Pin = GPIO_PIN_9;
+    HAL_GPIO_Init( GPIOA, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_USART2_PA2PA3 )
+    GPIO_InitStructure.Pin = GPIO_PIN_2;
+    HAL_GPIO_Init( GPIOA, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_USART2_PD5PD6 )
+    GPIO_InitStructure.Pin = GPIO_PIN_5;
+    HAL_GPIO_Init( GPIOD, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
+    GPIO_InitStructure.Pin = GPIO_PIN_10;
+    HAL_GPIO_Init( GPIOB, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_UART4 )
+#error console_TX_Mode(): _CONSOLE_USE_UART4 not implemented!
+#elif defined( _CONSOLE_USE_UART5_PC12PD2 )
+    GPIO_InitStructure.Pin = GPIO_PIN_12;
+    HAL_GPIO_Init( GPIOC, &GPIO_InitStructure );
+#else
+#error console_TX_Mode(): not implemented!
+#endif
+}
+
+// ============================================================================
+static void consoleEnableRxen( bool enable ) {
+#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
+    if ( enable ) {
+        __HAL_UART_ENABLE_IT( &hconsole_, UART_IT_RXNE );
+    }
+    else {
+        __HAL_UART_DISABLE_IT( &hconsole_, UART_IT_RXNE );
+    }
+#else
+    if ( enable ) {
+        __HAL_USART_ENABLE_IT( &hconsole_, UART_IT_RXNE );
+    }
+    else {
+        __HAL_USART_DISABLE_IT( &hconsole_, UART_IT_RXNE );
+    }
+#endif
+}
+
+// ============================================================================
 // clang-format off
 Console_t console = {
-    .level      = LOG_INFO,
-    .config     = consoleConfig,
-    // .txMode     = console_TX_Mode     ,
-    // .enableRxen = console_RXEN_Enable ,
-    .printf     = consolePrintf          ,
-    // .error      = console_error       ,
-    // .read       = console_vGetChar    ,
-    .writeByte  = consoleWriteByte       ,
-    .writeStr   = consoleWriteStr        ,
+    .config     = consoleConfig     ,
+    .setTxMode  = consoleTxMode     ,
+    .enableRxen = consoleEnableRxen ,
+    .printf     = consolePrintf     ,
+    .writeByte  = consoleWriteByte  ,
+    .writeStr   = consoleWriteStr   ,
+    // todo 
+    // .error   = console_error     ,
+    // .read    = console_vGetChar  ,
 
+    // cli related
     // .registerCmd = CLI_Register_Cmd   ,
     // .process     = CLI_Event_handler  ,
     // .show        = CLI_Cmd_Show       ,

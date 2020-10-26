@@ -79,5 +79,25 @@ Basic project to setup the system clock (not the SysTick) and Toggle a LED in a 
 
 #### `002-f107vct6-stime`
 
-Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually, since it is not a part of the library).
+Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library).
 
+#### `003-f107vct6-console-printf`
+
+Setup a UART/USART port as the console, and use the console to print data, just like use it as `printf()` in `stdio.h`.
+
+* The example code uses `UART5` on PC12 (TXD) and PD2 (RXD) as the console:
+
+  ```c
+  #define _CONSOLE_USE_UART5_PC12PD2
+  #include "core-console.h"
+  ```
+
+* Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 921600` to see its color effect.
+
+#### `004-f107vct6-stime-delay`
+
+This project demos the delay functions using the delay functions in `stime`, and print the time difference in the terminal.
+
+Notice that these delay functions would block the program.
+
+#### `005-f107vct6-stime-scheduler`

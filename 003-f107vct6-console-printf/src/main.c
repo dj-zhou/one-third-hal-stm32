@@ -15,12 +15,13 @@ int main( void ) {
                 ;
             }
         }
-        console.printf( "---------------------------------------------\r\n" );
+        console.printf(
+            "\r\n\r\n---------------------------------------------\r\n" );
         utils.togglePin( GPIOD, 4 );
 
         static int loop_count = 0;
-        console.printf( "%5d : hello world\r\n " NOC, loop_count++ );
-        console.printf( "%b\r\n", loop_count );
+        console.printf( YLW "%s\r\n " NOC, FIRMWARE );
+        console.printf( "%5d = %b\r\n", loop_count++, loop_count );
         float pi = 3.1415926;
         console.printf( GRN "pi = %f\r\n" NOC, pi );
         const char str[] = "this is a one-third demo program";

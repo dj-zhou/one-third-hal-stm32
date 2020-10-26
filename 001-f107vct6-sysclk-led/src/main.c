@@ -5,7 +5,7 @@
 int main( void ) {
     utils.initSystemClock();
     utils.initNvic( 4 );
-    utils.setPinMode( GPIOC, 6, GPIO_MODE_OUTPUT_PP );
+    utils.setPinMode( GPIOD, 4, GPIO_MODE_OUTPUT_PP );
 
     while ( 1 ) {
         // some delay ------------
@@ -14,6 +14,6 @@ int main( void ) {
                 ;
             }
         }
-        utils.togglePin( GPIOC, 6 );
+        utils.togglePin( GPIOD, 4 );
     }
 }

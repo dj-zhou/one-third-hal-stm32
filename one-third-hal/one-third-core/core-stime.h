@@ -64,7 +64,6 @@ typedef struct {
     uint32_t s;
     uint32_t us;
 } Stime_t;
-#endif  // STIME_IS_USED
 // ----------------------------------------------------------------------------
 #if defined( _STIME_USE_SCHEDULER )
 typedef void ( *TaskHandle )( void );
@@ -81,7 +80,8 @@ typedef struct TaskNode_s {
     TaskCell_t         _this;
     struct TaskNode_s* _next;
 } TaskNode_t;
-#endif
+#endif  // _STIME_USE_SCHEDULER
+#endif  // STIME_IS_USED
 
 // ============================================================================
 // component API
