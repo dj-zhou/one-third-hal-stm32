@@ -5,7 +5,7 @@ PROJ_NAME  = stm32f107-binary
 CODE_PATH  = .
 LIB_CODE   = ../one-third-hal
 CODE_PATH += $(LIB_CODE)/CMSIS
-CODE_PATH += $(LIB_CODE)/one-third-core
+CODE_PATH += $(LIB_CODE)/core
 CODE_PATH += $(LIB_CODE)/f1-share
 CODE_PATH += $(LIB_CODE)/f1-v1.8.2
 C_DEFS     = -DSTM32F107xC -DUSE_HAL_DRIVER
@@ -14,8 +14,8 @@ LIBS       = -lc -lm -lnosys
 OUTPATH    = bin
 OPT        = -Og
 CSTD       = -std=gnu99
-ASM_SRC    = $(LIB_CODE)/hal-startup/startup_stm32f107xc.s
-LD_SCRIPT  = $(LIB_CODE)/hal-lds/stm32f1xx_flash_cl.ld
+ASM_SRC    = $(LIB_CODE)/startups/startup_stm32f107xc.s
+LD_SCRIPT  = $(LIB_CODE)/lds/stm32f1xx_flash_cl.ld
 
 # =============================================================================
 ifeq ($(STM32Fx), STM32F1)

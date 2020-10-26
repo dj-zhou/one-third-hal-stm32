@@ -199,7 +199,7 @@ void USART2_IRQHandler( void ) {
 #endif
 
 // ============================================================================
-#ifdef _CONSOLE_USE_UART5_PC12PD2
+#if defined( _CONSOLE_USE_UART5_PC12PD2 )
 
 // ---------------------------------------------------------------------------
 // UART5 test on PC12 (TX) & PD2 (RX)
@@ -540,6 +540,25 @@ static void consolePrintf( char* format, ... ) {
 }
 
 // ============================================================================
+static void consoleError( char* format, ... ) {
+    if ( LOG_INFO <= level_ ) {
+        char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
+        va_list ap;
+        va_start( ap, format );
+        while ( 1 ) {
+            console_vs_Printf( sign_data, format, ap );
+            // just some delay
+            for ( int i = 0; i < 3000; i++ ) {
+                for ( int j = 0; j < 3000; j++ ) {
+                    ;
+                }
+            }
+        }
+        va_end( ap );
+    }
+}
+
+// ============================================================================
 static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
                            uint8_t stop_b ) {
 
@@ -645,8 +664,8 @@ Console_t console = {
     .printf     = consolePrintf     ,
     .writeByte  = consoleWriteByte  ,
     .writeStr   = consoleWriteStr   ,
+    .error      = consoleError     ,
     // todo 
-    // .error   = console_error     ,
     // .read    = console_vGetChar  ,
 
     // cli related

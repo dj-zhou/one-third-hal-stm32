@@ -69,11 +69,11 @@ typedef struct {
 typedef void ( *TaskHandle )( void );
 
 typedef struct TaskCell_s {
-    uint8_t     run;    // 1: need to run, 0: do not need to run
-    uint16_t    time;   // count down time, when 0, set run = 1
-    uint16_t    ticks;  // total tick number for a loop
-    char        name[_STIME_TASK_NAME_LEN];
-    Task_Handle handle;
+    uint8_t    run;    // 1: need to run, 0: do not need to run
+    uint16_t   time;   // count down time, when 0, set run = 1
+    uint16_t   ticks;  // total tick number for a loop
+    char       name[_STIME_TASK_NAME_LEN];
+    TaskHandle handle;
 } TaskCell_t;
 
 typedef struct TaskNode_s {
@@ -92,7 +92,7 @@ typedef struct {
     Stime_t ( *getTime )( void )    ;
     void    ( *delayUs )( uint32_t );
     void    ( *delayMs )( uint32_t );
-#ifdef _STIME_USE_SCHEDULER
+#if defined( _STIME_USE_SCHEDULER )
     void ( *scheduler )( void )                                         ;
     void ( *registerTask )( uint32_t, uint32_t, TaskHandle, const char*);
     void ( *process )( void )                                           ;

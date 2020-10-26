@@ -73,7 +73,7 @@ typedef struct {
     void ( *setPinPull )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )  ;
     void ( *setPin )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )          ;
     void ( *togglePin )( GPIO_TypeDef* GPIOx, uint8_t pin_n )               ;
-#ifdef RTOS_IS_USED
+#if defined( RTOS_IS_USED )
     void        ( *setRtosState )( RtosState_t state );
     RtosState_t ( *getRtosState )( void );
 #endif

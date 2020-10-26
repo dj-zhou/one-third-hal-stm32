@@ -23,11 +23,11 @@ The library is in directory `one-third-hal`, its structure is as following:
 ```text
 .
 ├── CMSIS
+├── core
 ├── f1-share
 ├── f1-v1.8.2
-├── hal-lds
-├── hal-startup
-└── one-third-core
+├── lds
+└── startups
 ```
 
 * **CMSIS**: is the core library files of ARM
@@ -53,23 +53,37 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 * **one-third-core**: the core components of this middle layer of library, the details are in the following sub section
 
-#### one-third-core
+#### core
 
 ##### `core-utils`
 
-* `initSystemClock()`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
-* `initNvic()`: setup the interrupt group priority.
-* `enableGpioClock()`: To enable the clock of a GPIO group. This function is used by other modules.
-* `enableTimerClock()`: To enable the clock of a Timer. This function is used by other modules.
-* `enableUartClock()`: To enable the clock of a UART/USART group. This function is used by other modules.
-* `setPinMode()`: to set the GPIO mode.
-* `setPinPull()`: to enable internal pull up or pull down resister of a GPIO pin. 
-* `setPin()`: to set a pin as HIGH (true) or LOW (false).
-* `togglePin()`: to toggle a Output GPIO Pin.
+* `initSystemClock( void )`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
+* `initNvic( uint8_t group )`: setup the interrupt group priority.
+* `enableGpioClock( GPIO_TypeDef* GPIOx )`: To enable the clock of a GPIO group. This function is used by other modules.
+* `enableTimerClock( TIM_TypeDef* TIMx )`: To enable the clock of a Timer. This function is used by other modules.
+* `enableUartClock( USART_TypeDef* USARTx )`: To enable the clock of a UART/USART group. This function is used by other modules.
+* `setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io )`: to set the GPIO mode.
+* `setPinPull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )`: to enable internal pull up or pull down resister of a GPIO pin. 
+* `setPin( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )`: to set a pin as HIGH (true) or LOW (false).
+* `togglePin( GPIO_TypeDef* GPIOx, uint8_t pin_n )`: to toggle an output GPIO Pin.
+* It defines some common used marcos as well.
+
+If some RTOS is used as with this library, two more functions are used to deal with the status of the RTOS:
+
+* `setRtosState( RtosState_t state )`
+* `RtosState_t getRtosState( void )`.
 
 ##### `core-stime`
 
-System time of this `one-third-core`. The default timer for this system time is SysTick. It is used as the reference clock for other modules, for example, the task scheduler submodule of `stime`.
+System time of this `core` . The default timer for this system time is `SysTick`. It is used as the reference clock for other modules, for example, the task scheduler submodule of `stime`.
+
+##### `core-console`
+
+We use console to interact with the micro-controller to check its status, for example, firmware information, includes git commit hash value, branch name, tag name, etc.
+
+* If no CLI (command line interface) is not used, the `console` only output information by calling `console.printf()` function, which is quite similar to `printf()` function in `stdio.h`.
+* The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, to connect to the micro-controller.
+* CLI: todo
 
 ### Example Projects
 
@@ -79,13 +93,21 @@ Basic project to setup the system clock (not the SysTick) and Toggle a LED in a 
 
 #### `002-f107vct6-stime`
 
-Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library).
+Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library). Configure the module `stime` in `config.h` as:
+
+```c
+#define _STIME_USE_SYSTICK
+#define _STIME_2K_TICK
+#include "core-stime.h"
+```
+
+
 
 #### `003-f107vct6-console-printf`
 
 Setup a UART/USART port as the console, and use the console to print data, just like use it as `printf()` in `stdio.h`.
 
-* The example code uses `UART5` on PC12 (TXD) and PD2 (RXD) as the console:
+* The example code uses `UART5` on PC12 (TXD) and PD2 (RXD) as the console, configure it in `config.h` as:
 
   ```c
   #define _CONSOLE_USE_UART5_PC12PD2
@@ -101,3 +123,10 @@ This project demos the delay functions using the delay functions in `stime`, and
 Notice that these delay functions would block the program.
 
 #### `005-f107vct6-stime-scheduler`
+
+This project uses the module `stime ` as a task scheduler. To enable it, just add:
+
+```c
+#define _STIME_USE_SCHEDULER
+```
+
