@@ -1,5 +1,5 @@
-#ifndef __CORE_STIME_H
-#define __CORE_STIME_H
+#ifndef __STIME_SCHEDULER_H
+#define __STIME_SCHEDULER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -108,4 +108,4 @@ extern StimeApi_t stime;
 }
 #endif
 
-#endif  // __CORE_STIME_H
+#endif  // __STIME_SCHEDULER_H

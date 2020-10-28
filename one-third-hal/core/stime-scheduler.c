@@ -1,4 +1,4 @@
-#include "core-stime.h"
+#include "stime-scheduler.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -139,7 +139,7 @@ static uint32_t IntervalToTicks( uint32_t interval_ms ) {
         ticks = 3;
     }
     else {
-        ticks = interval_ms * 4;
+        ticks = interval_ms << 2;
     }
 #endif
 
@@ -148,7 +148,7 @@ static uint32_t IntervalToTicks( uint32_t interval_ms ) {
         ticks = 1;
     }
     else {
-        ticks = interval_ms * 2;
+        ticks = interval_ms << 1;
     }
 #endif
 
@@ -220,7 +220,8 @@ static void SchedulerProcess( void ) {
 
 // ----------------------------------------------------------------------------
 static void SchedulerShowTasks( void ) {
-    console.printf( "\r\n----------------------------------------------\r\n" );
+    console.printf(
+        GRN "\r\n----------------------------------------------\r\n" NOC );
     console.printf( " System Time Task Scheduler (" );
 #if ( defined _STIME_4K_TICK )
     console.printf( "4K Hz tick)" );
@@ -236,12 +237,12 @@ static void SchedulerShowTasks( void ) {
     console.printf( "200 Hz tick)" );
 #endif
     console.printf( "\r\n %d tasks registered:\r\n", task_num_ );
-    console.printf( "  #  |   ticks  | task name\r\n" );
     for ( uint8_t i = 0; i < task_num_; i++ ) {
-        console.printf( " %2d  |  %5d   | %s\r\n", i, node_[i]._this.ticks,
+        console.printf( " %2d (%d): %s\r\n", i, node_[i]._this.ticks,
                         node_[i]._this.name );
     }
-    console.printf( "----------------------------------------------\r\n" );
+    console.printf( GRN
+                    "----------------------------------------------\r\n" NOC );
 }
 #endif  // _STIME_USE_SCHEDULER
 

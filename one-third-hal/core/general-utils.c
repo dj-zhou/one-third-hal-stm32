@@ -1,4 +1,4 @@
-#include "core-utils.h"
+#include "general-utils.h"
 
 // ============================================================================
 #if defined( RTOS_IS_USED )

@@ -1,5 +1,5 @@
-#ifndef __CORE_CONSOLE_H
-#define __CORE_CONSOLE_H
+#ifndef __UART_CONSOLE_H
+#define __UART_CONSOLE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,6 +31,15 @@ extern "C" {
  || defined( _CONSOLE_USE_UART5_PC12PD2 )
     #define CONSOLE_IS_USED
 #endif
+
+#if !defined( _CONSOLE_SIGN_DATA_SIZE )
+    #define _CONSOLE_SIGN_DATA_SIZE     ( 50 ) // > 20
+#endif
+
+#if !defined( _CONSOLE_BUFF_LEN )
+    #define _CONSOLE_BUFF_LEN           ( 100 )
+#endif
+
 // clang-format on
 
 // ============================================================================
@@ -93,18 +102,20 @@ typedef enum {
 // ============================================================================
 // clang-format off
 typedef struct {
-    void   ( *config )( uint32_t, uint8_t, char, uint8_t );
-    void   ( *setTxMode )( ConsoleTx_t )                  ;
-    void   ( *enableRxen )( bool )                        ;
-    void   ( *printf )( char* format, ... )               ;
-    void   ( *writeByte )( char )                         ;
-    void   ( *writeStr )( char* )                         ;
-    void   ( *error )( char* format, ... )                ;
-    char   ( *read )( uint16_t )                          ;
+    SyslogLevel_t level                                         ;
+    void   ( *config )( uint32_t, uint8_t, char, uint8_t )      ;
+    void   ( *setTxMode )( ConsoleTx_t )                        ;
+    void   ( *enableRxen )( bool )                              ;
+    void   ( *printk )( SyslogLevel_t level, char* format, ... );
+    void   ( *printf )( char* format, ... )                     ;
+    void   ( *writeByte )( char )                               ;
+    void   ( *writeStr )( char* )                               ;
+    void   ( *error )( char* format, ... )                      ;
+    char   ( *read )( uint16_t )                                ;
+    void   ( *setLevel ) (SyslogLevel_t l)                      ;
     // command line interface
-    uint16_t*         ( *registerCmd )( char* str, CliHandle p ) ;
-    void              ( *process )( void )                       ;
-    HAL_StatusTypeDef ( *show )( void )                          ;
+    uint16_t*         ( *cliRegister )( char* str, CliHandle p );
+    void              ( *cliProcess )( void )                   ;
 } Console_t;
 extern Console_t console;
 // clang-format on
@@ -116,4 +127,4 @@ extern Console_t console;
 }
 #endif
 
-#endif  // __CORE_CONSOLE_H
+#endif  // __UART_CONSOLE_H

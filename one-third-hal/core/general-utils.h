@@ -1,5 +1,5 @@
-#ifndef __CORE_UTILS_H
-#define __CORE_UTILS_H
+#ifndef __GENERAL_UTILS_H
+#define __GENERAL_UTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,7 +87,7 @@ extern CoreUtilsApi_t utils;
 }
 #endif
 
-#endif  // __CORE_UTILS_H
+#endif  // __GENERAL_UTILS_H
 
 // ============================================================================
 // supported system clock

@@ -55,7 +55,7 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 #### core
 
-##### `core-utils`
+##### `general-utils`
 
 * `initSystemClock( void )`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
 * `initNvic( uint8_t group )`: setup the interrupt group priority.
@@ -73,11 +73,11 @@ If some RTOS is used as with this library, two more functions are used to deal w
 * `setRtosState( RtosState_t state )`
 * `RtosState_t getRtosState( void )`.
 
-##### `core-stime`
+##### `stime-scheduler`
 
 System time of this `core` . The default timer for this system time is `SysTick`. It is used as the reference clock for other modules, for example, the task scheduler submodule of `stime`.
 
-##### `core-console`
+##### `uart-console`
 
 We use console to interact with the micro-controller to check its status, for example, firmware information, includes git commit hash value, branch name, tag name, etc.
 
@@ -98,7 +98,7 @@ Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in 
 ```c
 #define _STIME_USE_SYSTICK
 #define _STIME_2K_TICK
-#include "core-stime.h"
+#include "stime-scheduler.h"
 ```
 
 
@@ -111,7 +111,7 @@ Setup a UART/USART port as the console, and use the console to print data, just 
 
   ```c
   #define _CONSOLE_USE_UART5_PC12PD2
-  #include "core-console.h"
+  #include "uart-console.h"
   ```
 
 * Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 921600` to see its color effect.

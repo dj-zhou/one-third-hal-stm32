@@ -10,16 +10,16 @@ extern "C" {
 // ============================================================================
 // ----------------------------------------------------------------------------
 // one-third-core includes
-#include "core-utils.h"
+#include "general-utils.h"
 
 // ----------------------------------------------------------------------------
 #define _STIME_USE_SYSTICK
 #define _STIME_2K_TICK
-#include "core-stime.h"
+#include "stime-scheduler.h"
 
 // ----------------------------------------------------------------------------
 #define _CONSOLE_USE_UART5_PC12PD2
-#include "core-console.h"
+#include "uart-console.h"
 
 // ============================================================================
 #ifdef __cplusplus
