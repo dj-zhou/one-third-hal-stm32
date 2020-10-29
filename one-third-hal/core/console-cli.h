@@ -12,6 +12,10 @@ extern "C" {
     #define _CLI_CMD_MAX_LEN            ( 30 )
 #endif
 
+#if !defined( _CLI_CMD_MAX_NUM )
+    #define _CLI_CMD_MAX_NUM            ( 20 )
+#endif
+
 #if !defined( _CLI_HISTORY_CMD_NUM )
     #define _CLI_HISTORY_CMD_NUM        ( 5 )
 #endif
@@ -45,10 +49,9 @@ typedef struct {
 
 // ============================================================================
 // this file is only used by the module uart-console
-
-void CliOutputStr( char* str );
 void CliDeInit( void );
 void CliInput( char read_char );
+void CliTabCompletion( void );
 void CliBackspace( void );
 void CliDirection( char read_char );
 void CliProcessCmd( char* str );
@@ -56,9 +59,10 @@ void CliProcessCmd( char* str );
 // ============================================================================
 // default CLI commands registered
 HAL_StatusTypeDef CliShowCmd( void );
-void              CliReset( void );
+HAL_StatusTypeDef CliReset( void );
 HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv );
-void              CliCheckFirmware( void );
+HAL_StatusTypeDef CliCheckFirmware( void );
+HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
 
 // ============================================================================
 #ifdef __cplusplus

@@ -3,20 +3,7 @@
 #include <string.h>
 
 Cli_t        cli_;
-CliCmdList_t cmd_list_[100];
-
-// ============================================================================
-static void CliOutputChar( char ch ) {
-    console.writeByte( ch );
-}
-
-// ============================================================================
-// this function output message through uart port despite of the syslog level.
-void CliOutputStr( char* str ) {
-    while ( *str ) {
-        CliOutputChar( *str++ );
-    }
-}
+CliCmdList_t cmd_list_[_CLI_CMD_MAX_NUM];
 
 // ============================================================================
 void CliDeInit() {
@@ -39,8 +26,8 @@ static char* CliGetParam( char* str, uint8_t num ) {
         if ( *dst == '[' ) {
             dst = strchr( dst, ']' ) + 1;
             if ( dst == NULL ) {
-                CliOutputStr( cli_.out_message );
-                CliOutputStr( "instruction standard error!" );
+                console.writeStr( cli_.out_message );
+                console.writeStr( "instruction standard error!" );
                 return NULL;
             }
         }
@@ -120,11 +107,11 @@ static void CliReadCmdHistory( uint8_t way ) {
 
     if ( cli_.history_cmd.cmd_buff[cli_.history_cmd.w_index][0] != 0 ) {
         for ( int i = strlen( cli_.cmd_buff_cursor ); i > 0; i-- ) {
-            CliOutputChar( ' ' );
+            console.writeByte( ' ' );
         }
 
         for ( int i = strlen( cli_.cmd_buff ); i > 0; i-- ) {
-            CliOutputStr( "\b \b" );
+            console.writeStr( "\b \b" );
         }
 
         strcpy( cli_.cmd_buff,
@@ -133,7 +120,7 @@ static void CliReadCmdHistory( uint8_t way ) {
             cli_.cmd_buff
             + strlen( &cli_.history_cmd.cmd_buff[cli_.history_cmd.w_index][0] );
         cli_.cmd_buff_tail = cli_.cmd_buff_cursor;
-        CliOutputStr( cli_.cmd_buff );
+        console.writeStr( cli_.cmd_buff );
 
         if ( cli_.history_cmd.w_index-- == 0 ) {
             cli_.history_cmd.w_index = _CLI_HISTORY_CMD_NUM - 1;
@@ -154,14 +141,20 @@ void CliInput( char read_char ) {
         strcpy( str, cli_.cmd_buff_cursor );
         memcpy( ( cli_.cmd_buff_cursor + 1 ), str, strlen( str ) + 1 );
         *cli_.cmd_buff_cursor = read_char;
-        CliOutputChar( read_char );
-        CliOutputStr( str );
+        console.writeByte( read_char );
+        console.writeStr( str );
         for ( uint16_t i = strlen( str ); i > 0; i-- ) {
-            CliOutputChar( '\b' );
+            console.writeByte( '\b' );
         }
         cli_.cmd_buff_cursor++;
         cli_.cmd_buff_tail++;
     }
+}
+
+// ============================================================================
+void CliTabCompletion( void ) {
+    console.writeStr( cli_.out_message );
+    console.printf( "%s(): todo\r\n", __func__ );
 }
 
 // ============================================================================
@@ -171,7 +164,7 @@ void CliBackspace( void ) {
     if ( cli_.cmd_buff_cursor != cli_.cmd_buff ) {
         do {
             if ( cli_.cmd_buff_cursor == cli_.cmd_buff ) {
-                CliOutputStr( " " );
+                console.writeStr( " " );
                 cli_.cmd_buff_cursor++;
             }
             strcpy( str, cli_.cmd_buff_cursor );
@@ -179,12 +172,12 @@ void CliBackspace( void ) {
             cli_.cmd_buff_tail--;
             memcpy( ( cli_.cmd_buff_cursor ), str, strlen( str ) + 1 );
 
-            CliOutputStr( "\b \b" );
-            CliOutputStr( str );
-            CliOutputStr( " \b" );
+            console.writeStr( "\b \b" );
+            console.writeStr( str );
+            console.writeStr( " \b" );
 
             for ( uint16_t i = strlen( str ); i > 0; i-- ) {
-                CliOutputChar( '\b' );
+                console.writeByte( '\b' );
             }
         } while ( ( cli_.cmd_buff_cursor == cli_.cmd_buff )
                   && ( *cli_.cmd_buff_cursor == ' ' ) );
@@ -202,17 +195,17 @@ void CliDirection( char read_char ) {
         break;
     case 'C':  // right direciton key
         if ( *cli_.cmd_buff_cursor != '\0' ) {
-            CliOutputChar( 0x1b );
-            CliOutputChar( 0x5b );
-            CliOutputChar( 'C' );
+            console.writeByte( 0x1b );
+            console.writeByte( 0x5b );
+            console.writeByte( 'C' );
             cli_.cmd_buff_cursor++;
         }
         break;
     case 'D':  // left direciton key
         if ( cli_.cmd_buff_cursor != cli_.cmd_buff ) {
-            CliOutputChar( 0x1b );
-            CliOutputChar( 0x5b );
-            CliOutputChar( 'D' );
+            console.writeByte( 0x1b );
+            console.writeByte( 0x5b );
+            console.writeByte( 'D' );
             cli_.cmd_buff_cursor--;
         }
         break;
@@ -299,18 +292,19 @@ static CliCmdList_t* CliSeekCmd( char* str ) {
 // ============================================================================
 void CliProcessCmd( char* str ) {
     HAL_StatusTypeDef ret = HAL_OK;
-    CliCmdList_t*     cmd_list;
+    CliCmdList_t*     cmd;
     char*             parameter[10] = { NULL, NULL, NULL, NULL, NULL,
                             NULL, NULL, NULL, NULL, NULL };
-    char**            prt           = parameter;
+
+    char** ptr = parameter;
 
     CliWriteCmdHistory( str );
-    CliFormatCmd( str, prt );
-    cmd_list = CliSeekCmd( str );
+    CliFormatCmd( str, ptr );
+    cmd = CliSeekCmd( str );
 
-    if ( cmd_list != NULL ) {
-        while ( cmd_list != NULL ) {
-            ret = cmd_list->p( cli_.argc, cli_.argv );
+    if ( cmd != NULL ) {
+        while ( cmd != NULL ) {
+            ret = cmd->p( cli_.argc, cli_.argv );
             if ( strstr( str, "-t" ) == NULL ) {
                 break;
             }
@@ -319,33 +313,39 @@ void CliProcessCmd( char* str ) {
             }
         }
         if ( HAL_OK != ret ) {
-            CliOutputStr( cli_.out_message );
-            CliOutputStr( "\033[0;31mcommand execution failed!\033[0m\r\n" );
+            console.writeStr( cli_.out_message );
+            console.writeStr(
+                "\033[0;31mcommand execution failed!\033[0m\r\n" );
         }
     }
     else {
-        CliOutputStr( cli_.out_message );
-        CliOutputStr( "\033[0;31mcommand not recognized!\033[0m "
-                      "try \033[0;32mhelp\033[0m.\r\n" );
+        console.writeStr( cli_.out_message );
+        console.writeStr( "\033[0;31mcommand not recognized!\033[0m "
+                          "try \033[0;32mhelp\033[0m.\r\n" );
     }
 }
 
 // ============================================================================
 HAL_StatusTypeDef CliShowCmd( void ) {
-    uint8_t num = 0;
-    CliOutputStr( "\r\n----------------------------------------------\r\n" );
-    CliOutputStr( "console registered commands:" );
-    do {
-        CliOutputStr( "\r\n    " );
-        CliOutputStr( cmd_list_[num].str );
-    } while ( cmd_list_[++num].str );
-    CliOutputStr( "\r\n----------------------------------------------\r\n" );
+
+    console.writeStr( "\r\n" );
+    CONSOLE_PRINTF_SEG;
+    console.writeStr( "console registered commands:" );
+    for ( uint8_t i = 0; i < _CLI_CMD_MAX_NUM; i++ ) {
+        if ( cmd_list_[i].str ) {
+            console.writeStr( "\r\n  " );
+            console.writeStr( cmd_list_[i].str );
+        }
+    }
+    console.writeStr( "\r\n" );
+    CONSOLE_PRINTF_SEG;
     return HAL_OK;
 }
 
 // ============================================================================
-void CliReset( void ) {
+HAL_StatusTypeDef CliReset( void ) {
     NVIC_SystemReset();
+    return HAL_OK;
 }
 
 // ============================================================================
@@ -353,7 +353,7 @@ HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv ) {
     if ( argc <= 1 ) {
         return HAL_ERROR;
     }
-    if ( !strcmp( argv[1], "view" ) ) {
+    if ( strcmp( argv[1], "view" ) == 0 ) {
         console.printk( LOG_INFO, "\r\n LOG_INFO" );
         console.printk( LOG_WARNING, "\r\n LOG_WARNING" );
         console.printk( LOG_CRIT, "\r\n LOG_CRIT" );
@@ -373,7 +373,7 @@ HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv ) {
         console.printk( 0, "\r\n syslog level set to %d", console.level );
     }
     else {
-        SyslogLevel_t level = atoi( argv[1] );
+        SyslogLevel_e level = atoi( argv[1] );
         if ( level <= LOG_INFO ) {
             console.setLevel( level );
             console.printk( 0, "\r\n syslog level set to %d", level );
@@ -386,16 +386,16 @@ HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv ) {
 }
 
 // ============================================================================
-void CliCheckFirmware( void ) {
-    console.printk( 0, "\r\n\r\n" YLW
-                       "+-----------------------------------------------"
-                       "---------------------+\r\n" NOC );
+HAL_StatusTypeDef CliCheckFirmware( void ) {
+
+    console.writeStr( "\r\n" );
+    CONSOLE_PRINTF_SEG;
     char* ptr;
     ( void )ptr;
 #ifdef FIRMWARE
     console.printk( 0, " firmware   :" WHT " %s\r\n" NOC, FIRMWARE );
 #endif
-#if ( defined PRJ_GIT_VER ) && ( defined PRJ_GIT_CMT )
+#if defined( PRJ_GIT_VER ) && defined( PRJ_GIT_CMT )
     ptr = ( char* )&PRJ_GIT_VER + strlen( PRJ_GIT_VER ) - 5;
     if ( strcmp( ptr, "dirty" ) == 0 ) {
         console.printk( 0, " version    :" RED " %s" NOC " (%s)\r\n",
@@ -410,7 +410,7 @@ void CliCheckFirmware( void ) {
 #ifdef PRJ_GIT_BRH
     console.printk( 0, " branch     :" WHT " %s\r\n" NOC, PRJ_GIT_BRH );
 #endif
-#if ( defined LIB_GIT_VER ) && ( defined LIB_GIT_CMT )
+#if defined( LIB_GIT_VER ) && defined( LIB_GIT_CMT )
     ptr = ( char* )&LIB_GIT_VER + strlen( LIB_GIT_VER ) - 5;
     if ( strcmp( ptr, "dirty" ) == 0 ) {
         console.printk( 0, " lib version:" RED " %s" NOC " (%s)\r\n",
@@ -430,6 +430,25 @@ void CliCheckFirmware( void ) {
     console.printk( 0, " make time  :" WHT " %s, %s\r\n" NOC, __TIME__,
                     __DATE__ );
 
-    console.printk( 0, YLW "+-----------------------------------------------"
-                           "---------------------+\r\n" NOC );
+    CONSOLE_PRINTF_SEG;
+    return HAL_OK;
+}
+
+// ============================================================================
+HAL_StatusTypeDef CliShowScheduler( int argc, char** argv ) {
+    if ( argc <= 1 ) {
+        return HAL_ERROR;
+    }
+    if ( strcmp( argv[1], "view" ) == 0 ) {
+        console.printk( 0, "\r\n" );
+#if defined( _STIME_USE_SCHEDULER )
+        stime.showTasks();
+#endif
+    }
+    else {
+        console.printk( 0, "\r\n" );
+        console.printk( 0, "argument not recognized.\r\n" );
+        return HAL_ERROR;
+    }
+    return HAL_OK;
 }

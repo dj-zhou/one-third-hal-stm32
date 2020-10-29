@@ -259,7 +259,7 @@ void UART5_IRQHandler( void ) {
 extern void ConsolePrintf( char* sign_data, char* format, va_list ap );
 
 // ============================================================================
-static void one_third_printk( SyslogLevel_t level, char* format, ... ) {
+static void one_third_printk( SyslogLevel_e level, char* format, ... ) {
     if ( level <= console.level ) {
         char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
         va_list ap;
@@ -316,7 +316,7 @@ static char consoleGetChar( uint16_t time ) {
 }
 
 // ============================================================================
-static void consoleSetLevel( SyslogLevel_t l ) {
+static void consoleSetLevel( SyslogLevel_e l ) {
     console.level = l;
 }
 
@@ -361,12 +361,18 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len ) {
 }
 
 // ============================================================================
-static uint16_t* CliRegisterCmd( char* str, CliHandle p ) {
-    static uint16_t num = 0;
-    cmd_list_[num].str  = str;
-    cmd_list_[num].p    = p;
-    num++;
-    return &num;
+static uint8_t cli_cmd_num_ = 0;
+static void    CliRegisterCmd( char* str, CliHandle p ) {
+    if ( cli_cmd_num_ < _CLI_CMD_MAX_NUM - 1 ) {
+        cmd_list_[cli_cmd_num_].str = str;
+        cmd_list_[cli_cmd_num_].p   = p;
+        cli_cmd_num_++;
+    }
+    else {
+        console.error(
+            "Too many cli commands were registered. \r\nYou can "
+            "increase it by defining _CLI_CMD_MAX_NUM in config.h\r\n" );
+    }
 }
 
 // ============================================================================
@@ -399,17 +405,18 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     cli_.out_message = "\r\n" CYN "1/3" NOC ": ";
     CliDeInit();
 
-    // // register some default commands -------------
+    // register some default commands -------------
     CliRegisterCmd( "help", ( CliHandle )CliShowCmd );
     CliRegisterCmd( "reset", ( CliHandle )CliReset );
     CliRegisterCmd( "log &level", ( CliHandle )CliSyslogSetLevel );
     CliRegisterCmd( "firmware", ( CliHandle )CliCheckFirmware );
+    CliRegisterCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
 
     console.enableRxen( true );
 }
 
 // ============================================================================
-static void consoleTxMode( ConsoleTx_t tx ) {
+static void consoleTxMode( ConsoleTx_e tx ) {
     GPIO_InitTypeDef GPIO_InitStructure;
     if ( tx == TX_PP ) {
         GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
@@ -460,6 +467,23 @@ static void consoleEnableRxen( bool enable ) {
 }
 
 // ============================================================================
+// some values:
+// \n: 0d10
+// \r: 0d13
+// keys:
+// ENTER    : 0d13 (0x0D)
+// ESC      : 0d27 (0x1B)
+// Tab      : 0d09 (0x09)
+// backspace: 0d127 (0x7F)
+// space    : 0d32 (0x20)
+
+// 0x1B then 0x5B:
+// up arrow: 0d27, then 0d91 (0x1B, then 0x5B)
+// down arrow: 0d27, then 0d91 (0x1B, then 0x5B), why it is the same as up
+//             arrow?
+// left/right arrows: the same
+// home, end, page up, page down, delete
+
 static void CliEentHandle( void ) {
     char           read_char;
     static uint8_t label = 0;
@@ -469,7 +493,7 @@ static void CliEentHandle( void ) {
             label = 0;
             if ( ( cli_.cmd_buff == cli_.cmd_buff_tail )
                  || ( cli_.cmd_buff[0] == ' ' ) ) {
-                CliOutputStr( cli_.out_message );
+                ;  // just do nothing
             }
             else {
                 if ( *( --cli_.cmd_buff_tail ) == ' ' ) {
@@ -477,17 +501,21 @@ static void CliEentHandle( void ) {
                 }
                 CliProcessCmd( cli_.cmd_buff );
                 CliDeInit();
-                CliOutputStr( cli_.out_message );
             }
+            console.writeStr( cli_.out_message );
         }
         else {
-            if ( ( read_char >= '\b' ) && ( read_char < ' ' ) ) {
+            if ( read_char == 0x09 ) {
+                CliTabCompletion();
+            }
+            // 0x7F is the key value of backspace on Linux
+            else if ( read_char == 0x7F ) {
+                CliBackspace();
+            }
+            else if ( ( read_char >= '\b' ) && ( read_char < ' ' ) ) {
                 label = 0;
-                if ( read_char == '\b' ) {
-                    CliBackspace();
-                }
-                else if ( read_char == 0x1b
-                          && console.read( 0xffff ) == 0x5b ) {
+
+                if ( read_char == 0x1b && console.read( 0xffff ) == 0x5b ) {
                     CliDirection( console.read( 0xffff ) );
                 }
             }

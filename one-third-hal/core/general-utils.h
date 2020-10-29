@@ -57,7 +57,7 @@ extern "C" {
 typedef enum {
     FREERTOS_NOSTART = ( ( uint8_t )1 ),
     FREERTOS_STARTED = ( ( uint8_t )2 ),
-} RtosState_t;
+} RtosState_e;
 #endif
 
 // ============================================================================
@@ -74,8 +74,8 @@ typedef struct {
     void ( *setPin )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )          ;
     void ( *togglePin )( GPIO_TypeDef* GPIOx, uint8_t pin_n )               ;
 #if defined( RTOS_IS_USED )
-    void        ( *setRtosState )( RtosState_t state );
-    RtosState_t ( *getRtosState )( void );
+    void        ( *setRtosState )( RtosState_e state );
+    RtosState_e ( *getRtosState )( void );
 #endif
 } CoreUtilsApi_t;
 

@@ -1,8 +1,9 @@
 
 #include "config.h"
 // =============================================================================
-void taskHeartBeat( void ) {
-    utils.togglePin( GPIOD, 4 );
+void taskPrint( void ) {
+    static int32_t loop = 0;
+    console.printf( "%5d: hello %s\r\n", loop++, FIRMWARE );
 }
 
 // ============================================================================
@@ -13,9 +14,11 @@ int main( void ) {
     stime.config();
     stime.scheduler();
     console.config( 921600, 8, 'n', 1 );
+    console.printf( "\r\n\r\n" );
+    led.config( LED_DOUBLE_BLINK );
 
-    stime.registerTask( 200, 2, taskHeartBeat, "taskHeartBeat" );
-    // also try _1_TICK, _2_TICK and _3_TICK
+    // tasks -----------
+    stime.registerTask( 1000, 2, taskPrint, "taskPrint" );
     stime.showTasks();
 
     while ( 1 ) {

@@ -3,7 +3,7 @@
 STM32Fx    = STM32F1
 PROJ_NAME  = stm32f107-binary
 CODE_PATH  = .
-LIB_CODE   = ../one-third-hal
+LIB_CODE   = ../../one-third-hal
 CODE_PATH += $(LIB_CODE)/CMSIS
 CODE_PATH += $(LIB_CODE)/core
 CODE_PATH += $(LIB_CODE)/f1-share
@@ -106,7 +106,6 @@ $(OUTPATH):
 
 download:
 	st-flash write $(OUTPATH)/$(PROJ_NAME).bin 0x8000000
-	st-flash reset
 
 clean:
 	rm -f *.o

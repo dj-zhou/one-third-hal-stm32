@@ -2,7 +2,7 @@
 
 // ============================================================================
 #if defined( RTOS_IS_USED )
-static RtosState_t rtos_state_;
+static RtosState_e rtos_state_;
 #endif
 
 // ============================================================================
@@ -240,12 +240,12 @@ static void togglePin( GPIO_TypeDef* GPIOx, uint8_t pin_n ) {
 // ============================================================================
 #if defined( RTOS_IS_USED )
 // ----------------------------------------------------------------------------
-static void setRtosState( RtosState_t state ) {
+static void setRtosState( RtosState_e state ) {
     rtos_state_ = state;
 }
 
 // ----------------------------------------------------------------------------
-static RtosState_t getRtosState( void ) {
+static RtosState_e getRtosState( void ) {
     return rtos_state_;
 }
 

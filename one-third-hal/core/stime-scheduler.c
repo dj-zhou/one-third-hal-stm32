@@ -220,29 +220,44 @@ static void SchedulerProcess( void ) {
 
 // ----------------------------------------------------------------------------
 static void SchedulerShowTasks( void ) {
-    console.printf(
-        GRN "\r\n----------------------------------------------\r\n" NOC );
-    console.printf( " System Time Task Scheduler (" );
+
+    // console.printf(
+    //     YLW "----------------------------------------------\r\n" NOC );
+    CONSOLE_PRINTF_SEG;
+    console.printk( 0, " Stime Task Scheduler (" );
 #if ( defined _STIME_4K_TICK )
-    console.printf( "4K Hz tick)" );
+    console.printk( 0, "4K Hz tick)" );
 #elif ( defined _STIME_2K_TICK )
-    console.printf( "2K Hz tick)" );
+    console.printk( 0, "2K Hz tick)" );
 #elif ( defined _STIME_1K_TICK )
-    console.printf( "1K Hz tick)" );
+    console.printk( 0, "1K Hz tick)" );
 #elif ( defined _STIME_500_TICK )
-    console.printf( "500 Hz tick)" );
+    console.printk( 0, "500 Hz tick)" );
 #elif ( defined _STIME_400_TICK )
-    console.printf( "400 Hz tick)" );
+    console.printk( 0, "400 Hz tick)" );
 #elif ( defined _STIME_200_TICK )
-    console.printf( "200 Hz tick)" );
+    console.printk( 0, "200 Hz tick)" );
 #endif
-    console.printf( "\r\n %d tasks registered:\r\n", task_num_ );
+    if ( task_num_ == 0 ) {
+        console.printk( 0, "  |  no task\r\n" );
+        // console.printf(
+        //     YLW "----------------------------------------------\r\n" NOC );
+        CONSOLE_PRINTF_SEG;
+        return;
+    }
+    if ( task_num_ == 1 ) {
+        console.printk( 0, "  |  1 task\r\n" );
+    }
+    else {
+        console.printk( 0, " | %2d tasks\r\n", task_num_ );
+    }
     for ( uint8_t i = 0; i < task_num_; i++ ) {
-        console.printf( " %2d (%d): %s\r\n", i, node_[i]._this.ticks,
+        console.printk( 0, " %2d (%d): %s\r\n", i + 1, node_[i]._this.ticks,
                         node_[i]._this.name );
     }
-    console.printf( GRN
-                    "----------------------------------------------\r\n" NOC );
+    // console.printf(
+    //     YLW "----------------------------------------------\r\n" NOC );
+    CONSOLE_PRINTF_SEG;
 }
 #endif  // _STIME_USE_SCHEDULER
 

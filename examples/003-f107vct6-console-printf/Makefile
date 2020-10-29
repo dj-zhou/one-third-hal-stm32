@@ -3,7 +3,7 @@
 STM32Fx    = STM32F1
 PROJ_NAME  = stm32f107-binary
 CODE_PATH  = .
-LIB_CODE   = ../one-third-hal
+LIB_CODE   = ../../one-third-hal
 CODE_PATH += $(LIB_CODE)/CMSIS
 CODE_PATH += $(LIB_CODE)/core
 CODE_PATH += $(LIB_CODE)/f1-share
@@ -22,7 +22,7 @@ ifeq ($(STM32Fx), STM32F1)
 CPU       = -mcpu=cortex-m3
 FPU       =
 FLOAT-ABI = -mfloat-abi=soft
-MCU       = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
+MCU       = $(CPU) -mthumb $(FPU) $(FLOAT-ABI) -u _printf_float
 endif
 
 # =============================================================================

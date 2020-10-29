@@ -10,6 +10,12 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
+#define CONSOLE_PRINTF_SEG                                                     \
+    do {                                                                       \
+        console.printk(                                                        \
+            0, YLW "----------------------------------------------\r\n" NOC ); \
+    } while ( 0 )
+
 // ============================================================================
 // project interface --------------
 // clang-format off
@@ -47,7 +53,7 @@ extern "C" {
 typedef enum {
     TX_PP = 0,
     TX_OD = 1,
-} ConsoleTx_t;
+} ConsoleTx_e;
 
 // to print with color (escaping)
 #define NOC "\033[0m"
@@ -97,25 +103,25 @@ typedef enum {
     LOG_CRIT = 0,  // Critical messages, cannot be shut off
     LOG_WARNING,   // Warning conditions that should be taken care of.
     LOG_INFO,  // informational messages that require no action, can be shut off
-} SyslogLevel_t;
+} SyslogLevel_e;
 
 // ============================================================================
 // clang-format off
 typedef struct {
-    SyslogLevel_t level                                         ;
+    SyslogLevel_e level                                         ;
     void   ( *config )( uint32_t, uint8_t, char, uint8_t )      ;
-    void   ( *setTxMode )( ConsoleTx_t )                        ;
+    void   ( *setTxMode )( ConsoleTx_e )                        ;
     void   ( *enableRxen )( bool )                              ;
-    void   ( *printk )( SyslogLevel_t level, char* format, ... );
+    void   ( *printk )( SyslogLevel_e level, char* format, ... );
     void   ( *printf )( char* format, ... )                     ;
     void   ( *writeByte )( char )                               ;
     void   ( *writeStr )( char* )                               ;
     void   ( *error )( char* format, ... )                      ;
     char   ( *read )( uint16_t )                                ;
-    void   ( *setLevel ) (SyslogLevel_t l)                      ;
+    void   ( *setLevel ) (SyslogLevel_e l)                      ;
     // command line interface
-    uint16_t*         ( *cliRegister )( char* str, CliHandle p );
-    void              ( *cliProcess )( void )                   ;
+    void   ( *cliRegister )( char* str, CliHandle p );
+    void   ( *cliProcess )( void )                   ;
 } Console_t;
 extern Console_t console;
 // clang-format on

@@ -47,11 +47,11 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 * **f1-v1.8.2**: the HAL library for STM32F1 series of version v1.8.2. The files are generated from **STM32CubeMx**. Unused files are removed
 
-* **hal-lds**: the linker scripts for different micro-controllers
+* **lds**: the linker scripts for different micro-controllers
 
-* **hal-startup**: the startup source code for different micro-controllers
+* **startups**: the startup source code for different micro-controllers
 
-* **one-third-core**: the core components of this middle layer of library, the details are in the following sub section
+* **core**: the core components of this middle layer of library, the details are in the following sub section
 
 #### core
 
@@ -79,13 +79,15 @@ System time of this `core` . The default timer for this system time is `SysTick`
 
 ##### `uart-console`
 
-We use console to interact with the micro-controller to check its status, for example, firmware information, includes git commit hash value, branch name, tag name, etc.
+We use console to interact with the micro-controller to check its status, for example, firmware information, includes git commit hash value, branch name, tag name, etc. This module uses functions from `console-printf` and `console-cli`.
 
 * If no CLI (command line interface) is not used, the `console` only output information by calling `console.printf()` function, which is quite similar to `printf()` function in `stdio.h`.
-* The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, to connect to the micro-controller.
-* CLI: todo
+* The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, on the Ubuntu system, to connect to the micro-controller.
+* CLI: the code is implemented in the file `console-cli.c`. When use `screen` to connect to the micro-controller, if there is any output from the micro-controller, you can enter `log 1` to stop it, then enter `help` to start use the CLI.
 
 ### Example Projects
+
+Examples are referred to directory `examples/`.
 
 #### `001-f107vct6-sysclk-led`
 
@@ -100,8 +102,6 @@ Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in 
 #define _STIME_2K_TICK
 #include "stime-scheduler.h"
 ```
-
-
 
 #### `003-f107vct6-console-printf`
 
