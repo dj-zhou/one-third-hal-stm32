@@ -136,6 +136,11 @@ static void blinkHeartBeat( void ) {
 static void LedGpioConfig( LedHeartBeat_e mode ) {
     mode_ = mode;
     CalculateParameters( mode );
+    // some assert
+    if ( ( _LED_HEARTBEAT_PIN > 15 ) || ( _LED_ERROR_PIN > 15 ) ) {
+        console.error(
+            "_LED_HEARTBEAT_PIN or _LED_ERROR_PIN out of range\r\n" );
+    }
     // GPIO initialization ---------
     utils.pin.mode( _LED_HEARTBEAT_PORT, _LED_HEARTBEAT_PIN,
                     GPIO_MODE_OUTPUT_PP );

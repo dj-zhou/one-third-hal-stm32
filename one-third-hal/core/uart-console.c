@@ -16,27 +16,8 @@ extern CliCmdList_t cmd_list_[100];
 // ============================================================================
 #if defined( CONSOLE_IS_USED )
 
-// clang-format off
-#if defined( _CONSOLE_USE_USART1_PA9PA10 )
-   #define CONSOLE_UART  USART1
-#elif defined( _CONSOLE_USE_USART2_PA2PA3 ) || defined( _CONSOLE_USE_USART2_PD5PD6 )
-    #define CONSOLE_UART  USART2
-#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
-    #define CONSOLE_UART  USART3
-#elif defined( _CONSOLE_USE_UART4 )
-    #define CONSOLE_UART  UART4
-#elif defined( _CONSOLE_USE_UART5_PC12PD2 )
-    #define CONSOLE_UART  UART5
-#else
-    #error CONSOLE not defined
-#endif
-
-#if (defined _CONSOLE_USE_UART4) || (defined _CONSOLE_USE_UART5_PC12PD2) 
 UART_HandleTypeDef hconsole_;
-#else 
-USART_HandleTypeDef hconsole_;
-#endif
-// clang-format on
+
 struct {
     char  buffer[_CONSOLE_BUFF_LEN];
     char* r_ptr;  // read pointer
@@ -83,7 +64,6 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
     }
 
     switch ( stop_b ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     case 2:
         hconsole_.Init.StopBits = UART_STOPBITS_2;
         break;
@@ -91,21 +71,6 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
     default:
         hconsole_.Init.StopBits = UART_STOPBITS_1;
         break;
-#else
-    case 15:
-        hconsole_.Init.StopBits = USART_STOPBITS_1_5;
-        break;
-    case 5:
-        hconsole_.Init.StopBits = USART_STOPBITS_0_5;
-        break;
-    case 2:
-        hconsole_.Init.StopBits = USART_STOPBITS_2;
-        break;
-    case 1:
-    default:
-        hconsole_.Init.StopBits = USART_STOPBITS_1;
-        break;
-#endif
     }
 
     switch ( parity ) {
@@ -123,49 +88,82 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
         hconsole_.Init.Parity = UART_PARITY_NONE;
         break;
     }
-    hconsole_.Init.Mode = UART_MODE_TX_RX;
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
+    hconsole_.Init.Mode      = UART_MODE_TX_RX;
     hconsole_.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     HAL_UART_Init( &hconsole_ );  // if != HAL_OK ??
-#else
-    HAL_USART_Init( &hconsole_ );  // if != HAL_OK ??
-#endif
 }
 
 // ----------------------------------------------------------------------------
 void InitUartNvic( uint8_t ch ) {
-    HAL_NVIC_EnableIRQ( ch );
     HAL_NVIC_SetPriority( ch, _CONSOLE_PREEMPTION_PRIORITY,
                           _CONSOLE_SUB_PRIORITY );
+    HAL_NVIC_EnableIRQ( ch );
 }
 
 // ============================================================================
 static void consoleWriteByte( char data ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     HAL_UART_Transmit( &hconsole_, ( uint8_t* )&data, 1, 10 );
-#else  // to test
-    HAL_USART_Transmit( &hconsole_, ( uint8_t* )&data, 1, 10 );
-#endif
 }
 
 // ============================================================================
 static void consoleWriteStr( char* ptr ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     HAL_UART_Transmit( &hconsole_, ( uint8_t* )ptr, strlen( ptr ), 10 );
-#else  // to test
-    HAL_USART_Transmit( &hconsole_, ( uint8_t* )ptr, strlen( ptr ), 10 );
-#endif
 }
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART1_PA9PA10 )
-#error _CONSOLE_USE_USART1_PA9PA10: not implemented.
-#endif
+// no hardware to test it, need to test in the future
+#if defined( _CONSOLE_USE_UART1_PA9PA10 )
+static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
+                                uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOA );
+    InitUartPins( GPIOA, 9, GPIOA, 10 );
+    // usart setting
+    utils.clock.enableUart( USART1 );
+    InitUartSettings( USART1, baud_rate, len, parity, stop_b );
+
+    InitUartNvic( USART1_IRQn );
+
+    __HAL_UART_ENABLE( &hconsole_ );
+}
+#endif  // _CONSOLE_USE_UART1_PA9PA10
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART2_PA2PA3 )
-static void Init_USART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
-                                uint8_t stop_b ) {
+#if defined( _CONSOLE_USE_UART1_PB6PB7 )
+static void InitUSART1_PB6PB7( uint32_t baud_rate, uint8_t len, char parity,
+                               uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOB );
+    InitUartPins( GPIOB, 6, GPIOB, 7 );
+    // usart setting
+    utils.clock.enableUart( USART1 );
+    InitUartSettings( USART1, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_USART1_ENABLE();
+
+    InitUartNvic( USART1_IRQn );
+
+    __HAL_UART_ENABLE( &hconsole_ );
+}
+#endif  // _CONSOLE_USE_UART1_PA9PA10
+
+// ---------------------------------------------------------------------------
+#if defined( _CONSOLE_USE_UART1_PA9PA10 ) \
+    || defined( _CONSOLE_USE_UART1_PB6PB7 )
+void USART1_IRQHandler( void ) {
+    // clear the interrupt flag
+    USART1->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // receive data
+    uint8_t recv = ( uint8_t )( USART1->DR & ( uint16_t )0x01FF );
+    ConsoleSetChar( &recv, 1 );
+}
+#endif  // _CONSOLE_USE_UART1_PA9PA10 || _CONSOLE_USE_UART1_PB6PB7
+
+// ============================================================================
+#if defined( _CONSOLE_USE_UART2_PA2PA3 )
+static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
+                               uint8_t stop_b ) {
     // gpio setting
     utils.clock.enableGpio( GPIOA );
     InitUartPins( GPIOA, 2, GPIOA, 3 );
@@ -177,52 +175,140 @@ static void Init_USART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_UART_ENABLE( &hconsole_ );
 }
-#endif
+#endif  // _CONSOLE_USE_UART2_PA2PA3
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART2_PD5PD6 )
+#if defined( _CONSOLE_USE_UART2_PD5PD6 )
 // TODO
 // STM32F107VCT6 does not have USART2 on these pins
-static void Init_USART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
-                                uint8_t stop_b ) {
+static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
+                               uint8_t stop_b ) {
     // gpio setting
     utils.clock.enableGpio( GPIOD );
     InitUartPins( GPIOD, 5, GPIOD, 6 );
     // usart setting
     utils.clock.enableUart( USART2 );
-    // do not forget those how to do this? do not delete
-    // RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
-    // PinRemapConfig( GPIO_Remap_USART2, ENABLE );
     InitUartSettings( USART2, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_USART2_ENABLE();
 
     InitUartNvic( USART2_IRQn );
 
     __HAL_UART_ENABLE( &hconsole_ );
-
-    // should I do this?
-    // USART_ClearITPendingBit( USART2, USART_IT_TC );
 }
-#endif  // _CONSOLE_USE_USART2_PD5PD6
+#endif  // _CONSOLE_USE_UART2_PD5PD6
 
 // ---------------------------------------------------------------------------
-#if defined( _CONSOLE_USE_USART2_PA2PA3 ) \
-    || defined( _CONSOLE_USE_USART2_PD5PD6 )
+#if defined( _CONSOLE_USE_UART2_PA2PA3 ) || defined( _CONSOLE_USE_UART2_PD5PD6 )
 void USART2_IRQHandler( void ) {
-    // todo, cli must use it
-    uint8_t recv;
+    // clear the interrupt flag
+    USART2->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // receive data
+    uint8_t recv = ( uint8_t )( USART2->DR & ( uint16_t )0x01FF );
     ConsoleSetChar( &recv, 1 );
 }
-#endif  // _CONSOLE_USE_USART2_PD5PD6
+#endif  // _CONSOLE_USE_UART2_PA2PA3 || _CONSOLE_USE_UART2_PD5PD6
 
 // ============================================================================
-#if defined( _CONSOLE_USE_USART3_PB10PB11 )
-#error _CONSOLE_USE_USART3_PB10PB11: not implemented.
-#endif  // _CONSOLE_USE_USART3_PB10PB11
+#if defined( _CONSOLE_USE_UART3_PB10PB11 )
+static void InitUSART3_PB10PB11( uint32_t baud_rate, uint8_t len, char parity,
+                                 uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOB );
+    InitUartPins( GPIOB, 10, GPIOB, 11 );
+    // usart setting
+    utils.clock.enableUart( USART3 );
+    InitUartSettings( USART3, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    InitUartNvic( USART3_IRQn );
+
+    __HAL_USART_ENABLE( &hconsole_ );
+}
+#endif  // _CONSOLE_USE_UART3_PB10PB11
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART4 )
-#error _CONSOLE_USE_UART4: not implemented.
-#endif
+#if defined( _CONSOLE_USE_UART3_PC10PC11 )
+static void InitUSART3_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
+                                 uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOC );
+    InitUartPins( GPIOC, 10, GPIOC, 11 );
+    // usart setting
+    utils.clock.enableUart( USART3 );
+    InitUartSettings( USART3, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_USART3_PARTIAL();
+
+    InitUartNvic( USART3_IRQn );
+
+    __HAL_USART_ENABLE( &hconsole_ );
+}
+#endif  // _CONSOLE_USE_UART3_PC10PC11
+
+// ============================================================================
+#if defined( _CONSOLE_USE_UART3_PD8PD9 )
+static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
+                               uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOD );
+    InitUartPins( GPIOD, 8, GPIOD, 9 );
+    // usart setting
+    utils.clock.enableUart( USART3 );
+    InitUartSettings( USART3, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_USART3_ENABLE();
+
+    InitUartNvic( USART3_IRQn );
+
+    __HAL_USART_ENABLE( &hconsole_ );
+}
+#endif  // _CONSOLE_USE_UART3_PD8PD9
+
+// ---------------------------------------------------------------------------
+#if defined( _CONSOLE_USE_UART3_PB10PB11 )    \
+    || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
+    || defined( _CONSOLE_USE_UART3_PD8PD9 )
+void USART3_IRQHandler( void ) {
+    // clear the interrupt flag
+    USART3->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // receive data
+    uint8_t recv = ( uint8_t )( USART3->DR & ( uint16_t )0x01FF );
+    ConsoleSetChar( &recv, 1 );
+}
+#endif  // _CONSOLE_USE_UART3_PB10PB11 || _CONSOLE_USE_UART3_PC10PC11 ||
+        // _CONSOLE_USE_UART3_PD8PD9
+
+// ============================================================================
+#if defined( _CONSOLE_USE_UART4_PC10PC11 )
+static void InitUART4_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
+                                uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOC );
+    InitUartPins( GPIOC, 10, GPIOC, 11 );
+    // usart setting
+    utils.clock.enableUart( UART4 );
+    InitUartSettings( UART4, baud_rate, len, parity, stop_b );
+
+    __HAL_RCC_AFIO_CLK_ENABLE();
+
+    InitUartNvic( UART4_IRQn );
+
+    __HAL_UART_ENABLE( &hconsole_ );
+}
+
+// ---------------------------------------------------------------------------
+void UART4_IRQHandler( void ) {
+    // clear the interrupt flag
+    UART4->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // receive data
+    uint8_t recv = ( uint8_t )( UART4->DR & ( uint16_t )0x01FF );
+    ConsoleSetChar( &recv, 1 );
+}
+#endif  // _CONSOLE_USE_UART4_PC10PC11
 
 // ============================================================================
 #if defined( _CONSOLE_USE_UART5_PC12PD2 )
@@ -248,7 +334,7 @@ static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
 // ---------------------------------------------------------------------------
 void UART5_IRQHandler( void ) {
     // clear the interrupt flag
-    UART5->SR = ( uint16_t )~USART_FLAG_RXNE;
+    UART5->SR &= ( uint16_t )~USART_FLAG_RXNE;
     // receive data
     uint8_t recv = ( uint8_t )( UART5->DR & ( uint16_t )0x01FF );
     ConsoleSetChar( &recv, 1 );
@@ -383,16 +469,22 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     rb.r_ptr      = rb.buffer;
     rb.w_ptr      = rb.buffer;
 
-#if defined( _CONSOLE_USE_USART1_PA9PA10 )
-    Init_USART1_PA9PA10( baud_rate, len, parity, stop_b );
-#elif defined( _CONSOLE_USE_USART2_PA2PA3 )
-    Init_USART2_PA2PA3( baud_rate, len, parity, stop_b );
-#elif defined( _CONSOLE_USE_USART2_PD5PD6 )
-    Init_USART2_PD5PD6( baud_rate, len, parity, stop_b );
-#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
-    Init_USART3_PB10PB11( baud_rate, len, parity, stop_b );
-#elif defined( _CONSOLE_USE_UART4 )
-#error consoleConfig(): _CONSOLE_USE_UART4 not implemented!
+#if defined( _CONSOLE_USE_UART1_PA9PA10 )
+    InitUSART1_PA9PA10( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART1_PB6PB7 )
+    InitUSART1_PB6PB7( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART2_PA2PA3 )
+    InitUSART2_PA2PA3( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART2_PD5PD6 )
+    InitUSART2_PD5PD6( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART3_PB10PB11 )
+    InitUSART3_PB10PB11( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART3_PC10PC11 )
+    InitUSART3_PC10PC11( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART3_PD8PD9 )
+    InitUSART3_PD8PD9( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART4_PC10PC11 )
+    InitUART4_PC10PC11( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     InitUART5_PC12PD2( baud_rate, len, parity, stop_b );
 #else
@@ -425,20 +517,30 @@ static void consoleTxMode( ConsoleTx_e tx ) {
         GPIO_InitStructure.Mode = GPIO_MODE_AF_OD;
     }
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#if defined( _CONSOLE_USE_USART1_PA9PA10 )
+#if defined( _CONSOLE_USE_UART1_PA9PA10 )
     GPIO_InitStructure.Pin = GPIO_PIN_9;
     HAL_GPIO_Init( GPIOA, &GPIO_InitStructure );
-#elif defined( _CONSOLE_USE_USART2_PA2PA3 )
+#elif defined( _CONSOLE_USE_UART1_PB6PB7 )
+    GPIO_InitStructure.Pin = GPIO_PIN_6;
+    HAL_GPIO_Init( GPIOB, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_UART2_PA2PA3 )
     GPIO_InitStructure.Pin = GPIO_PIN_2;
     HAL_GPIO_Init( GPIOA, &GPIO_InitStructure );
-#elif defined( _CONSOLE_USE_USART2_PD5PD6 )
+#elif defined( _CONSOLE_USE_UART2_PD5PD6 )
     GPIO_InitStructure.Pin = GPIO_PIN_5;
     HAL_GPIO_Init( GPIOD, &GPIO_InitStructure );
-#elif defined( _CONSOLE_USE_USART3_PB10PB11 )
+#elif defined( _CONSOLE_USE_UART3_PB10PB11 )
     GPIO_InitStructure.Pin = GPIO_PIN_10;
     HAL_GPIO_Init( GPIOB, &GPIO_InitStructure );
-#elif defined( _CONSOLE_USE_UART4 )
-#error console_TX_Mode(): _CONSOLE_USE_UART4 not implemented!
+#elif defined( _CONSOLE_USE_UART3_PC10PC11 )
+    GPIO_InitStructure.Pin = GPIO_PIN_10;
+    HAL_GPIO_Init( GPIOC, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_UART3_PD8PD9 )
+    GPIO_InitStructure.Pin = GPIO_PIN_8;
+    HAL_GPIO_Init( GPIOD, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_UART4_PC10PC11 )
+    GPIO_InitStructure.Pin = GPIO_PIN_10;
+    HAL_GPIO_Init( GPIOC, &GPIO_InitStructure );
 #elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     GPIO_InitStructure.Pin = GPIO_PIN_12;
     HAL_GPIO_Init( GPIOC, &GPIO_InitStructure );
@@ -449,21 +551,12 @@ static void consoleTxMode( ConsoleTx_e tx ) {
 
 // ============================================================================
 static void consoleEnableRxen( bool enable ) {
-#if defined( _CONSOLE_USE_UART4 ) || defined( _CONSOLE_USE_UART5_PC12PD2 )
     if ( enable ) {
         __HAL_UART_ENABLE_IT( &hconsole_, UART_IT_RXNE );
     }
     else {
         __HAL_UART_DISABLE_IT( &hconsole_, UART_IT_RXNE );
     }
-#else
-    if ( enable ) {
-        __HAL_USART_ENABLE_IT( &hconsole_, USART_IT_RXNE );
-    }
-    else {
-        __HAL_USART_DISABLE_IT( &hconsole_, USART_IT_RXNE );
-    }
-#endif
 }
 
 // ============================================================================

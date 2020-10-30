@@ -26,8 +26,7 @@ static char* CliGetParam( char* str, uint8_t num ) {
         if ( *dst == '[' ) {
             dst = strchr( dst, ']' ) + 1;
             if ( dst == NULL ) {
-                console.writeStr( cli_.out_message );
-                console.writeStr( "instruction standard error!" );
+                console.printk( 0, "\r\ninstruction standard error!\r\n" );
                 return NULL;
             }
         }
@@ -313,15 +312,12 @@ void CliProcessCmd( char* str ) {
             }
         }
         if ( HAL_OK != ret ) {
-            console.writeStr( cli_.out_message );
-            console.writeStr(
-                "\033[0;31mcommand execution failed!\033[0m\r\n" );
+            console.printk( 0, RED "\r\ncommand execution failed!\r\n" NOC );
         }
     }
     else {
-        console.writeStr( cli_.out_message );
-        console.writeStr( "\033[0;31mcommand not recognized!\033[0m "
-                          "try \033[0;32mhelp\033[0m.\r\n" );
+        console.printk( 0, RED "\r\ncommand not recognized! " NOC "try" GRN
+                               "help.\r\n" NOC );
     }
 }
 

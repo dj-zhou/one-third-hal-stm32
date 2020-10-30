@@ -19,12 +19,15 @@ extern "C" {
 #include "stime-scheduler.h"
 
 // ----------------------------------------------------------------------------
-#define _CONSOLE_USE_UART5_PC12PD2
+// #define _CONSOLE_USE_UART2_PA2PA3
+// #define _CONSOLE_USE_UART3_PC10PC11
+#define _CONSOLE_USE_UART1_PB6PB7
+// #define _CONSOLE_USE_UART5_PC12PD2
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
-#define _LED_HEARTBEAT_PORT GPIOD
-#define _LED_HEARTBEAT_PIN 3
+#define _LED_HEARTBEAT_PORT GPIOC
+#define _LED_HEARTBEAT_PIN 6
 #define _LED_HEARTBEAT_BLINK 5
 #include "led-status.h"
 

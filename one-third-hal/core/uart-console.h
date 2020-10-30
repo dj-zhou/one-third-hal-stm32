@@ -11,30 +11,38 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CONSOLE_PRINTF_SEG                                                     \
-    do {                                                                       \
-        console.printk(                                                        \
-            0, YLW "----------------------------------------------\r\n" NOC ); \
+#define CONSOLE_PRINTF_SEG                                                    \
+    do {                                                                      \
+        console.printk(                                                       \
+            0, YLW                                                            \
+            "----------------------------------------------------\r\n" NOC ); \
     } while ( 0 )
 
 // ============================================================================
 // project interface --------------
 // clang-format off
 
-#if !defined( _CONSOLE_USE_USART1_PA9PA10 )  \
- && !defined( _CONSOLE_USE_USART2_PA2PA3 )   \
- && !defined( _CONSOLE_USE_USART2_PD5PD6 )   \
- && !defined( _CONSOLE_USE_USART3_PB10PB11 ) \
- && !defined( _CONSOLE_USE_UART4 )           \
+// only _CONSOLE_USE_UART1_PA9PA10 can be used for firmware upgrading
+#if !defined( _CONSOLE_USE_UART1_PA9PA10 )  \
+ && !defined( _CONSOLE_USE_UART1_PB6PB7 )   \
+ && !defined( _CONSOLE_USE_UART2_PA2PA3 )   \
+ && !defined( _CONSOLE_USE_UART2_PD5PD6 )   \
+ && !defined( _CONSOLE_USE_UART3_PB10PB11 ) \
+ && !defined( _CONSOLE_USE_UART3_PC10PC11 ) \
+ && !defined( _CONSOLE_USE_UART3_PD8PD9 )   \
+ && !defined( _CONSOLE_USE_UART4_PC10PC11 ) \
  && !defined( _CONSOLE_USE_UART5_PC12PD2 )
-    #define _CONSOLE_USE_USART2_PA2PA3 // stm32f103 does not have UART5
+    #define _CONSOLE_USE_UART2_PA2PA3 // stm32f103 does not have UART5
 #endif
 
-#if defined( _CONSOLE_USE_USART1_PA9PA10 )  \
- || defined( _CONSOLE_USE_USART2_PA2PA3 )   \
- || defined( _CONSOLE_USE_USART2_PD5PD6 )   \
- || defined( _CONSOLE_USE_USART3_PB10PB11 ) \
- || defined( _CONSOLE_USE_UART4 )           \
+#if defined( _CONSOLE_USE_UART1_PA9PA10 )  \
+ || defined( _CONSOLE_USE_UART1_PB6PB7 )   \
+ || defined( _CONSOLE_USE_UART2_PA2PA3 )   \
+ || defined( _CONSOLE_USE_UART2_PD5PD6 )   \
+ || defined( _CONSOLE_USE_UART3_PB10PB11 ) \
+ || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
+ || defined( _CONSOLE_USE_UART3_PD8PD9 )   \
+ || defined( _CONSOLE_USE_UART4_PC10PC11 ) \
  || defined( _CONSOLE_USE_UART5_PC12PD2 )
     #define CONSOLE_IS_USED
 #endif
