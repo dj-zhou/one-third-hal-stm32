@@ -10,19 +10,19 @@ extern "C" {
 
 // ============================================================================
 // clang-format off
-#ifndef    _LED_HEARTBEAT_PORT
+#if !defined( _LED_HEARTBEAT_PORT )
     #define    _LED_HEARTBEAT_PORT      GPIOD
 #endif
 
-#ifndef    _LED_HEARTBEAT_PIN
-    #define    _LED_HEARTBEAT_PIN       ( 3 )
+#if !defined( _LED_HEARTBEAT_PIN )
+    #define     _LED_HEARTBEAT_PIN      ( 3 )
 #endif
 
-#ifndef    _LED_ERROR_PORT
+#if !defined( _LED_ERROR_PORT )
     #define    _LED_ERROR_PORT          GPIOD
 #endif
 
-#ifndef    _LED_ERROR_PIN
+#if !defined( _LED_ERROR_PIN )
     #define    _LED_ERROR_PIN           ( 4 )
 #endif
 
@@ -30,8 +30,8 @@ extern "C" {
     #define    _LED_HIGH_DRIVE
 #endif
 
-#if !defined( _LED_HEARTBEAT_BLINK ) 
-    #define _LED_HEARTBEAT_BLINK        ( 10 )
+#if !defined( _LED_HEARTBEAT_BLINK )
+    #define    _LED_HEARTBEAT_BLINK     ( 10 )
 #endif
 // clang-format on
 

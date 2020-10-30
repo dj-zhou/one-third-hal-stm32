@@ -167,10 +167,10 @@ static void consoleWriteStr( char* ptr ) {
 static void Init_USART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
                                 uint8_t stop_b ) {
     // gpio setting
-    utils.enableGpioClock( GPIOA );
+    utils.clock.enableGpio( GPIOA );
     InitUartPins( GPIOA, 2, GPIOA, 3 );
     // usart setting
-    utils.enableUartClock( USART2 );
+    utils.clock.enableUart( USART2 );
     InitUartSettings( USART2, baud_rate, len, parity, stop_b );
 
     InitUartNvic( USART2_IRQn );
@@ -186,10 +186,10 @@ static void Init_USART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
 static void Init_USART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
                                 uint8_t stop_b ) {
     // gpio setting
-    utils.enableGpioClock( GPIOD );
+    utils.clock.enableGpio( GPIOD );
     InitUartPins( GPIOD, 5, GPIOD, 6 );
     // usart setting
-    utils.enableUartClock( USART2 );
+    utils.clock.enableUart( USART2 );
     // do not forget those how to do this? do not delete
     // RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
     // PinRemapConfig( GPIO_Remap_USART2, ENABLE );
@@ -233,11 +233,11 @@ void USART2_IRQHandler( void ) {
 static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
-    utils.enableGpioClock( GPIOC );
-    utils.enableGpioClock( GPIOD );
+    utils.clock.enableGpio( GPIOC );
+    utils.clock.enableGpio( GPIOD );
     InitUartPins( GPIOC, 12, GPIOD, 2 );
     // usart setting
-    utils.enableUartClock( UART5 );
+    utils.clock.enableUart( UART5 );
     InitUartSettings( UART5, baud_rate, len, parity, stop_b );
 
     InitUartNvic( UART5_IRQn );
@@ -259,7 +259,7 @@ void UART5_IRQHandler( void ) {
 extern void ConsolePrintf( char* sign_data, char* format, va_list ap );
 
 // ============================================================================
-static void one_third_printk( SyslogLevel_e level, char* format, ... ) {
+static void one_third_printk( LogLevel_e level, char* format, ... ) {
     if ( level <= console.level ) {
         char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
         va_list ap;
@@ -316,7 +316,7 @@ static char consoleGetChar( uint16_t time ) {
 }
 
 // ============================================================================
-static void consoleSetLevel( SyslogLevel_e l ) {
+static void consoleSetLevel( LogLevel_e l ) {
     console.level = l;
 }
 
@@ -408,7 +408,7 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     // register some default commands -------------
     CliRegisterCmd( "help", ( CliHandle )CliShowCmd );
     CliRegisterCmd( "reset", ( CliHandle )CliReset );
-    CliRegisterCmd( "log &level", ( CliHandle )CliSyslogSetLevel );
+    CliRegisterCmd( "log &level", ( CliHandle )CliLogSetLevel );
     CliRegisterCmd( "firmware", ( CliHandle )CliCheckFirmware );
     CliRegisterCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
 
@@ -541,15 +541,15 @@ Console_t console = {
     .enableRxen = consoleEnableRxen ,
     .printk     = one_third_printk  ,
     .printf     = one_third_printf  ,
+    .error      = consoleError      ,
     .writeByte  = consoleWriteByte  ,
     .writeStr   = consoleWriteStr   ,
-    .error      = consoleError      ,
     .read       = consoleGetChar    ,
-    .setLevel   = consoleSetLevel   ,
 
     // cli related
-    .cliRegister = CliRegisterCmd   ,
-    .cliProcess  = CliEentHandle,
+    .cli.setLevel = consoleSetLevel  ,
+    .cli.regist   = CliRegisterCmd   ,
+    .cli.process  = CliEentHandle    ,
 };
 // clang-format on
 

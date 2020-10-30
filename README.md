@@ -57,21 +57,21 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 ##### `general-utils`
 
-* `initSystemClock( void )`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
-* `initNvic( uint8_t group )`: setup the interrupt group priority.
-* `enableGpioClock( GPIO_TypeDef* GPIOx )`: To enable the clock of a GPIO group. This function is used by other modules.
-* `enableTimerClock( TIM_TypeDef* TIMx )`: To enable the clock of a Timer. This function is used by other modules.
-* `enableUartClock( USART_TypeDef* USARTx )`: To enable the clock of a UART/USART group. This function is used by other modules.
-* `setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io )`: to set the GPIO mode.
-* `setPinPull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )`: to enable internal pull up or pull down resister of a GPIO pin. 
-* `setPin( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )`: to set a pin as HIGH (true) or LOW (false).
-* `togglePin( GPIO_TypeDef* GPIOx, uint8_t pin_n )`: to toggle an output GPIO Pin.
+* `system.initClock( void )`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
+* `system.initNvic( uint8_t group )`: setup the interrupt group priority.
+* `clock.enableGpio( GPIO_TypeDef* GPIOx )`: To enable the clock of a GPIO group. This function is used by other modules.
+* `clock.enableTimer( TIM_TypeDef* TIMx )`: To enable the clock of a Timer. This function is used by other modules.
+* `clock.enableUart( USART_TypeDef* USARTx )`: To enable the clock of a UART/USART group. This function is used by other modules.
+* `pin.mode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io )`: to set the GPIO mode.
+* `pin.pull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )`: to enable internal pull up or pull down resister of a GPIO pin. 
+* `pin.set( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )`: to set a pin as HIGH (true) or LOW (false).
+* `pin.toggle( GPIO_TypeDef* GPIOx, uint8_t pin_n )`: to toggle an output GPIO Pin.
 * It defines some common used marcos as well.
 
 If some RTOS is used as with this library, two more functions are used to deal with the status of the RTOS:
 
-* `setRtosState( RtosState_t state )`
-* `RtosState_t getRtosState( void )`.
+* `rtos.setState( RtosState_t state )`
+* `RtosState_t rtos.getState( void )`.
 
 ##### `stime-scheduler`
 
@@ -84,49 +84,4 @@ We use console to interact with the micro-controller to check its status, for ex
 * If no CLI (command line interface) is not used, the `console` only output information by calling `console.printf()` function, which is quite similar to `printf()` function in `stdio.h`.
 * The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, on the Ubuntu system, to connect to the micro-controller.
 * CLI: the code is implemented in the file `console-cli.c`. When use `screen` to connect to the micro-controller, if there is any output from the micro-controller, you can enter `log 1` to stop it, then enter `help` to start use the CLI.
-
-### Example Projects
-
-Examples are referred to directory `examples/`.
-
-#### `001-f107vct6-sysclk-led`
-
-Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
-
-#### `002-f107vct6-stime`
-
-Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library). Configure the module `stime` in `config.h` as:
-
-```c
-#define _STIME_USE_SYSTICK
-#define _STIME_2K_TICK
-#include "stime-scheduler.h"
-```
-
-#### `003-f107vct6-console-printf`
-
-Setup a UART/USART port as the console, and use the console to print data, just like use it as `printf()` in `stdio.h`.
-
-* The example code uses `UART5` on PC12 (TXD) and PD2 (RXD) as the console, configure it in `config.h` as:
-
-  ```c
-  #define _CONSOLE_USE_UART5_PC12PD2
-  #include "uart-console.h"
-  ```
-
-* Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 921600` to see its color effect.
-
-#### `004-f107vct6-stime-delay`
-
-This project demos the delay functions using the delay functions in `stime`, and print the time difference in the terminal.
-
-Notice that these delay functions would block the program.
-
-#### `005-f107vct6-stime-scheduler`
-
-This project uses the module `stime ` as a task scheduler. To enable it, just add:
-
-```c
-#define _STIME_USE_SCHEDULER
-```
 

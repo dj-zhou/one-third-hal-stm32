@@ -88,15 +88,26 @@ typedef struct TaskNode_s {
 // clang-format off
 #if defined( STIME_IS_USED )
 typedef struct {
-    void    ( *config )( void )     ;
-    Stime_t ( *getTime )( void )    ;
-    void    ( *delayUs )( uint32_t );
-    void    ( *delayMs )( uint32_t );
+    void ( *us ) ( uint32_t );
+    void ( *ms )  (uint32_t );
+} Delay;
+
 #if defined( _STIME_USE_SCHEDULER )
-    void ( *scheduler )( void )                                         ;
-    void ( *registerTask )( uint32_t, uint32_t, TaskHandle, const char*);
-    void ( *process )( void )                                           ;
-    void ( *showTasks )( void )                                         ;
+typedef struct  {
+    void ( *config )( void )                                      ;
+    void ( *regist )( uint32_t, uint32_t, TaskHandle, const char*);
+    void ( *process )( void )                                     ;
+    void ( *show )( void )                                        ;
+    void ( *run )( void )                                         ;
+} Scheduler;
+#endif
+
+typedef struct {
+    void      ( *config )( void )     ;
+    Stime_t   ( *getTime )( void )    ;
+    Delay     delay                   ;
+#if defined( _STIME_USE_SCHEDULER )
+    Scheduler  scheduler              ;
 #endif
 } StimeApi_t;
 extern StimeApi_t stime;

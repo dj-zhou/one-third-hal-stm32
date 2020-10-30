@@ -8,22 +8,22 @@ void taskPrint( void ) {
 
 // ============================================================================
 int main( void ) {
-    utils.initSystemClock();
-    utils.initNvic( 4 );
-    utils.setPinMode( GPIOD, 4, GPIO_MODE_OUTPUT_PP );
+    utils.system.initClock();
+    utils.system.initNvic( 4 );
+    utils.pin.mode( GPIOD, 4, GPIO_MODE_OUTPUT_PP );
     stime.config();
-    stime.scheduler();
+    stime.scheduler.config();
     console.config( 921600, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
 
     // tasks -----------
-    stime.registerTask( 1000, 2, taskPrint, "taskPrint" );
-    stime.showTasks();
+    stime.scheduler.regist( 1000, 2, taskPrint, "taskPrint" );
+    stime.scheduler.show();
 
-    while ( 1 ) {
-        console.cliProcess();
-        stime.process();
-    }
+    // system start to run -----------
+    stime.scheduler.run();
+
+    console.printf( "main ends.\r\n" );
     return 0;
 }

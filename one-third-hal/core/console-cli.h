@@ -60,7 +60,7 @@ void CliProcessCmd( char* str );
 // default CLI commands registered
 HAL_StatusTypeDef CliShowCmd( void );
 HAL_StatusTypeDef CliReset( void );
-HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv );
+HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv );
 HAL_StatusTypeDef CliCheckFirmware( void );
 HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
 

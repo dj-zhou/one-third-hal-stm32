@@ -58,24 +58,40 @@ typedef enum {
     FREERTOS_NOSTART = ( ( uint8_t )1 ),
     FREERTOS_STARTED = ( ( uint8_t )2 ),
 } RtosState_e;
-#endif
+
+typedef struct {
+    void ( *setState )( RtosState_e state );
+    RtosState_e ( *getState )( void );
+} Rtos;
+#endif  // RTOS_IS_USED
+
+typedef struct {
+    HAL_StatusTypeDef ( *initClock )( void );
+    void ( *initNvic )( uint8_t group );
+} System;
+
+typedef struct {
+    void ( *enableGpio )( GPIO_TypeDef* GPIOx );
+    void ( *enableTimer )( TIM_TypeDef* TIMx );
+    void ( *enableUart )( USART_TypeDef* USARTx );
+} Clock;
+
+typedef struct {
+    void ( *mode )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io );
+    void ( *pull )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p );
+    void ( *set )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v );
+    void ( *toggle )( GPIO_TypeDef* GPIOx, uint8_t pin_n );
+} Pin;
 
 // ============================================================================
 // component API
 // clang-format off
 typedef struct {
-    HAL_StatusTypeDef ( *initSystemClock )( void )                          ;
-    void ( *initNvic )( uint8_t group )                                     ;
-    void ( *enableGpioClock )( GPIO_TypeDef* GPIOx )                        ;
-    void ( *enableTimerClock )( TIM_TypeDef* TIMx )                         ;
-    void ( *enableUartClock )( USART_TypeDef* USARTx )                      ;
-    void ( *setPinMode )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) ;
-    void ( *setPinPull )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )  ;
-    void ( *setPin )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )          ;
-    void ( *togglePin )( GPIO_TypeDef* GPIOx, uint8_t pin_n )               ;
+    System system  ;
+    Clock  clock   ;
+    Pin    pin     ;
 #if defined( RTOS_IS_USED )
-    void        ( *setRtosState )( RtosState_e state );
-    RtosState_e ( *getRtosState )( void );
+    Rtos  rtos     ;
 #endif
 } CoreUtilsApi_t;
 

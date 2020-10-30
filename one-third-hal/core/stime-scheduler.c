@@ -259,6 +259,14 @@ static void SchedulerShowTasks( void ) {
     //     YLW "----------------------------------------------\r\n" NOC );
     CONSOLE_PRINTF_SEG;
 }
+
+// ----------------------------------------------------------------------------
+void SchedulerRun( void ) {
+    while ( true ) {
+        console.cli.process();
+        SchedulerProcess();
+    }
+}
 #endif  // _STIME_USE_SCHEDULER
 
 // ----------------------------------------------------------------------------
@@ -269,7 +277,7 @@ void SysTick_Handler( void ) {
     if ( tick_ >= SYSTICK_1S_OVERFLOW ) {
         tick_ = 0;
         second_++;
-        // utils.togglePin( GPIOD, 4 );  // test only
+        // utils.pin.toggle( GPIOD, 4 );  // test only
     }
 #if defined( _STIME_USE_SCHEDULER )
     TasksMark();
@@ -283,19 +291,20 @@ void SysTick_Handler( void ) {
 // clang-format off
 StimeApi_t stime = {
 #if defined( _STIME_USE_SYSTICK )
-    .config  = InitSysTick    ,
-    .getTime = GetSysTickTime ,
-    .delayUs = DelayUs        ,
-    .delayMs = DelayMs        ,
+    .config   = InitSysTick    ,
+    .getTime  = GetSysTickTime ,
+    .delay.us = DelayUs        ,
+    .delay.ms = DelayMs        ,
 #else
     #error StimeApi_t stime: not implemented.
 #endif
 
 #if defined( _STIME_USE_SCHEDULER )
-    .scheduler    = SchedulerConfig      ,
-    .registerTask = SchedulerRegisterTask,
-    .process      = SchedulerProcess     ,
-    .showTasks    = SchedulerShowTasks   ,
+    .scheduler.config  = SchedulerConfig      ,
+    .scheduler.regist  = SchedulerRegisterTask,
+    .scheduler.process = SchedulerProcess     ,
+    .scheduler.show    = SchedulerShowTasks   ,
+    .scheduler.run     = SchedulerRun         ,
 #endif
 };
 // clang-format on

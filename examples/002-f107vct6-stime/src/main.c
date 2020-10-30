@@ -3,9 +3,9 @@
 
 // ============================================================================
 int main( void ) {
-    utils.initSystemClock();
-    utils.initNvic( 4 );
-    utils.setPinMode( GPIOD, 4, GPIO_MODE_OUTPUT_PP );
+    utils.system.initClock();
+    utils.system.initNvic( 4 );
+    utils.pin.mode( GPIOD, 4, GPIO_MODE_OUTPUT_PP );
     stime.config();
 
     while ( 1 ) {

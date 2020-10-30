@@ -349,7 +349,7 @@ HAL_StatusTypeDef CliReset( void ) {
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv ) {
+HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv ) {
     if ( argc <= 1 ) {
         return HAL_ERROR;
     }
@@ -362,21 +362,21 @@ HAL_StatusTypeDef CliSyslogSetLevel( int argc, char** argv ) {
         if ( console.level > 0 ) {
             console.level -= 1;
         }
-        console.setLevel( console.level );
-        console.printk( 0, "\r\n syslog level set to %d", console.level );
+        console.cli.setLevel( console.level );
+        console.printk( 0, "\r\n log level set to %d", console.level );
     }
     else if ( strcmp( argv[1], "higher" ) == 0 ) {
         if ( console.level < LOG_INFO ) {
             console.level += 1;
         }
-        console.setLevel( console.level );
-        console.printk( 0, "\r\n syslog level set to %d", console.level );
+        console.cli.setLevel( console.level );
+        console.printk( 0, "\r\n log level set to %d", console.level );
     }
     else {
-        SyslogLevel_e level = atoi( argv[1] );
+        LogLevel_e level = atoi( argv[1] );
         if ( level <= LOG_INFO ) {
-            console.setLevel( level );
-            console.printk( 0, "\r\n syslog level set to %d", level );
+            console.cli.setLevel( level );
+            console.printk( 0, "\r\n log level set to %d", level );
         }
         else {
             console.printk( 0, "\r\n error, 0 <= level <= 2" );
@@ -392,9 +392,12 @@ HAL_StatusTypeDef CliCheckFirmware( void ) {
     CONSOLE_PRINTF_SEG;
     char* ptr;
     ( void )ptr;
-#ifdef FIRMWARE
+    // --------------------------------
+#if defined( FIRMWARE )
     console.printk( 0, " firmware   :" WHT " %s\r\n" NOC, FIRMWARE );
 #endif
+
+    // --------------------------------
 #if defined( PRJ_GIT_VER ) && defined( PRJ_GIT_CMT )
     ptr = ( char* )&PRJ_GIT_VER + strlen( PRJ_GIT_VER ) - 5;
     if ( strcmp( ptr, "dirty" ) == 0 ) {
@@ -405,11 +408,14 @@ HAL_StatusTypeDef CliCheckFirmware( void ) {
         console.printk( 0, " version    :" WHT " %s" NOC " (%s)\r\n",
                         PRJ_GIT_VER, PRJ_GIT_CMT );
     }
-
 #endif
-#ifdef PRJ_GIT_BRH
+
+    // --------------------------------
+#if defined( PRJ_GIT_BRH )
     console.printk( 0, " branch     :" WHT " %s\r\n" NOC, PRJ_GIT_BRH );
 #endif
+
+    // --------------------------------
 #if defined( LIB_GIT_VER ) && defined( LIB_GIT_CMT )
     ptr = ( char* )&LIB_GIT_VER + strlen( LIB_GIT_VER ) - 5;
     if ( strcmp( ptr, "dirty" ) == 0 ) {
@@ -421,12 +427,18 @@ HAL_StatusTypeDef CliCheckFirmware( void ) {
                         LIB_GIT_VER, LIB_GIT_CMT );
     }
 #endif
-#ifdef LIB_GIT_BRH
+
+    // --------------------------------
+#if defined( LIB_GIT_BRH )
     console.printk( 0, " lib branch :" WHT " %s\r\n" NOC, LIB_GIT_BRH );
 #endif
-#ifdef MAKE_TYPE
+
+    // --------------------------------
+#if defined( MAKE_TYPE )
     console.printk( 0, " make type  :" WHT " %s\r\n" NOC, MAKE_TYPE );
 #endif
+
+    // --------------------------------
     console.printk( 0, " make time  :" WHT " %s, %s\r\n" NOC, __TIME__,
                     __DATE__ );
 
@@ -442,7 +454,7 @@ HAL_StatusTypeDef CliShowScheduler( int argc, char** argv ) {
     if ( strcmp( argv[1], "view" ) == 0 ) {
         console.printk( 0, "\r\n" );
 #if defined( _STIME_USE_SCHEDULER )
-        stime.showTasks();
+        stime.scheduler.show();
 #endif
     }
     else {
