@@ -316,7 +316,7 @@ void CliProcessCmd( char* str ) {
         }
     }
     else {
-        console.printk( 0, RED "\r\ncommand not recognized! " NOC "try" GRN
+        console.printk( 0, RED "\r\ncommand not recognized! " NOC "try " GRN
                                "help.\r\n" NOC );
     }
 }

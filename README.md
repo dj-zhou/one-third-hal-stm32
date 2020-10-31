@@ -85,3 +85,12 @@ We use console to interact with the micro-controller to check its status, for ex
 * The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, on the Ubuntu system, to connect to the micro-controller.
 * CLI: the code is implemented in the file `console-cli.c`. When use `screen` to connect to the micro-controller, if there is any output from the micro-controller, you can enter `log 1` to stop it, then enter `help` to start use the CLI.
 
+#### Supported ICs
+
+The library is tested with the following micro-controllers:
+
+| micro-controller | SYSCLK | FLASH/RAM |
+| :--------------: | :----: | :-------: |
+|  STM32F103RBT6   | 72Mhz  | 128K/20K  |
+|  STM32F107VCT6   | 72Mhz  | 256K/64K  |
+

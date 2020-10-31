@@ -1,7 +1,7 @@
 # =============================================================================
 # custom settings
 STM32Fx    = STM32F1
-PROJ_NAME  = stm32f107-binary
+PROJ_NAME  = f107vc-binary
 CODE_PATH  = .
 LIB_CODE   = ../../one-third-hal
 CODE_PATH += $(LIB_CODE)/CMSIS
@@ -9,13 +9,13 @@ CODE_PATH += $(LIB_CODE)/core
 CODE_PATH += $(LIB_CODE)/f1-share
 CODE_PATH += $(LIB_CODE)/f1-v1.8.2
 C_DEFS     = -DSTM32F107xC -DUSE_HAL_DRIVER
+ASM_SRC    = $(LIB_CODE)/startups/startup_stm32f107xc.s
+LD_SCRIPT  = $(LIB_CODE)/lds/stm32f1xx_flash_cl.ld
 LIBDIR     =
 LIBS       = -lc -lm -lnosys
 OUTPATH    = bin
 OPT        = -Og
 CSTD       = -std=gnu99
-ASM_SRC    = $(LIB_CODE)/startups/startup_stm32f107xc.s
-LD_SCRIPT  = $(LIB_CODE)/lds/stm32f1xx_flash_cl.ld
 
 # =============================================================================
 ifeq ($(STM32Fx), STM32F1)
@@ -106,6 +106,7 @@ $(OUTPATH):
 
 download:
 	st-flash write $(OUTPATH)/$(PROJ_NAME).bin 0x8000000
+	st-flash reset
 
 clean:
 	rm -f *.o

@@ -6,9 +6,49 @@ static RtosState_e rtos_state_;
 #endif
 
 // ============================================================================
+#if defined( STM32F103xB )
+static HAL_StatusTypeDef InitClock_F103xB( void ) {
+    // use external 8M crystal
+    if ( HSE_VALUE == 8000000 ) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
+        RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
+            ;  // Error_Handler(); TODO
+        }
+        /** Initializes the CPU, AHB and APB buses clocks
+         */
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                      | RCC_CLOCKTYPE_PCLK1
+                                      | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 )
+             != HAL_OK ) {
+            // Error_Handler(); TODO
+        }
+    }
+    else {
+        // #error not supported.
+    }
+
+    return HAL_OK;
+}
+#endif  // STM32F103xB
+
+// ============================================================================
 #if defined( STM32F107xC )
 static HAL_StatusTypeDef InitClock_F107xC( void ) {
-
     if ( HSE_VALUE == 25000000 ) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
@@ -53,7 +93,9 @@ static HAL_StatusTypeDef InitClock_F107xC( void ) {
 
 // ============================================================================
 static HAL_StatusTypeDef InitSystemClock( void ) {
-#if defined( STM32F107xC )
+#if defined( STM32F103xB )
+    return InitClock_F103xB();
+#elif defined( STM32F107xC )
     return InitClock_F107xC();
 #else
 #error InitSystemClock(): TO IMPLEMENT
@@ -132,6 +174,7 @@ static void enableTimerClock( TIM_TypeDef* TIMx ) {
     else if ( TIMx == TIM4 ) {
         __HAL_RCC_TIM4_CLK_ENABLE();
     }
+#if defined( STM32F107xC )
     else if ( TIMx == TIM5 ) {
         __HAL_RCC_TIM5_CLK_ENABLE();
     }
@@ -141,6 +184,7 @@ static void enableTimerClock( TIM_TypeDef* TIMx ) {
     else if ( TIMx == TIM7 ) {
         __HAL_RCC_TIM7_CLK_ENABLE();
     }
+#endif
     // Those timers do not exist for STM32F107xC, but do not delete
     // else if ( TIMx == TIM8 ) {
     //     __HAL_RCC_TIM8_CLK_ENABLE();
@@ -163,12 +207,14 @@ static void enableUartClock( USART_TypeDef* USARTx ) {
     else if ( USARTx == USART3 ) {
         __HAL_RCC_USART3_CLK_ENABLE();
     }
+#if defined( STM32F107xC )
     else if ( USARTx == UART4 ) {
         __HAL_RCC_UART4_CLK_ENABLE();
     }
     else if ( USARTx == UART5 ) {
         __HAL_RCC_UART5_CLK_ENABLE();
     }
+#endif
     else {
         // do nothing, if the uart/usart is not designed for one family of
         // microcontroller, it will throw an error

@@ -1,10 +1,10 @@
 ### Example Projects
 
-#### `001-f107vct6-sysclk-led`
+#### `001-f107vc-sysclk-led`
 
 Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
 
-#### `002-f107vct6-stime`
+#### `002-f107vc-stime`
 
 Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library). Configure the module `stime` in `config.h` as:
 
@@ -14,7 +14,7 @@ Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in 
 #include "stime-scheduler.h"
 ```
 
-#### `003-f107vct6-console-printf`
+#### `003-f107vc-console-printf`
 
 Setup a UART/USART port as the console, and use the console to print data, just like use it as `printf()` in `stdio.h`.
 
@@ -27,13 +27,13 @@ Setup a UART/USART port as the console, and use the console to print data, just 
 
 * Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 921600` to see its color effect.
 
-#### `004-f107vct6-stime-delay`
+#### `004-f107vc-stime-delay`
 
 This project demos the delay functions using the delay functions in `stime`, and print the time difference in the terminal.
 
 Notice that these delay functions would block the program.
 
-#### `005-f107vct6-stime-scheduler`
+#### `005-f107vc-stime-scheduler`
 
 This project uses the module `stime ` as a task scheduler. To enable it, just add:
 
@@ -41,7 +41,7 @@ This project uses the module `stime ` as a task scheduler. To enable it, just ad
 #define _STIME_USE_SCHEDULER
 ```
 
-#### `006-f107vct6-console-cli`
+#### `006-f107vc-console-cli`
 
 This project demonstrate the interaction from `screen` with the micro-controller using the built in `cli`. On the other hand, this project uses:
 
@@ -49,8 +49,13 @@ This project demonstrate the interaction from `screen` with the micro-controller
 
 <img src="./console-cli.gif" width="700px">
 
-#### `007-f107vct6-led-status`
+#### `007-f103rb-led-status`
 
 This project is based on previous example project, and add the following:
 
 1. `led-status` module to run the heartbeat task.
+
+#### `007-f107vc-led-status`
+
+1. The same project as the last one, just run it on the STM32F107VCT6 board.
+

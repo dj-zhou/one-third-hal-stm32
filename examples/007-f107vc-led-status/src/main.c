@@ -13,7 +13,7 @@ int main( void ) {
     utils.pin.mode( GPIOC, 7, GPIO_MODE_OUTPUT_PP );
     stime.config();
     stime.scheduler.config();
-    console.config( 921600, 8, 'n', 1 );
+    console.config( 2000000, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
     // tasks -----------

@@ -56,7 +56,14 @@ extern "C" {
 #endif
 
 // clang-format on
-
+// ----------------------------------------------------------------------------
+// some error check
+#if defined( STM32F103xB )
+#if defined( _CONSOLE_USE_UART4_PC10PC11 ) \
+    || defined( _CONSOLE_USE_UART5_PC12PD2 )
+#error STM32F107xC may not have UART4 or UART5
+#endif
+#endif
 // ============================================================================
 #if defined( CONSOLE_IS_USED )
 typedef enum {
