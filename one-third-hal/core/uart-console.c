@@ -1,8 +1,6 @@
 #include "uart-console.h"
 #include "console-cli.h"
 
-#include "stm32f1xx.h"
-#include "stm32f1xx_hal_gpio.h"
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -31,6 +29,7 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len );
 // ============================================================================
 // common used functions
 // ----------------------------------------------------------------------------
+#if defined( STM32F103xB ) || defined( STM32F107xC )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR ) {
     GPIO_InitTypeDef GPIO_InitStructure;
@@ -39,6 +38,9 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     // default setting is push-pull output
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+#if defined( STM32F407xx )
+    GPIO_InitStructure.Alternate = GPIO_AF7_USART2;
+#endif
     HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
     // RX
     GPIO_InitStructure.Pin   = 1 << pin_nR;
@@ -46,7 +48,30 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
+#endif  // STM32F103xB || STM32F107xC
 
+// ----------------------------------------------------------------------------
+#if defined( STM32F407xx )
+static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                          uint32_t alter ) {
+    GPIO_InitTypeDef GPIO_InitStructure;
+    // TX
+    GPIO_InitStructure.Pin = 1 << pin_nT;
+    // default setting is push-pull output
+    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStructure.Alternate = alter;  // cannot move it to the next block
+    HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
+    // RX
+    GPIO_InitStructure.Pin   = 1 << pin_nR;
+    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
+}
+#endif  // STM32F407xx
 // ----------------------------------------------------------------------------
 static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
                               uint8_t len, char parity, uint8_t stop_b ) {
@@ -88,8 +113,9 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
         hconsole_.Init.Parity = UART_PARITY_NONE;
         break;
     }
-    hconsole_.Init.Mode      = UART_MODE_TX_RX;
-    hconsole_.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    hconsole_.Init.Mode         = UART_MODE_TX_RX;
+    hconsole_.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    hconsole_.Init.OverSampling = UART_OVERSAMPLING_16;
     HAL_UART_Init( &hconsole_ );  // if != HAL_OK ??
 }
 
@@ -117,7 +143,11 @@ static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
                                 uint8_t stop_b ) {
     // gpio setting
     utils.clock.enableGpio( GPIOA );
+#if defined( STM32F103xB ) || defined( STM32F107xC )
     InitUartPins( GPIOA, 9, GPIOA, 10 );
+#elif defined( STM32F407xx )
+    InitUartPins( GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1 );  // to verify
+#endif
     // usart setting
     utils.clock.enableUart( USART1 );
     InitUartSettings( USART1, baud_rate, len, parity, stop_b );
@@ -166,7 +196,14 @@ static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
     utils.clock.enableGpio( GPIOA );
+#if defined( STM32F103xB ) || defined( STM32F107xC )
     InitUartPins( GPIOA, 2, GPIOA, 3 );
+#elif defined( STM32F407xx )
+    InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2 );
+#endif
+    // some special settings
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+    HAL_GPIO_Init( GPIOA, &GPIO_InitStruct );
     // usart setting
     utils.clock.enableUart( USART2 );
     InitUartSettings( USART2, baud_rate, len, parity, stop_b );

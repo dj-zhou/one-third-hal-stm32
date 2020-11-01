@@ -6,9 +6,31 @@ static RtosState_e rtos_state_;
 #endif
 
 // ============================================================================
+#if defined( STM32F103xB ) || defined( STM32F107xC ) || defined( STM32F407xx )
+static void systemClockVerification( uint32_t hclk, uint32_t pclk1,
+                                     uint32_t pclk2 ) {
+    // why it is not HAL_RCC_GetSysClockFreq()
+    uint32_t hclk_freq  = HAL_RCC_GetHCLKFreq();
+    uint32_t pclk1_freq = HAL_RCC_GetPCLK1Freq();
+    uint32_t pclk2_freq = HAL_RCC_GetPCLK2Freq();
+    // no addclk?
+    // TODO
+    if ( ( hclk_freq != hclk ) || ( pclk1_freq != pclk1 )
+         || ( pclk2_freq != pclk2 ) ) {
+        while ( 1 ) {
+            for ( int i = 0; i < 500; i++ ) {
+                for ( int j = 0; j < 500; j++ ) {
+                    ;
+                }
+            }
+            utils.pin.toggle( GPIOE, 11 );
+        }
+    }
+}
+#endif  // STM32F103xB || STM32F107xC
+
 #if defined( STM32F103xB )
 static HAL_StatusTypeDef InitClock_F103xB( void ) {
-    // use external 8M crystal
     if ( HSE_VALUE == 8000000 ) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
@@ -23,8 +45,7 @@ static HAL_StatusTypeDef InitClock_F103xB( void ) {
         if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
             ;  // Error_Handler(); TODO
         }
-        /** Initializes the CPU, AHB and APB buses clocks
-         */
+
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                       | RCC_CLOCKTYPE_PCLK1
                                       | RCC_CLOCKTYPE_PCLK2;
@@ -41,7 +62,7 @@ static HAL_StatusTypeDef InitClock_F103xB( void ) {
     else {
         // #error not supported.
     }
-
+    systemClockVerification( 72000000, 36000000, 36000000 );
     return HAL_OK;
 }
 #endif  // STM32F103xB
@@ -87,9 +108,55 @@ static HAL_StatusTypeDef InitClock_F107xC( void ) {
     else {
         // #error not supported.
     }
+    systemClockVerification( 72000000, 36000000, 36000000 );
     return HAL_OK;
 }
 #endif
+
+// ============================================================================
+#if defined( STM32F407xx )
+static HAL_StatusTypeDef InitClock_F407xx( void ) {
+    if ( HSE_VALUE == 12000000 ) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        /** Configure the main internal regulator output voltage
+         */
+        __HAL_RCC_PWR_CLK_ENABLE();
+        __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM       = 8;
+        RCC_OscInitStruct.PLL.PLLN       = 224;
+        RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+        RCC_OscInitStruct.PLL.PLLQ       = 4;
+        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
+            // Error_Handler(); // TODO
+        }
+
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                      | RCC_CLOCKTYPE_PCLK1
+                                      | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 )
+             != HAL_OK ) {
+            // Error_Handler(); // TODO
+        }
+    }
+    else {
+        // #error not supported.
+    }
+    systemClockVerification( 168000000, 42000000, 84000000 );
+    return HAL_OK;
+}
+#endif  // STM32F407xx
 
 // ============================================================================
 static HAL_StatusTypeDef InitSystemClock( void ) {
@@ -97,6 +164,8 @@ static HAL_StatusTypeDef InitSystemClock( void ) {
     return InitClock_F103xB();
 #elif defined( STM32F107xC )
     return InitClock_F107xC();
+#elif defined( STM32F407xx )
+    return InitClock_F407xx();
 #else
 #error InitSystemClock(): TO IMPLEMENT
 #endif
@@ -147,13 +216,6 @@ static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
     else if ( GPIOx == GPIOE ) {
         __HAL_RCC_GPIOE_CLK_ENABLE();
     }
-    // those do not exist for STM32F107xC, but do not delete
-    // else if ( GPIOx == GPIOF ) {
-    //     __HAL_RCC_GPIOF_CLK_ENABLE();
-    // }
-    // else if ( GPIOx == GPIOG ) {
-    //     __HAL_RCC_GPIOG_CLK_ENABLE();
-    // }
     else {
         // do nothing, if the GPIO group is not designed for one family of
         // microcontroller, it will throw an error
@@ -185,10 +247,6 @@ static void enableTimerClock( TIM_TypeDef* TIMx ) {
         __HAL_RCC_TIM7_CLK_ENABLE();
     }
 #endif
-    // Those timers do not exist for STM32F107xC, but do not delete
-    // else if ( TIMx == TIM8 ) {
-    //     __HAL_RCC_TIM8_CLK_ENABLE();
-    // }
     else {
         // do nothing, if the timer is not designed for one family of
         // microcontroller, it will throw an error

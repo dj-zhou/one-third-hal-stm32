@@ -1,5 +1,6 @@
-#include "stm32f1xx_it.h"
 #include "config.h"
+
+#include "stm32f1xx_it.h"
 
 __attribute__( ( weak ) ) void NMI_Handler( void ) {}
 
