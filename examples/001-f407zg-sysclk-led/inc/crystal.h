@@ -3,6 +3,6 @@
 
 // =============================================================================
 // Value of the External oscillator in Hz
-#define CRYSTAL_FREQ ( ( uint32_t )25000000 )
+#define CRYSTAL_FREQ ( ( uint32_t )12000000 )
 
 #endif  // __CRYSTAL_H
