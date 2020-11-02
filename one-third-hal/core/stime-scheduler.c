@@ -39,9 +39,26 @@ static volatile uint32_t second_;  // use this to support 136 years
         #define    SYSTICK_MS_SCALE        5000
     #endif
 #endif
+
+#if defined( STM32F030x8 )
+    #if defined( _STIME_USE_SYSTICK )
+        #if defined( _STIME_4K_TICK )
+            #define    SYSTICK_RELOAD_VALUE    1500
+        #elif defined( _STIME_2K_TICK )
+            #define    SYSTICK_RELOAD_VALUE    3000
+        #elif defined( _STIME_1K_TICK )
+            #define    SYSTICK_RELOAD_VALUE    6000
+        #elif defined( _STIME_500_TICK )
+            #define    SYSTICK_RELOAD_VALUE   12000
+        #elif defined( _STIME_400_TICK )
+            #define    SYSTICK_RELOAD_VALUE   15000
+        #elif defined( _STIME_200_TICK )
+            #define    SYSTICK_RELOAD_VALUE   30000
+        #endif
+    #endif
 // STM32F103 uses 72 MHz system clock
 // STM32F107 uses 72 MHz system clock
-#if defined( STM32F103xB ) || defined( STM32F107xC )
+#elif defined( STM32F103xB ) || defined( STM32F107xC )
     #if defined( _STIME_USE_SYSTICK )
         #if defined( _STIME_4K_TICK )
             #define    SYSTICK_RELOAD_VALUE    2250

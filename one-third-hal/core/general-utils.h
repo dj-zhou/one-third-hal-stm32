@@ -7,10 +7,14 @@ extern "C" {
 
 #include "config.h"  // must be on the top
 
-#if defined( STM32F103xB ) || defined( STM32F107xC )
+#if defined( STM32F030x8 )
+#include "stm32f0xx.h"
+#elif defined( STM32F103xB ) || defined( STM32F107xC )
 #include "stm32f1xx.h"
 #elif defined( STM32F407xx )
 #include "stm32f4xx.h"
+#elif defined( STM32F767xx )
+#include "stm32f7xx.h"
 #endif
 
 #include <stdbool.h>

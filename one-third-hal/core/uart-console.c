@@ -29,6 +29,29 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len );
 // ============================================================================
 // common used functions
 // ----------------------------------------------------------------------------
+#if defined( STM32F030x8 )
+static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                          uint32_t alter ) {
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
+    // TX
+    GPIO_InitStructure.Pin = 1 << pin_nT;
+    // default setting is push-pull output
+    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStructure.Alternate = alter;  // cannot move it to the next block
+    HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
+    // RX
+    GPIO_InitStructure.Pin   = 1 << pin_nR;
+    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
+}
+#endif  // STM32F407xx
+
+// ----------------------------------------------------------------------------
 #if defined( STM32F103xB ) || defined( STM32F107xC )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR ) {
@@ -95,6 +118,7 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
 #endif  // STM32F767xx
+
 // ----------------------------------------------------------------------------
 static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
                               uint8_t len, char parity, uint8_t stop_b ) {
@@ -227,6 +251,8 @@ static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
     InitUartPins( GPIOA, 2, GPIOA, 3 );
 #elif defined( STM32F407xx )
     InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2 );
+#elif defined( STM32F030x8 )
+    InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2 );
 #endif
     // some special settings
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
@@ -266,11 +292,20 @@ static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
 // ---------------------------------------------------------------------------
 #if defined( _CONSOLE_USE_UART2_PA2PA3 ) || defined( _CONSOLE_USE_UART2_PD5PD6 )
 void USART2_IRQHandler( void ) {
+    // those two might be combined
+#if defined( STM32F030x8 )
+    uint8_t recv;
+    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
+    }
+    ConsoleSetChar( &recv, 1 );
+#else
     // clear the interrupt flag
     USART2->SR &= ( uint16_t )~USART_FLAG_RXNE;
     // receive data
     uint8_t recv = ( uint8_t )( USART2->DR & ( uint16_t )0x01FF );
     ConsoleSetChar( &recv, 1 );
+#endif
 }
 #endif  // _CONSOLE_USE_UART2_PA2PA3 || _CONSOLE_USE_UART2_PD5PD6
 
@@ -341,6 +376,7 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
     || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
     || defined( _CONSOLE_USE_UART3_PD8PD9 )
 void USART3_IRQHandler( void ) {
+    // those two might be combined
 #if defined( STM32F767xx )
     uint8_t recv;
     if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
@@ -352,7 +388,7 @@ void USART3_IRQHandler( void ) {
     // USART3->SR &= ( uint16_t )~USART_FLAG_RXNE;
     // // receive data
     // uint8_t recv = ( uint8_t )( USART3->DR & ( uint16_t )0x01FF );
-    // this may work!
+    // this may work! not tested
     uint8_t recv;
     if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
         HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
@@ -383,6 +419,7 @@ static void InitUART4_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
 
 // ---------------------------------------------------------------------------
 void UART4_IRQHandler( void ) {
+    // may use the code in other IRQHandlers
     // clear the interrupt flag
     UART4->SR &= ( uint16_t )~USART_FLAG_RXNE;
     // receive data

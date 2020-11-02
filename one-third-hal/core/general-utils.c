@@ -24,10 +24,17 @@ static void VerifyClocks( uint32_t hclk, uint32_t pclk1, uint32_t pclk2 ) {
     // why it is not HAL_RCC_GetSysClockFreq()
     uint32_t hclk_freq  = HAL_RCC_GetHCLKFreq();
     uint32_t pclk1_freq = HAL_RCC_GetPCLK1Freq();
+#if !defined( STM32F030x8 )
     uint32_t pclk2_freq = HAL_RCC_GetPCLK2Freq();
+#else
+    uint32_t pclk2_freq = 0;  // to avoid writing code
+#endif
     // no addclk?
     int step;
-    if ( hclk < 100000000 ) {
+    if ( hclk < 50000000 ) {
+        step = 50;
+    }
+    else if ( hclk < 100000000 ) {
         step = 100;
     }
     else if ( hclk < 200000000 ) {
@@ -52,6 +59,42 @@ static void VerifyClocks( uint32_t hclk, uint32_t pclk1, uint32_t pclk2 ) {
         }
     }
 }
+
+// ============================================================================
+#if defined( STM32F030x8 )
+static HAL_StatusTypeDef InitClock_F030x8( void ) {
+    if ( HSE_VALUE == 8000000 ) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL6;
+        RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
+        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
+            // Error_Handler();  // todo
+        }
+
+        RCC_ClkInitStruct.ClockType =
+            RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+
+        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 )
+             != HAL_OK ) {
+            // Error_Handler();  // todo
+        }
+    }
+    else {
+        // #error not supported.
+    }
+    VerifyClocks( 48000000, 48000000, 0 );  // no PCLK2
+    return HAL_OK;
+}
+#endif
 
 // ============================================================================
 #if defined( STM32F103xB )
@@ -281,7 +324,9 @@ static HAL_StatusTypeDef InitClock_F767xx( void ) {
 
 // ============================================================================
 static HAL_StatusTypeDef InitSystemClock( void ) {
-#if defined( STM32F103xB )
+#if defined( STM32F030x8 )
+    return InitClock_F030x8();
+#elif defined( STM32F103xB )
     return InitClock_F103xB();
 #elif defined( STM32F107xC )
     return InitClock_F107xC();
@@ -301,6 +346,11 @@ static HAL_StatusTypeDef InitSystemClock( void ) {
 
 // ============================================================================
 static void InitNvicInterrupt( uint8_t group ) {
+#if defined( STM32F030x8 )
+    // seems no grouping for Cortex M0
+    ( void )group;
+    return;
+#else
     switch ( group ) {
     case 0:
         HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_0 );
@@ -318,10 +368,11 @@ static void InitNvicInterrupt( uint8_t group ) {
     default:
         HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
         break;
-        // can not do anything, because this function is usually called before
-        // console setup and led_he setup
+        // can not do anything, because this function is usually called
+        // before console setup and led_he setup
         break;
     }
+#endif
 }
 
 // ============================================================================
@@ -335,11 +386,16 @@ static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
     else if ( GPIOx == GPIOC ) {
         __HAL_RCC_GPIOC_CLK_ENABLE();
     }
+#if !defined( STM32F030x8 )
     else if ( GPIOx == GPIOD ) {
         __HAL_RCC_GPIOD_CLK_ENABLE();
     }
     else if ( GPIOx == GPIOE ) {
         __HAL_RCC_GPIOE_CLK_ENABLE();
+    }
+#endif
+    else if ( GPIOx == GPIOF ) {
+        __HAL_RCC_GPIOF_CLK_ENABLE();
     }
     else {
         // do nothing, if the GPIO group is not designed for one family of
@@ -352,15 +408,18 @@ static void enableTimerClock( TIM_TypeDef* TIMx ) {
     if ( TIMx == TIM1 ) {
         __HAL_RCC_TIM1_CLK_ENABLE();
     }
-    else if ( TIMx == TIM2 ) {
-        __HAL_RCC_TIM2_CLK_ENABLE();
-    }
     else if ( TIMx == TIM3 ) {
         __HAL_RCC_TIM3_CLK_ENABLE();
+    }
+#if !defined( STM32F030x8 )
+    else if ( TIMx == TIM2 ) {
+        __HAL_RCC_TIM2_CLK_ENABLE();
     }
     else if ( TIMx == TIM4 ) {
         __HAL_RCC_TIM4_CLK_ENABLE();
     }
+#endif
+// the following may also work for F407, F767, etc. TODO
 #if defined( STM32F107xC )
     else if ( TIMx == TIM5 ) {
         __HAL_RCC_TIM5_CLK_ENABLE();
@@ -387,9 +446,12 @@ static void enableUartClock( USART_TypeDef* USARTx ) {
     else if ( USARTx == USART2 ) {
         __HAL_RCC_USART2_CLK_ENABLE();
     }
+#if !defined( STM32F030x8 )
     else if ( USARTx == USART3 ) {
         __HAL_RCC_USART3_CLK_ENABLE();
     }
+#endif
+// the following may also work for F407, F767, etc. TODO
 #if defined( STM32F107xC )
     else if ( USARTx == UART4 ) {
         __HAL_RCC_UART4_CLK_ENABLE();
@@ -412,9 +474,9 @@ static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
 
 #if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
     // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
-    // therefore we must first disable JTAG and async trace functions to release
-    // PB3/PB4 for GPIO use
-    // this operation is confirmed on STM32F1 micro controllers
+    // therefore we must first disable JTAG and async trace functions to
+    // release PB3/PB4 for GPIO use this operation is confirmed on STM32F1
+    // micro controllers
 
     // these need to be tested ------------------
     if ( ( ( GPIOx == GPIOB )

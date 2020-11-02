@@ -99,6 +99,7 @@ The library is tested with the following micro-controllers:
 
 | micro-controller | SYSCLK/APB1/APB2 (MHz) | FLASH/RAM  | Tested Platform              |
 | :--------------: | :--------------------: | :--------: | ---------------------------- |
+|  STM32F030R8T6   |        48/48/--        |   64K/8K   | NUCLEO-F030R8                |
 |  STM32F103RBT6   |        72/36/72        |  128K/20K  | NUCLEO-F103RB                |
 |  STM32F107VCT6   |        72/36/72        |  256K/64K  | Olimex-H107                  |
 |  STM32F407ZGT6   |       168/42/84        | 1024K/192K | STM32F4-DISCOVERY (modified) |
