@@ -26,12 +26,24 @@ static void VerifyClocks( uint32_t hclk, uint32_t pclk1, uint32_t pclk2 ) {
     uint32_t pclk1_freq = HAL_RCC_GetPCLK1Freq();
     uint32_t pclk2_freq = HAL_RCC_GetPCLK2Freq();
     // no addclk?
-    // TODO
+    int step;
+    if ( hclk < 100000000 ) {
+        step = 100;
+    }
+    else if ( hclk < 200000000 ) {
+        step = 2000;
+    }
+    else if ( hclk < 300000000 ) {
+        step = 5000;
+    }
+    else {
+        step = 10000;
+    }
     if ( ( hclk_freq != hclk ) || ( pclk1_freq != pclk1 )
          || ( pclk2_freq != pclk2 ) ) {
         utils.pin.mode( ERROR_LED_PORT, ERROR_LED_PIN, GPIO_MODE_OUTPUT_PP );
         while ( 1 ) {
-            for ( int i = 0; i < 500; i++ ) {
+            for ( int i = 0; i < step; i++ ) {
                 for ( int j = 0; j < 500; j++ ) {
                     ;
                 }
@@ -161,6 +173,43 @@ static HAL_StatusTypeDef InitClock_F407xx( void ) {
         if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 )
              != HAL_OK ) {
             // Error_Handler(); // TODO
+        }
+    }
+    else if ( HSE_VALUE == 8000000 ) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        /** Configure the main internal regulator output voltage
+         */
+        __HAL_RCC_PWR_CLK_ENABLE();
+        __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+        /** Initializes the RCC Oscillators according to the specified
+         * parameters in the RCC_OscInitTypeDef structure.
+         */
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM       = 8;
+        RCC_OscInitStruct.PLL.PLLN       = 336;
+        RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+        RCC_OscInitStruct.PLL.PLLQ       = 4;
+        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
+            // Error_Handler();  // todo
+        }
+        /** Initializes the CPU, AHB and APB buses clocks
+         */
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                      | RCC_CLOCKTYPE_PCLK1
+                                      | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 )
+             != HAL_OK ) {
+            // Error_Handler();  // todo
         }
     }
     else {

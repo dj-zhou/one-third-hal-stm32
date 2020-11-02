@@ -26,11 +26,17 @@ The library is in directory `one-third-hal`, its structure is as following:
 ├── core
 ├── f1-share
 ├── f1-v1.8.2
+├── f4-share
+├── f4-v1.25.1
+├── f7-share
+├── f7-v1.16.0
 ├── lds
 └── startups
 ```
 
-* **CMSIS**: is the core library files of ARM
+* **CMSIS**: is the core library files of ARM.
+
+* **core**: the core components of this middle layer of library, the details are in the following sub section.
 
 * **f1-share**: is a project related shared directory, including files:
 
@@ -45,13 +51,15 @@ The library is in directory `one-third-hal`, its structure is as following:
 
   The are modified to fit the library, and are not supposed to be revised again for different project, that why those files are in the library.
 
-* **f1-v1.8.2**: the HAL library for STM32F1 series of version v1.8.2. The files are generated from **STM32CubeMx**. Unused files are removed
+* **f1-v1.8.2**: the HAL library for STM32F1 series of version v1.8.2. The files are generated from **STM32CubeMx**. Unused files are removed.
 
-* **lds**: the linker scripts for different micro-controllers
+* **f4-share/f4-v1.25.1**: the same as above, except that they are for F4.
 
-* **startups**: the startup source code for different micro-controllers
+* **f7-share/f7-v1.16.0**: the same as above, except that they are for F7.
 
-* **core**: the core components of this middle layer of library, the details are in the following sub section
+* **lds**: the linker scripts for different micro-controllers.
+
+* **startups**: the startup source code for different micro-controllers.
 
 #### core
 
@@ -89,10 +97,10 @@ We use console to interact with the micro-controller to check its status, for ex
 
 The library is tested with the following micro-controllers:
 
-| micro-controller | SYSCLK/APB1/APB2 (MHz) | FLASH/RAM  |
-| :--------------: | :--------------------: | :--------: |
-|  STM32F103RBT6   |        72/36/72        |  128K/20K  |
-|  STM32F107VCT6   |        72/36/72        |  256K/64K  |
-|  STM32F407ZGT6   |       168/42/84        | 1024K/192K |
-|  STM32F767ZIT6   |       216/54/108       | 2048K/512K |
+| micro-controller | SYSCLK/APB1/APB2 (MHz) | FLASH/RAM  | Tested Platform              |
+| :--------------: | :--------------------: | :--------: | ---------------------------- |
+|  STM32F103RBT6   |        72/36/72        |  128K/20K  | NUCLEO-F103RB                |
+|  STM32F107VCT6   |        72/36/72        |  256K/64K  | Olimex-H107                  |
+|  STM32F407ZGT6   |       168/42/84        | 1024K/192K | STM32F4-DISCOVERY (modified) |
+|  STM32F767ZIT6   |       216/54/108       | 2048K/512K | NUCLEO-F767ZI                |
 

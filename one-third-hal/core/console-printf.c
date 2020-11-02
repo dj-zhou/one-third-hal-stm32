@@ -42,7 +42,11 @@ void printf_f( char* sign_data, double data ) {
     int   accuracy = 5, width = 0, index = 0, temp = ( int )data;
     char* str;
     char  fmt[10];
-
+    // temporary solution ------------------
+    if ( ( data > -1 ) && ( data < 0 ) ) {
+        console.writeByte( '-' );
+    }
+    // --------------------
     str = strchr( sign_data, '.' );
     if ( str ) {
         accuracy = atoi( str + 1 );
