@@ -55,7 +55,7 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                           uint32_t alter ) {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
     GPIO_InitStructure.Pin = 1 << pin_nT;
     // default setting is push-pull output
@@ -72,6 +72,29 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
 #endif  // STM32F407xx
+
+// ----------------------------------------------------------------------------
+#if defined( STM32F767xx )
+static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                          uint32_t alter ) {
+
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
+    // TX
+    GPIO_InitStructure.Pin       = 1 << pin_nT;
+    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStructure.Alternate = alter;
+    HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
+    GPIO_InitStructure.Pin   = 1 << pin_nR;
+    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    // GPIO_InitStructure.Alternate = alter;
+    HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
+}
+#endif  // STM32F767xx
 // ----------------------------------------------------------------------------
 static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
                               uint8_t len, char parity, uint8_t stop_b ) {
@@ -116,6 +139,10 @@ static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
     hconsole_.Init.Mode         = UART_MODE_TX_RX;
     hconsole_.Init.HwFlowCtl    = UART_HWCONTROL_NONE;
     hconsole_.Init.OverSampling = UART_OVERSAMPLING_16;
+#if defined( STM32F767xx )
+    hconsole_.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
+    hconsole_.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+#endif
     HAL_UART_Init( &hconsole_ );  // if != HAL_OK ??
 }
 
@@ -291,14 +318,18 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
     utils.clock.enableGpio( GPIOD );
+#if defined( STM32F767xx )
+    InitUartPins( GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3 );
+#else
     InitUartPins( GPIOD, 8, GPIOD, 9 );
+#endif
     // usart setting
     utils.clock.enableUart( USART3 );
     InitUartSettings( USART3, baud_rate, len, parity, stop_b );
-
+#if !defined( STM32F767xx )
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART3_ENABLE();
-
+#endif
     InitUartNvic( USART3_IRQn );
 
     __HAL_USART_ENABLE( &hconsole_ );
@@ -310,11 +341,24 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
     || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
     || defined( _CONSOLE_USE_UART3_PD8PD9 )
 void USART3_IRQHandler( void ) {
-    // clear the interrupt flag
-    USART3->SR &= ( uint16_t )~USART_FLAG_RXNE;
-    // receive data
-    uint8_t recv = ( uint8_t )( USART3->DR & ( uint16_t )0x01FF );
+#if defined( STM32F767xx )
+    uint8_t recv;
+    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
+    }
     ConsoleSetChar( &recv, 1 );
+#else
+    // clear the interrupt flag
+    // USART3->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // // receive data
+    // uint8_t recv = ( uint8_t )( USART3->DR & ( uint16_t )0x01FF );
+    // this may work!
+    uint8_t recv;
+    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
+    }
+    ConsoleSetChar( &recv, 1 );
+#endif
 }
 #endif  // _CONSOLE_USE_UART3_PB10PB11 || _CONSOLE_USE_UART3_PC10PC11 ||
         // _CONSOLE_USE_UART3_PD8PD9
@@ -370,10 +414,11 @@ static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
 
 // ---------------------------------------------------------------------------
 void UART5_IRQHandler( void ) {
-    // clear the interrupt flag
-    UART5->SR &= ( uint16_t )~USART_FLAG_RXNE;
-    // receive data
-    uint8_t recv = ( uint8_t )( UART5->DR & ( uint16_t )0x01FF );
+    // tested!
+    uint8_t recv;
+    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
+    }
     ConsoleSetChar( &recv, 1 );
 }
 #endif  // _CONSOLE_USE_UART5_PC12PD2

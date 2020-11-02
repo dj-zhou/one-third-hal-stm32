@@ -6,9 +6,21 @@ static RtosState_e rtos_state_;
 #endif
 
 // ============================================================================
-#if defined( STM32F103xB ) || defined( STM32F107xC ) || defined( STM32F407xx )
-static void systemClockVerification( uint32_t hclk, uint32_t pclk1,
-                                     uint32_t pclk2 ) {
+// clang-format off
+#if defined(_LED_HEARTBEAT_PORT)
+    #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
+#else 
+    #define ERROR_LED_PORT GPIOA // not sure if this will conflict with something
+#endif
+#if defined(_LED_HEARTBEAT_PIN)
+    #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
+#else 
+    #define ERROR_LED_PIN 5 // not sure if this will conflict with something
+#endif
+// clang-format on
+
+// ============================================================================
+static void VerifyClocks( uint32_t hclk, uint32_t pclk1, uint32_t pclk2 ) {
     // why it is not HAL_RCC_GetSysClockFreq()
     uint32_t hclk_freq  = HAL_RCC_GetHCLKFreq();
     uint32_t pclk1_freq = HAL_RCC_GetPCLK1Freq();
@@ -17,18 +29,19 @@ static void systemClockVerification( uint32_t hclk, uint32_t pclk1,
     // TODO
     if ( ( hclk_freq != hclk ) || ( pclk1_freq != pclk1 )
          || ( pclk2_freq != pclk2 ) ) {
+        utils.pin.mode( ERROR_LED_PORT, ERROR_LED_PIN, GPIO_MODE_OUTPUT_PP );
         while ( 1 ) {
             for ( int i = 0; i < 500; i++ ) {
                 for ( int j = 0; j < 500; j++ ) {
                     ;
                 }
             }
-            utils.pin.toggle( GPIOE, 11 );
+            utils.pin.toggle( ERROR_LED_PORT, ERROR_LED_PIN );
         }
     }
 }
-#endif  // STM32F103xB || STM32F107xC
 
+// ============================================================================
 #if defined( STM32F103xB )
 static HAL_StatusTypeDef InitClock_F103xB( void ) {
     if ( HSE_VALUE == 8000000 ) {
@@ -62,7 +75,7 @@ static HAL_StatusTypeDef InitClock_F103xB( void ) {
     else {
         // #error not supported.
     }
-    systemClockVerification( 72000000, 36000000, 36000000 );
+    VerifyClocks( 72000000, 36000000, 72000000 );
     return HAL_OK;
 }
 #endif  // STM32F103xB
@@ -108,7 +121,7 @@ static HAL_StatusTypeDef InitClock_F107xC( void ) {
     else {
         // #error not supported.
     }
-    systemClockVerification( 72000000, 36000000, 36000000 );
+    VerifyClocks( 72000000, 36000000, 72000000 );
     return HAL_OK;
 }
 #endif
@@ -153,10 +166,69 @@ static HAL_StatusTypeDef InitClock_F407xx( void ) {
     else {
         // #error not supported.
     }
-    systemClockVerification( 168000000, 42000000, 84000000 );
+    VerifyClocks( 168000000, 42000000, 84000000 );
     return HAL_OK;
 }
 #endif  // STM32F407xx
+
+// ============================================================================
+#if defined( STM32F767xx )
+static HAL_StatusTypeDef InitClock_F767xx( void ) {
+    if ( HSE_VALUE == 8000000 ) {
+        RCC_OscInitTypeDef       RCC_OscInitStruct   = { 0 };
+        RCC_ClkInitTypeDef       RCC_ClkInitStruct   = { 0 };
+        RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+
+        /** Configure the main internal regulator output voltage
+         */
+        __HAL_RCC_PWR_CLK_ENABLE();
+        __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+        /** Initializes the RCC Oscillators according to the specified
+         * parameters in the RCC_OscInitTypeDef structure.
+         */
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM       = 8;
+        RCC_OscInitStruct.PLL.PLLN       = 432;
+        RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+        RCC_OscInitStruct.PLL.PLLQ       = 2;
+        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
+            // Error_Handler();  // TODO
+        }
+        /** Activate the Over-Drive mode
+         */
+        if ( HAL_PWREx_EnableOverDrive() != HAL_OK ) {
+            // Error_Handler();  // TODO
+        }
+        /** Initializes the CPU, AHB and APB buses clocks
+         */
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                      | RCC_CLOCKTYPE_PCLK1
+                                      | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+
+        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_7 )
+             != HAL_OK ) {
+            // Error_Handler(); // TODO
+        }
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3;
+        PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+        if ( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInitStruct ) != HAL_OK ) {
+            // Error_Handler(); // TODO
+        }
+    }
+    else {
+        // #error not supported.
+    }
+    VerifyClocks( 216000000, 54000000, 108000000 );
+    return HAL_OK;
+}
+#endif
 
 // ============================================================================
 static HAL_StatusTypeDef InitSystemClock( void ) {
@@ -166,11 +238,15 @@ static HAL_StatusTypeDef InitSystemClock( void ) {
     return InitClock_F107xC();
 #elif defined( STM32F407xx )
     return InitClock_F407xx();
+#elif defined( STM32F767xx )
+    return InitClock_F767xx();
 #else
 #error InitSystemClock(): TO IMPLEMENT
 #endif
-
-    HAL_Init();  // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
+    // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
+    // thte HAL_MspInit() initialized the SysTick to 1K Hz frequency
+    // however, our stime.config() will override it.
+    HAL_Init();
     return HAL_OK;
 }
 

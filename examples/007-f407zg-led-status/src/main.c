@@ -3,9 +3,14 @@
 
 // =============================================================================
 void taskPrint( void ) {
-    static int32_t loop = 0;
-    double         data = sin( ( double )loop / 180.0 * 3.1415926 );
-    console.printf( "%5d: hello %s, data = %3.4f\r\n", loop++, FIRMWARE, data );
+    static int32_t loop = 220;
+    float          data = -sin( ( double )loop / 180.0 * 3.1415926 );
+    char*          ptr  = ( char* )&data;
+    console.printf( "data = %f, ", data );
+    for ( int i = 0; i < 4; i++ ) {
+        console.printf( "%X ", *ptr++ );
+    }
+    console.printf( "\r\n" );
 }
 
 // ============================================================================
@@ -19,7 +24,7 @@ int main( void ) {
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
     // tasks -----------
-    stime.scheduler.regist( 1000, 2, taskPrint, "taskPrint" );
+    stime.scheduler.regist( 500, 2, taskPrint, "taskPrint" );
     stime.scheduler.show();
 
     // system start to run -----------

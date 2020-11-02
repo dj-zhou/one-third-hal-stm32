@@ -18,60 +18,77 @@ static volatile uint32_t second_;  // use this to support 136 years
 // ============================================================================
 // constant values used accros the file -------------
 // clang-format off
+ #if defined( _STIME_USE_SYSTICK )
+    #if defined( _STIME_4K_TICK )
+        #define    SYSTICK_1S_OVERFLOW     4000
+        #define    SYSTICK_MS_SCALE         250
+    #elif defined( _STIME_2K_TICK )
+        #define    SYSTICK_1S_OVERFLOW     2000
+        #define    SYSTICK_MS_SCALE         500
+    #elif defined( _STIME_1K_TICK )
+        #define    SYSTICK_1S_OVERFLOW     1000
+        #define    SYSTICK_MS_SCALE        1000
+    #elif defined( _STIME_500_TICK )
+        #define    SYSTICK_1S_OVERFLOW      500
+        #define    SYSTICK_MS_SCALE        2000
+    #elif defined( _STIME_400_TICK )
+        #define    SYSTICK_1S_OVERFLOW      400
+        #define    SYSTICK_MS_SCALE        2500
+    #elif defined( _STIME_200_TICK )
+        #define    SYSTICK_1S_OVERFLOW      200
+        #define    SYSTICK_MS_SCALE        5000
+    #endif
+#endif
+// STM32F103 uses 72 MHz system clock
+// STM32F107 uses 72 MHz system clock
 #if defined( STM32F103xB ) || defined( STM32F107xC )
     #if defined( _STIME_USE_SYSTICK )
         #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     4000
             #define    SYSTICK_RELOAD_VALUE    2250
-            #define    SYSTICK_MS_SCALE         250
         #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     2000
             #define    SYSTICK_RELOAD_VALUE    4500
-            #define    SYSTICK_MS_SCALE         500
         #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     1000
             #define    SYSTICK_RELOAD_VALUE    9000
-            #define    SYSTICK_MS_SCALE        1000
         #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_1S_OVERFLOW      500
             #define    SYSTICK_RELOAD_VALUE   18000
-            #define    SYSTICK_MS_SCALE        2000
         #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_1S_OVERFLOW      400
             #define    SYSTICK_RELOAD_VALUE   22500
-            #define    SYSTICK_MS_SCALE        2500
         #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_1S_OVERFLOW      200
             #define    SYSTICK_RELOAD_VALUE   45000
-            #define    SYSTICK_MS_SCALE        5000
         #endif
     #endif
+// STM32F407 uses 168 MHz system clock
 #elif defined( STM32F407xx )
     #if defined( _STIME_USE_SYSTICK )
         #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     4000
             #define    SYSTICK_RELOAD_VALUE    5250
-            #define    SYSTICK_MS_SCALE         250
         #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     2000
             #define    SYSTICK_RELOAD_VALUE   10500
-            #define    SYSTICK_MS_SCALE         500
         #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_1S_OVERFLOW     1000
             #define    SYSTICK_RELOAD_VALUE   21000
-            #define    SYSTICK_MS_SCALE        1000
         #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_1S_OVERFLOW      500
             #define    SYSTICK_RELOAD_VALUE   42000
-            #define    SYSTICK_MS_SCALE        2000
         #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_1S_OVERFLOW      400
             #define    SYSTICK_RELOAD_VALUE   52500
-            #define    SYSTICK_MS_SCALE        2500
         #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_1S_OVERFLOW      200
             #define    SYSTICK_RELOAD_VALUE  105000
-            #define    SYSTICK_MS_SCALE        5000
+        #endif
+    #endif
+// STM32F767 uses 216 MHz system clock
+#elif defined( STM32F767xx )
+    #if defined( _STIME_USE_SYSTICK )
+        #if defined( _STIME_4K_TICK )
+            #define    SYSTICK_RELOAD_VALUE    6750
+        #elif defined( _STIME_2K_TICK )
+            #define    SYSTICK_RELOAD_VALUE   13500
+        #elif defined( _STIME_1K_TICK )
+            #define    SYSTICK_RELOAD_VALUE   27000
+        #elif defined( _STIME_500_TICK )
+            #define    SYSTICK_RELOAD_VALUE   54000
+        #elif defined( _STIME_400_TICK )
+            #define    SYSTICK_RELOAD_VALUE   67500
+        #elif defined( _STIME_200_TICK )
+            #define    SYSTICK_RELOAD_VALUE  135000
         #endif
     #endif
 #endif
@@ -83,14 +100,9 @@ static volatile uint32_t second_;  // use this to support 136 years
 static void InitSysTick( void ) {
     tick_   = 0;
     second_ = 0;
-#if defined( STM32F103xB ) || defined( STM32F107xC ) || defined( STM32F407xx )
     HAL_SYSTICK_Config( SYSTICK_RELOAD_VALUE - 1U );
     HAL_SYSTICK_CLKSourceConfig( SYSTICK_CLKSOURCE_HCLK_DIV8 );
     SET_BIT( SysTick->CTRL, SysTick_CTRL_TICKINT_Msk );
-// #elif defined( STM32F407xx )
-//     SystemCoreClockUpdate();
-//     HAL_SYSTICK_Config( SystemCoreClock / 1000U );
-#endif
 }
 
 // ----------------------------------------------------------------------------

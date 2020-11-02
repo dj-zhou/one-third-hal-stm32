@@ -10,11 +10,12 @@ void taskPrint( void ) {
 
 // ============================================================================
 int main( void ) {
+    utils.pin.mode( GPIOA, 5, GPIO_MODE_OUTPUT_PP );
     utils.system.initClock();
     utils.system.initNvic( 4 );
     stime.config();
     stime.scheduler.config();
-    console.config( 115200, 8, 'n', 1 );
+    console.config( 2000000, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
     // tasks -----------

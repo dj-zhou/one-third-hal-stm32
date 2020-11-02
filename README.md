@@ -89,8 +89,10 @@ We use console to interact with the micro-controller to check its status, for ex
 
 The library is tested with the following micro-controllers:
 
-| micro-controller | SYSCLK | FLASH/RAM |
-| :--------------: | :----: | :-------: |
-|  STM32F103RBT6   | 72Mhz  | 128K/20K  |
-|  STM32F107VCT6   | 72Mhz  | 256K/64K  |
+| micro-controller | SYSCLK/APB1/APB2 (MHz) | FLASH/RAM  |
+| :--------------: | :--------------------: | :--------: |
+|  STM32F103RBT6   |        72/36/72        |  128K/20K  |
+|  STM32F107VCT6   |        72/36/72        |  256K/64K  |
+|  STM32F407ZGT6   |       168/42/84        | 1024K/192K |
+|  STM32F767ZIT6   |       216/54/108       | 2048K/512K |
 
