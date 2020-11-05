@@ -31,7 +31,8 @@ extern "C" {
  && !defined( _CONSOLE_USE_UART3_PC10PC11 ) \
  && !defined( _CONSOLE_USE_UART3_PD8PD9 )   \
  && !defined( _CONSOLE_USE_UART4_PC10PC11 ) \
- && !defined( _CONSOLE_USE_UART5_PC12PD2 )
+ && !defined( _CONSOLE_USE_UART5_PC12PD2 )  \
+ && !defined( _CONSOLE_USE_UART7_PE8PE7 )
     #define _CONSOLE_USE_UART2_PA2PA3
 #endif
 
@@ -43,7 +44,8 @@ extern "C" {
  || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
  || defined( _CONSOLE_USE_UART3_PD8PD9 )   \
  || defined( _CONSOLE_USE_UART4_PC10PC11 ) \
- || defined( _CONSOLE_USE_UART5_PC12PD2 )
+ || defined( _CONSOLE_USE_UART5_PC12PD2 )  \
+ || defined( _CONSOLE_USE_UART7_PE8PE7 )
     #define CONSOLE_IS_USED
 #endif
 

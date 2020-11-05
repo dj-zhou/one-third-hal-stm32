@@ -91,6 +91,23 @@ static volatile uint32_t second_;  // use this to support 136 years
             #define    SYSTICK_RELOAD_VALUE  105000
         #endif
     #endif
+// STM32F427 uses 180 MHz system clock
+#elif defined( STM32F427xx )
+    #if defined( _STIME_USE_SYSTICK )
+        #if defined( _STIME_4K_TICK )
+            #define    SYSTICK_RELOAD_VALUE    5625
+        #elif defined( _STIME_2K_TICK )
+            #define    SYSTICK_RELOAD_VALUE   11250
+        #elif defined( _STIME_1K_TICK )
+            #define    SYSTICK_RELOAD_VALUE   22500
+        #elif defined( _STIME_500_TICK )
+            #define    SYSTICK_RELOAD_VALUE   45000
+        #elif defined( _STIME_400_TICK )
+            #define    SYSTICK_RELOAD_VALUE   56250
+        #elif defined( _STIME_200_TICK )
+            #define    SYSTICK_RELOAD_VALUE  112500
+        #endif
+    #endif
 // STM32F767 uses 216 MHz system clock
 #elif defined( STM32F767xx )
     #if defined( _STIME_USE_SYSTICK )

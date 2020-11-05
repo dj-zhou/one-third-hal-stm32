@@ -63,7 +63,7 @@ static void LedToggleHeartBeat( void ) {
 // ============================================================================
 static void LedHeartBeatOn( bool v ) {
 #if defined( _LED_LOW_DRIVE )
-    HAL_GPIO_WritePin( _LED_HEARTBEAT_PORT, 1 << _LED_HEARTBEAT_PIN, ~v );
+    HAL_GPIO_WritePin( _LED_HEARTBEAT_PORT, 1 << _LED_HEARTBEAT_PIN, !v );
     return;
 #endif
     HAL_GPIO_WritePin( _LED_HEARTBEAT_PORT, 1 << _LED_HEARTBEAT_PIN, v );
@@ -77,7 +77,7 @@ static void LedToggleError( void ) {
 // ============================================================================
 static void LedErrorOn( bool v ) {
 #if defined( _LED_LOW_DRIVE )
-    HAL_GPIO_WritePin( _LED_ERROR_PORT, 1 << _LED_ERROR_PIN, ~v );
+    HAL_GPIO_WritePin( _LED_ERROR_PORT, 1 << _LED_ERROR_PIN, !v );
     return;
 #endif
     HAL_GPIO_WritePin( _LED_ERROR_PORT, 1 << _LED_ERROR_PIN, v );

@@ -30,40 +30,35 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len );
 // common used functions
 // ----------------------------------------------------------------------------
 #if defined( STM32F030x8 )
-static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                          uint32_t alter ) {
+static void InitUartPinsAlter( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                               GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                               uint32_t alter ) {
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
-    // default setting is push-pull output
+    GPIO_InitStructure.Pin       = 1 << pin_nT;
     GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Pull      = GPIO_PULLUP;
     GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStructure.Alternate = alter;  // cannot move it to the next block
+    GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
     // RX
     GPIO_InitStructure.Pin   = 1 << pin_nR;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
-#endif  // STM32F407xx
+#endif  // STM32F030x8
 
 // ----------------------------------------------------------------------------
 #if defined( STM32F103xB ) || defined( STM32F107xC )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR ) {
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
-    // default setting is push-pull output
+    GPIO_InitStructure.Pin   = 1 << pin_nT;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#if defined( STM32F407xx )
-    GPIO_InitStructure.Alternate = GPIO_AF7_USART2;
-#endif
     HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
     // RX
     GPIO_InitStructure.Pin   = 1 << pin_nR;
@@ -74,47 +69,46 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 #endif  // STM32F103xB || STM32F107xC
 
 // ----------------------------------------------------------------------------
-#if defined( STM32F407xx )
-static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                          uint32_t alter ) {
+#if defined( STM32F407xx ) || defined( STM32F427xx )
+static void InitUartPinsAlter( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                               GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                               uint32_t alter ) {
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
-    // default setting is push-pull output
+    GPIO_InitStructure.Pin       = 1 << pin_nT;
     GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Pull      = GPIO_PULLUP;
     GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStructure.Alternate = alter;  // cannot move it to the next block
+    GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
     // RX
     GPIO_InitStructure.Pin   = 1 << pin_nR;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
-#endif  // STM32F407xx
+#endif  // STM32F407xx || STM32F427xx
 
 // ----------------------------------------------------------------------------
 #if defined( STM32F767xx )
-static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                          GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                          uint32_t alter ) {
+static void InitUartPinsAlter( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                               GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                               uint32_t alter ) {
 
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
     GPIO_InitStructure.Pin       = 1 << pin_nT;
     GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Pull      = GPIO_PULLUP;
     GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init( GPIOx_T, &GPIO_InitStructure );
+    // RX
     GPIO_InitStructure.Pin   = 1 << pin_nR;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-    // GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
 #endif  // STM32F767xx
@@ -197,7 +191,7 @@ static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
 #if defined( STM32F103xB ) || defined( STM32F107xC )
     InitUartPins( GPIOA, 9, GPIOA, 10 );
 #elif defined( STM32F407xx )
-    InitUartPins( GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1 );  // to verify
+    InitUartPinsAlter( GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1 );  // to verify
 #endif
     // usart setting
     utils.clock.enableUart( USART1 );
@@ -205,7 +199,7 @@ static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
 
     InitUartNvic( USART1_IRQn );
 
-    __HAL_UART_ENABLE( &hconsole_ );
+    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART1_PA9PA10  && defined( USART1_EXISTS )
 
@@ -220,12 +214,13 @@ static void InitUSART1_PB6PB7( uint32_t baud_rate, uint8_t len, char parity,
     utils.clock.enableUart( USART1 );
     InitUartSettings( USART1, baud_rate, len, parity, stop_b );
 
+    // these may work only for F103, F107, etc, will fix
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART1_ENABLE();
 
     InitUartNvic( USART1_IRQn );
 
-    __HAL_UART_ENABLE( &hconsole_ );
+    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART1_PA9PA10
 
@@ -252,20 +247,20 @@ static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
 #if defined( STM32F103xB ) || defined( STM32F107xC )
     InitUartPins( GPIOA, 2, GPIOA, 3 );
 #elif defined( STM32F407xx )
-    InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2 );
+    InitUartPinsAlter( GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2 );
 #elif defined( STM32F030x8 )
-    InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2 );
+    InitUartPinsAlter( GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2 );
 #endif
     // some special settings
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    HAL_GPIO_Init( GPIOA, &GPIO_InitStruct );
+    // GPIO_InitTypeDef GPIO_InitStruct = { 0 }; what are thtose??
+    // HAL_GPIO_Init( GPIOA, &GPIO_InitStruct );
     // usart setting
     utils.clock.enableUart( USART2 );
     InitUartSettings( USART2, baud_rate, len, parity, stop_b );
 
     InitUartNvic( USART2_IRQn );
 
-    __HAL_UART_ENABLE( &hconsole_ );
+    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART2_PA2PA3 && defined( USART2_EXISTS )
 
@@ -282,12 +277,13 @@ static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
     utils.clock.enableUart( USART2 );
     InitUartSettings( USART2, baud_rate, len, parity, stop_b );
 
+    // these may work only for F103, F107, etc, will fix
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART2_ENABLE();
 
     InitUartNvic( USART2_IRQn );
 
-    __HAL_UART_ENABLE( &hconsole_ );
+    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART2_PD5PD6 && defined( USART2_EXISTS )
 
@@ -324,10 +320,11 @@ static void InitUSART3_PB10PB11( uint32_t baud_rate, uint8_t len, char parity,
     utils.clock.enableUart( USART3 );
     InitUartSettings( USART3, baud_rate, len, parity, stop_b );
 
+    // these may work only for F103, F107, etc, will fix
     __HAL_RCC_AFIO_CLK_ENABLE();
     InitUartNvic( USART3_IRQn );
 
-    __HAL_USART_ENABLE( &hconsole_ );
+    // __HAL_USART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PB10PB11 && defined( USART3_EXISTS )
 
@@ -342,12 +339,13 @@ static void InitUSART3_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
     utils.clock.enableUart( USART3 );
     InitUartSettings( USART3, baud_rate, len, parity, stop_b );
 
+    // these may work only for F103, F107, etc, will fix
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART3_PARTIAL();
 
     InitUartNvic( USART3_IRQn );
 
-    __HAL_USART_ENABLE( &hconsole_ );
+    // __HAL_USART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PC10PC11 && defined( USART3_EXISTS )
 
@@ -358,7 +356,7 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
     // gpio setting
     utils.clock.enableGpio( GPIOD );
 #if defined( STM32F767xx )
-    InitUartPins( GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3 );
+    InitUartPinsAlter( GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3 );
 #else
     InitUartPins( GPIOD, 8, GPIOD, 9 );
 #endif
@@ -371,7 +369,7 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
 #endif
     InitUartNvic( USART3_IRQn );
 
-    __HAL_USART_ENABLE( &hconsole_ );
+    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PD8PD9 && defined( USART3_EXISTS )
 
@@ -381,25 +379,11 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
     || defined( _CONSOLE_USE_UART3_PD8PD9 )
 #if defined( USART3_EXISTS )
 void USART3_IRQHandler( void ) {
-    // those two might be combined
-#if defined( STM32F767xx )
     uint8_t recv;
     if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
         HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
     }
     ConsoleSetChar( &recv, 1 );
-#else
-    // clear the interrupt flag
-    // USART3->SR &= ( uint16_t )~USART_FLAG_RXNE;
-    // // receive data
-    // uint8_t recv = ( uint8_t )( USART3->DR & ( uint16_t )0x01FF );
-    // this may work! not tested
-    uint8_t recv;
-    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
-        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
-    }
-    ConsoleSetChar( &recv, 1 );
-#endif
 }
 #endif
 #endif  // _CONSOLE_USE_UART3_PB10PB11 || _CONSOLE_USE_UART3_PC10PC11 ||
@@ -416,11 +400,10 @@ static void InitUART4_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
     utils.clock.enableUart( UART4 );
     InitUartSettings( UART4, baud_rate, len, parity, stop_b );
 
+    // these may work only for F103, F107, etc, will fix
     __HAL_RCC_AFIO_CLK_ENABLE();
 
     InitUartNvic( UART4_IRQn );
-
-    __HAL_UART_ENABLE( &hconsole_ );
 }
 
 // ---------------------------------------------------------------------------
@@ -451,8 +434,6 @@ static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
     InitUartSettings( UART5, baud_rate, len, parity, stop_b );
 
     InitUartNvic( UART5_IRQn );
-
-    __HAL_UART_ENABLE( &hconsole_ );
 }
 
 // ---------------------------------------------------------------------------
@@ -465,6 +446,30 @@ void UART5_IRQHandler( void ) {
     ConsoleSetChar( &recv, 1 );
 }
 #endif  // _CONSOLE_USE_UART5_PC12PD2 && defined( UART5_EXISTS )
+
+// ============================================================================
+#if defined( _CONSOLE_USE_UART7_PE8PE7 ) && defined( UART7_EXISTS )
+static void InitUART7_PE8PE7( uint32_t baud_rate, uint8_t len, char parity,
+                              uint8_t stop_b ) {
+    // gpio setting
+    utils.clock.enableGpio( GPIOE );
+    InitUartPinsAlter( GPIOE, 8, GPIOE, 7, GPIO_AF8_UART7 );
+    // usart setting
+    utils.clock.enableUart( UART7 );
+    InitUartSettings( UART7, baud_rate, len, parity, stop_b );
+
+    InitUartNvic( UART7_IRQn );
+}
+
+// ---------------------------------------------------------------------------
+void UART7_IRQHandler( void ) {
+    uint8_t recv;
+    if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
+    }
+    ConsoleSetChar( &recv, 1 );
+}
+#endif  // _CONSOLE_USE_UART7_PE8PE7 && defined( UART7_EXISTS )
 
 // ============================================================================
 extern void ConsolePrintf( char* sign_data, char* format, va_list ap );
@@ -612,11 +617,14 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     InitUART4_PC10PC11( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     InitUART5_PC12PD2( baud_rate, len, parity, stop_b );
+#elif defined( _CONSOLE_USE_UART7_PE8PE7 )
+    InitUART7_PE8PE7( baud_rate, len, parity, stop_b );
 #else
 #error consoleConfig(): not implemented!
 #endif
+    __HAL_UART_ENABLE( &hconsole_ );
 
-    // command line interface
+    // command line interface -------------
     memset( &cli_, '\0', sizeof( cli_ ) );
     memset( cmd_list_, '\0', sizeof( cmd_list_[100] ) );
     cli_.out_message = "\r\n" CYN "1/3" NOC ": ";
@@ -669,6 +677,9 @@ static void consoleTxMode( ConsoleTx_e tx ) {
 #elif defined( _CONSOLE_USE_UART5_PC12PD2 )
     GPIO_InitStructure.Pin = GPIO_PIN_12;
     HAL_GPIO_Init( GPIOC, &GPIO_InitStructure );
+#elif defined( _CONSOLE_USE_UART7_PE8PE7 )
+    GPIO_InitStructure.Pin = GPIO_PIN_8;
+    HAL_GPIO_Init( GPIOE, &GPIO_InitStructure );
 #else
 #error console_TX_Mode(): not implemented!
 #endif
