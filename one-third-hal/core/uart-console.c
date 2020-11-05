@@ -189,7 +189,7 @@ static void consoleWriteStr( char* ptr ) {
 
 // ============================================================================
 // no hardware to test it, need to test in the future
-#if defined( _CONSOLE_USE_UART1_PA9PA10 )
+#if defined( _CONSOLE_USE_UART1_PA9PA10 ) && defined( USART1_EXISTS )
 static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
                                 uint8_t stop_b ) {
     // gpio setting
@@ -207,10 +207,10 @@ static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_UART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART1_PA9PA10
+#endif  // _CONSOLE_USE_UART1_PA9PA10  && defined( USART1_EXISTS )
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART1_PB6PB7 )
+#if defined( _CONSOLE_USE_UART1_PB6PB7 ) && defined( USART1_EXISTS )
 static void InitUSART1_PB6PB7( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
@@ -232,6 +232,7 @@ static void InitUSART1_PB6PB7( uint32_t baud_rate, uint8_t len, char parity,
 // ---------------------------------------------------------------------------
 #if defined( _CONSOLE_USE_UART1_PA9PA10 ) \
     || defined( _CONSOLE_USE_UART1_PB6PB7 )
+#if defined( USART1_EXISTS )
 void USART1_IRQHandler( void ) {
     // clear the interrupt flag
     USART1->SR &= ( uint16_t )~USART_FLAG_RXNE;
@@ -239,10 +240,11 @@ void USART1_IRQHandler( void ) {
     uint8_t recv = ( uint8_t )( USART1->DR & ( uint16_t )0x01FF );
     ConsoleSetChar( &recv, 1 );
 }
+#endif
 #endif  // _CONSOLE_USE_UART1_PA9PA10 || _CONSOLE_USE_UART1_PB6PB7
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART2_PA2PA3 )
+#if defined( _CONSOLE_USE_UART2_PA2PA3 ) && defined( USART2_EXISTS )
 static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
@@ -265,10 +267,10 @@ static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_UART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART2_PA2PA3
+#endif  // _CONSOLE_USE_UART2_PA2PA3 && defined( USART2_EXISTS )
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART2_PD5PD6 )
+#if defined( _CONSOLE_USE_UART2_PD5PD6 ) && defined( USART2_EXISTS )
 // TODO
 // STM32F107VCT6 does not have USART2 on these pins
 static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
@@ -287,10 +289,11 @@ static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_UART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART2_PD5PD6
+#endif  // _CONSOLE_USE_UART2_PD5PD6 && defined( USART2_EXISTS )
 
 // ---------------------------------------------------------------------------
 #if defined( _CONSOLE_USE_UART2_PA2PA3 ) || defined( _CONSOLE_USE_UART2_PD5PD6 )
+#if defined( USART2_EXISTS )
 void USART2_IRQHandler( void ) {
     // those two might be combined
 #if defined( STM32F030x8 )
@@ -307,10 +310,11 @@ void USART2_IRQHandler( void ) {
     ConsoleSetChar( &recv, 1 );
 #endif
 }
+#endif
 #endif  // _CONSOLE_USE_UART2_PA2PA3 || _CONSOLE_USE_UART2_PD5PD6
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART3_PB10PB11 )
+#if defined( _CONSOLE_USE_UART3_PB10PB11 ) && defined( USART3_EXISTS )
 static void InitUSART3_PB10PB11( uint32_t baud_rate, uint8_t len, char parity,
                                  uint8_t stop_b ) {
     // gpio setting
@@ -325,10 +329,10 @@ static void InitUSART3_PB10PB11( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_USART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART3_PB10PB11
+#endif  // _CONSOLE_USE_UART3_PB10PB11 && defined( USART3_EXISTS )
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART3_PC10PC11 )
+#if defined( _CONSOLE_USE_UART3_PC10PC11 ) && defined( USART3_EXISTS )
 static void InitUSART3_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
                                  uint8_t stop_b ) {
     // gpio setting
@@ -345,10 +349,10 @@ static void InitUSART3_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_USART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART3_PC10PC11
+#endif  // _CONSOLE_USE_UART3_PC10PC11 && defined( USART3_EXISTS )
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART3_PD8PD9 )
+#if defined( _CONSOLE_USE_UART3_PD8PD9 ) && defined( USART3_EXISTS )
 static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
                                uint8_t stop_b ) {
     // gpio setting
@@ -369,12 +373,13 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
 
     __HAL_USART_ENABLE( &hconsole_ );
 }
-#endif  // _CONSOLE_USE_UART3_PD8PD9
+#endif  // _CONSOLE_USE_UART3_PD8PD9 && defined( USART3_EXISTS )
 
 // ---------------------------------------------------------------------------
 #if defined( _CONSOLE_USE_UART3_PB10PB11 )    \
     || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
     || defined( _CONSOLE_USE_UART3_PD8PD9 )
+#if defined( USART3_EXISTS )
 void USART3_IRQHandler( void ) {
     // those two might be combined
 #if defined( STM32F767xx )
@@ -396,11 +401,12 @@ void USART3_IRQHandler( void ) {
     ConsoleSetChar( &recv, 1 );
 #endif
 }
+#endif
 #endif  // _CONSOLE_USE_UART3_PB10PB11 || _CONSOLE_USE_UART3_PC10PC11 ||
         // _CONSOLE_USE_UART3_PD8PD9
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART4_PC10PC11 )
+#if defined( _CONSOLE_USE_UART4_PC10PC11 ) && defined( UART4_EXISTS )
 static void InitUART4_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
                                 uint8_t stop_b ) {
     // gpio setting
@@ -426,10 +432,10 @@ void UART4_IRQHandler( void ) {
     uint8_t recv = ( uint8_t )( UART4->DR & ( uint16_t )0x01FF );
     ConsoleSetChar( &recv, 1 );
 }
-#endif  // _CONSOLE_USE_UART4_PC10PC11
+#endif  // _CONSOLE_USE_UART4_PC10PC11 && defined( UART4_EXISTS )
 
 // ============================================================================
-#if defined( _CONSOLE_USE_UART5_PC12PD2 )
+#if defined( _CONSOLE_USE_UART5_PC12PD2 ) && defined( UART5_EXISTS )
 
 // ---------------------------------------------------------------------------
 // UART5 test on PC12 (TX) & PD2 (RX)
@@ -458,7 +464,7 @@ void UART5_IRQHandler( void ) {
     }
     ConsoleSetChar( &recv, 1 );
 }
-#endif  // _CONSOLE_USE_UART5_PC12PD2
+#endif  // _CONSOLE_USE_UART5_PC12PD2 && defined( UART5_EXISTS )
 
 // ============================================================================
 extern void ConsolePrintf( char* sign_data, char* format, va_list ap );
@@ -759,9 +765,9 @@ Console_t console = {
     .read       = consoleGetChar    ,
 
     // cli related
-    .cli.setLevel = consoleSetLevel  ,
-    .cli.regist   = CliRegisterCmd   ,
-    .cli.process  = CliEentHandle    ,
+    .cli.setLevel = consoleSetLevel ,
+    .cli.regist   = CliRegisterCmd  ,
+    .cli.process  = CliEentHandle   ,
 };
 // clang-format on
 

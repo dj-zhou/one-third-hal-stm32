@@ -32,7 +32,7 @@ extern "C" {
  && !defined( _CONSOLE_USE_UART3_PD8PD9 )   \
  && !defined( _CONSOLE_USE_UART4_PC10PC11 ) \
  && !defined( _CONSOLE_USE_UART5_PC12PD2 )
-    #define _CONSOLE_USE_UART2_PA2PA3 // stm32f103 does not have UART5
+    #define _CONSOLE_USE_UART2_PA2PA3
 #endif
 
 #if defined( _CONSOLE_USE_UART1_PA9PA10 )  \

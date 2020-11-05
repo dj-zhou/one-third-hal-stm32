@@ -377,93 +377,234 @@ static void InitNvicInterrupt( uint8_t group ) {
 
 // ============================================================================
 static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
+#if defined( GPIOA_EXISTS )
     if ( GPIOx == GPIOA ) {
         __HAL_RCC_GPIOA_CLK_ENABLE();
-    }
-    else if ( GPIOx == GPIOB ) {
-        __HAL_RCC_GPIOB_CLK_ENABLE();
-    }
-    else if ( GPIOx == GPIOC ) {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-    }
-#if !defined( STM32F030x8 )
-    else if ( GPIOx == GPIOD ) {
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-    }
-    else if ( GPIOx == GPIOE ) {
-        __HAL_RCC_GPIOE_CLK_ENABLE();
+        return;
     }
 #endif
+#if defined( GPIOB_EXISTS )
+    if ( GPIOx == GPIOB ) {
+        __HAL_RCC_GPIOB_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOC_EXISTS )
+    if ( GPIOx == GPIOC ) {
+        __HAL_RCC_GPIOC_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOD_EXISTS )
+    else if ( GPIOx == GPIOD ) {
+        __HAL_RCC_GPIOD_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOE_EXISTS )
+    else if ( GPIOx == GPIOE ) {
+        __HAL_RCC_GPIOE_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOF_EXISTS )
     else if ( GPIOx == GPIOF ) {
         __HAL_RCC_GPIOF_CLK_ENABLE();
+        return;
     }
-    else {
-        // do nothing, if the GPIO group is not designed for one family of
-        // microcontroller, it will throw an error
+#endif
+#if defined( GPIOG_EXISTS )
+    else if ( GPIOx == GPIOG ) {
+        __HAL_RCC_GPIOG_CLK_ENABLE();
+        return;
     }
+#endif
+#if defined( GPIOH_EXISTS )
+    else if ( GPIOx == GPIOH ) {
+        __HAL_RCC_GPIOH_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOI_EXISTS )
+    else if ( GPIOx == GPIOI ) {
+        __HAL_RCC_GPIOI_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOJ_EXISTS )
+    else if ( GPIOx == GPIOJ ) {
+        __HAL_RCC_GPIOJ_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( GPIOK_EXISTS )
+    else if ( GPIOx == GPIOK ) {
+        __HAL_RCC_GPIOK_CLK_ENABLE();
+        return;
+    }
+#endif
+    ( void )GPIOx;
 }
 
 // ============================================================================
 static void enableTimerClock( TIM_TypeDef* TIMx ) {
+#if defined( TIM1_EXISTS )
     if ( TIMx == TIM1 ) {
         __HAL_RCC_TIM1_CLK_ENABLE();
-    }
-    else if ( TIMx == TIM3 ) {
-        __HAL_RCC_TIM3_CLK_ENABLE();
-    }
-#if !defined( STM32F030x8 )
-    else if ( TIMx == TIM2 ) {
-        __HAL_RCC_TIM2_CLK_ENABLE();
-    }
-    else if ( TIMx == TIM4 ) {
-        __HAL_RCC_TIM4_CLK_ENABLE();
+        return;
     }
 #endif
-// the following may also work for F407, F767, etc. TODO
-#if defined( STM32F107xC )
-    else if ( TIMx == TIM5 ) {
+#if defined( TIM2_EXISTS )
+    if ( TIMx == TIM2 ) {
+        __HAL_RCC_TIM2_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM3_EXISTS )
+    if ( TIMx == TIM3 ) {
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM4_EXISTS )
+    if ( TIMx == TIM4 ) {
+        __HAL_RCC_TIM4_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM5_EXISTS )
+    if ( TIMx == TIM5 ) {
         __HAL_RCC_TIM5_CLK_ENABLE();
+        return;
     }
-    else if ( TIMx == TIM6 ) {
+#endif
+#if defined( TIM6_EXISTS )
+    if ( TIMx == TIM6 ) {
         __HAL_RCC_TIM6_CLK_ENABLE();
+        return;
     }
+#endif
+#if defined( TIM7_EXISTS )
     else if ( TIMx == TIM7 ) {
         __HAL_RCC_TIM7_CLK_ENABLE();
+        return;
     }
 #endif
-    else {
-        // do nothing, if the timer is not designed for one family of
-        // microcontroller, it will throw an error
+#if defined( TIM8_EXISTS )
+    else if ( TIMx == TIM8 ) {
+        __HAL_RCC_TIM8_CLK_ENABLE();
+        return;
     }
+#endif
+#if defined( TIM9_EXISTS )
+    else if ( TIMx == TIM9 ) {
+        __HAL_RCC_TIM9_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM10_EXISTS )
+    else if ( TIMx == TIM10 ) {
+        __HAL_RCC_TIM10_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM11_EXISTS )
+    else if ( TIMx == TIM11 ) {
+        __HAL_RCC_TIM11_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM12_EXISTS )
+    else if ( TIMx == TIM12 ) {
+        __HAL_RCC_TIM12_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM13_EXISTS )
+    else if ( TIMx == TIM13 ) {
+        __HAL_RCC_TIM13_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM14_EXISTS )
+    else if ( TIMx == TIM14 ) {
+        __HAL_RCC_TIM14_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM15_EXISTS )
+    else if ( TIMx == TIM15 ) {
+        __HAL_RCC_TIM15_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM16_EXISTS )
+    else if ( TIMx == TIM16 ) {
+        __HAL_RCC_TIM16_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( TIM17_EXISTS )
+    else if ( TIMx == TIM17 ) {
+        __HAL_RCC_TIM17_CLK_ENABLE();
+        return;
+    }
+#endif
+    ( void )TIMx;
 }
 
 // ============================================================================
 // to be extended
 static void enableUartClock( USART_TypeDef* USARTx ) {
+#if defined( USART1_EXISTS )
     if ( USARTx == USART1 ) {
         __HAL_RCC_USART1_CLK_ENABLE();
+        return;
     }
-    else if ( USARTx == USART2 ) {
+#endif
+#if defined( USART2_EXISTS )
+    if ( USARTx == USART2 ) {
         __HAL_RCC_USART2_CLK_ENABLE();
+        return;
     }
-#if !defined( STM32F030x8 )
+#endif
+#if defined( USART3_EXISTS )
     else if ( USARTx == USART3 ) {
         __HAL_RCC_USART3_CLK_ENABLE();
+        return;
     }
 #endif
-// the following may also work for F407, F767, etc. TODO
-#if defined( STM32F107xC )
+#if defined( UART4_EXISTS )
     else if ( USARTx == UART4 ) {
         __HAL_RCC_UART4_CLK_ENABLE();
-    }
-    else if ( USARTx == UART5 ) {
-        __HAL_RCC_UART5_CLK_ENABLE();
+        return;
     }
 #endif
-    else {
-        // do nothing, if the uart/usart is not designed for one family of
-        // microcontroller, it will throw an error
+#if defined( UART5_EXISTS )
+    else if ( USARTx == UART5 ) {
+        __HAL_RCC_UART5_CLK_ENABLE();
+        return;
     }
+#endif
+#if defined( USART6_EXISTS )
+    else if ( USARTx == USART6 ) {
+        __HAL_RCC_USART6_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( UART7_EXISTS )
+    else if ( USARTx == UART7 ) {
+        __HAL_RCC_UART7_CLK_ENABLE();
+        return;
+    }
+#endif
+#if defined( UART8_EXISTS )
+    else if ( USARTx == UART8 ) {
+        __HAL_RCC_UART8_CLK_ENABLE();
+        return;
+    }
+#endif
+    ( void )USARTx;
 }
 
 // ============================================================================
@@ -472,20 +613,20 @@ static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
     assert_param( IS_GPIO_MODE( io ) );
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
-#if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
-    // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
-    // therefore we must first disable JTAG and async trace functions to
-    // release PB3/PB4 for GPIO use this operation is confirmed on STM32F1
-    // micro controllers
+// #if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
+// PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
+// therefore we must first disable JTAG and async trace functions to
+// release PB3/PB4 for GPIO use this operation is confirmed on STM32F1
+// micro controllers
 
-    // these need to be tested ------------------
+// these need to be tested ------------------
+#if !defined( STM32F030x8 ) && !defined( STM32F767xx ) \
+    && !defined( STM32F407xx ) && !defined( STM32F427xx )
     if ( ( ( GPIOx == GPIOB )
            && ( ( GPIO_PIN_x & GPIO_PIN_3 ) || ( GPIO_PIN_x & GPIO_PIN_4 ) ) )
          || ( ( GPIOx == GPIOA ) && ( GPIO_PIN_x == GPIO_PIN_15 ) ) ) {
-        // RCC_APB2PeriphClockCmd( RCC_APB2Periph_AFIO, ENABLE );
         __HAL_RCC_AFIO_CLK_ENABLE();
         DBGMCU->CR &= ~( DBGMCU_CR_TRACE_IOEN );
-        // GPIO_PINRemapConfig( GPIO_Remap_SWJ_JTAGDisable, ENABLE );
         __HAL_AFIO_REMAP_SWJ_NONJTRST();
     }
 #endif

@@ -7,11 +7,15 @@ extern "C" {
 
 #include "config.h"  // must be on the top
 
+#include "config-gpio.h"
+#include "config-timer.h"
+#include "config-usart.h"
+
 #if defined( STM32F030x8 )
 #include "stm32f0xx.h"
 #elif defined( STM32F103xB ) || defined( STM32F107xC )
 #include "stm32f1xx.h"
-#elif defined( STM32F407xx )
+#elif defined( STM32F407xx ) || defined( STM32F427xx )
 #include "stm32f4xx.h"
 #elif defined( STM32F767xx )
 #include "stm32f7xx.h"
