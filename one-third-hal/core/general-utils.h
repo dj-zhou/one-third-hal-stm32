@@ -25,8 +25,9 @@ extern "C" {
 #include <stdint.h>
 
 // ============================================================================
+// clang-format off
 #if !defined( _SWAP16 )
-#define _SWAP16( x ) ( x = ( uint16_t )( ( x >> 8 ) | ( x << 8 ) ) )
+    #define _SWAP16( x ) ( x = ( uint16_t )( ( x >> 8 ) | ( x << 8 ) ) )
 #endif
 
 #if !defined( _SWAP32 )
@@ -36,34 +37,37 @@ extern "C" {
 #endif
 
 #if !defined( _CHECK_BIT )
-#define _CHECK_BIT( var, pos ) ( ( var ) & ( 1 << ( pos ) ) )
+    #define _CHECK_BIT( var, pos ) ( ( var ) & ( 1 << ( pos ) ) )
 #endif
 
 #if !defined( _SIZE_OF_ARRAY )
-#define _SIZE_OF_ARRAY( x ) ( sizeof( x ) / sizeof( ( x )[0] ) )
+    #define _SIZE_OF_ARRAY( x ) ( sizeof( x ) / sizeof( ( x )[0] ) )
 #endif
 
 #if !defined( _PACK )
-#define _PACK( x ) __attribute__( ( packed, aligned( x ) ) )
+    #define _PACK( x ) __attribute__( ( packed, aligned( x ) ) )
 #endif
+// clang-format on
 
 // ============================================================================
 // RTOS related macros
 
+// clang-format off
 // FreeRTOS must use any of these two macros --------------------
 // configUSE_TIME_SLICING
 // configUSE_PREEMPTION
 #if defined( configUSE_TIME_SLICING ) || defined( configUSE_PREEMPTION )
-#if !defined( RTOS_USE_FREERTOS )
-#define RTOS_USE_FREERTOS
-#endif
+    #if !defined( RTOS_USE_FREERTOS )
+        #define RTOS_USE_FREERTOS
+    #endif
 #endif
 // some other RTOS related macros list here
 
 // other RTOS can be added behind
 #if defined( RTOS_USE_FREERTOS )
-#define RTOS_IS_USED
+    #define RTOS_IS_USED
 #endif
+// clang-format on
 
 #if defined( RTOS_IS_USED )
 // this allows for adding other RTOS
