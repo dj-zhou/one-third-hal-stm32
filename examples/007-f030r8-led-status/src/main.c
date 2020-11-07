@@ -11,7 +11,7 @@ void taskPrint( void ) {
 // ============================================================================
 int main( void ) {
     utils.pin.mode( GPIOA, 5, GPIO_MODE_OUTPUT_PP );
-    utils.system.initClock();
+    utils.system.initClock( 48, 48, 0 );
     utils.system.initNvic( 4 );
     stime.config();
     stime.scheduler.config();

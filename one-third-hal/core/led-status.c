@@ -160,8 +160,8 @@ static void LedGpioConfig( LedHeartBeat_e mode ) {
 // ============================================================================
 // clang-format off
 LedStatusApi_t led = {
-    .config          = LedGpioConfig      ,
-    .toggleHeartBeat = LedToggleHeartBeat , // should be removed 
-    .toggleError     = LedToggleError     , // should be removed 
+    .config          = LedGpioConfig     ,
+    .toggleHeartBeat = LedToggleHeartBeat, // should be removed
+    .toggleError     = LedToggleError    , // should be removed
 };
 // clang-format on

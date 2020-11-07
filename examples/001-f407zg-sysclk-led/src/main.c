@@ -3,7 +3,7 @@
 
 // ============================================================================
 int main( void ) {
-    utils.system.initClock();
+    utils.system.initClock( 168, 42, 84 );
     utils.system.initNvic( 4 );
     utils.pin.mode( GPIOE, 11, GPIO_MODE_OUTPUT_PP );
 

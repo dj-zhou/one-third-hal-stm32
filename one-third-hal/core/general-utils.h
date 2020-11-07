@@ -83,7 +83,7 @@ typedef struct {
 #endif  // RTOS_IS_USED
 
 typedef struct {
-    HAL_StatusTypeDef ( *initClock )( void );
+    HAL_StatusTypeDef ( *initClock )( uint16_t, uint16_t, uint16_t );
     void ( *initNvic )( uint8_t group );
 } System;
 

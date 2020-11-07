@@ -81,7 +81,7 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 #endif  // STM32F103xB || STM32F107xC
 
 // ----------------------------------------------------------------------------
-#if defined( STM32F407xx )
+#if defined( STM32F407xx ) || defined( STM32F427xx )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                           uint32_t alter ) {
@@ -105,7 +105,7 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 #endif  // STM32F407xx
 
 // ----------------------------------------------------------------------------
-#if defined( STM32F767xx )
+#if defined( STM32F746xx ) || defined( STM32F767xx )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                           GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                           uint32_t alter ) {
@@ -126,7 +126,7 @@ static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init( GPIOx_R, &GPIO_InitStructure );
 }
-#endif  // STM32F767xx
+#endif  // STM32F746xx || STM32F767xx
 
 // ----------------------------------------------------------------------------
 static void InitUartSettings( USART_TypeDef* USARTx, uint32_t baud_rate,
@@ -210,7 +210,7 @@ static void InitUSART1_PA9PA10( uint32_t baud_rate, uint8_t len, char parity,
 #elif defined( STM32F407xx )
     InitUartPins( GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1 );  // to verify
 #else
-#error InitUSART1_PA9PA10(): need to implemnt and verify!
+#error InitUSART1_PA9PA10(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART1 );
@@ -232,7 +232,7 @@ static void InitUSART1_PB6PB7( uint32_t baud_rate, uint8_t len, char parity,
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART1_ENABLE();
 #else
-#error InitUSART1_PB6PB7(): need to implemnt and verify!
+#error InitUSART1_PB6PB7(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART1 );
@@ -252,7 +252,7 @@ void USART1_IRQHandler( void ) {
 #if defined( STM32F107xC )
     ConsoleUartIRQ();
 #else
-#error USART1_IRQHandler(): need to implemnt and verify!
+#error USART1_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif
@@ -266,13 +266,13 @@ static void InitUSART2_PA2PA3( uint32_t baud_rate, uint8_t len, char parity,
 #if defined( STM32F030x8 )
     InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2 );  // verified
 #elif defined( STM32F103xB )
-    InitUartPins( GPIOA, 2, GPIOA, 3 );  // verified
+    InitUartPins( GPIOA, 2, GPIOA, 3 );                   // verified
 #elif defined( STM32F107xC )
     InitUartPins( GPIOA, 2, GPIOA, 3 );                    // verified
 #elif defined( STM32F407xx )
     InitUartPins( GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2 );  // verified
 #else
-#error InitUSART2_PA2PA3(): need to implemnt and verify!
+#error InitUSART2_PA2PA3(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART2 );
@@ -296,7 +296,7 @@ static void InitUSART2_PD5PD6( uint32_t baud_rate, uint8_t len, char parity,
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART2_ENABLE();
 #else
-#error InitUSART2_PD5PD6(): need to implemnt and verify!
+#error InitUSART2_PD5PD6(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART2 );
@@ -322,7 +322,7 @@ void USART2_IRQHandler( void ) {
     || defined( STM32F407xx )
     ConsoleUartIRQ();
 #else
-#error USART2_IRQHandler(): need to implemnt and verify!
+#error USART2_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif
@@ -337,7 +337,7 @@ static void InitUSART3_PB10PB11( uint32_t baud_rate, uint8_t len, char parity,
     InitUartPins( GPIOB, 10, GPIOB, 11 );  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
-#error InitUSART3_PB10PB11(): need to implemnt and verify!
+#error InitUSART3_PB10PB11(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART3 );
@@ -360,7 +360,7 @@ static void InitUSART3_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART3_PARTIAL();
 #else
-#error InitUSART3_PC10PC11(): need to implemnt and verify!
+#error InitUSART3_PC10PC11(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( USART3 );
@@ -379,19 +379,18 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
 
 #if defined( STM32F107xC )
     InitUartPins( GPIOD, 8, GPIOD, 9 );  // verified
-#elif defined( STM32F767xx )
-    InitUartPins( GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3 );
+    __HAL_RCC_AFIO_CLK_ENABLE();
+    __HAL_AFIO_REMAP_USART3_ENABLE();
+#elif defined( STM32F746xx ) || defined( STM32F767xx )
+    InitUartPins( GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3 );  // verified
 #else
-#error InitUSART3_PD8PD9(): need to implemnt and verify!
+#error InitUSART3_PD8PD9(): need to implement and verify!
 #endif
 
     // usart setting
     utils.clock.enableUart( USART3 );
     InitUartSettings( USART3, baud_rate, len, parity, stop_b );
-#if !defined( STM32F767xx )
-    __HAL_RCC_AFIO_CLK_ENABLE();
-    __HAL_AFIO_REMAP_USART3_ENABLE();
-#endif
+
     InitUartNvic( USART3_IRQn );
 
     // __HAL_UART_ENABLE( &hconsole_ );
@@ -406,8 +405,12 @@ static void InitUSART3_PD8PD9( uint32_t baud_rate, uint8_t len, char parity,
 void USART3_IRQHandler( void ) {
 #if defined( STM32F107xC )
     ConsoleUartIRQ();
+#elif defined( STM32F746xx )
+    ConsoleUartIRQ();
+#elif defined( STM32F767xx )
+    ConsoleUartIRQ();
 #else
-#error UART4_IRQHandler(): need to implemnt and verify!
+#error USART3_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif
@@ -423,7 +426,7 @@ static void InitUART4_PC10PC11( uint32_t baud_rate, uint8_t len, char parity,
     InitUartPins( GPIOC, 10, GPIOC, 11 );  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
-#error InitUART4_PC10PC11(): need to implemnt and verify!
+#error InitUART4_PC10PC11(): need to implement and verify!
 #endif
 
     // usart setting
@@ -440,7 +443,7 @@ void UART4_IRQHandler( void ) {
 #if defined( STM32F107xC )
     ConsoleUartIRQ();
 #else
-#error UART4_IRQHandler(): need to implemnt and verify!
+#error UART4_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif  // _CONSOLE_USE_UART4_PC10PC11 && defined( UART4_EXISTS )
@@ -457,7 +460,7 @@ static void InitUART5_PC12PD2( uint32_t baud_rate, uint8_t len, char parity,
 #if defined( STM32F107xC )
     InitUartPins( GPIOC, 12, GPIOD, 2 );  // verified
 #else
-#error InitUART5_PC12PD2(): need to implemnt and verify!
+#error InitUART5_PC12PD2(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( UART5 );
@@ -471,7 +474,7 @@ void UART5_IRQHandler( void ) {
 #if defined( STM32F107xC )
     ConsoleUartIRQ();
 #else
-#error UART5_IRQHandler(): need to implemnt and verify!
+#error UART5_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif  // _CONSOLE_USE_UART5_PC12PD2 && defined( UART5_EXISTS )
@@ -482,19 +485,9 @@ static void InitUART7_PE8PE7( uint32_t baud_rate, uint8_t len, char parity,
                               uint8_t stop_b ) {
 
 #if defined( STM32F427xx )
-    // important note: cannot move it to function like InitUartPins() as other
-    // platforms, don't know why
-    // do not revise this block of code without test
-    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    __HAL_RCC_GPIOE_CLK_ENABLE();
-    GPIO_InitStruct.Pin       = GPIO_PIN_7 | GPIO_PIN_8;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF8_UART7;
-    HAL_GPIO_Init( GPIOE, &GPIO_InitStruct );
+    InitUartPins( GPIOE, 8, GPIOE, 7, GPIO_AF8_UART7 );  // verified
 #else
-#error InitUART7_PE8PE7(): need to implemnt and verify!
+#error InitUART7_PE8PE7(): need to implement and verify!
 #endif
     // usart setting
     utils.clock.enableUart( UART7 );
@@ -508,7 +501,7 @@ void UART7_IRQHandler( void ) {
 #if defined( STM32F427xx )
     ConsoleUartIRQ();
 #else
-#error UART7_IRQHandler(): need to implemnt and verify!
+#error UART7_IRQHandler(): need to implement and verify!
 #endif
 }
 #endif  // _CONSOLE_USE_UART7_PE8PE7 && defined( UART7_EXISTS )
@@ -806,21 +799,21 @@ static void CliEentHandle( void ) {
 // ============================================================================
 // clang-format off
 Console_t console = {
-    .level      = LOG_INFO          ,
-    .config     = consoleConfig     ,
-    .setTxMode  = consoleTxMode     ,
-    .enableRxen = consoleEnableRxen ,
-    .printk     = one_third_printk  ,
-    .printf     = one_third_printf  ,
-    .error      = consoleError      ,
-    .writeByte  = consoleWriteByte  ,
-    .writeStr   = consoleWriteStr   ,
-    .read       = consoleGetChar    ,
+    .level      = LOG_INFO         ,
+    .config     = consoleConfig    ,
+    .setTxMode  = consoleTxMode    ,
+    .enableRxen = consoleEnableRxen,
+    .printk     = one_third_printk ,
+    .printf     = one_third_printf ,
+    .error      = consoleError     ,
+    .writeByte  = consoleWriteByte ,
+    .writeStr   = consoleWriteStr  ,
+    .read       = consoleGetChar   ,
 
     // cli related
-    .cli.setLevel = consoleSetLevel ,
-    .cli.regist   = CliRegisterCmd  ,
-    .cli.process  = CliEentHandle   ,
+    .cli.setLevel = consoleSetLevel,
+    .cli.regist   = CliRegisterCmd ,
+    .cli.process  = CliEentHandle  ,
 };
 // clang-format on
 

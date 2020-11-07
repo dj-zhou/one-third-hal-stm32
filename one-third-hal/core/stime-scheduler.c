@@ -108,8 +108,9 @@ static volatile uint32_t second_;  // use this to support 136 years
             #define    SYSTICK_RELOAD_VALUE  112500
         #endif
     #endif
+// STM32F746 uses 216 MHz system clock
 // STM32F767 uses 216 MHz system clock
-#elif defined( STM32F767xx )
+#elif defined( STM32F746xx ) || defined( STM32F767xx )
     #if defined( _STIME_USE_SYSTICK )
         #if defined( _STIME_4K_TICK )
             #define    SYSTICK_RELOAD_VALUE    6750

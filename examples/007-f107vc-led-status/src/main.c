@@ -8,7 +8,7 @@ void taskPrint( void ) {
 
 // ============================================================================
 int main( void ) {
-    utils.system.initClock();
+    utils.system.initClock( 72, 36, 72 );
     utils.system.initNvic( 4 );
     utils.pin.mode( GPIOC, 7, GPIO_MODE_OUTPUT_PP );
     stime.config();

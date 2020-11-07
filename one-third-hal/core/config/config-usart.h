@@ -27,7 +27,7 @@
     #define USART6_EXISTS
 #endif
 
-#if defined( STM32F427xx ) || defined ( STM32F767xx )
+#if defined( STM32F427xx ) || defined ( STM32F746xx ) || defined ( STM32F767xx )
     #define USART3_EXISTS
     #define UART4_EXISTS
     #define UART5_EXISTS

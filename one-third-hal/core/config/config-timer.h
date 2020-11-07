@@ -43,7 +43,7 @@
 #endif
 
 #if defined( STM32F407xx ) || defined ( STM32F427xx ) \
- || defined ( STM32F767xx )
+ || defined( STM32F746xx ) || defined ( STM32F767xx )
     #define TIM2_EXISTS
     #define TIM4_EXISTS
     #define TIM5_EXISTS
