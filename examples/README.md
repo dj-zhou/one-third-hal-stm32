@@ -1,8 +1,13 @@
 ### Example Projects
 
-#### `001-f107vc-sysclk-led`
+#### `001-fxxxxx-sysclk-led`
 
 Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
+
+Tested on:
+
+* F107VC
+* F407ZG
 
 #### `002-f107vc-stime`
 
@@ -49,13 +54,19 @@ This project demonstrate the interaction from `screen` with the micro-controller
 
 <img src="./console-cli.gif" width="700px">
 
-#### `007-f103rb-led-status`
+#### `007-fxxxxx-led-status`
 
 This project is based on previous example project, and add the following:
 
 1. `led-status` module to run the heartbeat task.
 
-#### `007-f107vc-led-status`
+Tested on:
 
-1. The same project as the last one, just run it on the STM32F107VCT6 board.
+* F030R8
+* F103RB
+* F107VC
+* F407VG
+* F427VI
+* F746ZG
+* F767ZI
 

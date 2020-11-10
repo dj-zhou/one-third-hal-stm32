@@ -39,7 +39,7 @@ static volatile uint32_t second_;  // use this to support 136 years
         #define    SYSTICK_MS_SCALE        5000
     #endif
 #endif
-
+// STM32F030x8 uses 48 MHz system clock
 #if defined( STM32F030x8 )
     #if defined( _STIME_USE_SYSTICK )
         #if defined( _STIME_4K_TICK )
@@ -303,8 +303,6 @@ static void SchedulerProcess( void ) {
 // ----------------------------------------------------------------------------
 static void SchedulerShowTasks( void ) {
 
-    // console.printf(
-    //     YLW "----------------------------------------------\r\n" NOC );
     CONSOLE_PRINTF_SEG;
     console.printk( 0, " Stime Task Scheduler (" );
 #if ( defined _STIME_4K_TICK )
@@ -322,8 +320,6 @@ static void SchedulerShowTasks( void ) {
 #endif
     if ( task_num_ == 0 ) {
         console.printk( 0, "  |  no task\r\n" );
-        // console.printf(
-        //     YLW "----------------------------------------------\r\n" NOC );
         CONSOLE_PRINTF_SEG;
         return;
     }
@@ -337,8 +333,6 @@ static void SchedulerShowTasks( void ) {
         console.printk( 0, " %2d (%d): %s\r\n", i + 1, node_[i]._this.ticks,
                         node_[i]._this.name );
     }
-    // console.printf(
-    //     YLW "----------------------------------------------\r\n" NOC );
     CONSOLE_PRINTF_SEG;
 }
 
@@ -373,10 +367,10 @@ void SysTick_Handler( void ) {
 // clang-format off
 StimeApi_t stime = {
 #if defined( _STIME_USE_SYSTICK )
-    .config   = InitSysTick    ,
-    .getTime  = GetSysTickTime ,
-    .delay.us = DelayUs        ,
-    .delay.ms = DelayMs        ,
+    .config   = InitSysTick   ,
+    .getTime  = GetSysTickTime,
+    .delay.us = DelayUs       ,
+    .delay.ms = DelayMs       ,
 #else
     #error StimeApi_t stime: not implemented.
 #endif
