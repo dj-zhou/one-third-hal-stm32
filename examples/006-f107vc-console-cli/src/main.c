@@ -14,7 +14,7 @@ int main( void ) {
     stime.scheduler.config();
     console.config( 921600, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
-    stime.scheduler.regist( 200, 2, taskHeartBeat, "taskHeartBeat" );
+    stime.scheduler.attach( 200, 2, taskHeartBeat, "taskHeartBeat" );
     // also try _1_TICK, _2_TICK and _3_TICK
     stime.scheduler.show();
 

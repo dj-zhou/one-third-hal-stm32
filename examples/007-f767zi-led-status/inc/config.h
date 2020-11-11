@@ -14,7 +14,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _STIME_USE_SYSTICK
-#define _STIME_200_TICK
+#define _STIME_4K_TICK
 #define _STIME_USE_SCHEDULER
 #include "stime-scheduler.h"
 
@@ -25,12 +25,13 @@ extern "C" {
 // #define _CONSOLE_USE_UART3_PC10PC11
 #define _CONSOLE_USE_UART3_PD8PD9
 // #define _CONSOLE_USE_UART5_PC12PD2
+#define _CLI_OUT_MESSAGE "1/3"
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
 #define _LED_HEARTBEAT_PORT GPIOB
 #define _LED_HEARTBEAT_PIN 7
-#define _LED_HEARTBEAT_BLINK 5
+#define _LED_HEARTBEAT_BLINK 10
 #include "led-status.h"
 
 // ============================================================================

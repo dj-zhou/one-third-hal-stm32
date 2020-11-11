@@ -51,7 +51,7 @@ typedef struct {
 // this file is only used by the module uart-console
 void CliDeInit( void );
 void CliInput( char read_char );
-void CliTabCompletion( void );
+void CliTabCompletion( char read_char );
 void CliBackspace( void );
 void CliDirection( char read_char );
 void CliProcessCmd( char* str );
@@ -63,6 +63,7 @@ HAL_StatusTypeDef CliReset( void );
 HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv );
 HAL_StatusTypeDef CliCheckFirmware( void );
 HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
+HAL_StatusTypeDef CliSuspend( int argc, char** argv );
 
 // ============================================================================
 #ifdef __cplusplus

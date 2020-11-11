@@ -10,7 +10,7 @@ void taskPrint( void ) {
     for ( int i = 0; i < 4; i++ ) {
         console.printf( "%02X ", *ptr++ );
     }
-    console.printf( "\r\n" );
+    console.printf( ", FPU type = %d\r\n", SCB_GetFPUType() );
 }
 
 // ============================================================================
@@ -24,7 +24,7 @@ int main( void ) {
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
     // tasks -----------
-    stime.scheduler.regist( 500, 2, taskPrint, "taskPrint" );
+    stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );
     stime.scheduler.show();
 
     // system start to run -----------

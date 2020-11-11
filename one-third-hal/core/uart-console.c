@@ -7,9 +7,12 @@
 #include <stdlib.h>
 #include <string.h>
 
-// static uint8_t      console.level;
+#if !defined( _CLI_OUT_MESSAGE )
+#define _CLI_OUT_MESSAGE "1/3"
+#endif
 extern Cli_t        cli_;
-extern CliCmdList_t cmd_list_[100];
+extern CliCmdList_t cmd_list_[_CLI_CMD_MAX_NUM];
+bool                console_rx_enabled_ = true;
 
 // ============================================================================
 #if defined( CONSOLE_IS_USED )
@@ -33,7 +36,9 @@ static void ConsoleUartIRQ( void ) {
     if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
         HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
     }
-    ConsoleSetChar( &recv, 1 );
+    if ( console_rx_enabled_ ) {
+        ConsoleSetChar( &recv, 1 );
+    }
 }
 // ----------------------------------------------------------------------------
 #if defined( STM32F030x8 )
@@ -510,7 +515,7 @@ void UART7_IRQHandler( void ) {
 extern void ConsolePrintf( char* sign_data, char* format, va_list ap );
 
 // ============================================================================
-static void one_third_printk( LogLevel_e level, char* format, ... ) {
+static void oneThirdPrintk( LogLevel_e level, char* format, ... ) {
     if ( level <= console.level ) {
         char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
         va_list ap;
@@ -521,7 +526,7 @@ static void one_third_printk( LogLevel_e level, char* format, ... ) {
 }
 
 // ============================================================================
-static void one_third_printf( char* format, ... ) {
+static void oneThirdPrintf( char* format, ... ) {
     if ( LOG_INFO <= console.level ) {
         char    sign_data[_CONSOLE_SIGN_DATA_SIZE];
         va_list ap;
@@ -613,7 +618,7 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len ) {
 
 // ============================================================================
 static uint8_t cli_cmd_num_ = 0;
-static void    CliRegisterCmd( char* str, CliHandle p ) {
+static void    CliAttachCmd( char* str, CliHandle p ) {
     if ( cli_cmd_num_ < _CLI_CMD_MAX_NUM - 1 ) {
         cmd_list_[cli_cmd_num_].str = str;
         cmd_list_[cli_cmd_num_].p   = p;
@@ -627,6 +632,8 @@ static void    CliRegisterCmd( char* str, CliHandle p ) {
 }
 
 // ============================================================================
+// HAL_StatusTypeDef CliSuspend( int argc, char** argv );
+// -----------------------------
 static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
                            uint8_t stop_b ) {
 
@@ -662,15 +669,16 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     // command line interface -------------
     memset( &cli_, '\0', sizeof( cli_ ) );
     memset( cmd_list_, '\0', sizeof( cmd_list_[100] ) );
-    cli_.out_message = "\r\n" CYN "1/3" NOC ": ";
+    cli_.out_message = "\r\n" CYN _CLI_OUT_MESSAGE NOC ": ";
     CliDeInit();
 
     // register some default commands -------------
-    CliRegisterCmd( "help", ( CliHandle )CliShowCmd );
-    CliRegisterCmd( "reset", ( CliHandle )CliReset );
-    CliRegisterCmd( "log &level", ( CliHandle )CliLogSetLevel );
-    CliRegisterCmd( "firmware", ( CliHandle )CliCheckFirmware );
-    CliRegisterCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
+    CliAttachCmd( "help", ( CliHandle )CliShowCmd );
+    CliAttachCmd( "reset", ( CliHandle )CliReset );
+    CliAttachCmd( "log &level", ( CliHandle )CliLogSetLevel );
+    CliAttachCmd( "firmware", ( CliHandle )CliCheckFirmware );
+    CliAttachCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
+    CliAttachCmd( "cli-suspend &seconds", ( CliHandle )CliSuspend );
 
     console.enableRxen( true );
 }
@@ -731,6 +739,16 @@ static void consoleEnableRxen( bool enable ) {
 }
 
 // ============================================================================
+static void consoleSetRxStatus( bool v ) {
+    console_rx_enabled_ = v;
+}
+
+// ============================================================================
+static bool consoleGetRxStatus( void ) {
+    return console_rx_enabled_;
+}
+
+// ============================================================================
 // some values:
 // \n: 0d10
 // \r: 0d13
@@ -748,7 +766,7 @@ static void consoleEnableRxen( bool enable ) {
 // left/right arrows: the same
 // home, end, page up, page down, delete
 
-static void CliEentHandle( void ) {
+static void CliProcess( void ) {
     char           read_char;
     static uint8_t label = 0;
 
@@ -770,7 +788,7 @@ static void CliEentHandle( void ) {
         }
         else {
             if ( read_char == 0x09 ) {
-                CliTabCompletion();
+                CliTabCompletion( console.read( 0xffff ) );
             }
             // 0x7F is the key value of backspace on Linux
             else if ( read_char == 0x7F ) {
@@ -799,21 +817,23 @@ static void CliEentHandle( void ) {
 // ============================================================================
 // clang-format off
 Console_t console = {
-    .level      = LOG_INFO         ,
-    .config     = consoleConfig    ,
-    .setTxMode  = consoleTxMode    ,
-    .enableRxen = consoleEnableRxen,
-    .printk     = one_third_printk ,
-    .printf     = one_third_printf ,
-    .error      = consoleError     ,
-    .writeByte  = consoleWriteByte ,
-    .writeStr   = consoleWriteStr  ,
-    .read       = consoleGetChar   ,
+    .level       = LOG_INFO          ,
+    .config      = consoleConfig     ,
+    .setTxMode   = consoleTxMode     ,
+    .enableRxen  = consoleEnableRxen ,
+    .setRxStatus = consoleSetRxStatus,
+    .getRxStatus = consoleGetRxStatus,
+    .printk      = oneThirdPrintk    ,
+    .printf      = oneThirdPrintf    ,
+    .error       = consoleError      ,
+    .writeByte   = consoleWriteByte  ,
+    .writeStr    = consoleWriteStr   ,
+    .read        = consoleGetChar    ,
 
     // cli related
     .cli.setLevel = consoleSetLevel,
-    .cli.regist   = CliRegisterCmd ,
-    .cli.process  = CliEentHandle  ,
+    .cli.attach   = CliAttachCmd   ,
+    .cli.process  = CliProcess     ,
 };
 // clang-format on
 

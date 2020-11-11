@@ -151,9 +151,10 @@ void CliInput( char read_char ) {
 }
 
 // ============================================================================
-void CliTabCompletion( void ) {
+void CliTabCompletion( char read_char ) {
+    ( void )read_char;
     console.writeStr( cli_.out_message );
-    console.printf( "%s(): todo\r\n", __func__ );
+    console.printk( 0, "%s(): todo\r\n", __func__ );
 }
 
 // ============================================================================
@@ -187,12 +188,15 @@ void CliBackspace( void ) {
 void CliDirection( char read_char ) {
     switch ( read_char ) {
     case 'A':  // up direction key
+        // console.printk( 0, "up" );
         CliReadCmdHistory( 0 );
         break;
     case 'B':  // down direction key
+        // console.printk( 0, "down" );
         CliReadCmdHistory( 1 );
         break;
     case 'C':  // right direciton key
+        // console.printk( 0, "right" );
         if ( *cli_.cmd_buff_cursor != '\0' ) {
             console.writeByte( 0x1b );
             console.writeByte( 0x5b );
@@ -201,6 +205,7 @@ void CliDirection( char read_char ) {
         }
         break;
     case 'D':  // left direciton key
+        // console.printk( 0, "left" );
         if ( cli_.cmd_buff_cursor != cli_.cmd_buff ) {
             console.writeByte( 0x1b );
             console.writeByte( 0x5b );
@@ -458,5 +463,22 @@ HAL_StatusTypeDef CliShowScheduler( int argc, char** argv ) {
         console.printk( 0, "argument not recognized.\r\n" );
         return HAL_ERROR;
     }
+    return HAL_OK;
+}
+
+// ============================================================================
+HAL_StatusTypeDef CliSuspend( int argc, char** argv ) {
+    if ( argc <= 1 ) {
+        return HAL_ERROR;
+    }
+    // check argument 1, cannot contain characters rather than 0 ~ 9
+    for ( int i = 0; i < strlen( argv[1] ); i++ ) {
+        if ( ( argv[1][i] < 48 ) || ( argv[1][i] > 57 ) ) {
+            return HAL_ERROR;
+        }
+    }
+    uint32_t seconds = atoi( argv[1] );
+    stime.scheduler.cliSuspend( seconds );
+    console.setRxStatus( false );
     return HAL_OK;
 }

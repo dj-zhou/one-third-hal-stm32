@@ -101,6 +101,7 @@ $(OUTPATH):
 	mkdir $@
 
 download:
+	st-flash reset
 	st-flash write $(OUTPATH)/$(PROJ).bin 0x8000000
 	st-flash reset
 

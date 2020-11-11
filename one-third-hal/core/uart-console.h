@@ -125,9 +125,10 @@ typedef enum {
 
 typedef struct {
     void ( *setLevel )( LogLevel_e l );
-    void ( *regist )( char* str, CliHandle p );
+    void ( *attach )( char* str, CliHandle p );
     void ( *process )( void );
 } Cli;
+
 // ============================================================================
 // clang-format off
 typedef struct {
@@ -135,6 +136,9 @@ typedef struct {
     void   ( *config )( uint32_t, uint8_t, char, uint8_t )   ;
     void   ( *setTxMode )( ConsoleTx_e )                     ;
     void   ( *enableRxen )( bool )                           ;
+    void   ( *setRxStatus ) (bool )                          ;
+    bool   ( *getRxStatus ) (void )                          ;
+    bool   ( *getRxen )( void )                              ;
     void   ( *printk )( LogLevel_e level, char* format, ... );
     void   ( *printf )( char* format, ... )                  ;
     void   ( *error )( char* format, ... )                   ;

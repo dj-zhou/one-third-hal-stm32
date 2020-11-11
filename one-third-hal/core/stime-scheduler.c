@@ -15,6 +15,9 @@
 static volatile uint32_t tick_;    // as 1/4ms, 1/2ms, 1ms, 2ms or 5ms, up to 1s
 static volatile uint32_t second_;  // use this to support 136 years
 
+// if cli_suspend_second_ > second_, cli will not run:
+volatile uint32_t cli_suspend_second_ = 0;
+
 // ============================================================================
 // constant values used accros the file -------------
 // clang-format off
@@ -254,9 +257,9 @@ static uint32_t IntervalToTicks( uint32_t interval_ms ) {
 }
 
 // ----------------------------------------------------------------------------
-static void SchedulerRegisterTask( uint32_t interval_ms, uint32_t time_init,
-                                   TaskHandle  task_handle,
-                                   const char* task_name ) {
+static void SchedulerAttachTask( uint32_t interval_ms, uint32_t time_init,
+                                 TaskHandle  task_handle,
+                                 const char* task_name ) {
     if ( time_init == 0 ) {
         console.error( "%s: wrong argument, time_init cannot be 0!\r\n",
                        __func__ );
@@ -339,9 +342,20 @@ static void SchedulerShowTasks( void ) {
 // ----------------------------------------------------------------------------
 void SchedulerRun( void ) {
     while ( true ) {
-        console.cli.process();
+        if ( cli_suspend_second_ <= second_ ) {
+            if ( !console.getRxStatus() ) {
+                console.setRxStatus( true );
+            }
+            console.cli.process();
+        }
         SchedulerProcess();
     }
+}
+
+// ----------------------------------------------------------------------------
+void SchedulerCliSuspendTime( uint32_t seconds ) {
+    Stime_t cur_time    = GetSysTickTime();
+    cli_suspend_second_ = cur_time.s + seconds;
 }
 #endif  // _STIME_USE_SCHEDULER
 
@@ -376,11 +390,12 @@ StimeApi_t stime = {
 #endif
 
 #if defined( _STIME_USE_SCHEDULER )
-    .scheduler.config  = SchedulerConfig      ,
-    .scheduler.regist  = SchedulerRegisterTask,
-    .scheduler.process = SchedulerProcess     ,
-    .scheduler.show    = SchedulerShowTasks   ,
-    .scheduler.run     = SchedulerRun         ,
+    .scheduler.config     = SchedulerConfig         ,
+    .scheduler.attach     = SchedulerAttachTask     ,
+    .scheduler.process    = SchedulerProcess        ,
+    .scheduler.show       = SchedulerShowTasks      ,
+    .scheduler.run        = SchedulerRun            ,
+    .scheduler.cliSuspend = SchedulerCliSuspendTime ,
 #endif
 };
 // clang-format on

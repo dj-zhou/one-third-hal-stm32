@@ -95,10 +95,11 @@ typedef struct {
 #if defined( _STIME_USE_SCHEDULER )
 typedef struct  {
     void ( *config )( void )                                      ;
-    void ( *regist )( uint32_t, uint32_t, TaskHandle, const char*);
+    void ( *attach )( uint32_t, uint32_t, TaskHandle, const char*);
     void ( *process )( void )                                     ;
     void ( *show )( void )                                        ;
     void ( *run )( void )                                         ;
+    void ( *cliSuspend )( uint32_t )                              ;
 } Scheduler;
 #endif
 

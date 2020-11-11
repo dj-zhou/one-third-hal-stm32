@@ -19,7 +19,7 @@ int main( void ) {
     console.printf( "\r\n\r\n" );
     led.config( LED_DOUBLE_BLINK );
     // tasks -----------
-    stime.scheduler.regist( 500, 2, taskPrint, "taskPrint" );
+    stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );
     stime.scheduler.show();
 
     // system start to run -----------

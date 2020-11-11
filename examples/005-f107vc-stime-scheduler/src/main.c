@@ -21,7 +21,7 @@ int main( void ) {
     console.config( 921600, 8, 'n', 1 );
     console.printf( "\r\n" );
 
-    stime.scheduler.regist( 1000, 2, task_printf, "task_printf" );
+    stime.scheduler.attach( 1000, 2, task_printf, "task_printf" );
     // also try _1_TICK, _2_TICK and _3_TICK
     // stime.registerTask( _2_TICK, 1, task_printf, "task_printf" );
     stime.scheduler.show();

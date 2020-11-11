@@ -152,7 +152,7 @@ static void LedGpioConfig( LedHeartBeat_e mode ) {
 #if defined( _STIME_USE_SCHEDULER )
     // blink heartbeat task registration ---------
     // heart beat task, call it for every 10 ms
-    stime.scheduler.regist( _LED_HEARTBEAT_BLINK, 5, blinkHeartBeat,
+    stime.scheduler.attach( _LED_HEARTBEAT_BLINK, 5, blinkHeartBeat,
                             "blinkHeartBeat" );
 #endif
 }
