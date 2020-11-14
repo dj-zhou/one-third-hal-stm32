@@ -159,6 +159,9 @@ static Stime_t GetSysTickTime( void ) {
 // ----------------------------------------------------------------------------
 // accurate now. but sometimes loose one tick?
 static void DelayUs( uint32_t us ) {
+    if ( us <= 0 ) {
+        return;
+    }
     volatile Stime_t cur_time = GetSysTickTime();
     uint32_t         cur_us   = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
     uint32_t         final_us = cur_us + ( uint32_t )us;
@@ -176,6 +179,9 @@ static void DelayUs( uint32_t us ) {
 
 // ----------------------------------------------------------------------------
 static void DelayMs( uint32_t ms ) {
+    if ( ms <= 0 ) {
+        return;
+    }
     return DelayUs( ms * 1000 );
 }
 

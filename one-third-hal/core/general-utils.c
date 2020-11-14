@@ -556,6 +556,31 @@ static void enableUartClock( USART_TypeDef* USARTx ) {
 }
 
 // ============================================================================
+static void enableSpiClock( SPI_TypeDef* SPIx ) {
+    // clang-format off
+#if defined( SPI1_EXISTS )
+    if ( SPIx == SPI1 ) { __HAL_RCC_SPI1_CLK_ENABLE(); return; }
+#endif
+#if defined( SPI2_EXISTS )
+    if ( SPIx == SPI2 ) { __HAL_RCC_SPI2_CLK_ENABLE(); return; }
+#endif
+#if defined( SPI3_EXISTS )
+    if ( SPIx == SPI3 ) { __HAL_RCC_SPI3_CLK_ENABLE(); return; }
+#endif
+#if defined( SPI4_EXISTS )
+    if ( SPIx == SPI4 ) { __HAL_RCC_SPI4_CLK_ENABLE(); return; }
+#endif
+#if defined( SPI5_EXISTS )
+    if ( SPIx == SPI5 ) { __HAL_RCC_SPI5_CLK_ENABLE(); return; }
+#endif
+#if defined( SPI6_EXISTS )
+    if ( SPIx == SPI6 ) { __HAL_RCC_SPI6_CLK_ENABLE(); return; }
+#endif
+    // clang-format on
+    ( void )SPIx;
+}
+
+// ============================================================================
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
 static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
     assert_param( IS_GPIO_MODE( io ) );
@@ -654,6 +679,7 @@ CoreUtilsApi_t utils = {
     .clock.enableGpio  = enableGpioClock  ,
     .clock.enableTimer = enableTimerClock ,
     .clock.enableUart  = enableUartClock  ,
+    .clock.enableSpi   = enableSpiClock   ,
     .pin.mode          = setPinMode       ,
     .pin.pull          = setPinPull       ,
     .pin.set           = setPin           ,

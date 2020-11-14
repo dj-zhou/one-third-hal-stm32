@@ -678,7 +678,10 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     CliAttachCmd( "log &level", ( CliHandle )CliLogSetLevel );
     CliAttachCmd( "firmware", ( CliHandle )CliCheckFirmware );
     CliAttachCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
+
+#if defined( _STIME_USE_SCHEDULER )
     CliAttachCmd( "cli-suspend &seconds", ( CliHandle )CliSuspend );
+#endif
 
     console.enableRxen( true );
 }

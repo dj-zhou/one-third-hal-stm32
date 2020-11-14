@@ -297,7 +297,8 @@ static CliCmdList_t* CliSeekCmd( char* str ) {
 void CliProcessCmd( char* str ) {
     HAL_StatusTypeDef ret = HAL_OK;
     CliCmdList_t*     cmd;
-    char*             parameter[10] = { NULL, NULL, NULL, NULL, NULL,
+
+    char* parameter[10] = { NULL, NULL, NULL, NULL, NULL,
                             NULL, NULL, NULL, NULL, NULL };
 
     char** ptr = parameter;
@@ -395,25 +396,25 @@ HAL_StatusTypeDef CliCheckFirmware( void ) {
     ( void )ptr;
     // --------------------------------
 #if defined( FIRMWARE )
-    console.printk( 0, " firmware   :" WHT " %s\r\n" NOC, FIRMWARE );
+    console.printk( 0, "    firmware:" WHT " %s\r\n" NOC, FIRMWARE );
 #endif
 
     // --------------------------------
 #if defined( PRJ_GIT_VER ) && defined( PRJ_GIT_CMT )
     ptr = ( char* )&PRJ_GIT_VER + strlen( PRJ_GIT_VER ) - 5;
     if ( strcmp( ptr, "dirty" ) == 0 ) {
-        console.printk( 0, " version    :" RED " %s" NOC " (%s)\r\n",
+        console.printk( 0, "     version:" RED " %s" NOC " (%s)\r\n",
                         PRJ_GIT_VER, PRJ_GIT_CMT );
     }
     else {
-        console.printk( 0, " version    :" WHT " %s" NOC " (%s)\r\n",
+        console.printk( 0, "     version:" WHT " %s" NOC " (%s)\r\n",
                         PRJ_GIT_VER, PRJ_GIT_CMT );
     }
 #endif
 
     // --------------------------------
 #if defined( PRJ_GIT_BRH )
-    console.printk( 0, " branch     :" WHT " %s\r\n" NOC, PRJ_GIT_BRH );
+    console.printk( 0, "      branch:" WHT " %s\r\n" NOC, PRJ_GIT_BRH );
 #endif
 
     // --------------------------------
@@ -431,16 +432,16 @@ HAL_StatusTypeDef CliCheckFirmware( void ) {
 
     // --------------------------------
 #if defined( LIB_GIT_BRH )
-    console.printk( 0, " lib branch :" WHT " %s\r\n" NOC, LIB_GIT_BRH );
+    console.printk( 0, "  lib branch:" WHT " %s\r\n" NOC, LIB_GIT_BRH );
 #endif
 
     // --------------------------------
 #if defined( MAKE_TYPE )
-    console.printk( 0, " make type  :" WHT " %s\r\n" NOC, MAKE_TYPE );
+    console.printk( 0, "   make type:" WHT " %s\r\n" NOC, MAKE_TYPE );
 #endif
 
     // --------------------------------
-    console.printk( 0, " make time  :" WHT " %s, %s\r\n" NOC, __TIME__,
+    console.printk( 0, "   make time:" WHT " %s, %s\r\n" NOC, __TIME__,
                     __DATE__ );
 
     CONSOLE_PRINTF_SEG;
@@ -467,6 +468,8 @@ HAL_StatusTypeDef CliShowScheduler( int argc, char** argv ) {
 }
 
 // ============================================================================
+#if defined( _STIME_USE_SCHEDULER )
+// this function works only when the scheduler is used
 HAL_StatusTypeDef CliSuspend( int argc, char** argv ) {
     if ( argc <= 1 ) {
         return HAL_ERROR;
@@ -482,3 +485,4 @@ HAL_StatusTypeDef CliSuspend( int argc, char** argv ) {
     console.setRxStatus( false );
     return HAL_OK;
 }
+#endif

@@ -63,7 +63,9 @@ HAL_StatusTypeDef CliReset( void );
 HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv );
 HAL_StatusTypeDef CliCheckFirmware( void );
 HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
+#if defined( _STIME_USE_SCHEDULER )
 HAL_StatusTypeDef CliSuspend( int argc, char** argv );
+#endif
 
 // ============================================================================
 #ifdef __cplusplus

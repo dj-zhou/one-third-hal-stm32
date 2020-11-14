@@ -8,6 +8,7 @@ extern "C" {
 #include "config.h"  // must be on the top
 
 #include "config-gpio.h"
+#include "config-spi.h"
 #include "config-timer.h"
 #include "config-usart.h"
 
@@ -46,6 +47,16 @@ extern "C" {
 
 #if !defined( _PACK )
     #define _PACK( x ) __attribute__( ( packed, aligned( x ) ) )
+#endif
+
+#if !defined( offsetof )
+#define offsetof(TYPE, MEMBER) ((size_t) &((TYPE *)0)->MEMBER)
+#endif
+
+#if !defined( container_of )
+#define container_of( ptr, type, member )( {                      \
+                const typeof( ( ( type* )0 )->member )* __mptr = ( ptr );    \
+                ( type* )( ( char* )__mptr - offsetof( type, member ) ); } )
 #endif
 // clang-format on
 
@@ -91,6 +102,7 @@ typedef struct {
     void ( *enableGpio )( GPIO_TypeDef* GPIOx );
     void ( *enableTimer )( TIM_TypeDef* TIMx );
     void ( *enableUart )( USART_TypeDef* USARTx );
+    void ( *enableSpi )( SPI_TypeDef* SPIx );
 } Clock;
 
 typedef struct {
