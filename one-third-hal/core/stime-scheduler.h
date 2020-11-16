@@ -96,7 +96,7 @@ typedef struct {
 typedef struct  {
     void ( *config )( void )                                      ;
     void ( *attach )( uint32_t, uint32_t, TaskHandle, const char*);
-    void ( *process )( void )                                     ;
+    // void ( *process )( void )                                     ;
     void ( *show )( void )                                        ;
     void ( *run )( void )                                         ;
     void ( *cliSuspend )( uint32_t )                              ;

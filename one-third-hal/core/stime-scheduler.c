@@ -398,7 +398,7 @@ StimeApi_t stime = {
 #if defined( _STIME_USE_SCHEDULER )
     .scheduler.config     = SchedulerConfig         ,
     .scheduler.attach     = SchedulerAttachTask     ,
-    .scheduler.process    = SchedulerProcess        ,
+    // .scheduler.process    = SchedulerProcess        ,
     .scheduler.show       = SchedulerShowTasks      ,
     .scheduler.run        = SchedulerRun            ,
     .scheduler.cliSuspend = SchedulerCliSuspendTime ,
