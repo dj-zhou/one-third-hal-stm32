@@ -101,7 +101,7 @@ We use console to interact with the micro-controller to check its status, for ex
 
 The library is tested with the following micro-controllers:
 
-| micro-controller | SYSCLK/APB1/APB2 (MHz) |  HSE   | FLASH/RAM  | Tested Platform              |
+| micro-controller | AHB/APB1/APB2 (MHz) |  HSE   | FLASH/RAM  | Tested Platform              |
 | :--------------: | :--------------------: | :----: | :--------: | ---------------------------- |
 |  STM32F030R8T6   |        48/48/--        |   8M   |   64K/8K   | NUCLEO-F030R8                |
 |  STM32F103RBT6   |        72/36/72        |   8M   |  128K/20K  | NUCLEO-F103RB                |
