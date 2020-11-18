@@ -582,8 +582,8 @@ static void enableSpiClock( SPI_TypeDef* SPIx ) {
 
 // ============================================================================
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
-static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
-    assert_param( IS_GPIO_MODE( io ) );
+static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode ) {
+    assert_param( IS_GPIO_MODE( mode ) );
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
 // #if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
@@ -617,9 +617,31 @@ static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io ) {
 #else
 #error setPinMode(): need to implement and verify!
 #endif
-    GPIO_InitStructure.Mode = io;
+    GPIO_InitStructure.Mode = mode;
+    // GPIO_InitStructure.Pull = GPIO_NOPULL; // todo
     HAL_GPIO_Init( GPIOx, &GPIO_InitStructure );
 }
+
+// ============================================================================
+#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
+    || defined( STM32F767xx )
+static void setPinAlter( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt ) {
+
+    uint16_t GPIO_PIN_x = 1 << pin_n;
+
+    enableGpioClock( GPIOx );
+
+    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitStructure.Pin = GPIO_PIN_x;
+
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+
+    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Alternate = alt;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;  // this may differ for platforms
+    HAL_GPIO_Init( GPIOx, &GPIO_InitStructure );
+}
+#endif
 
 // ============================================================================
 static void setPinPull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p ) {
@@ -681,6 +703,10 @@ CoreUtilsApi_t utils = {
     .clock.enableUart  = enableUartClock  ,
     .clock.enableSpi   = enableSpiClock   ,
     .pin.mode          = setPinMode       ,
+#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
+    || defined( STM32F767xx )
+    .pin.alter         = setPinAlter      ,
+    #endif
     .pin.pull          = setPinPull       ,
     .pin.set           = setPin           ,
     .pin.toggle        = togglePin        ,

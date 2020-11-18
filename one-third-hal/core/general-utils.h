@@ -106,7 +106,11 @@ typedef struct {
 } Clock;
 
 typedef struct {
-    void ( *mode )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io );
+    void ( *mode )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode );
+#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
+    || defined( STM32F767xx )
+    void ( *alter )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt );
+#endif
     void ( *pull )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p );
     void ( *set )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v );
     void ( *toggle )( GPIO_TypeDef* GPIOx, uint8_t pin_n );

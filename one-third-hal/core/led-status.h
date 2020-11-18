@@ -30,8 +30,8 @@ extern "C" {
     #define    _LED_HIGH_DRIVE
 #endif
 
-#if !defined( _LED_HEARTBEAT_BLINK )
-    #define    _LED_HEARTBEAT_BLINK     ( 10 )
+#if !defined( _LED_HEARTBEAT_TASK_MS )
+    #define    _LED_HEARTBEAT_TASK_MS     ( 10 )
 #endif
 // clang-format on
 
@@ -70,8 +70,8 @@ typedef enum {
     LED_BEAT18       = 180,
     LED_BEAT19       = 190,
     LED_BEAT20       = 200,  // on for 200 ms, off for 800 ms
-    LED_PWM_MODE     = 201,  // breathing light mode, TODO
-    LED_DOUBLE_BLINK = 202,  // flash twice in a period of 1.5 second
+    LED_DOUBLE_BLINK = 201,  // flash twice in a period of 1.5 second
+    LED_PWM_MODE     = 202,  // breathing light mode, TODO
 } LedHeartBeat_e;
 
 // ============================================================================
@@ -88,8 +88,8 @@ typedef enum {
 // clang-format off
 typedef struct {
     void ( *config )( LedHeartBeat_e mode );
-    void ( *toggleHeartBeat )( void )      ; // should be removed 
-    void ( *toggleError )( void )          ; // should be removed 
+    void ( *toggleHeartBeat )( void )      ; // should be removed
+    void ( *toggleError )( void )          ; // should be removed
 } LedStatusApi_t;
 extern LedStatusApi_t led;
 // clang-format on

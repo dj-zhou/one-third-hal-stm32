@@ -27,8 +27,8 @@ extern "C" {
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
-#define _LED_HEARTBEAT_PORT GPIOD
-#define _LED_HEARTBEAT_PIN 12
+#define _LED_HEARTBEAT_PORT GPIOE
+#define _LED_HEARTBEAT_PIN 11
 #define _LED_HEARTBEAT_TASK_MS 5
 #include "led-status.h"
 

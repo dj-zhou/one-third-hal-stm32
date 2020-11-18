@@ -169,12 +169,8 @@ static void InitSpiPinsHardNss( GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
 
 // ============================================================================
 #if defined( SPI1_EXISTS ) && defined( _USE_SPI1_PA7PA6 )
-static void InitSpi1_PA7PA6( uint16_t prescale, SpiMaster_e master,
-                             SpiNss_e hardware_nss ) {
-    spi1.param.master    = master;
-    spi1.param.nss       = hardware_nss;
-    spi1.param.nss_GPIOx = NULL;
-    spi1.hspi.Instance   = SPI1;
+static void InitSpi1_PA7PA6( void ) {
+
 #if defined( STM32F427xx ) || defined( STM32F767xx )
     if ( spi1.param.nss == SPI_HARD_NSS ) {
         InitSpiPinsHardNss( GPIOA, 7, GPIOA, 6, GPIOA, 5, GPIOA, 4,
@@ -187,27 +183,33 @@ static void InitSpi1_PA7PA6( uint16_t prescale, SpiMaster_e master,
 #else
 #error InitSpi1_PA7PA6(): to implement and verify!
 #endif
-    InitSpiSettings( &( spi1.hspi ), prescale, master, hardware_nss );
 }
 #endif  // SPI1_EXISTS || _USE_SPI1_PA7PA6
 
 // ============================================================================
 #if defined( SPI1_EXISTS ) && defined( _USE_SPI1_PB5PB4 )
-static void InitSpi1_PB5PB4( uint16_t prescale, SpiMaster_e master,
-                             SpiNss_e hardware_nss ) {
-    ( void )master;
-    ( void )hardware_nss;
+static void InitSpi1_PB5PB4( void ) {
     // todo
 }
 #endif  // SPI1_EXISTS || _USE_SPI1_PB5PB4
 
 // ============================================================================
 #if defined( SPI1_EXISTS ) && defined( SPI1_IS_USED )
+
 // ----------------------------------------------------------------------------
-static HAL_StatusTypeDef Spi1Transceive( uint8_t* t_data, uint8_t* r_data,
-                                         uint16_t len ) {
-    uint32_t timeout = 1000;
-    return SpiTransceive( &spi1, t_data, r_data, len, timeout );
+static void InitSpi1( uint16_t prescale, SpiMaster_e master,
+                      SpiNss_e hardware_nss ) {
+    g_config_spi_used |= 1 << 1;  // not started from 0
+    spi1.param.master    = master;
+    spi1.param.nss       = hardware_nss;
+    spi1.param.nss_GPIOx = NULL;
+    spi1.hspi.Instance   = SPI1;
+#if defined( _USE_SPI1_PA7PA6 )
+    InitSpi1_PA7PA6();
+#elif defined( _USE_SPI1_PB5PB4 )
+    InitSpi1_PB5PB4();
+#endif
+    InitSpiSettings( &( spi1.hspi ), prescale, master, hardware_nss );
 }
 
 // ----------------------------------------------------------------------------
@@ -215,17 +217,20 @@ static void InitSpi1SoftNss( GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss ) {
     InitSpiSoftNss( &spi1, GPIOx_NSS, pin_nss );
 }
 
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef Spi1Transceive( uint8_t* t_data, uint8_t* r_data,
+                                         uint16_t len ) {
+    uint32_t timeout = 1000;
+    return SpiTransceive( &spi1, t_data, r_data, len, timeout );
+}
+
 // ============================================================================
 // ---------------------
 // clang-format off
 Spi_t spi1 = {
-#if defined(_USE_SPI1_PA7PA6)
-    .config       = InitSpi1_PA7PA6 ,
-#elif defined(_USE_SPI1_PB5PB4)
-    .config       = InitSpi1_PB5PB4 ,
-#endif
-    .setNss       = InitSpi1SoftNss ,
-    .transceive   = Spi1Transceive  ,
+    .config       = InitSpi1       ,
+    .setNss       = InitSpi1SoftNss,
+    .transceive   = Spi1Transceive ,
 };
 // clang-format on
 #endif  // SPI1_EXISTS && SPI1_IS_USED

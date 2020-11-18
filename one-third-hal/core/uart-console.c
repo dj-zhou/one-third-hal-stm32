@@ -642,24 +642,34 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
     rb.w_ptr      = rb.buffer;
 
 #if defined( _CONSOLE_USE_UART1_PA9PA10 )
+    g_config_usart_used |= 1 << 1;
     InitUSART1_PA9PA10( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART1_PB6PB7 )
+    g_config_usart_used |= 1 << 1;
     InitUSART1_PB6PB7( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART2_PA2PA3 )
+    g_config_usart_used |= 1 << 2;
     InitUSART2_PA2PA3( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART2_PD5PD6 )
+    g_config_usart_used |= 1 << 2;
     InitUSART2_PD5PD6( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART3_PB10PB11 )
+    g_config_usart_used |= 1 << 3;
     InitUSART3_PB10PB11( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART3_PC10PC11 )
+    g_config_usart_used |= 1 << 3;
     InitUSART3_PC10PC11( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART3_PD8PD9 )
+    g_config_usart_used |= 1 << 3;
     InitUSART3_PD8PD9( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART4_PC10PC11 )
+    g_config_usart_used |= 1 << 4;
     InitUART4_PC10PC11( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART5_PC12PD2 )
+    g_config_usart_used |= 1 << 5;
     InitUART5_PC12PD2( baud_rate, len, parity, stop_b );
 #elif defined( _CONSOLE_USE_UART7_PE8PE7 )
+    g_config_usart_used |= 1 << 7;
     InitUART7_PE8PE7( baud_rate, len, parity, stop_b );
 #else
 #error consoleConfig(): not implemented!

@@ -30,7 +30,7 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #define _LED_HEARTBEAT_PORT GPIOB
 #define _LED_HEARTBEAT_PIN 1
-#define _LED_HEARTBEAT_BLINK 5
+#define _LED_HEARTBEAT_TASK_MS 5
 #define _LED_LOW_DRIVE
 #include "led-status.h"
 

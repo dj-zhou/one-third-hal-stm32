@@ -3,28 +3,26 @@
 
 // =============================================================================
 void taskPrint( void ) {
-    static int32_t loop = 0;
-    float          data = sin( ( double )loop / 180.0 * 3.1415926 );
+    static int32_t loop = 220;
+    float          data = -sin( ( double )loop / 180.0 * 3.1415926 );
     char*          ptr  = ( char* )&data;
-    console.printf( "%5d, %s, data = %f, ", loop++, FIRMWARE, data );
+    console.printf( "data = %f, ", data );
     for ( int i = 0; i < 4; i++ ) {
-        console.printf( "%02X ", *ptr++ );
+        console.printf( "%X ", *ptr++ );
     }
-    console.printf( ", FPU type = %d\r\n", SCB_GetFPUType() );
-    console.printf( "g_config_timer_used  = %b\r\n", g_config_timer_used );
+    console.printf( "\r\n" );
 }
 
 // ============================================================================
 int main( void ) {
     utils.pin.mode( GPIOE, 11, GPIO_MODE_OUTPUT_PP );
-    utils.system.initClock( 216, 54, 108 );
+    utils.system.initClock( 168, 42, 84 );
     utils.system.initNvic( 4 );
     stime.config();
     stime.scheduler.config();
     console.config( 2000000, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
     led.config( LED_PWM_MODE );
-
     // tasks -----------
     stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );
     stime.scheduler.show();

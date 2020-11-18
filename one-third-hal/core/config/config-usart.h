@@ -3,6 +3,8 @@
 
 #include "config.h"
 
+uint16_t g_config_usart_used;
+
 // clang-format off
 
 // commonly existed ones -------------

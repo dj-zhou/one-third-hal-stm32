@@ -3,26 +3,25 @@
 
 // =============================================================================
 void taskPrint( void ) {
-    static int32_t loop = 220;
+    static int32_t loop = 0;
     float          data = -sin( ( double )loop / 180.0 * 3.1415926 );
     char*          ptr  = ( char* )&data;
-    console.printf( "data = %f, ", data );
+    console.printf( "%5d: data = %f, ", loop++, data );
     for ( int i = 0; i < 4; i++ ) {
-        console.printf( "%X ", *ptr++ );
+        console.printf( "%2X ", *ptr++ );
     }
     console.printf( "\r\n" );
 }
 
 // ============================================================================
 int main( void ) {
-    utils.pin.mode( GPIOE, 11, GPIO_MODE_OUTPUT_PP );
     utils.system.initClock( 180, 45, 90 );
     utils.system.initNvic( 4 );
     stime.config();
     stime.scheduler.config();
     console.config( 2000000, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
-    led.config( LED_DOUBLE_BLINK );
+    led.config( LED_PWM_MODE );
     // tasks -----------
     stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );
     stime.scheduler.show();
