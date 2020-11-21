@@ -7,6 +7,11 @@ extern "C" {
 
 #include "config.h"
 #include <stdbool.h>
+// ============================================================================
+// problem of this module:
+// timer PWM can be more important than the LED PWM mode for heartbeat/breath,
+// so if the timer is set to some frequency for other purpose, the LED PWM
+// module should adapt to it. However, the current setup does not.
 
 // ============================================================================
 // clang-format off

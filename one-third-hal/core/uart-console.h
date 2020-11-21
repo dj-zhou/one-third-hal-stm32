@@ -11,11 +11,11 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CONSOLE_PRINTF_SEG                                                    \
-    do {                                                                      \
-        console.printk(                                                       \
-            0, YLW                                                            \
-            "----------------------------------------------------\r\n" NOC ); \
+#define CONSOLE_PRINTF_SEG                                                     \
+    do {                                                                       \
+        console.printk( 0,                                                     \
+                        YLW "------------------------------------------------" \
+                            "--------------------------------\r\n" NOC );      \
     } while ( 0 )
 
 // ============================================================================

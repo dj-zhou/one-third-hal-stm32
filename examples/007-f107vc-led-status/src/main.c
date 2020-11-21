@@ -4,6 +4,14 @@
 void taskPrint( void ) {
     static int32_t loop = 0;
     console.printf( "%5d: hello %s\r\n", loop++, FIRMWARE );
+    uint16_t data = 0x5213;
+    console.printf( "data = %b\r\n", data );
+    if ( _CHECK_BIT( data, 9 ) ) {
+        console.printf( "is one\r\n" );
+    }
+    _SET_BIT( data, 11 );
+    _RESET_BIT( data, 9 );
+    console.printf( "data = %b\r\n", data );
 }
 
 // ============================================================================

@@ -10,9 +10,9 @@
 #if !defined( _CLI_OUT_MESSAGE )
 #define _CLI_OUT_MESSAGE "1/3"
 #endif
-extern Cli_t        cli_;
-extern CliCmdList_t cmd_list_[_CLI_CMD_MAX_NUM];
-bool                console_rx_enabled_ = true;
+extern Cli_t    cli_;
+extern CliCmd_t cmd_[_CLI_CMD_MAX_NUM];
+bool            console_rx_enabled_ = true;
 
 // ============================================================================
 #if defined( CONSOLE_IS_USED )
@@ -620,8 +620,8 @@ static void ConsoleSetChar( uint8_t* buf, uint32_t len ) {
 static uint8_t cli_cmd_num_ = 0;
 static void    CliAttachCmd( char* str, CliHandle p ) {
     if ( cli_cmd_num_ < _CLI_CMD_MAX_NUM - 1 ) {
-        cmd_list_[cli_cmd_num_].str = str;
-        cmd_list_[cli_cmd_num_].p   = p;
+        cmd_[cli_cmd_num_].str = str;
+        cmd_[cli_cmd_num_].p   = p;
         cli_cmd_num_++;
     }
     else {
@@ -678,15 +678,14 @@ static void consoleConfig( uint32_t baud_rate, uint8_t len, char parity,
 
     // command line interface -------------
     memset( &cli_, '\0', sizeof( cli_ ) );
-    memset( cmd_list_, '\0', sizeof( cmd_list_[100] ) );
+    memset( cmd_, '\0', sizeof( cmd_[100] ) );
     cli_.out_message = "\r\n" CYN _CLI_OUT_MESSAGE NOC ": ";
     CliDeInit();
 
     // register some default commands -------------
     CliAttachCmd( "help", ( CliHandle )CliShowCmd );
-    CliAttachCmd( "reset", ( CliHandle )CliReset );
+    CliAttachCmd( "system &cmd", ( CliHandle )CliSystem );
     CliAttachCmd( "log &level", ( CliHandle )CliLogSetLevel );
-    CliAttachCmd( "firmware", ( CliHandle )CliCheckFirmware );
     CliAttachCmd( "scheduler &cmd", ( CliHandle )CliShowScheduler );
 
 #if defined( _STIME_USE_SCHEDULER )

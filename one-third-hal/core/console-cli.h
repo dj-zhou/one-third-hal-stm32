@@ -28,11 +28,11 @@ extern "C" {
 typedef struct {
     char*     str;
     CliHandle p;
-} CliCmdList_t;
+} CliCmd_t;
 
 typedef struct {
-    char    cmd_buff[_CLI_HISTORY_CMD_NUM][_CLI_CMD_MAX_LEN];
-    uint8_t w_index;
+    char    buff[_CLI_HISTORY_CMD_NUM][_CLI_CMD_MAX_LEN];
+    uint8_t index;
 } CliHistory_t;
 
 typedef struct {
@@ -44,7 +44,7 @@ typedef struct {
     char  argv_buff[_CLI_CMD_MAX_LEN];
     char  cmd_buff[_CLI_CMD_MAX_LEN];
     // history
-    CliHistory_t history_cmd;
+    CliHistory_t history;
 } Cli_t;
 
 // ============================================================================
@@ -59,10 +59,9 @@ void CliProcessCmd( char* str );
 // ============================================================================
 // default CLI commands registered
 HAL_StatusTypeDef CliShowCmd( void );
-HAL_StatusTypeDef CliReset( void );
 HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv );
-HAL_StatusTypeDef CliCheckFirmware( void );
 HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
+HAL_StatusTypeDef CliSystem( int argc, char** argv );
 #if defined( _STIME_USE_SCHEDULER )
 HAL_StatusTypeDef CliSuspend( int argc, char** argv );
 #endif
