@@ -49,24 +49,20 @@ extern "C" {
     #define _RESET_BIT( var, pos ) ( ( var ) &= ( ~( 1 << ( pos ) ) ) )
 #endif
 
-#if !defined( _SIZE_OF_ARRAY )
-    #define _SIZE_OF_ARRAY( x ) ( sizeof( x ) / sizeof( ( x )[0] ) )
-#endif
-
-#if !defined( _PACK )
-#define _PACK( x ) __attribute__( ( packed, aligned( x ) ) )
+#if !defined( sizeof_array )
+    #define sizeof_array( x ) ( sizeof( x ) / sizeof( ( x )[0] ) )
 #endif
 
 #if !defined( offsetof )
-#define offsetof( TYPE, MEMBER ) ( ( size_t ) & ( ( TYPE* )0 )->MEMBER )
+    #define offsetof( TYPE, MEMBER ) ( ( size_t ) & ( ( TYPE* )0 )->MEMBER )
 #endif
 
 #if !defined( container_of )
-#define container_of( ptr, type, member )                         \
-    ( {                                                           \
-        const typeof( ( ( type* )0 )->member )* __mptr = ( ptr ); \
-        ( type* )( ( char* )__mptr - offsetof( type, member ) );  \
-    } )
+    #define container_of( ptr, type, member )                         \
+        ( {                                                           \
+            const typeof( ( ( type* )0 )->member )* __mptr = ( ptr ); \
+            ( type* )( ( char* )__mptr - offsetof( type, member ) );  \
+        } )
 #endif
 // clang-format on
 
