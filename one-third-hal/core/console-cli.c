@@ -1,4 +1,5 @@
 #include "console-cli.h"
+#include "math13rd.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -483,7 +484,8 @@ HAL_StatusTypeDef CliSystem( int argc, char** argv ) {
         console.printk( 0, "system\r\n" );
         console.printk( 0, "        firmware: check firmware information\r\n" );
         console.printk( 0, "    reset/reboot: reboot the system\r\n" );
-        console.printk( 0, "           flash: flash new firmware" );
+        console.printk(
+            0, "           flash: flash new firmware (need hardware support)" );
         return HAL_OK;
     }
     console.printk( 0, "\r\n" );

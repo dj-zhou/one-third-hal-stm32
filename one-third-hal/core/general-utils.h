@@ -110,9 +110,10 @@ typedef struct {
 
 typedef struct {
     void ( *enableGpio )( GPIO_TypeDef* GPIOx );
+    void ( *enableIic )( I2C_TypeDef* I2Cx );
+    void ( *enableSpi )( SPI_TypeDef* SPIx );
     void ( *enableTimer )( TIM_TypeDef* TIMx );
     void ( *enableUart )( USART_TypeDef* USARTx );
-    void ( *enableSpi )( SPI_TypeDef* SPIx );
 } Clock;
 
 typedef struct {

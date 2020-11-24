@@ -106,34 +106,34 @@ typedef struct {
     void ( *config )( uint16_t, SpiMaster_e, SpiNss_e );
     void ( *setNss )( GPIO_TypeDef*, uint8_t );
     HAL_StatusTypeDef ( *transceive )( uint8_t*, uint8_t*, uint16_t );
-} Spi_t;
+} SpiApi_t;
 
 #endif  // SPI_IS_USED
 
 // clang-format off
 // ----------------------------------------------------------------------------
 #if defined( SPI1_EXISTS ) && defined( SPI1_IS_USED )
-    extern Spi_t spi1;
+    extern SpiApi_t spi1;
 #endif
 
 #if defined( SPI2_EXISTS ) && defined( SPI2_IS_USED )
-    extern Spi_t spi2;
+    extern SpiApi_t spi2;
 #endif
 
 #if defined( SPI3_EXISTS ) && defined( SPI3_IS_USED )
-    extern Spi_t spi3;
+    extern SpiApi_t spi3;
 #endif
 
 #if defined( SPI4_EXISTS ) && defined( SPI4_IS_USED )
-    extern Spi_t spi4;
+    extern SpiApi_t spi4;
 #endif
 
 #if defined( SPI5_EXISTS ) && defined( SPI5_IS_USED )
-    extern Spi_t spi5;
+    extern SpiApi_t spi5;
 #endif
 
 #if defined( SPI6_EXISTS ) && defined( SPI6_IS_USED )
-    extern Spi_t spi6;
+    extern SpiApi_t spi6;
 #endif
 // clang-format on
 

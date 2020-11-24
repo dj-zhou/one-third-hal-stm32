@@ -466,6 +466,25 @@ static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
 }
 
 // ============================================================================
+static void enableIicClock( I2C_TypeDef* IICx ) {
+// clang-format off
+#if defined( IIC1_EXISTS )
+    if ( IICx == I2C1 ) { __HAL_RCC_I2C1_CLK_ENABLE(); return; }
+#endif
+#if defined( IIC2_EXISTS )
+    if ( IICx == I2C2 ) { __HAL_RCC_I2C2_CLK_ENABLE(); return; }
+#endif
+#if defined( IIC3_EXISTS )
+    if ( IICx == I2C3 ) { __HAL_RCC_I2C3_CLK_ENABLE(); return; }
+#endif
+#if defined( IIC4_EXISTS )
+    if ( IICx == I2C4 ) { __HAL_RCC_I2C4_CLK_ENABLE(); return; }
+#endif
+    // clang-format on
+    ( void )IICx;
+}
+
+// ============================================================================
 static void enableTimerClock( TIM_TypeDef* TIMx ) {
 // clang-format off
 #if defined( TIM1_EXISTS )
@@ -699,9 +718,10 @@ CoreUtilsApi_t utils = {
     .system.initClock  = InitSystemClock  ,
     .system.initNvic   = InitNvicInterrupt,
     .clock.enableGpio  = enableGpioClock  ,
+    .clock.enableIic   = enableIicClock   ,
+    .clock.enableSpi   = enableSpiClock   ,
     .clock.enableTimer = enableTimerClock ,
     .clock.enableUart  = enableUartClock  ,
-    .clock.enableSpi   = enableSpiClock   ,
     .pin.mode          = setPinMode       ,
 #if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
     || defined( STM32F767xx )

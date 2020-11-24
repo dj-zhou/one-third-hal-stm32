@@ -78,7 +78,7 @@ static void InitSpiSettings( SPI_HandleTypeDef* hspi, uint16_t prescale,
 }
 
 // ============================================================================
-HAL_StatusTypeDef SpiTransceive( Spi_t* spi, uint8_t* tbuf, uint8_t* rbuf,
+HAL_StatusTypeDef SpiTransceive( SpiApi_t* spi, uint8_t* tbuf, uint8_t* rbuf,
                                  uint16_t len, uint32_t timeout ) {
     if ( spi->param.nss_GPIOx == NULL ) {
         console.error( "%s(): Soft NSS not initialized\r\n", __func__ );
@@ -107,7 +107,7 @@ HAL_StatusTypeDef SpiTransceive( Spi_t* spi, uint8_t* tbuf, uint8_t* rbuf,
 }
 
 // ----------------------------------------------------------------------------
-static void InitSpiSoftNss( Spi_t* spi, GPIO_TypeDef* GPIOx_NSS,
+static void InitSpiSoftNss( SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS,
                             uint8_t pin_nss ) {
     spi->param.nss_GPIOx = GPIOx_NSS;
     spi->param.nss_pin   = pin_nss;
@@ -227,7 +227,7 @@ static HAL_StatusTypeDef Spi1Transceive( uint8_t* t_data, uint8_t* r_data,
 // ============================================================================
 // ---------------------
 // clang-format off
-Spi_t spi1 = {
+SpiApi_t spi1 = {
     .config       = InitSpi1       ,
     .setNss       = InitSpi1SoftNss,
     .transceive   = Spi1Transceive ,

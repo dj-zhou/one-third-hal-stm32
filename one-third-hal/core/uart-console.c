@@ -19,27 +19,29 @@ bool            console_rx_enabled_ = true;
 
 UART_HandleTypeDef hconsole_;
 
+// ----------------------------------------------------------------------------
 struct {
     char  buffer[_CONSOLE_BUFF_LEN];
     char* r_ptr;  // read pointer
     char* w_ptr;  // write pointer
 } rb;
 
+// ----------------------------------------------------------------------------
 static void ConsoleSetChar( uint8_t* buf, uint32_t len );
-// ============================================================================
-// CLI related
 
 // ============================================================================
 // common used functions
 static void ConsoleUartIRQ( void ) {
     uint8_t recv;
     if ( ( __HAL_UART_GET_FLAG( &hconsole_, UART_FLAG_RXNE ) != RESET ) ) {
+        // this HAL API is very un-efficient, need to revise to register
         HAL_UART_Receive( &hconsole_, &recv, 1, 1000 );
     }
     if ( console_rx_enabled_ ) {
         ConsoleSetChar( &recv, 1 );
     }
 }
+
 // ----------------------------------------------------------------------------
 #if defined( STM32F030x8 )
 static void InitUartPins( GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
