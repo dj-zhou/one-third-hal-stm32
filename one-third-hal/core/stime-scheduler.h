@@ -59,14 +59,14 @@ extern "C" {
 // ============================================================================
 // component data structure
 // ----------------------------------------------------------------------------
-#if defined( STIME_IS_USED )
+#if defined(STIME_IS_USED)
 typedef struct {
     uint32_t s;
     uint32_t us;
 } Stime_t;
 // ----------------------------------------------------------------------------
-#if defined( _STIME_USE_SCHEDULER )
-typedef void ( *TaskHandle )( void );
+#if defined(_STIME_USE_SCHEDULER)
+typedef void (*TaskHandle)(void);
 
 typedef struct TaskCell_s {
     uint8_t    run;    // 1: need to run, 0: do not need to run

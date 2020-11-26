@@ -1,7 +1,7 @@
 #include "general-utils.h"
 
 // ============================================================================
-#if defined( RTOS_IS_USED )
+#if defined(RTOS_IS_USED)
 static RtosState_e rtos_state_;
 #endif
 
@@ -24,66 +24,66 @@ static uint32_t pclk1_;
 static uint32_t pclk2_;
 
 // ============================================================================
-static void Error_Handler( uint32_t hclk ) {
+static void Error_Handler(uint32_t hclk) {
     int step;
-    if ( hclk < 10000000 ) {
+    if (hclk < 10000000) {
         step = 10;
     }
-    else if ( hclk < 20000000 ) {
+    else if (hclk < 20000000) {
         step = 20;
     }
-    else if ( hclk < 50000000 ) {
+    else if (hclk < 50000000) {
         step = 50;
     }
-    else if ( hclk < 100000000 ) {
+    else if (hclk < 100000000) {
         step = 100;
     }
-    else if ( hclk < 200000000 ) {
+    else if (hclk < 200000000) {
         step = 2000;
     }
-    else if ( hclk < 300000000 ) {
+    else if (hclk < 300000000) {
         step = 5000;
     }
     else {
         step = 10000;
     }
 
-    utils.pin.mode( ERROR_LED_PORT, ERROR_LED_PIN, GPIO_MODE_OUTPUT_PP );
-    while ( 1 ) {
-        for ( int i = 0; i < step; i++ ) {
-            for ( int j = 0; j < 500; j++ ) {
+    utils.pin.mode(ERROR_LED_PORT, ERROR_LED_PIN, GPIO_MODE_OUTPUT_PP);
+    while (1) {
+        for (int i = 0; i < step; i++) {
+            for (int j = 0; j < 500; j++) {
                 ;
             }
         }
-        utils.pin.toggle( ERROR_LED_PORT, ERROR_LED_PIN );
+        utils.pin.toggle(ERROR_LED_PORT, ERROR_LED_PIN);
     }
 }
 
 // ============================================================================
-static HAL_StatusTypeDef VerifyClocks( uint32_t hclk, uint32_t pclk1,
-                                       uint32_t pclk2 ) {
+static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
+                                      uint32_t pclk2) {
     hclk_  = HAL_RCC_GetHCLKFreq();
     pclk1_ = HAL_RCC_GetPCLK1Freq();
-#if !defined( STM32F030x8 )
+#if !defined(STM32F030x8)
     pclk2_ = HAL_RCC_GetPCLK2Freq();
 #else
     pclk2_ = 0;
 #endif
     // no addclk?
-    if ( ( hclk_ != hclk ) || ( pclk1_ != pclk1 ) || ( pclk2_ != pclk2 ) ) {
-        Error_Handler( hclk );
+    if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
+        Error_Handler(hclk);
     }
     return HAL_OK;
 }
 
 // ============================================================================
-#if defined( STM32F030x8 )
-static HAL_StatusTypeDef InitClock_F030x8( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 48 ) || ( pclk1_m != 48 ) || ( pclk2_m != 0 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F030x8)
+static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 48) || (pclk1_m != 48) || (pclk2_m != 0)) {
+        Error_Handler(hclk_m * 5000000);
     }
-    if ( HSE_VALUE == 8000000 ) {
+    if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -93,8 +93,8 @@ static HAL_StatusTypeDef InitClock_F030x8( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
         RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL6;
         RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
-        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
 
         RCC_ClkInitStruct.ClockType =
@@ -103,26 +103,26 @@ static HAL_StatusTypeDef InitClock_F030x8( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
-        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_1 )
-             != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
     }
     else {
         // #error not supported.
     }
-    return VerifyClocks( 48000000, 48000000, 0 );  // no PCLK2
+    return VerifyClocks(48000000, 48000000, 0);  // no PCLK2
 }
 #endif
 
 // ============================================================================
-#if defined( STM32F103xB )
-static HAL_StatusTypeDef InitClock_F103xB( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 72 ) || ( pclk1_m != 36 ) || ( pclk2_m != 72 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F103xB)
+static HAL_StatusTypeDef InitClock_F103xB(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
+        Error_Handler(hclk_m * 5000000);
     }
-    if ( HSE_VALUE == 8000000 ) {
+    if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -133,8 +133,8 @@ static HAL_StatusTypeDef InitClock_F103xB( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
         RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
         RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
-        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
 
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
@@ -145,26 +145,26 @@ static HAL_StatusTypeDef InitClock_F103xB( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 )
-             != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
     }
     else {
         // #error not supported.
     }
-    return VerifyClocks( 72000000, 36000000, 72000000 );
+    return VerifyClocks(72000000, 36000000, 72000000);
 }
 #endif  // STM32F103xB
 
 // ============================================================================
-#if defined( STM32F107xC )
-static HAL_StatusTypeDef InitClock_F107xC( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 72 ) || ( pclk1_m != 36 ) || ( pclk2_m != 72 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F107xC)
+static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
+        Error_Handler(hclk_m * 5000000);
     }
-    if ( HSE_VALUE == 25000000 ) {
+    if (HSE_VALUE == 25000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
@@ -180,8 +180,8 @@ static HAL_StatusTypeDef InitClock_F107xC( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
         RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_HSE;
         RCC_OscInitStruct.PLL.PLLMUL           = RCC_PLL_MUL9;
-        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
 
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
@@ -192,9 +192,9 @@ static HAL_StatusTypeDef InitClock_F107xC( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_2 )
-             != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
         // DJ: is this needed?
         __HAL_RCC_PLLI2S_ENABLE();
@@ -202,22 +202,64 @@ static HAL_StatusTypeDef InitClock_F107xC( uint16_t hclk_m, uint16_t pclk1_m,
     else {
         // #error not supported.
     }
-    return VerifyClocks( 72000000, 36000000, 72000000 );
+    return VerifyClocks(72000000, 36000000, 72000000);
 }
 #endif
 
 // ============================================================================
-#if defined( STM32F407xx )
-static HAL_StatusTypeDef InitClock_F407xx( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 168 ) || ( pclk1_m != 42 ) || ( pclk2_m != 84 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F303xE)
+static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
+        Error_Handler(hclk_m * 5000000);
+    }
+    if (HSE_VALUE == 8000000) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
+        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+        RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
+        }
+
+        RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+                                      | RCC_CLOCKTYPE_PCLK1
+                                      | RCC_CLOCKTYPE_PCLK2;
+        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
+        }
+    }
+    else {
+        // #error not supported.
+    }
+    return VerifyClocks(72000000, 36000000, 72000000);
+}
+#endif
+
+// ============================================================================
+#if defined(STM32F407xx)
+static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 168) || (pclk1_m != 42) || (pclk2_m != 84)) {
+        Error_Handler(hclk_m * 5000000);
     }
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
     __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
@@ -225,13 +267,13 @@ static HAL_StatusTypeDef InitClock_F407xx( uint16_t hclk_m, uint16_t pclk1_m,
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    if ( HSE_VALUE == 12000000 ) {
+    if (HSE_VALUE == 12000000) {
         RCC_OscInitStruct.PLL.PLLM = 8;
         RCC_OscInitStruct.PLL.PLLN = 224;
         RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
         RCC_OscInitStruct.PLL.PLLQ = 4;
     }
-    else if ( HSE_VALUE == 8000000 ) {
+    else if (HSE_VALUE == 8000000) {
         RCC_OscInitStruct.PLL.PLLM = 8;
         RCC_OscInitStruct.PLL.PLLN = 336;
         RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
@@ -245,42 +287,41 @@ static HAL_StatusTypeDef InitClock_F407xx( uint16_t hclk_m, uint16_t pclk1_m,
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-    if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-        Error_Handler( HSE_VALUE * 5 );
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
     }
-    if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 )
-         != HAL_OK ) {
-        Error_Handler( HSE_VALUE * 5 );
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
     }
 
-    return VerifyClocks( 168000000, 42000000, 84000000 );
+    return VerifyClocks(168000000, 42000000, 84000000);
 }
 #endif  // STM32F407xx
 
 // ============================================================================
-#if defined( STM32F427xx )
-static HAL_StatusTypeDef InitClock_F427xx( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 180 ) || ( pclk1_m != 45 ) || ( pclk2_m != 90 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F427xx)
+static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 180) || (pclk1_m != 45) || (pclk2_m != 90)) {
+        Error_Handler(hclk_m * 5000000);
     }
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
     __HAL_RCC_PWR_CLK_ENABLE();
-    __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
 
-    if ( HSE_VALUE == 8000000 ) {
+    if (HSE_VALUE == 8000000) {
         RCC_OscInitStruct.PLL.PLLM = 8;
         RCC_OscInitStruct.PLL.PLLN = 360;
         RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
         RCC_OscInitStruct.PLL.PLLQ = 4;
     }
-    else if ( HSE_VALUE == 24000000 ) {
+    else if (HSE_VALUE == 24000000) {
         RCC_OscInitStruct.PLL.PLLM = 24;
         RCC_OscInitStruct.PLL.PLLN = 360;
         RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
@@ -296,37 +337,36 @@ static HAL_StatusTypeDef InitClock_F427xx( uint16_t hclk_m, uint16_t pclk1_m,
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-    if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-        Error_Handler( HSE_VALUE * 5 );
+    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
     }
 
-    if ( HAL_PWREx_EnableOverDrive() != HAL_OK ) {
-        Error_Handler( HSE_VALUE * 5 );
+    if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
     }
 
-    if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_5 )
-         != HAL_OK ) {
-        Error_Handler( HSE_VALUE * 5 );
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
     }
 
-    return VerifyClocks( 180000000, 45000000, 90000000 );
+    return VerifyClocks(180000000, 45000000, 90000000);
 }
 #endif  // STM32F427xx
 
 // ============================================================================
-#if defined( STM32F746xx ) || defined( STM32F767xx )
-static HAL_StatusTypeDef InitClock_F7xxxx( uint16_t hclk_m, uint16_t pclk1_m,
-                                           uint16_t pclk2_m ) {
-    if ( ( hclk_m != 216 ) || ( pclk1_m != 54 ) || ( pclk2_m != 108 ) ) {
-        Error_Handler( hclk_m * 5000000 );
+#if defined(STM32F746xx) || defined(STM32F767xx)
+static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 216) || (pclk1_m != 54) || (pclk2_m != 108)) {
+        Error_Handler(hclk_m * 5000000);
     }
-    if ( HSE_VALUE == 8000000 ) {
+    if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef       RCC_OscInitStruct   = { 0 };
         RCC_ClkInitTypeDef       RCC_ClkInitStruct   = { 0 };
         RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
 
         __HAL_RCC_PWR_CLK_ENABLE();
-        __HAL_PWR_VOLTAGESCALING_CONFIG( PWR_REGULATOR_VOLTAGE_SCALE1 );
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
         RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
@@ -336,12 +376,12 @@ static HAL_StatusTypeDef InitClock_F7xxxx( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_OscInitStruct.PLL.PLLN       = 432;
         RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
         RCC_OscInitStruct.PLL.PLLQ       = 2;
-        if ( HAL_RCC_OscConfig( &RCC_OscInitStruct ) != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
 
-        if ( HAL_PWREx_EnableOverDrive() != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_PWREx_EnableOverDrive() != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
 
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
@@ -352,41 +392,43 @@ static HAL_StatusTypeDef InitClock_F7xxxx( uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-        if ( HAL_RCC_ClockConfig( &RCC_ClkInitStruct, FLASH_LATENCY_7 )
-             != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
         PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3;
         PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-        if ( HAL_RCCEx_PeriphCLKConfig( &PeriphClkInitStruct ) != HAL_OK ) {
-            Error_Handler( HSE_VALUE * 5 );
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
         }
     }
     else {
         // #error not supported.
     }
 
-    return VerifyClocks( 216000000, 54000000, 108000000 );
+    return VerifyClocks(216000000, 54000000, 108000000);
 }
 #endif
 
 // ============================================================================
-static HAL_StatusTypeDef InitSystemClock( uint16_t hclk_m, uint16_t pclk1_m,
-                                          uint16_t pclk2_m ) {
-#if defined( STM32F030x8 )
-    return InitClock_F030x8( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F103xB )
-    return InitClock_F103xB( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F107xC )
-    return InitClock_F107xC( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F407xx )
-    return InitClock_F407xx( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F427xx )
-    return InitClock_F427xx( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F746xx )
-    return InitClock_F7xxxx( hclk_m, pclk1_m, pclk2_m );
-#elif defined( STM32F767xx )
-    return InitClock_F7xxxx( hclk_m, pclk1_m, pclk2_m );
+static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
+                                         uint16_t pclk2_m) {
+#if defined(STM32F030x8)
+    return InitClock_F030x8(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F103xB)
+    return InitClock_F103xB(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F107xC)
+    return InitClock_F107xC(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F303xE)
+    return InitClock_F303xE(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F407xx)
+    return InitClock_F407xx(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F427xx)
+    return InitClock_F427xx(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F746xx)
+    return InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
+#elif defined(STM32F767xx)
+    return InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
 #else
 #error InitSystemClock(): to implement and verify!
 #endif
@@ -398,35 +440,35 @@ static HAL_StatusTypeDef InitSystemClock( uint16_t hclk_m, uint16_t pclk1_m,
 }
 
 // ============================================================================
-static void InitNvicInterrupt( uint8_t group ) {
-#if defined( STM32F030x8 )
+static void InitNvicInterrupt(uint8_t group) {
+#if defined(STM32F030x8)
     // seems no grouping for Cortex M0
     ( void )group;
     return;
 #else
-    switch ( group ) {
+    switch (group) {
     case 0:
-        HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_0 );
+        HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_0);
         break;
     case 1:
-        HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_1 );
+        HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_1);
         break;
     case 2:
-        HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_2 );
+        HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_2);
         break;
     case 3:
-        HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_3 );
+        HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_3);
         break;
     case 4:
     default:
-        HAL_NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
+        HAL_NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
         break;
     }
 #endif
 }
 
 // ============================================================================
-static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
+static void enableGpioClock(GPIO_TypeDef* GPIOx) {
 // clang-format off
 #if defined( GPIOA_EXISTS )
     if ( GPIOx == GPIOA ) { __HAL_RCC_GPIOA_CLK_ENABLE(); return; }
@@ -466,7 +508,7 @@ static void enableGpioClock( GPIO_TypeDef* GPIOx ) {
 }
 
 // ============================================================================
-static void enableIicClock( I2C_TypeDef* IICx ) {
+static void enableIicClock(I2C_TypeDef* IICx) {
 // clang-format off
 #if defined( IIC1_EXISTS )
     if ( IICx == I2C1 ) { __HAL_RCC_I2C1_CLK_ENABLE(); return; }
@@ -485,7 +527,7 @@ static void enableIicClock( I2C_TypeDef* IICx ) {
 }
 
 // ============================================================================
-static void enableTimerClock( TIM_TypeDef* TIMx ) {
+static void enableTimerClock(TIM_TypeDef* TIMx) {
 // clang-format off
 #if defined( TIM1_EXISTS )
     if ( TIMx == TIM1 ) { __HAL_RCC_TIM1_CLK_ENABLE(); return; }
@@ -544,7 +586,7 @@ static void enableTimerClock( TIM_TypeDef* TIMx ) {
 
 // ============================================================================
 // to be extended
-static void enableUartClock( USART_TypeDef* USARTx ) {
+static void enableUartClock(USART_TypeDef* USARTx) {
     // clang-format off
 #if defined( USART1_EXISTS )
     if ( USARTx == USART1 ) { __HAL_RCC_USART1_CLK_ENABLE(); return; }
@@ -575,7 +617,7 @@ static void enableUartClock( USART_TypeDef* USARTx ) {
 }
 
 // ============================================================================
-static void enableSpiClock( SPI_TypeDef* SPIx ) {
+static void enableSpiClock(SPI_TypeDef* SPIx) {
     // clang-format off
 #if defined( SPI1_EXISTS )
     if ( SPIx == SPI1 ) { __HAL_RCC_SPI1_CLK_ENABLE(); return; }
@@ -601,8 +643,8 @@ static void enableSpiClock( SPI_TypeDef* SPIx ) {
 
 // ============================================================================
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
-static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode ) {
-    assert_param( IS_GPIO_MODE( mode ) );
+static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
+    assert_param(IS_GPIO_MODE(mode));
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
 // #if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
@@ -612,43 +654,44 @@ static void setPinMode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode ) {
 // micro controllers
 
 // these need to be tested ------------------
-#if !defined( STM32F030x8 ) && !defined( STM32F407xx )    \
-    && !defined( STM32F427xx ) && !defined( STM32F746xx ) \
-    && !defined( STM32F767xx )
-    if ( ( ( GPIOx == GPIOB )
-           && ( ( GPIO_PIN_x & GPIO_PIN_3 ) || ( GPIO_PIN_x & GPIO_PIN_4 ) ) )
-         || ( ( GPIOx == GPIOA ) && ( GPIO_PIN_x == GPIO_PIN_15 ) ) ) {
+#if !defined(STM32F030x8) && !defined(STM32F303xE) && !defined(STM32F407xx) \
+    && !defined(STM32F427xx) && !defined(STM32F746xx) && !defined(STM32F767xx)
+    if (((GPIOx == GPIOB)
+         && ((GPIO_PIN_x & GPIO_PIN_3) || (GPIO_PIN_x & GPIO_PIN_4)))
+        || ((GPIOx == GPIOA) && (GPIO_PIN_x == GPIO_PIN_15))) {
         __HAL_RCC_AFIO_CLK_ENABLE();
-        DBGMCU->CR &= ~( DBGMCU_CR_TRACE_IOEN );
+        DBGMCU->CR &= ~(DBGMCU_CR_TRACE_IOEN);
         __HAL_AFIO_REMAP_SWJ_NONJTRST();
     }
 #endif
 
-    enableGpioClock( GPIOx );
+    enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.Pin = GPIO_PIN_x;
-#if defined( STM32F030x8 ) || defined( STM32F103xB ) || defined( STM32F107xC )
+#if defined(STM32F030x8) || defined(STM32F103xB) || defined(STM32F107xC) \
+    || defined(STM32F303xE)
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#elif defined( STM32F407xx ) || defined( STM32F427xx ) \
-    || defined( STM32F746xx ) || defined( STM32F767xx )
+#elif defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 #else
 #error setPinMode(): need to implement and verify!
 #endif
     GPIO_InitStructure.Mode = mode;
-    // GPIO_InitStructure.Pull = GPIO_NOPULL; // todo
-    HAL_GPIO_Init( GPIOx, &GPIO_InitStructure );
+    GPIO_InitStructure.Pull = GPIO_NOPULL;  // to verify
+
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 
 // ============================================================================
-#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
-    || defined( STM32F767xx )
-static void setPinAlter( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt ) {
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
+static void setPinAlter(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt) {
 
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
-    enableGpioClock( GPIOx );
+    enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.Pin = GPIO_PIN_x;
@@ -658,55 +701,56 @@ static void setPinAlter( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt ) {
     GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Alternate = alt;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // this may differ for platforms
-    HAL_GPIO_Init( GPIOx, &GPIO_InitStructure );
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 #endif
 
 // ============================================================================
-static void setPinPull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p ) {
-    assert_param( IS_GPIO_PULL( p ) );
+static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
+    assert_param(IS_GPIO_PULL(p));
 
-    enableGpioClock( GPIOx );
+    enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
     GPIO_InitStructure.Pin = 1 << pin_n;
-#if defined( STM32F030x8 ) || defined( STM32F103xB ) || defined( STM32F107xC )
+#if defined(STM32F030x8) || defined(STM32F103xB) || defined(STM32F107xC) \
+    || defined(STM32F303xE)
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#elif defined( STM32F407xx ) || defined( STM32F427xx ) \
-    || defined( STM32F746xx ) || defined( STM32F767xx )
+#elif defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 #else
-#error setPinMode(): need to implement and verify!
+#error setPinPull(): need to implement and verify!
 #endif
     GPIO_InitStructure.Mode = p;
-    HAL_GPIO_Init( GPIOx, &GPIO_InitStructure );
+    HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 
 // ============================================================================
-static void setPin( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v ) {
+static void setPin(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v) {
     uint16_t GPIO_Pin_x = 1 << pin_n;
-    if ( v ) {
-        HAL_GPIO_WritePin( GPIOx, GPIO_Pin_x, GPIO_PIN_SET );
+    if (v) {
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin_x, GPIO_PIN_SET);
     }
     else {
-        HAL_GPIO_WritePin( GPIOx, GPIO_Pin_x, GPIO_PIN_RESET );
+        HAL_GPIO_WritePin(GPIOx, GPIO_Pin_x, GPIO_PIN_RESET);
     }
 }
 
 // ============================================================================
-static void togglePin( GPIO_TypeDef* GPIOx, uint8_t pin_n ) {
+static void togglePin(GPIO_TypeDef* GPIOx, uint8_t pin_n) {
     GPIOx->ODR ^= 1 << pin_n;
 }
 
 // ============================================================================
-#if defined( RTOS_IS_USED )
+#if defined(RTOS_IS_USED)
 // ----------------------------------------------------------------------------
-static void setRtosState( RtosState_e state ) {
+static void setRtosState(RtosState_e state) {
     rtos_state_ = state;
 }
 
 // ----------------------------------------------------------------------------
-static RtosState_e getRtosState( void ) {
+static RtosState_e getRtosState(void) {
     return rtos_state_;
 }
 
@@ -726,7 +770,7 @@ CoreUtilsApi_t utils = {
 #if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
     || defined( STM32F767xx )
     .pin.alter         = setPinAlter      ,
-    #endif
+#endif
     .pin.pull          = setPinPull       ,
     .pin.set           = setPin           ,
     .pin.toggle        = togglePin        ,

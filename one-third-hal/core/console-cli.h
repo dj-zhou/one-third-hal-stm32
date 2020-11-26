@@ -49,21 +49,21 @@ typedef struct {
 
 // ============================================================================
 // this file is only used by the module uart-console
-void CliDeInit( void );
-void CliInput( char read_char );
-void CliTabCompletion( char read_char );
-void CliBackspace( void );
-void CliDirection( char read_char );
-void CliProcessCmd( char* str );
+void CliDeInit(void);
+void CliInput(char read_char);
+void CliTabCompletion(char read_char);
+void CliBackspace(void);
+void CliDirection(char read_char);
+void CliProcessCmd(char* str);
 
 // ============================================================================
 // default CLI commands registered
-HAL_StatusTypeDef CliShowCmd( void );
-HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv );
-HAL_StatusTypeDef CliShowScheduler( int argc, char** argv );
-HAL_StatusTypeDef CliSystem( int argc, char** argv );
-#if defined( _STIME_USE_SCHEDULER )
-HAL_StatusTypeDef CliSuspend( int argc, char** argv );
+HAL_StatusTypeDef CliShowCmd(void);
+HAL_StatusTypeDef CliLogSetLevel(int argc, char** argv);
+HAL_StatusTypeDef CliShowScheduler(int argc, char** argv);
+HAL_StatusTypeDef CliSystem(int argc, char** argv);
+#if defined(_STIME_USE_SCHEDULER)
+HAL_StatusTypeDef CliSuspend(int argc, char** argv);
 #endif
 
 // ============================================================================

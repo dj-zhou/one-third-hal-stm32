@@ -80,18 +80,18 @@ extern "C" {
 // clang-format on
 
 // ----------------------------------------------------------------------------
-#if defined( SPI_IS_USED )
+#if defined(SPI_IS_USED)
 
-#if !defined( _SPI_START_TIME_DELAY_US )
+#if !defined(_SPI_START_TIME_DELAY_US)
 #define _SPI_START_TIME_DELAY_US 0
 #endif
 typedef enum {
-    SPI_MASTER = ( ( uint8_t )1 ),
-    SPI_SLAVE  = ( ( uint8_t )2 ),
+    SPI_MASTER = (( uint8_t )1),
+    SPI_SLAVE  = (( uint8_t )2),
 } SpiMaster_e;
 typedef enum {
-    SPI_SOFT_NSS = ( ( uint8_t )1 ),
-    SPI_HARD_NSS = ( ( uint8_t )2 ),
+    SPI_SOFT_NSS = (( uint8_t )1),
+    SPI_HARD_NSS = (( uint8_t )2),
 } SpiNss_e;
 
 typedef struct {
@@ -103,9 +103,9 @@ typedef struct {
 typedef struct {
     SPI_HandleTypeDef hspi;
     SpiParam_t        param;
-    void ( *config )( uint16_t, SpiMaster_e, SpiNss_e );
-    void ( *setNss )( GPIO_TypeDef*, uint8_t );
-    HAL_StatusTypeDef ( *transceive )( uint8_t*, uint8_t*, uint16_t );
+    void (*config)(uint16_t, SpiMaster_e, SpiNss_e);
+    void (*setNss)(GPIO_TypeDef*, uint8_t);
+    HAL_StatusTypeDef (*transceive)(uint8_t*, uint8_t*, uint16_t);
 } SpiApi_t;
 
 #endif  // SPI_IS_USED

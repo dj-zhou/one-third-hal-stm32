@@ -18,7 +18,7 @@ void taskPrint( void ) {
     console.printf( "address of spi1 = %08d\r\n", addr1 );
     console.printf( "address of spi1.transceive = %08d\r\n", addr2 );
     console.printf( "address diff = %d\r\n", addr2 - addr1 );
-    Spi_t* spi = container_of( &( spi1.transceive ), Spi_t, transceive );
+    SpiApi_t* spi = container_of( &( spi1.transceive ), SpiApi_t, transceive );
     console.printf( "address of spi = %08d\r\n", ( uint32_t )spi );
 }
 

@@ -12,13 +12,13 @@ extern "C" {
 #include "config-timer.h"
 #include "config-usart.h"
 
-#if defined( STM32F030x8 )
+#if defined(STM32F030x8)
 #include "stm32f0xx.h"
-#elif defined( STM32F103xB ) || defined( STM32F107xC )
+#elif defined(STM32F103xB) || defined(STM32F107xC)
 #include "stm32f1xx.h"
-#elif defined( STM32F407xx ) || defined( STM32F427xx )
+#elif defined(STM32F407xx) || defined(STM32F427xx)
 #include "stm32f4xx.h"
-#elif defined( STM32F767xx )
+#elif defined(STM32F767xx)
 #include "stm32f7xx.h"
 #endif
 
@@ -90,41 +90,41 @@ extern "C" {
 #endif
 // clang-format on
 
-#if defined( RTOS_IS_USED )
+#if defined(RTOS_IS_USED)
 // this allows for adding other RTOS
 typedef enum {
-    FREERTOS_NOSTART = ( ( uint8_t )1 ),
-    FREERTOS_STARTED = ( ( uint8_t )2 ),
+    FREERTOS_NOSTART = (( uint8_t )1),
+    FREERTOS_STARTED = (( uint8_t )2),
 } RtosState_e;
 
 typedef struct {
-    void ( *setState )( RtosState_e state );
-    RtosState_e ( *getState )( void );
+    void (*setState)(RtosState_e state);
+    RtosState_e (*getState)(void);
 } Rtos;
 #endif  // RTOS_IS_USED
 
 typedef struct {
-    HAL_StatusTypeDef ( *initClock )( uint16_t, uint16_t, uint16_t );
-    void ( *initNvic )( uint8_t group );
+    HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
+    void (*initNvic)(uint8_t group);
 } System;
 
 typedef struct {
-    void ( *enableGpio )( GPIO_TypeDef* GPIOx );
-    void ( *enableIic )( I2C_TypeDef* I2Cx );
-    void ( *enableSpi )( SPI_TypeDef* SPIx );
-    void ( *enableTimer )( TIM_TypeDef* TIMx );
-    void ( *enableUart )( USART_TypeDef* USARTx );
+    void (*enableGpio)(GPIO_TypeDef* GPIOx);
+    void (*enableIic)(I2C_TypeDef* I2Cx);
+    void (*enableSpi)(SPI_TypeDef* SPIx);
+    void (*enableTimer)(TIM_TypeDef* TIMx);
+    void (*enableUart)(USART_TypeDef* USARTx);
 } Clock;
 
 typedef struct {
-    void ( *mode )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode );
-#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
-    || defined( STM32F767xx )
-    void ( *alter )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt );
+    void (*mode)(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode);
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
+    void (*alter)(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt);
 #endif
-    void ( *pull )( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p );
-    void ( *set )( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v );
-    void ( *toggle )( GPIO_TypeDef* GPIOx, uint8_t pin_n );
+    void (*pull)(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p);
+    void (*set)(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v);
+    void (*toggle)(GPIO_TypeDef* GPIOx, uint8_t pin_n);
 } Pin;
 
 // ============================================================================

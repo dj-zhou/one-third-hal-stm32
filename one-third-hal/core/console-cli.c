@@ -14,28 +14,28 @@ void CliDeInit() {
 }
 
 // ============================================================================
-static char* CliGetParam( char* str, uint8_t num ) {
+static char* CliGetParam(char* str, uint8_t num) {
     char*   dst = str;
     uint8_t i   = 0;
-    while ( *dst == ' ' ) {
+    while (*dst == ' ') {
         dst++;
     }
-    if ( num == 0 && *dst ) {
+    if (num == 0 && *dst) {
         return dst;
     }
-    while ( *dst ) {
-        if ( *dst == '[' ) {
-            dst = strchr( dst, ']' ) + 1;
-            if ( dst == NULL ) {
-                console.printk( 0, "\r\ninstruction standard error!\r\n" );
+    while (*dst) {
+        if (*dst == '[') {
+            dst = strchr(dst, ']') + 1;
+            if (dst == NULL) {
+                console.printk(0, "\r\ninstruction standard error!\r\n");
                 return NULL;
             }
         }
-        else if ( *dst++ == ' ' ) {
-            while ( *dst == ' ' )
+        else if (*dst++ == ' ') {
+            while (*dst == ' ')
                 dst++;
             i++;
-            if ( i == num && *dst ) {
+            if (i == num && *dst) {
                 return dst;
             }
         }
@@ -44,20 +44,20 @@ static char* CliGetParam( char* str, uint8_t num ) {
 }
 
 // ============================================================================
-static void CliFormatCmd( char* strtop, char** parameter ) {
+static void CliFormatCmd(char* strtop, char** parameter) {
     char* strend;
 
     cli_.argc    = 0;
     cli_.argv[0] = cli_.argv_buff;
 
     do {
-        strend = strchr( strtop, ' ' );
-        if ( strend == NULL ) {
-            if ( strncmp( strtop, "-all", 4 ) ) {
-                strcpy( cli_.argv[cli_.argc], strtop );
-                *( cli_.argv[cli_.argc++] + strlen( strtop ) ) = '\0';
+        strend = strchr(strtop, ' ');
+        if (strend == NULL) {
+            if (strncmp(strtop, "-all", 4)) {
+                strcpy(cli_.argv[cli_.argc], strtop);
+                *(cli_.argv[cli_.argc++] + strlen(strtop)) = '\0';
                 cli_.argv[cli_.argc] =
-                    cli_.argv[cli_.argc - 1] + strlen( strtop ) + 1;
+                    cli_.argv[cli_.argc - 1] + strlen(strtop) + 1;
             }
             else {
                 *parameter = strtop + 1;
@@ -65,11 +65,11 @@ static void CliFormatCmd( char* strtop, char** parameter ) {
             }
         }
         else {
-            if ( strncmp( strtop, "-all", 4 ) ) {
-                strncpy( cli_.argv[cli_.argc], strtop, strend - strtop );
-                *( cli_.argv[cli_.argc++] + ( strend - strtop ) ) = '\0';
+            if (strncmp(strtop, "-all", 4)) {
+                strncpy(cli_.argv[cli_.argc], strtop, strend - strtop);
+                *(cli_.argv[cli_.argc++] + (strend - strtop)) = '\0';
                 cli_.argv[cli_.argc] =
-                    cli_.argv[cli_.argc - 1] + ( strend - strtop ) + 1;
+                    cli_.argv[cli_.argc - 1] + (strend - strtop) + 1;
             }
             else {
                 *parameter = strtop + 1;
@@ -77,79 +77,79 @@ static void CliFormatCmd( char* strtop, char** parameter ) {
             }
             strtop = strend + 1;
         }
-    } while ( strend );
+    } while (strend);
     cli_.argv[cli_.argc][0] = '\0';
 }
 
 // ============================================================================
-static void CliWriteCmdHistory( char* str ) {
+static void CliWriteCmdHistory(char* str) {
     static uint8_t i = 0;
-    if ( strcmp( cli_.history.buff[i], str ) ) {
-        if ( cli_.history.buff[i][0] != 0 ) {
-            if ( ++i >= _CLI_HISTORY_CMD_NUM ) {
+    if (strcmp(cli_.history.buff[i], str)) {
+        if (cli_.history.buff[i][0] != 0) {
+            if (++i >= _CLI_HISTORY_CMD_NUM) {
                 i = 0;
             }
         }
-        strcpy( cli_.history.buff[i], str );
+        strcpy(cli_.history.buff[i], str);
     }
     cli_.history.index = i;
 }
 
 // ============================================================================
-static void CliShowAllCmdHistory( void ) {
-    for ( int i = 0; i < _CLI_HISTORY_CMD_NUM; i++ ) {
-        console.printk( 0, "%d: %s\r\n", i, cli_.history.buff[i] );
+static void CliShowAllCmdHistory(void) {
+    for (int i = 0; i < _CLI_HISTORY_CMD_NUM; i++) {
+        console.printk(0, "%d: %s\r\n", i, cli_.history.buff[i]);
     }
-    console.printk( 0, "index = %d\r\n", cli_.history.index );
+    console.printk(0, "index = %d\r\n", cli_.history.index);
 }
 
 // ============================================================================
-static void CliReadCmdHistory( uint8_t way ) {
+static void CliReadCmdHistory(uint8_t way) {
     way = 0;
 
-    while ( ( cli_.history.buff[cli_.history.index][0] == 0 )
-            && ( cli_.history.index != 0 ) ) {
+    while ((cli_.history.buff[cli_.history.index][0] == 0)
+           && (cli_.history.index != 0)) {
         --cli_.history.index;
     }
 
-    if ( cli_.history.buff[cli_.history.index][0] != 0 ) {
-        for ( int i = strlen( cli_.cmd_buff_cursor ); i > 0; i-- ) {
-            console.writeByte( ' ' );
+    if (cli_.history.buff[cli_.history.index][0] != 0) {
+        for (int i = strlen(cli_.cmd_buff_cursor); i > 0; i--) {
+            console.writeByte(' ');
         }
 
-        for ( int i = strlen( cli_.cmd_buff ); i > 0; i-- ) {
-            console.writeStr( "\b \b" );
+        for (int i = strlen(cli_.cmd_buff); i > 0; i--) {
+            console.writeStr("\b \b");
         }
 
-        strcpy( cli_.cmd_buff, &cli_.history.buff[cli_.history.index][0] );
+        strcpy(cli_.cmd_buff, &cli_.history.buff[cli_.history.index][0]);
         cli_.cmd_buff_cursor =
-            cli_.cmd_buff + strlen( &cli_.history.buff[cli_.history.index][0] );
+            cli_.cmd_buff + strlen(&cli_.history.buff[cli_.history.index][0]);
         cli_.cmd_buff_tail = cli_.cmd_buff_cursor;
-        console.writeStr( cli_.cmd_buff );
+        console.writeStr(cli_.cmd_buff);
 
-        if ( cli_.history.index-- == 0 ) {
+        if (cli_.history.index-- == 0) {
             cli_.history.index = _CLI_HISTORY_CMD_NUM - 1;
         }
     }
 }
 
 // ============================================================================
-void CliInput( char read_char ) {
-    if ( read_char == ' '
-         && ( *cli_.cmd_buff_cursor == ' '
-              || ( cli_.cmd_buff_cursor == cli_.cmd_buff )
-              || ( *( cli_.cmd_buff_cursor - 1 ) == ' ' ) ) ) {
+void CliInput(char read_char) {
+    if (read_char == ' '
+        && (*cli_.cmd_buff_cursor == ' '
+            || (cli_.cmd_buff_cursor == cli_.cmd_buff)
+            || (*(cli_.cmd_buff_cursor - 1) == ' '))) {
         return;
     }
     else {
         char str[_CLI_CMD_MAX_LEN];
-        strcpy( str, cli_.cmd_buff_cursor );
-        memcpy( ( cli_.cmd_buff_cursor + 1 ), str, strlen( str ) + 1 );
+        strcpy(str, cli_.cmd_buff_cursor);
+        memcpy((cli_.cmd_buff_cursor + 1), str, strlen(str) + 1);
         *cli_.cmd_buff_cursor = read_char;
-        console.writeByte( read_char );
-        console.writeStr( str );
-        for ( uint16_t i = strlen( str ); i > 0; i-- ) {
-            console.writeByte( '\b' );
+        console.writeByte(read_char);
+        console.writeStr(str);
+        for (uint16_t i = strlen(str); i > 0; i--) {
+            console.writeByte('\b');
         }
         cli_.cmd_buff_cursor++;
         cli_.cmd_buff_tail++;
@@ -157,65 +157,65 @@ void CliInput( char read_char ) {
 }
 
 // ============================================================================
-void CliTabCompletion( char read_char ) {
+void CliTabCompletion(char read_char) {
     ( void )read_char;
-    console.writeStr( cli_.out_message );
-    console.printk( 0, "%s(): todo\r\n", __func__ );
+    console.writeStr(cli_.out_message);
+    console.printk(0, "%s(): todo\r\n", __func__);
 }
 
 // ============================================================================
-void CliBackspace( void ) {
+void CliBackspace(void) {
     char str[_CLI_CMD_MAX_LEN];
 
-    if ( cli_.cmd_buff_cursor != cli_.cmd_buff ) {
+    if (cli_.cmd_buff_cursor != cli_.cmd_buff) {
         do {
-            if ( cli_.cmd_buff_cursor == cli_.cmd_buff ) {
-                console.writeStr( " " );
+            if (cli_.cmd_buff_cursor == cli_.cmd_buff) {
+                console.writeStr(" ");
                 cli_.cmd_buff_cursor++;
             }
-            strcpy( str, cli_.cmd_buff_cursor );
+            strcpy(str, cli_.cmd_buff_cursor);
             cli_.cmd_buff_cursor--;
             cli_.cmd_buff_tail--;
-            memcpy( ( cli_.cmd_buff_cursor ), str, strlen( str ) + 1 );
+            memcpy((cli_.cmd_buff_cursor), str, strlen(str) + 1);
 
-            console.writeStr( "\b \b" );
-            console.writeStr( str );
-            console.writeStr( " \b" );
+            console.writeStr("\b \b");
+            console.writeStr(str);
+            console.writeStr(" \b");
 
-            for ( uint16_t i = strlen( str ); i > 0; i-- ) {
-                console.writeByte( '\b' );
+            for (uint16_t i = strlen(str); i > 0; i--) {
+                console.writeByte('\b');
             }
-        } while ( ( cli_.cmd_buff_cursor == cli_.cmd_buff )
-                  && ( *cli_.cmd_buff_cursor == ' ' ) );
+        } while ((cli_.cmd_buff_cursor == cli_.cmd_buff)
+                 && (*cli_.cmd_buff_cursor == ' '));
     }
 }
 
 // ============================================================================
-void CliDirection( char read_char ) {
-    switch ( read_char ) {
+void CliDirection(char read_char) {
+    switch (read_char) {
     case 'A':  // up direction key
         // console.printk( 0, "up" );
-        CliReadCmdHistory( 0 );
+        CliReadCmdHistory(0);
         break;
     case 'B':  // down direction key
         // console.printk( 0, "down" );
-        CliReadCmdHistory( 1 );
+        CliReadCmdHistory(1);
         break;
     case 'C':  // right direciton key
         // console.printk( 0, "right" );
-        if ( *cli_.cmd_buff_cursor != '\0' ) {
-            console.writeByte( 0x1b );
-            console.writeByte( 0x5b );
-            console.writeByte( 'C' );
+        if (*cli_.cmd_buff_cursor != '\0') {
+            console.writeByte(0x1b);
+            console.writeByte(0x5b);
+            console.writeByte('C');
             cli_.cmd_buff_cursor++;
         }
         break;
     case 'D':  // left direciton key
         // console.printk( 0, "left" );
-        if ( cli_.cmd_buff_cursor != cli_.cmd_buff ) {
-            console.writeByte( 0x1b );
-            console.writeByte( 0x5b );
-            console.writeByte( 'D' );
+        if (cli_.cmd_buff_cursor != cli_.cmd_buff) {
+            console.writeByte(0x1b);
+            console.writeByte(0x5b);
+            console.writeByte('D');
             cli_.cmd_buff_cursor--;
         }
         break;
@@ -225,49 +225,49 @@ void CliDirection( char read_char ) {
 }
 
 // ============================================================================
-static char* CliMatchChar( char* src, char* dst ) {
+static char* CliMatchChar(char* src, char* dst) {
     char* ptr;
 
-    if ( *src == '#' ) {
+    if (*src == '#') {
         return dst;
     }
-    if ( !dst || !src ) {
+    if (!dst || !src) {
         return NULL;
     }
-    if ( *src == '&' ) {
+    if (*src == '&') {
         return dst;
     }
 
-    if ( *src == '[' ) {
+    if (*src == '[') {
         do {
-            while ( *( ++src ) == ' ' ) {
+            while (*(++src) == ' ') {
                 ;
             }
             ptr = dst;
-            while ( *src == *ptr ) {
+            while (*src == *ptr) {
                 src++;
                 ptr++;
-                if ( ( ( *ptr == ' ' ) || ( *ptr == '\0' ) )
-                     && ( ( *src == ' ' ) || ( *src == '|' ) || ( *src == ']' )
-                          || ( *src == '\0' ) ) ) {
-                    return ( src - ( ptr - dst ) );
+                if (((*ptr == ' ') || (*ptr == '\0'))
+                    && ((*src == ' ') || (*src == '|') || (*src == ']')
+                        || (*src == '\0'))) {
+                    return (src - (ptr - dst));
                 }
             }
-            while ( ( *src != ']' ) && ( *src != '|' ) ) {
+            while ((*src != ']') && (*src != '|')) {
                 src++;
             }
-        } while ( *src != ']' );
+        } while (*src != ']');
         return NULL;
     }
 
-    ptr = strchr( src, ' ' );
+    ptr = strchr(src, ' ');
 
-    if ( ( ( ptr == NULL ) && ( !strcmp( src, dst ) ) )
-         || ( ( ( ( ( ptr != NULL ) && ( !strncmp( src, dst, ptr - src ) ) ) )
-                && ( ( *( dst + ( ptr - src ) ) == ' ' )
-                     || ( *( dst + ( ptr - src ) ) == '\0' ) ) ) )
-         || ( ( ptr == NULL ) && strchr( dst, '-' )
-              && !strncmp( src, dst, strlen( src ) ) ) ) {
+    if (((ptr == NULL) && (!strcmp(src, dst)))
+        || (((((ptr != NULL) && (!strncmp(src, dst, ptr - src))))
+             && ((*(dst + (ptr - src)) == ' ')
+                 || (*(dst + (ptr - src)) == '\0'))))
+        || ((ptr == NULL) && strchr(dst, '-')
+            && !strncmp(src, dst, strlen(src)))) {
         return src;
     }
     else {
@@ -276,31 +276,31 @@ static char* CliMatchChar( char* src, char* dst ) {
 }
 
 // ============================================================================
-static CliCmd_t* CliSeekCmd( char* str ) {
+static CliCmd_t* CliSeekCmd(char* str) {
     uint8_t num = 0;
     char *  src, *dst;
     do {
         src = cmd_[num].str;
         dst = str;
-        while ( ( *src == '#' ) || ( CliMatchChar( src, dst ) != NULL ) ) {
-            if ( *src == '#' && ( !CliGetParam( src, 1 ) ) ) {
+        while ((*src == '#') || (CliMatchChar(src, dst) != NULL)) {
+            if (*src == '#' && (!CliGetParam(src, 1))) {
                 return &cmd_[num];
             }
-            dst = CliGetParam( dst, 1 );
-            src = CliGetParam( src, 1 );
-            while ( ( dst ) && ( *dst == '-' ) ) {
-                dst = CliGetParam( dst, 1 );
+            dst = CliGetParam(dst, 1);
+            src = CliGetParam(src, 1);
+            while ((dst) && (*dst == '-')) {
+                dst = CliGetParam(dst, 1);
             }
-            if ( !src && !dst ) {
+            if (!src && !dst) {
                 return &cmd_[num];
             }
         }
-    } while ( cmd_[++num].str );
+    } while (cmd_[++num].str);
     return NULL;
 }
 
 // ============================================================================
-void CliProcessCmd( char* str ) {
+void CliProcessCmd(char* str) {
     HAL_StatusTypeDef ret = HAL_OK;
     CliCmd_t*         cmd;
 
@@ -309,235 +309,234 @@ void CliProcessCmd( char* str ) {
 
     char** ptr = parameter;
 
-    CliWriteCmdHistory( str );
+    CliWriteCmdHistory(str);
     // CliShowAllCmdHistory();
     ( void )CliShowAllCmdHistory;
-    CliFormatCmd( str, ptr );
-    cmd = CliSeekCmd( str );
-    if ( cmd != NULL ) {
-        while ( cmd != NULL ) {
-            ret = cmd->p( cli_.argc, cli_.argv );
-            if ( strstr( str, "-t" ) == NULL ) {
+    CliFormatCmd(str, ptr);
+    cmd = CliSeekCmd(str);
+    if (cmd != NULL) {
+        while (cmd != NULL) {
+            ret = cmd->p(cli_.argc, cli_.argv);
+            if (strstr(str, "-t") == NULL) {
                 break;
             }
-            if ( console.read( 0 ) != 0 ) {
+            if (console.read(0) != 0) {
                 break;
             }
         }
-        if ( HAL_OK != ret ) {
-            console.printk( 0, RED "\r\ncommand execution failed!\r\n" NOC );
+        if (HAL_OK != ret) {
+            console.printk(0, RED "\r\ncommand execution failed!\r\n" NOC);
         }
     }
     else {
-        console.printk( 0, RED "\r\ncommand not recognized! " NOC );
+        console.printk(0, RED "\r\ncommand not recognized! " NOC);
         CliShowCmd();
     }
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliShowCmd( void ) {
+HAL_StatusTypeDef CliShowCmd(void) {
 
-    console.writeStr( "\r\n" );
+    console.writeStr("\r\n");
     CONSOLE_PRINTF_SEG;
-    console.writeStr( "console registered commands:" );
-    for ( uint8_t i = 0; i < _CLI_CMD_MAX_NUM; i++ ) {
-        if ( cmd_[i].str ) {
-            console.writeStr( "\r\n  " );
-            console.writeStr( cmd_[i].str );
+    console.writeStr("console registered commands:");
+    for (uint8_t i = 0; i < _CLI_CMD_MAX_NUM; i++) {
+        if (cmd_[i].str) {
+            console.writeStr("\r\n  ");
+            console.writeStr(cmd_[i].str);
         }
     }
-    console.writeStr( "\r\n" );
+    console.writeStr("\r\n");
     CONSOLE_PRINTF_SEG;
     return HAL_OK;
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliLogSetLevel( int argc, char** argv ) {
-    if ( argc <= 1 ) {
+HAL_StatusTypeDef CliLogSetLevel(int argc, char** argv) {
+    if (argc <= 1) {
         return HAL_ERROR;
     }
-    if ( strcmp( argv[1], "help" ) == 0 ) {
-        console.printk( 0, "\r\n" );
-        console.printk( 0, "log\r\n" );
-        console.printk( 0, "   view: see available log levels\r\n" );
-        console.printk( 0, "   down: lower the log level\r\n" );
-        console.printk( 0, "   rise: rise the log level\r\n" );
-        console.printk( 0, "    [x]: set log level to x" );
+    if (strcmp(argv[1], "help") == 0) {
+        console.printk(0, "\r\n");
+        console.printk(0, "log\r\n");
+        console.printk(0, "   view: see available log levels\r\n");
+        console.printk(0, "   down: lower the log level\r\n");
+        console.printk(0, "   rise: rise the log level\r\n");
+        console.printk(0, "    [x]: set log level to x");
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "view" ) == 0 ) {
-        console.printk( 0, "\r\n   LOG_INFO = 2" );
-        console.printk( 0, "\r\n   LOG_WARNING = 1" );
-        console.printk( 0, "\r\n   LOG_CRIT = 0" );
+    if (strcmp(argv[1], "view") == 0) {
+        console.printk(0, "\r\n   LOG_INFO = 2");
+        console.printk(0, "\r\n   LOG_WARNING = 1");
+        console.printk(0, "\r\n   LOG_CRIT = 0");
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "down" ) == 0 ) {
-        if ( console.level > 0 ) {
+    if (strcmp(argv[1], "down") == 0) {
+        if (console.level > 0) {
             console.level -= 1;
         }
-        console.cli.setLevel( console.level );
-        console.printk( 0, "\r\n log level set to %d", console.level );
+        console.cli.setLevel(console.level);
+        console.printk(0, "\r\n log level set to %d", console.level);
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "rise" ) == 0 ) {
-        if ( console.level < LOG_INFO ) {
+    if (strcmp(argv[1], "rise") == 0) {
+        if (console.level < LOG_INFO) {
             console.level += 1;
         }
-        console.cli.setLevel( console.level );
-        console.printk( 0, "\r\n log level set to %d", console.level );
+        console.cli.setLevel(console.level);
+        console.printk(0, "\r\n log level set to %d", console.level);
         return HAL_OK;
     }
     else {
-        LogLevel_e level = atoi( argv[1] );
-        if ( level <= LOG_INFO ) {
-            console.cli.setLevel( level );
-            console.printk( 0, "\r\n log level set to %d", level );
+        LogLevel_e level = atoi(argv[1]);
+        if (level <= LOG_INFO) {
+            console.cli.setLevel(level);
+            console.printk(0, "\r\n log level set to %d", level);
         }
         else {
-            console.printk( 0, "\r\n error, 0 <= level <= 2" );
+            console.printk(0, "\r\n error, 0 <= level <= 2");
         }
     }
     return HAL_OK;
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliShowFirmware( void ) {
+HAL_StatusTypeDef CliShowFirmware(void) {
 
-    console.writeStr( "\r\n" );
+    console.writeStr("\r\n");
     CONSOLE_PRINTF_SEG;
     char* ptr;
     ( void )ptr;
     // --------------------------------
-#if defined( FIRMWARE )
-    console.printk( 0, "    firmware:" WHT " %s\r\n" NOC, FIRMWARE );
+#if defined(FIRMWARE)
+    console.printk(0, "    firmware:" WHT " %s\r\n" NOC, FIRMWARE);
 #endif
 
     // --------------------------------
-#if defined( PRJ_GIT_VER ) && defined( PRJ_GIT_CMT )
-    ptr = ( char* )&PRJ_GIT_VER + strlen( PRJ_GIT_VER ) - 5;
-    if ( strcmp( ptr, "dirty" ) == 0 ) {
-        console.printk( 0, "     version:" RED " %s" NOC " (%s)\r\n",
-                        PRJ_GIT_VER, PRJ_GIT_CMT );
+#if defined(PRJ_GIT_VER) && defined(PRJ_GIT_CMT)
+    ptr = ( char* )&PRJ_GIT_VER + strlen(PRJ_GIT_VER) - 5;
+    if (strcmp(ptr, "dirty") == 0) {
+        console.printk(0, "     version:" RED " %s" NOC " (%s)\r\n",
+                       PRJ_GIT_VER, PRJ_GIT_CMT);
     }
     else {
-        console.printk( 0, "     version:" WHT " %s" NOC " (%s)\r\n",
-                        PRJ_GIT_VER, PRJ_GIT_CMT );
+        console.printk(0, "     version:" WHT " %s" NOC " (%s)\r\n",
+                       PRJ_GIT_VER, PRJ_GIT_CMT);
     }
 #endif
 
     // --------------------------------
-#if defined( PRJ_GIT_BRH )
-    console.printk( 0, "      branch:" WHT " %s\r\n" NOC, PRJ_GIT_BRH );
+#if defined(PRJ_GIT_BRH)
+    console.printk(0, "      branch:" WHT " %s\r\n" NOC, PRJ_GIT_BRH);
 #endif
 
     // --------------------------------
-#if defined( LIB_GIT_VER ) && defined( LIB_GIT_CMT )
-    ptr = ( char* )&LIB_GIT_VER + strlen( LIB_GIT_VER ) - 5;
-    if ( strcmp( ptr, "dirty" ) == 0 ) {
-        console.printk( 0, " lib version:" RED " %s" NOC " (%s)\r\n",
-                        LIB_GIT_VER, LIB_GIT_CMT );
+#if defined(LIB_GIT_VER) && defined(LIB_GIT_CMT)
+    ptr = ( char* )&LIB_GIT_VER + strlen(LIB_GIT_VER) - 5;
+    if (strcmp(ptr, "dirty") == 0) {
+        console.printk(0, " lib version:" RED " %s" NOC " (%s)\r\n",
+                       LIB_GIT_VER, LIB_GIT_CMT);
     }
     else {
-        console.printk( 0, " lib version:" WHT " %s" NOC " (%s)\r\n",
-                        LIB_GIT_VER, LIB_GIT_CMT );
+        console.printk(0, " lib version:" WHT " %s" NOC " (%s)\r\n",
+                       LIB_GIT_VER, LIB_GIT_CMT);
     }
 #endif
 
     // --------------------------------
-#if defined( LIB_GIT_BRH )
-    console.printk( 0, "  lib branch:" WHT " %s\r\n" NOC, LIB_GIT_BRH );
+#if defined(LIB_GIT_BRH)
+    console.printk(0, "  lib branch:" WHT " %s\r\n" NOC, LIB_GIT_BRH);
 #endif
 
     // --------------------------------
-#if defined( MAKE_TYPE )
-    console.printk( 0, "   make type:" WHT " %s\r\n" NOC, MAKE_TYPE );
+#if defined(MAKE_TYPE)
+    console.printk(0, "   make type:" WHT " %s\r\n" NOC, MAKE_TYPE);
 #endif
 
     // --------------------------------
-    console.printk( 0, "   make time:" WHT " %s, %s\r\n" NOC, __TIME__,
-                    __DATE__ );
+    console.printk(0, "   make time:" WHT " %s, %s\r\n" NOC, __TIME__,
+                   __DATE__);
 
     CONSOLE_PRINTF_SEG;
     return HAL_OK;
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliSystem( int argc, char** argv ) {
-    if ( argc <= 1 ) {
+HAL_StatusTypeDef CliSystem(int argc, char** argv) {
+    if (argc <= 1) {
         return HAL_ERROR;
     }
-    if ( strcmp( argv[1], "firmware" ) == 0 ) {
+    if (strcmp(argv[1], "firmware") == 0) {
         CliShowFirmware();
         return HAL_OK;
     }
-    if ( ( strcmp( argv[1], "reset" ) == 0 )
-         || ( strcmp( argv[1], "reboot" ) == 0 ) ) {
+    if ((strcmp(argv[1], "reset") == 0) || (strcmp(argv[1], "reboot") == 0)) {
         NVIC_SystemReset();
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "flash" ) == 0 ) {
-        console.printk( 0, "\r\ntodo\r\n" );
+    if (strcmp(argv[1], "flash") == 0) {
+        console.printk(0, "\r\ntodo\r\n");
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "help" ) == 0 ) {
-        console.printk( 0, "\r\n" );
-        console.printk( 0, "system\r\n" );
-        console.printk( 0, "        firmware: check firmware information\r\n" );
-        console.printk( 0, "    reset/reboot: reboot the system\r\n" );
+    if (strcmp(argv[1], "help") == 0) {
+        console.printk(0, "\r\n");
+        console.printk(0, "system\r\n");
+        console.printk(0, "        firmware: check firmware information\r\n");
+        console.printk(0, "    reset/reboot: reboot the system\r\n");
         console.printk(
-            0, "           flash: flash new firmware (need hardware support)" );
+            0, "           flash: flash new firmware (need hardware support)");
         return HAL_OK;
     }
-    console.printk( 0, "\r\n" );
-    console.printk( 0, "argument not recognized.\r\n" );
+    console.printk(0, "\r\n");
+    console.printk(0, "argument not recognized.\r\n");
     return HAL_ERROR;
 }
 
 // ============================================================================
-HAL_StatusTypeDef CliShowScheduler( int argc, char** argv ) {
-    if ( argc <= 1 ) {
+HAL_StatusTypeDef CliShowScheduler(int argc, char** argv) {
+    if (argc <= 1) {
         return HAL_ERROR;
     }
-    if ( strcmp( argv[1], "view" ) == 0 ) {
-        console.printk( 0, "\r\n" );
-#if defined( _STIME_USE_SCHEDULER )
+    if (strcmp(argv[1], "view") == 0) {
+        console.printk(0, "\r\n");
+#if defined(_STIME_USE_SCHEDULER)
         stime.scheduler.show();
 #endif
         return HAL_OK;
     }
-    if ( strcmp( argv[1], "help" ) == 0 ) {
-        console.printk( 0, "\r\n" );
-        console.printk( 0, "scheduler\r\n" );
-        console.printk( 0, "    view: show scheduler detail" );
+    if (strcmp(argv[1], "help") == 0) {
+        console.printk(0, "\r\n");
+        console.printk(0, "scheduler\r\n");
+        console.printk(0, "    view: show scheduler detail");
         return HAL_OK;
     }
-    console.printk( 0, "\r\n" );
-    console.printk( 0, "argument not recognized.\r\n" );
+    console.printk(0, "\r\n");
+    console.printk(0, "argument not recognized.\r\n");
     return HAL_ERROR;
 }
 
 // ============================================================================
-#if defined( _STIME_USE_SCHEDULER )
+#if defined(_STIME_USE_SCHEDULER)
 // this function works only when the scheduler is used
-HAL_StatusTypeDef CliSuspend( int argc, char** argv ) {
-    if ( argc <= 1 ) {
+HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
+    if (argc <= 1) {
         return HAL_ERROR;
     }
-    if ( strcmp( argv[1], "help" ) == 0 ) {
-        console.printk( 0, "\r\n" );
-        console.printk( 0, "cli-suspend\r\n" );
-        console.printk( 0, "    [x]: suspend the cli for x seconds" );
+    if (strcmp(argv[1], "help") == 0) {
+        console.printk(0, "\r\n");
+        console.printk(0, "cli-suspend\r\n");
+        console.printk(0, "    [x]: suspend the cli for x seconds");
         return HAL_OK;
     }
     // check argument 1, cannot contain characters rather than 0 ~ 9
-    for ( int i = 0; i < strlen( argv[1] ); i++ ) {
-        if ( ( argv[1][i] < 48 ) || ( argv[1][i] > 57 ) ) {
+    for (int i = 0; i < strlen(argv[1]); i++) {
+        if ((argv[1][i] < 48) || (argv[1][i] > 57)) {
             return HAL_ERROR;
         }
     }
-    uint32_t seconds = atoi( argv[1] );
-    stime.scheduler.cliSuspend( seconds );
-    console.setRxStatus( false );
+    uint32_t seconds = atoi(argv[1]);
+    stime.scheduler.cliSuspend(seconds);
+    console.setRxStatus(false);
     return HAL_OK;
 }
 #endif

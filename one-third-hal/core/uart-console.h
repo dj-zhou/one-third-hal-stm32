@@ -11,12 +11,12 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CONSOLE_PRINTF_SEG                                                     \
-    do {                                                                       \
-        console.printk( 0,                                                     \
-                        YLW "------------------------------------------------" \
-                            "--------------------------------\r\n" NOC );      \
-    } while ( 0 )
+#define CONSOLE_PRINTF_SEG                                                    \
+    do {                                                                      \
+        console.printk(0,                                                     \
+                       YLW "------------------------------------------------" \
+                           "--------------------------------\r\n" NOC);       \
+    } while (0)
 
 // ============================================================================
 // project interface --------------
@@ -60,14 +60,13 @@ extern "C" {
 // clang-format on
 // ----------------------------------------------------------------------------
 // some error check
-#if defined( STM32F103xB )
-#if defined( _CONSOLE_USE_UART4_PC10PC11 ) \
-    || defined( _CONSOLE_USE_UART5_PC12PD2 )
+#if defined(STM32F103xB)
+#if defined(_CONSOLE_USE_UART4_PC10PC11) || defined(_CONSOLE_USE_UART5_PC12PD2)
 #error STM32F107xC may not have UART4 or UART5
 #endif
 #endif
 // ============================================================================
-#if defined( CONSOLE_IS_USED )
+#if defined(CONSOLE_IS_USED)
 typedef enum {
     TX_PP = 0,
     TX_OD = 1,
@@ -114,7 +113,7 @@ typedef enum {
 // clang-format on
 
 // ============================================================================
-typedef HAL_StatusTypeDef ( *CliHandle )( int argc, char** argv );
+typedef HAL_StatusTypeDef (*CliHandle)(int argc, char** argv);
 
 // larger number means less important log
 typedef enum {
@@ -124,9 +123,9 @@ typedef enum {
 } LogLevel_e;
 
 typedef struct {
-    void ( *setLevel )( LogLevel_e l );
-    void ( *attach )( char* str, CliHandle p );
-    void ( *process )( void );
+    void (*setLevel)(LogLevel_e l);
+    void (*attach)(char* str, CliHandle p);
+    void (*process)(void);
 } Cli;
 
 // ============================================================================

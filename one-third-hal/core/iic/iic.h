@@ -56,16 +56,16 @@ extern "C" {
 // clang-format on
 
 // ----------------------------------------------------------------------------
-#if defined( IIC_IS_USED )
+#if defined(IIC_IS_USED)
 
 typedef struct {
     uint32_t          bit_rate;
     I2C_HandleTypeDef hiic;
-    void ( *config )( uint32_t );
-    HAL_StatusTypeDef ( *read )( uint16_t, uint16_t, uint16_t, uint8_t*,
-                                 uint16_t, uint32_t );
-    HAL_StatusTypeDef ( *write )( uint16_t, uint16_t, uint16_t, uint8_t*,
-                                  uint16_t, uint32_t );
+    void (*config)(uint32_t);
+    HAL_StatusTypeDef (*read)(uint16_t, uint16_t, uint16_t, uint8_t*, uint16_t,
+                              uint32_t);
+    HAL_StatusTypeDef (*write)(uint16_t, uint16_t, uint16_t, uint8_t*, uint16_t,
+                               uint32_t);
 } IicApi_t;
 
 #endif  // IIC_IS_USED

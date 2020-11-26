@@ -27,6 +27,8 @@ The library is in directory `one-third-hal`, its structure is as following:
 ├── f0-v1.11.1
 ├── f1-share
 ├── f1-v1.8.2
+├── f3-share
+├── f3-v1.8.2
 ├── f4-share
 ├── f4-v1.25.2
 ├── f7-share
@@ -55,6 +57,8 @@ The library is in directory `one-third-hal`, its structure is as following:
 * **f1-v1.8.2**: the HAL library for STM32F1 series of version v1.8.2. The files are generated from **STM32CubeMx**. Unused files are removed.
 
 * **f0-share/f0-v1.11.1**: the same as above, except that they are for F0 series.
+
+* **f3-share/f3-v1.11.1**: the same as above, except that they are for F3 series.
 
 * **f4-share/f4-v1.25.2**: the same as above, except that they are for F4 series.
 
@@ -125,6 +129,7 @@ The library is tested with the following micro-controllers:
 |  STM32F030R8T6   |        48/48/--        |   8M   |   64K/8K   | NUCLEO-F030R8                |
 |  STM32F103RBT6   |        72/36/72        |   8M   |  128K/20K  | NUCLEO-F103RB                |
 |  STM32F107VCT6   |        72/36/72        |  25M   |  256K/64K  | Olimex-H107                  |
+| STM32F303RET6 | 72/36/72 | 8M | 512K/80K | NUCLEO-F303RE |
 |  STM32F407VGT6   |       168/42/84        | 8M/12M | 1024K/192K | STM32F4-DISCOVERY (modified) |
 |  STM32F427VIT6   |       180/45/90        | 8M/24M | 2048K/256K | FireDragon Hexcopter         |
 |  STM32F746ZGT6   |       216/54/108       |   8M   | 1024K/320K | NUCLEO-F746ZG                |

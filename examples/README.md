@@ -65,8 +65,28 @@ Tested on:
 * F030R8
 * F103RB
 * F107VC
+* F303VE
 * F407VG
 * F427VI
 * F746ZG
 * F767ZI
 
+#### `008-fxxxxx-spi`
+
+Try the SPI interface, need logic analyzer to see how it works. Examples of devices using the SPI interface will be added later.
+
+Tested on:
+
+* F427VI
+* F767ZI
+
+#### `009-fxxxxx-iic-eeprom`
+
+Example of using the IIC interface to write to and read from a EEPROM chip: AT24C02. `EepromNode_t` related code will be added later.
+
+<span style="color:red">Important Notice:</span> the IIC1 on PB8/PB9 on STM32F1 series does not work! I am 99% sure it is a hardware bug in STM32F1 micro-controllers. Avoid to use it.
+
+Tested on:
+
+* F407ZG
+* F107VC (failed, need to test on some other pins)

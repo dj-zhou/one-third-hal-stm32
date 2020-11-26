@@ -8,13 +8,13 @@
 #include <stdint.h>
 
 // ============================================================================
-#if defined( _AT24CXX_ON_IIC1 )
+#if defined(_AT24CXX_ON_IIC1)
 #define EEPROM_IIC iic1
 #endif
-#if defined( _AT24CXX_ON_IIC2 )
+#if defined(_AT24CXX_ON_IIC2)
 #define EEPROM_IIC iic2
 #endif
-#if defined( _AT24CXX_ON_IIC3 )
+#if defined(_AT24CXX_ON_IIC3)
 #define EEPROM_IIC iic3
 #endif
 
@@ -65,15 +65,15 @@
 // clang-format on
 
 // ============================================================================
-#if !defined( _EEPROM_NODE_MAX_NUM )
+#if !defined(_EEPROM_NODE_MAX_NUM)
 #define _EEPROM_NODE_MAX_NUM 50
 #endif
 
-#if !defined( _EEPROM_NODE_START_ADDR )
+#if !defined(_EEPROM_NODE_START_ADDR)
 #define _EEPROM_NODE_START_ADDR 0
 #endif
 
-#if !defined( _EEPROM_NODE_MAX_READ_TIME )
+#if !defined(_EEPROM_NODE_MAX_READ_TIME)
 #define _EEPROM_NODE_MAX_READ_TIME 5
 #endif
 
@@ -132,32 +132,32 @@
 #define EEPROM_KEY_49 0xFA49
 #define EEPROM_KEY_50 0xFA50
 
-#define IS_EEPROM_KEY( key )                                          \
-    ( ( ( key ) == EEPROM_KEY_01 ) || ( ( key ) == EEPROM_KEY_02 )    \
-      || ( ( key ) == EEPROM_KEY_03 ) || ( ( key ) == EEPROM_KEY_04 ) \
-      || ( ( key ) == EEPROM_KEY_05 ) || ( ( key ) == EEPROM_KEY_06 ) \
-      || ( ( key ) == EEPROM_KEY_07 ) || ( ( key ) == EEPROM_KEY_08 ) \
-      || ( ( key ) == EEPROM_KEY_09 ) || ( ( key ) == EEPROM_KEY_10 ) \
-      || ( ( key ) == EEPROM_KEY_11 ) || ( ( key ) == EEPROM_KEY_12 ) \
-      || ( ( key ) == EEPROM_KEY_13 ) || ( ( key ) == EEPROM_KEY_14 ) \
-      || ( ( key ) == EEPROM_KEY_15 ) || ( ( key ) == EEPROM_KEY_16 ) \
-      || ( ( key ) == EEPROM_KEY_17 ) || ( ( key ) == EEPROM_KEY_18 ) \
-      || ( ( key ) == EEPROM_KEY_19 ) || ( ( key ) == EEPROM_KEY_20 ) \
-      || ( ( key ) == EEPROM_KEY_21 ) || ( ( key ) == EEPROM_KEY_22 ) \
-      || ( ( key ) == EEPROM_KEY_23 ) || ( ( key ) == EEPROM_KEY_24 ) \
-      || ( ( key ) == EEPROM_KEY_25 ) || ( ( key ) == EEPROM_KEY_26 ) \
-      || ( ( key ) == EEPROM_KEY_27 ) || ( ( key ) == EEPROM_KEY_28 ) \
-      || ( ( key ) == EEPROM_KEY_29 ) || ( ( key ) == EEPROM_KEY_30 ) \
-      || ( ( key ) == EEPROM_KEY_31 ) || ( ( key ) == EEPROM_KEY_32 ) \
-      || ( ( key ) == EEPROM_KEY_33 ) || ( ( key ) == EEPROM_KEY_34 ) \
-      || ( ( key ) == EEPROM_KEY_35 ) || ( ( key ) == EEPROM_KEY_36 ) \
-      || ( ( key ) == EEPROM_KEY_37 ) || ( ( key ) == EEPROM_KEY_38 ) \
-      || ( ( key ) == EEPROM_KEY_39 ) || ( ( key ) == EEPROM_KEY_40 ) \
-      || ( ( key ) == EEPROM_KEY_41 ) || ( ( key ) == EEPROM_KEY_42 ) \
-      || ( ( key ) == EEPROM_KEY_43 ) || ( ( key ) == EEPROM_KEY_44 ) \
-      || ( ( key ) == EEPROM_KEY_45 ) || ( ( key ) == EEPROM_KEY_46 ) \
-      || ( ( key ) == EEPROM_KEY_47 ) || ( ( key ) == EEPROM_KEY_48 ) \
-      || ( ( key ) == EEPROM_KEY_49 ) || ( ( key ) == EEPROM_KEY_50 ) )
+#define IS_EEPROM_KEY(key)                                   \
+    (((key) == EEPROM_KEY_01) || ((key) == EEPROM_KEY_02)    \
+     || ((key) == EEPROM_KEY_03) || ((key) == EEPROM_KEY_04) \
+     || ((key) == EEPROM_KEY_05) || ((key) == EEPROM_KEY_06) \
+     || ((key) == EEPROM_KEY_07) || ((key) == EEPROM_KEY_08) \
+     || ((key) == EEPROM_KEY_09) || ((key) == EEPROM_KEY_10) \
+     || ((key) == EEPROM_KEY_11) || ((key) == EEPROM_KEY_12) \
+     || ((key) == EEPROM_KEY_13) || ((key) == EEPROM_KEY_14) \
+     || ((key) == EEPROM_KEY_15) || ((key) == EEPROM_KEY_16) \
+     || ((key) == EEPROM_KEY_17) || ((key) == EEPROM_KEY_18) \
+     || ((key) == EEPROM_KEY_19) || ((key) == EEPROM_KEY_20) \
+     || ((key) == EEPROM_KEY_21) || ((key) == EEPROM_KEY_22) \
+     || ((key) == EEPROM_KEY_23) || ((key) == EEPROM_KEY_24) \
+     || ((key) == EEPROM_KEY_25) || ((key) == EEPROM_KEY_26) \
+     || ((key) == EEPROM_KEY_27) || ((key) == EEPROM_KEY_28) \
+     || ((key) == EEPROM_KEY_29) || ((key) == EEPROM_KEY_30) \
+     || ((key) == EEPROM_KEY_31) || ((key) == EEPROM_KEY_32) \
+     || ((key) == EEPROM_KEY_33) || ((key) == EEPROM_KEY_34) \
+     || ((key) == EEPROM_KEY_35) || ((key) == EEPROM_KEY_36) \
+     || ((key) == EEPROM_KEY_37) || ((key) == EEPROM_KEY_38) \
+     || ((key) == EEPROM_KEY_39) || ((key) == EEPROM_KEY_40) \
+     || ((key) == EEPROM_KEY_41) || ((key) == EEPROM_KEY_42) \
+     || ((key) == EEPROM_KEY_43) || ((key) == EEPROM_KEY_44) \
+     || ((key) == EEPROM_KEY_45) || ((key) == EEPROM_KEY_46) \
+     || ((key) == EEPROM_KEY_47) || ((key) == EEPROM_KEY_48) \
+     || ((key) == EEPROM_KEY_49) || ((key) == EEPROM_KEY_50))
 
 // ============================================================================
 // clang-format off
