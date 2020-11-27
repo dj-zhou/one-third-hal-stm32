@@ -19,72 +19,63 @@ extern "C" {
 // ============================================================================
 // clang-format off
 // ----------------------------------------------------------------------------
-#if defined( SPI1_EXISTS )
-    #if defined( _USE_SPI1_PA7PA6 ) \
-     || defined( _USE_SPI1_PB5PB4 )
+#if defined(SPI1_EXISTS)
+    #if defined(_USE_SPI1_PA7PA6) || defined(_USE_SPI1_PB5PB4)
         #define SPI1_IS_USED
     #endif
 #endif
 
-#if defined( SPI2_EXISTS )
-    #if defined( _USE_SPI2_PC3PC2 ) \
-     || defined( _USE_SPI2_PB15PB14 )
+#if defined(SPI2_EXISTS)
+    #if defined(_USE_SPI2_PC3PC2) || defined(_USE_SPI2_PB15PB14)
         #define SPI2_IS_USED
     #endif
 #endif
 
-#if defined( SPI3_EXISTS )
-    #if defined( _USE_SPI3_PB5PB4 ) \
-     || defined( _USE_SPI3_PC12PC11 )
+#if defined(SPI3_EXISTS)
+    #if defined(_USE_SPI3_PB5PB4) || defined(_USE_SPI3_PC12PC11)
         #define SPI3_IS_USED
     #endif
 #endif
 
-#if defined( SPI4_EXISTS )
-    #if defined( _USE_SPI4_PE6PE5 ) \
-     || defined( _USE_SPI4_PE14PE13 )
+#if defined(SPI4_EXISTS)
+    #if defined(_USE_SPI4_PE6PE5) || defined(_USE_SPI4_PE14PE13)
         #define SPI4_IS_USED
     #endif
 #endif
 
-#if defined( SPI5_EXISTS )
-    #if defined( _USE_SPI5_PF9PF8 ) \
-     || defined( _USE_SPI5_PF11PH7 )
+#if defined(SPI5_EXISTS)
+    #if defined(_USE_SPI5_PF9PF8) || defined(_USE_SPI5_PF11PH7)
         #define SPI5_IS_USED
     #endif
 #endif
 
-#if defined( SPI6_EXISTS )
-    #if defined( _USE_SPI6_PG14PG12 )
+#if defined(SPI6_EXISTS)
+    #if defined(_USE_SPI6_PG14PG12)
         #define SPI6_IS_USED
     #endif
 #endif
 
-#if defined( SPI1_IS_USED ) || defined( SPI2_IS_USED ) \
- || defined( SPI3_IS_USED ) || defined( SPI4_IS_USED ) \
- || defined( SPI5_IS_USED ) || defined( SPI6_IS_USED )
+#if defined(SPI1_IS_USED) || defined(SPI2_IS_USED) || defined(SPI3_IS_USED) \
+    || defined(SPI4_IS_USED) || defined(SPI5_IS_USED) || defined(SPI6_IS_USED)
     #define SPI_IS_USED
 #endif
 
-#if !defined( _SPI_START_TIME_DELAY_US )
-    #define    _SPI_START_TIME_DELAY_US   0
+#if !defined(_SPI_START_TIME_DELAY_US)
+    #define _SPI_START_TIME_DELAY_US 0
 #endif
 
-#if !defined( _SPI_BYTE_TIME_DELAY_US )
-    #define    _SPI_BYTE_TIME_DELAY_US    0
+#if !defined(_SPI_BYTE_TIME_DELAY_US)
+    #define _SPI_BYTE_TIME_DELAY_US 0
 #endif
 
-#if !defined( _SPI_END_TIME_DELAY_US )
-    #define    _SPI_END_TIME_DELAY_US     0
+#if !defined(_SPI_END_TIME_DELAY_US)
+    #define _SPI_END_TIME_DELAY_US 0
 #endif
 // clang-format on
 
 // ----------------------------------------------------------------------------
 #if defined(SPI_IS_USED)
 
-#if !defined(_SPI_START_TIME_DELAY_US)
-#define _SPI_START_TIME_DELAY_US 0
-#endif
 typedef enum {
     SPI_MASTER = (( uint8_t )1),
     SPI_SLAVE  = (( uint8_t )2),
@@ -110,8 +101,8 @@ typedef struct {
 
 #endif  // SPI_IS_USED
 
-// clang-format off
 // ----------------------------------------------------------------------------
+// clang-format off
 #if defined( SPI1_EXISTS ) && defined( SPI1_IS_USED )
     extern SpiApi_t spi1;
 #endif

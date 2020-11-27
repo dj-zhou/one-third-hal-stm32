@@ -226,9 +226,9 @@ static HAL_StatusTypeDef Spi1Transceive(uint8_t* t_data, uint8_t* r_data,
 // ---------------------
 // clang-format off
 SpiApi_t spi1 = {
-    .config       = InitSpi1       ,
-    .setNss       = InitSpi1SoftNss,
-    .transceive   = Spi1Transceive ,
+    .config     = InitSpi1       ,
+    .setNss     = InitSpi1SoftNss,
+    .transceive = Spi1Transceive ,
 };
 // clang-format on
 #endif  // SPI1_EXISTS && SPI1_IS_USED

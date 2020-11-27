@@ -10,12 +10,12 @@ static RtosState_e rtos_state_;
 #if defined(_LED_HEARTBEAT_PORT)
     #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
 #else
-    #define ERROR_LED_PORT GPIOA // not sure if this will conflict with something
+    #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
 #endif
 #if defined(_LED_HEARTBEAT_PIN)
     #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
 #else
-    #define ERROR_LED_PIN 5 // not sure if this will conflict with something
+    #define ERROR_LED_PIN 5  // not sure if this will conflict with something
 #endif
 // clang-format on
 
@@ -470,38 +470,38 @@ static void InitNvicInterrupt(uint8_t group) {
 // ============================================================================
 static void enableGpioClock(GPIO_TypeDef* GPIOx) {
 // clang-format off
-#if defined( GPIOA_EXISTS )
-    if ( GPIOx == GPIOA ) { __HAL_RCC_GPIOA_CLK_ENABLE(); return; }
+#if defined(GPIOA_EXISTS)
+    if (GPIOx == GPIOA) { __HAL_RCC_GPIOA_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOB_EXISTS )
-    if ( GPIOx == GPIOB ) { __HAL_RCC_GPIOB_CLK_ENABLE(); return; }
+#if defined(GPIOB_EXISTS)
+    if (GPIOx == GPIOB) { __HAL_RCC_GPIOB_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOC_EXISTS )
-    if ( GPIOx == GPIOC ) { __HAL_RCC_GPIOC_CLK_ENABLE(); return; }
+#if defined(GPIOC_EXISTS)
+    if (GPIOx == GPIOC) { __HAL_RCC_GPIOC_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOD_EXISTS )
-    if ( GPIOx == GPIOD ) { __HAL_RCC_GPIOD_CLK_ENABLE(); return; }
+#if defined(GPIOD_EXISTS)
+    if (GPIOx == GPIOD) { __HAL_RCC_GPIOD_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOE_EXISTS )
-    if ( GPIOx == GPIOE ) { __HAL_RCC_GPIOE_CLK_ENABLE(); return; }
+#if defined(GPIOE_EXISTS)
+    if (GPIOx == GPIOE) { __HAL_RCC_GPIOE_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOF_EXISTS )
-    if ( GPIOx == GPIOF ) { __HAL_RCC_GPIOF_CLK_ENABLE(); return; }
+#if defined(GPIOF_EXISTS)
+    if (GPIOx == GPIOF) { __HAL_RCC_GPIOF_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOG_EXISTS )
-    if ( GPIOx == GPIOG ) { __HAL_RCC_GPIOG_CLK_ENABLE(); return; }
+#if defined(GPIOG_EXISTS)
+    if (GPIOx == GPIOG) { __HAL_RCC_GPIOG_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOH_EXISTS )
-    if ( GPIOx == GPIOH ) { __HAL_RCC_GPIOH_CLK_ENABLE(); return; }
+#if defined(GPIOH_EXISTS)
+    if (GPIOx == GPIOH) { __HAL_RCC_GPIOH_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOI_EXISTS )
-    if ( GPIOx == GPIOI ) { __HAL_RCC_GPIOI_CLK_ENABLE(); return; }
+#if defined(GPIOI_EXISTS)
+    if (GPIOx == GPIOI) { __HAL_RCC_GPIOI_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOJ_EXISTS )
-    if ( GPIOx == GPIOJ ) { __HAL_RCC_GPIOJ_CLK_ENABLE(); return; }
+#if defined(GPIOJ_EXISTS)
+    if (GPIOx == GPIOJ) { __HAL_RCC_GPIOJ_CLK_ENABLE(); return; }
 #endif
-#if defined( GPIOK_EXISTS )
-    if ( GPIOx == GPIOK ) { __HAL_RCC_GPIOK_CLK_ENABLE(); return; }
+#if defined(GPIOK_EXISTS)
+    if (GPIOx == GPIOK) { __HAL_RCC_GPIOK_CLK_ENABLE(); return; }
 #endif
     // clang-format on
     ( void )GPIOx;
@@ -510,17 +510,17 @@ static void enableGpioClock(GPIO_TypeDef* GPIOx) {
 // ============================================================================
 static void enableIicClock(I2C_TypeDef* IICx) {
 // clang-format off
-#if defined( IIC1_EXISTS )
-    if ( IICx == I2C1 ) { __HAL_RCC_I2C1_CLK_ENABLE(); return; }
+#if defined(IIC1_EXISTS)
+    if (IICx == I2C1) { __HAL_RCC_I2C1_CLK_ENABLE(); return; }
 #endif
-#if defined( IIC2_EXISTS )
-    if ( IICx == I2C2 ) { __HAL_RCC_I2C2_CLK_ENABLE(); return; }
+#if defined(IIC2_EXISTS)
+    if (IICx == I2C2) { __HAL_RCC_I2C2_CLK_ENABLE(); return; }
 #endif
-#if defined( IIC3_EXISTS )
-    if ( IICx == I2C3 ) { __HAL_RCC_I2C3_CLK_ENABLE(); return; }
+#if defined(IIC3_EXISTS)
+    if (IICx == I2C3) { __HAL_RCC_I2C3_CLK_ENABLE(); return; }
 #endif
-#if defined( IIC4_EXISTS )
-    if ( IICx == I2C4 ) { __HAL_RCC_I2C4_CLK_ENABLE(); return; }
+#if defined(IIC4_EXISTS)
+    if (IICx == I2C4) { __HAL_RCC_I2C4_CLK_ENABLE(); return; }
 #endif
     // clang-format on
     ( void )IICx;
@@ -529,56 +529,56 @@ static void enableIicClock(I2C_TypeDef* IICx) {
 // ============================================================================
 static void enableTimerClock(TIM_TypeDef* TIMx) {
 // clang-format off
-#if defined( TIM1_EXISTS )
-    if ( TIMx == TIM1 ) { __HAL_RCC_TIM1_CLK_ENABLE(); return; }
+#if defined(TIM1_EXISTS)
+    if (TIMx == TIM1) { __HAL_RCC_TIM1_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM2_EXISTS )
-    if ( TIMx == TIM2 ) { __HAL_RCC_TIM2_CLK_ENABLE(); return; }
+#if defined(TIM2_EXISTS)
+    if (TIMx == TIM2) { __HAL_RCC_TIM2_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM3_EXISTS )
-    if ( TIMx == TIM3 ) { __HAL_RCC_TIM3_CLK_ENABLE(); return; }
+#if defined(TIM3_EXISTS)
+    if (TIMx == TIM3) { __HAL_RCC_TIM3_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM4_EXISTS )
-    if ( TIMx == TIM4 ) { __HAL_RCC_TIM4_CLK_ENABLE(); return; }
+#if defined(TIM4_EXISTS)
+    if (TIMx == TIM4) { __HAL_RCC_TIM4_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM5_EXISTS )
-    if ( TIMx == TIM5 ) { __HAL_RCC_TIM5_CLK_ENABLE(); return; }
+#if defined(TIM5_EXISTS)
+    if (TIMx == TIM5) { __HAL_RCC_TIM5_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM6_EXISTS )
-    if ( TIMx == TIM6 ) { __HAL_RCC_TIM6_CLK_ENABLE(); return; }
+#if defined(TIM6_EXISTS)
+    if (TIMx == TIM6) { __HAL_RCC_TIM6_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM7_EXISTS )
-    if ( TIMx == TIM7 ) { __HAL_RCC_TIM7_CLK_ENABLE(); return; }
+#if defined(TIM7_EXISTS)
+    if (TIMx == TIM7) { __HAL_RCC_TIM7_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM8_EXISTS )
-    if ( TIMx == TIM8 ) { __HAL_RCC_TIM8_CLK_ENABLE(); return; }
+#if defined(TIM8_EXISTS)
+    if (TIMx == TIM8) { __HAL_RCC_TIM8_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM9_EXISTS )
-    if ( TIMx == TIM9 ) { __HAL_RCC_TIM9_CLK_ENABLE(); return; }
+#if defined(TIM9_EXISTS)
+    if (TIMx == TIM9) { __HAL_RCC_TIM9_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM10_EXISTS )
-    if ( TIMx == TIM10 ) { __HAL_RCC_TIM10_CLK_ENABLE(); return; }
+#if defined(TIM10_EXISTS)
+    if (TIMx == TIM10) { __HAL_RCC_TIM10_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM11_EXISTS )
-    if ( TIMx == TIM11 ) { __HAL_RCC_TIM11_CLK_ENABLE(); return; }
+#if defined(TIM11_EXISTS)
+    if (TIMx == TIM11) { __HAL_RCC_TIM11_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM12_EXISTS )
-    if ( TIMx == TIM12 ) { __HAL_RCC_TIM12_CLK_ENABLE(); return; }
+#if defined(TIM12_EXISTS)
+    if (TIMx == TIM12) { __HAL_RCC_TIM12_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM13_EXISTS )
-    if ( TIMx == TIM13 ) { __HAL_RCC_TIM13_CLK_ENABLE(); return; }
+#if defined(TIM13_EXISTS)
+    if (TIMx == TIM13) { __HAL_RCC_TIM13_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM14_EXISTS )
-    if ( TIMx == TIM14 ) { __HAL_RCC_TIM14_CLK_ENABLE(); return; }
+#if defined(TIM14_EXISTS)
+    if (TIMx == TIM14) { __HAL_RCC_TIM14_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM15_EXISTS )
-    if ( TIMx == TIM15 ) { __HAL_RCC_TIM15_CLK_ENABLE(); return; }
+#if defined(TIM15_EXISTS)
+    if (TIMx == TIM15) { __HAL_RCC_TIM15_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM16_EXISTS )
-    if ( TIMx == TIM16 ) { __HAL_RCC_TIM16_CLK_ENABLE(); return; }
+#if defined(TIM16_EXISTS)
+    if (TIMx == TIM16) { __HAL_RCC_TIM16_CLK_ENABLE(); return; }
 #endif
-#if defined( TIM17_EXISTS )
-    if ( TIMx == TIM17 ) { __HAL_RCC_TIM17_CLK_ENABLE(); return; }
+#if defined(TIM17_EXISTS)
+    if (TIMx == TIM17) { __HAL_RCC_TIM17_CLK_ENABLE(); return; }
 #endif
     // clang-format on
     ( void )TIMx;
@@ -588,29 +588,29 @@ static void enableTimerClock(TIM_TypeDef* TIMx) {
 // to be extended
 static void enableUartClock(USART_TypeDef* USARTx) {
     // clang-format off
-#if defined( USART1_EXISTS )
-    if ( USARTx == USART1 ) { __HAL_RCC_USART1_CLK_ENABLE(); return; }
+#if defined(USART1_EXISTS)
+    if (USARTx == USART1) { __HAL_RCC_USART1_CLK_ENABLE(); return; }
 #endif
-#if defined( USART2_EXISTS )
-    if ( USARTx == USART2 ) { __HAL_RCC_USART2_CLK_ENABLE(); return; }
+#if defined(USART2_EXISTS)
+    if (USARTx == USART2) { __HAL_RCC_USART2_CLK_ENABLE(); return; }
 #endif
-#if defined( USART3_EXISTS )
-    if ( USARTx == USART3 ) { __HAL_RCC_USART3_CLK_ENABLE(); return; }
+#if defined(USART3_EXISTS)
+    if (USARTx == USART3) { __HAL_RCC_USART3_CLK_ENABLE(); return; }
 #endif
-#if defined( UART4_EXISTS )
-    if ( USARTx == UART4 ) { __HAL_RCC_UART4_CLK_ENABLE(); return; }
+#if defined(UART4_EXISTS)
+    if (USARTx == UART4) { __HAL_RCC_UART4_CLK_ENABLE(); return; }
 #endif
-#if defined( UART5_EXISTS )
-    if ( USARTx == UART5 ) { __HAL_RCC_UART5_CLK_ENABLE(); return; }
+#if defined(UART5_EXISTS)
+    if (USARTx == UART5) { __HAL_RCC_UART5_CLK_ENABLE(); return; }
 #endif
-#if defined( USART6_EXISTS )
-    if ( USARTx == USART6 ) { __HAL_RCC_USART6_CLK_ENABLE(); return; }
+#if defined(USART6_EXISTS)
+    if (USARTx == USART6) { __HAL_RCC_USART6_CLK_ENABLE(); return; }
 #endif
-#if defined( UART7_EXISTS )
-    if ( USARTx == UART7 ) { __HAL_RCC_UART7_CLK_ENABLE(); return; }
+#if defined(UART7_EXISTS)
+    if (USARTx == UART7) { __HAL_RCC_UART7_CLK_ENABLE(); return; }
 #endif
-#if defined( UART8_EXISTS )
-    if ( USARTx == UART8 ) { __HAL_RCC_UART8_CLK_ENABLE(); return; }
+#if defined(UART8_EXISTS)
+    if (USARTx == UART8) { __HAL_RCC_UART8_CLK_ENABLE(); return; }
 #endif
     // clang-format on
     ( void )USARTx;
@@ -619,23 +619,23 @@ static void enableUartClock(USART_TypeDef* USARTx) {
 // ============================================================================
 static void enableSpiClock(SPI_TypeDef* SPIx) {
     // clang-format off
-#if defined( SPI1_EXISTS )
-    if ( SPIx == SPI1 ) { __HAL_RCC_SPI1_CLK_ENABLE(); return; }
+#if defined(SPI1_EXISTS)
+    if (SPIx == SPI1) { __HAL_RCC_SPI1_CLK_ENABLE(); return; }
 #endif
-#if defined( SPI2_EXISTS )
-    if ( SPIx == SPI2 ) { __HAL_RCC_SPI2_CLK_ENABLE(); return; }
+#if defined(SPI2_EXISTS)
+    if (SPIx == SPI2) { __HAL_RCC_SPI2_CLK_ENABLE(); return; }
 #endif
-#if defined( SPI3_EXISTS )
-    if ( SPIx == SPI3 ) { __HAL_RCC_SPI3_CLK_ENABLE(); return; }
+#if defined(SPI3_EXISTS)
+    if (SPIx == SPI3) { __HAL_RCC_SPI3_CLK_ENABLE(); return; }
 #endif
-#if defined( SPI4_EXISTS )
-    if ( SPIx == SPI4 ) { __HAL_RCC_SPI4_CLK_ENABLE(); return; }
+#if defined(SPI4_EXISTS)
+    if (SPIx == SPI4) { __HAL_RCC_SPI4_CLK_ENABLE(); return; }
 #endif
-#if defined( SPI5_EXISTS )
-    if ( SPIx == SPI5 ) { __HAL_RCC_SPI5_CLK_ENABLE(); return; }
+#if defined(SPI5_EXISTS)
+    if (SPIx == SPI5) { __HAL_RCC_SPI5_CLK_ENABLE(); return; }
 #endif
-#if defined( SPI6_EXISTS )
-    if ( SPIx == SPI6 ) { __HAL_RCC_SPI6_CLK_ENABLE(); return; }
+#if defined(SPI6_EXISTS)
+    if (SPIx == SPI6) { __HAL_RCC_SPI6_CLK_ENABLE(); return; }
 #endif
     // clang-format on
     ( void )SPIx;
@@ -647,7 +647,7 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
     assert_param(IS_GPIO_MODE(mode));
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
-// #if defined( STM32F107xC )  // || ( defined STM32F10Xxxxx)
+// #if defined(STM32F107xC )  // || ( defined STM32F10Xxxxx)
 // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
 // therefore we must first disable JTAG and async trace functions to
 // release PB3/PB4 for GPIO use this operation is confirmed on STM32F1
@@ -758,7 +758,7 @@ static RtosState_e getRtosState(void) {
 
 // ============================================================================
 // clang-format off
-CoreUtilsApi_t utils = {
+UtilsApi_t utils = {
     .system.initClock  = InitSystemClock  ,
     .system.initNvic   = InitNvicInterrupt,
     .clock.enableGpio  = enableGpioClock  ,
@@ -767,14 +767,14 @@ CoreUtilsApi_t utils = {
     .clock.enableTimer = enableTimerClock ,
     .clock.enableUart  = enableUartClock  ,
     .pin.mode          = setPinMode       ,
-#if defined( STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
+#if defined(STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
     || defined( STM32F767xx )
     .pin.alter         = setPinAlter      ,
 #endif
     .pin.pull          = setPinPull       ,
     .pin.set           = setPin           ,
     .pin.toggle        = togglePin        ,
-#if defined( RTOS_IS_USED )
+#if defined(RTOS_IS_USED )
     .rtos.setState     = setRtosState     ,
     .rtos.getState     = getRtosState     ,
 #endif

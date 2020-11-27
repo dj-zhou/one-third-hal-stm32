@@ -23,48 +23,40 @@ extern "C" {
 // clang-format off
 
 // only _CONSOLE_USE_UART1_PA9PA10 can be used for firmware upgrading
-#if !defined( _CONSOLE_USE_UART1_PA9PA10 )  \
- && !defined( _CONSOLE_USE_UART1_PB6PB7 )   \
- && !defined( _CONSOLE_USE_UART2_PA2PA3 )   \
- && !defined( _CONSOLE_USE_UART2_PD5PD6 )   \
- && !defined( _CONSOLE_USE_UART3_PB10PB11 ) \
- && !defined( _CONSOLE_USE_UART3_PC10PC11 ) \
- && !defined( _CONSOLE_USE_UART3_PD8PD9 )   \
- && !defined( _CONSOLE_USE_UART4_PC10PC11 ) \
- && !defined( _CONSOLE_USE_UART5_PC12PD2 )  \
- && !defined( _CONSOLE_USE_UART7_PE8PE7 )
+#if !defined(_CONSOLE_USE_UART1_PA9PA10)     \
+    && !defined(_CONSOLE_USE_UART1_PB6PB7)   \
+    && !defined(_CONSOLE_USE_UART2_PA2PA3)   \
+    && !defined(_CONSOLE_USE_UART2_PD5PD6)   \
+    && !defined(_CONSOLE_USE_UART3_PB10PB11) \
+    && !defined(_CONSOLE_USE_UART3_PC10PC11) \
+    && !defined(_CONSOLE_USE_UART3_PD8PD9)   \
+    && !defined(_CONSOLE_USE_UART4_PC10PC11) \
+    && !defined(_CONSOLE_USE_UART5_PC12PD2)  \
+    && !defined(_CONSOLE_USE_UART7_PE8PE7)
     #define _CONSOLE_USE_UART2_PA2PA3
 #endif
 
-#if defined( _CONSOLE_USE_UART1_PA9PA10 )  \
- || defined( _CONSOLE_USE_UART1_PB6PB7 )   \
- || defined( _CONSOLE_USE_UART2_PA2PA3 )   \
- || defined( _CONSOLE_USE_UART2_PD5PD6 )   \
- || defined( _CONSOLE_USE_UART3_PB10PB11 ) \
- || defined( _CONSOLE_USE_UART3_PC10PC11 ) \
- || defined( _CONSOLE_USE_UART3_PD8PD9 )   \
- || defined( _CONSOLE_USE_UART4_PC10PC11 ) \
- || defined( _CONSOLE_USE_UART5_PC12PD2 )  \
- || defined( _CONSOLE_USE_UART7_PE8PE7 )
+#if defined(_CONSOLE_USE_UART1_PA9PA10) || defined(_CONSOLE_USE_UART1_PB6PB7) \
+    || defined(_CONSOLE_USE_UART2_PA2PA3)                                     \
+    || defined(_CONSOLE_USE_UART2_PD5PD6)                                     \
+    || defined(_CONSOLE_USE_UART3_PB10PB11)                                   \
+    || defined(_CONSOLE_USE_UART3_PC10PC11)                                   \
+    || defined(_CONSOLE_USE_UART3_PD8PD9)                                     \
+    || defined(_CONSOLE_USE_UART4_PC10PC11)                                   \
+    || defined(_CONSOLE_USE_UART5_PC12PD2)                                    \
+    || defined(_CONSOLE_USE_UART7_PE8PE7)
     #define CONSOLE_IS_USED
 #endif
 
-#if !defined( _CONSOLE_SIGN_DATA_SIZE )
-    #define _CONSOLE_SIGN_DATA_SIZE     ( 50 ) // > 20
+#if !defined(_CONSOLE_SIGN_DATA_SIZE)
+    #define _CONSOLE_SIGN_DATA_SIZE     (50)  // > 20
 #endif
 
-#if !defined( _CONSOLE_BUFF_LEN )
-    #define _CONSOLE_BUFF_LEN           ( 100 )
+#if !defined(_CONSOLE_BUFF_LEN)
+    #define _CONSOLE_BUFF_LEN           (100)
 #endif
-
 // clang-format on
-// ----------------------------------------------------------------------------
-// some error check
-#if defined(STM32F103xB)
-#if defined(_CONSOLE_USE_UART4_PC10PC11) || defined(_CONSOLE_USE_UART5_PC12PD2)
-#error STM32F107xC may not have UART4 or UART5
-#endif
-#endif
+
 // ============================================================================
 #if defined(CONSOLE_IS_USED)
 typedef enum {
@@ -93,21 +85,21 @@ typedef enum {
 
 // priority ----------------------------
 // clang-format off
-#if defined( RTOS_USE_FREERTOS )
-    #if !defined( _CONSOLE_PREEMPTION_PRIORITY)
-        #define _CONSOLE_PREEMPTION_PRIORITY     20
+#if defined(RTOS_USE_FREERTOS)
+    #if !defined(_CONSOLE_PREEMPTION_PRIORITY)
+        #define _CONSOLE_PREEMPTION_PRIORITY        20
     #endif
-    #if !defined( _CONSOLE_SUB_PRIORITY)
-        #define _CONSOLE_SUB_PRIORITY             0
+    #if !defined(_CONSOLE_SUB_PRIORITY)
+        #define _CONSOLE_SUB_PRIORITY                0
     #endif
 // #elif defined ( XXXX RTOS )
 // bare-metal
 #else
-    #if !defined( _CONSOLE_PREEMPTION_PRIORITY)
-        #define _CONSOLE_PREEMPTION_PRIORITY     20
+    #if !defined(_CONSOLE_PREEMPTION_PRIORITY)
+        #define _CONSOLE_PREEMPTION_PRIORITY        20
     #endif
-    #if !defined( _CONSOLE_SUB_PRIORITY)
-        #define _CONSOLE_SUB_PRIORITY             0
+    #if !defined(_CONSOLE_SUB_PRIORITY)
+        #define _CONSOLE_SUB_PRIORITY                0
     #endif
 #endif
 // clang-format on

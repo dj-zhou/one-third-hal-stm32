@@ -1,4 +1,3 @@
-
 #include "crc-soft.h"
 #include <stdint.h>
 #include <stdio.h>
@@ -80,7 +79,7 @@ static uint16_t CRC16_IBM(uint8_t const* data, int len) {
 }
 
 // ============================================================================
-uint16_t CRC16_8Bit_Software_Calc(uint8_t* data, uint16_t len, uint8_t method) {
+uint16_t Calculate_CRC16(uint8_t* data, uint16_t len, uint8_t method) {
     uint16_t ret = 0;
     switch (method) {
     case 1:
@@ -150,7 +149,7 @@ static uint32_t crc_table[256] = {
 };
 
 // ============================================================================
-static uint32_t CRC32_Calculate(uint8_t* data, uint16_t len) {
+static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
     uint32_t ret  = 0xFFFFFFFF;
     uint32_t temp = 0;
 
@@ -166,11 +165,12 @@ static uint32_t CRC32_Calculate(uint8_t* data, uint16_t len) {
 }
 
 // ============================================================================
-// variable
+// clang-format off
 CrcSoftApi_t crc_soft = {
-    .calculate8bitCrc16  = CRC16_8Bit_Software_Calc,
-    .calculate8bitCrc32  = CRC32_Calculate,
-    .calculate32bitCrc32 = NULL,
+    .calculate8bitCrc16  = Calculate_CRC16 ,
+    .calculate8bitCrc32  = Calculate_CRC32 ,
+    .calculate32bitCrc32 = NULL            ,
 };
+// clang-format on
 
 // ============================================================================

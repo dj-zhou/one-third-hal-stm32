@@ -21,115 +21,116 @@ volatile uint32_t cli_suspend_second_ = 0;
 // ============================================================================
 // constant values used accros the file -------------
 // clang-format off
- #if defined( _STIME_USE_SYSTICK )
-    #if defined( _STIME_4K_TICK )
-        #define    SYSTICK_1S_OVERFLOW     4000
-        #define    SYSTICK_MS_SCALE         250
-    #elif defined( _STIME_2K_TICK )
-        #define    SYSTICK_1S_OVERFLOW     2000
-        #define    SYSTICK_MS_SCALE         500
-    #elif defined( _STIME_1K_TICK )
-        #define    SYSTICK_1S_OVERFLOW     1000
-        #define    SYSTICK_MS_SCALE        1000
-    #elif defined( _STIME_500_TICK )
-        #define    SYSTICK_1S_OVERFLOW      500
-        #define    SYSTICK_MS_SCALE        2000
-    #elif defined( _STIME_400_TICK )
-        #define    SYSTICK_1S_OVERFLOW      400
-        #define    SYSTICK_MS_SCALE        2500
-    #elif defined( _STIME_200_TICK )
-        #define    SYSTICK_1S_OVERFLOW      200
-        #define    SYSTICK_MS_SCALE        5000
+#if defined(_STIME_USE_SYSTICK)
+    #if defined(_STIME_4K_TICK)
+        #define SYSTICK_1S_OVERFLOW     4000
+        #define SYSTICK_MS_SCALE         250
+    #elif defined(_STIME_2K_TICK)
+        #define SYSTICK_1S_OVERFLOW     2000
+        #define SYSTICK_MS_SCALE         500
+    #elif defined(_STIME_1K_TICK)
+        #define SYSTICK_1S_OVERFLOW     1000
+        #define SYSTICK_MS_SCALE        1000
+    #elif defined(_STIME_500_TICK)
+        #define SYSTICK_1S_OVERFLOW      500
+        #define SYSTICK_MS_SCALE        2000
+    #elif defined(_STIME_400_TICK)
+        #define SYSTICK_1S_OVERFLOW      400
+        #define SYSTICK_MS_SCALE        2500
+    #elif defined(_STIME_200_TICK)
+        #define SYSTICK_1S_OVERFLOW      200
+        #define SYSTICK_MS_SCALE        5000
     #endif
 #endif
 // STM32F030x8 uses 48 MHz system clock
-#if defined( STM32F030x8 )
-    #if defined( _STIME_USE_SYSTICK )
-        #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    1500
-        #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    3000
-        #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    6000
-        #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_RELOAD_VALUE   12000
-        #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_RELOAD_VALUE   15000
-        #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_RELOAD_VALUE   30000
+#if defined(STM32F030x8)
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE  1500
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE  3000
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE  6000
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE 12000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE 15000
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE 30000
         #endif
     #endif
 // STM32F103xB uses 72 MHz system clock
 // STM32F107xC uses 72 MHz system clock
 // STM32F303xE uses 72 MHz system clock
-#elif defined( STM32F103xB ) || defined( STM32F107xC )|| defined( STM32F303xE )
-    #if defined( _STIME_USE_SYSTICK )
-        #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    2250
-        #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    4500
-        #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    9000
-        #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_RELOAD_VALUE   18000
-        #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_RELOAD_VALUE   22500
-        #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_RELOAD_VALUE   45000
+#elif defined(STM32F103xB) || defined(STM32F107xC) || defined(STM32F303xE)
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE  2250
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE  4500
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE  9000
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE 18000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE 22500
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE 45000
         #endif
     #endif
 // STM32F407 uses 168 MHz system clock
-#elif defined( STM32F407xx )
-    #if defined( _STIME_USE_SYSTICK )
-        #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    5250
-        #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   10500
-        #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   21000
-        #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_RELOAD_VALUE   42000
-        #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_RELOAD_VALUE   52500
-        #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_RELOAD_VALUE  105000
+#elif defined(STM32F407xx)
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE   5250
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE  10500
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE  21000
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE  42000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE  52500
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE 105000
         #endif
     #endif
 // STM32F427 uses 180 MHz system clock
-#elif defined( STM32F427xx )
-    #if defined( _STIME_USE_SYSTICK )
-        #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    5625
-        #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   11250
-        #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   22500
-        #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_RELOAD_VALUE   45000
-        #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_RELOAD_VALUE   56250
-        #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_RELOAD_VALUE  112500
+#elif defined(STM32F427xx)
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE   5625
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE  11250
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE  22500
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE  45000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE  56250
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE 112500
         #endif
     #endif
 // STM32F746 uses 216 MHz system clock
 // STM32F767 uses 216 MHz system clock
-#elif defined( STM32F746xx ) || defined( STM32F767xx )
-    #if defined( _STIME_USE_SYSTICK )
-        #if defined( _STIME_4K_TICK )
-            #define    SYSTICK_RELOAD_VALUE    6750
-        #elif defined( _STIME_2K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   13500
-        #elif defined( _STIME_1K_TICK )
-            #define    SYSTICK_RELOAD_VALUE   27000
-        #elif defined( _STIME_500_TICK )
-            #define    SYSTICK_RELOAD_VALUE   54000
-        #elif defined( _STIME_400_TICK )
-            #define    SYSTICK_RELOAD_VALUE   67500
-        #elif defined( _STIME_200_TICK )
-            #define    SYSTICK_RELOAD_VALUE  135000
+#elif defined(STM32F746xx) || defined(STM32F767xx)
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE   6750
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE  13500
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE  27000
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE  54000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE  67500
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE 135000
         #endif
     #endif
+// #elif ...
 #endif
 // clang-format on
 
@@ -158,6 +159,28 @@ static Stime_t GetSysTickTime(void) {
 }
 
 // ----------------------------------------------------------------------------
+static Stime_t tic_, toc_;
+static void    stimeTic(void) {
+    tic_ = GetSysTickTime();
+}
+
+// ----------------------------------------------------------------------------
+static void stimeToc(char* mu, char* message) {
+    toc_ = GetSysTickTime();
+    long time;
+    if (strcmp(mu, "ms") == 0) {
+        time = (toc_.s - tic_.s) * 1000 + (toc_.us - tic_.us) / 1000;
+        console.printf("%s consumes %ld ms.\r\n", message, time);
+        return;
+    }
+    if (strcmp(mu, "us") == 0) {
+        time = (toc_.s - tic_.s) * 1000000 + (toc_.us - tic_.us);
+        console.printf("%s consumes %ld us.\r\n", message, time);
+        return;
+    }
+}
+
+// ----------------------------------------------------------------------------
 // accurate now. but sometimes loose one tick?
 static void DelayUs(uint32_t us) {
     if (us <= 0) {
@@ -171,9 +194,9 @@ static void DelayUs(uint32_t us) {
         cur_time.us = tick_ * SYSTICK_MS_SCALE
                       + (SYSTICK_RELOAD_VALUE - SysTick->VAL) / 9;
         cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
-        // make sure it is not optimized
+
         for (uint8_t i = 0; i < 2; i++) {
-            __asm("MOV R0,R0");
+            __asm("MOV R0,R0");  // make sure it is not optimized
         }
     } while (cur_us <= final_us);
 }
@@ -220,7 +243,7 @@ static void TasksMark(void) {
 // ----------------------------------------------------------------------------
 static uint32_t IntervalToTicks(uint32_t interval_ms) {
     uint32_t ticks;
-#if (defined _STIME_4K_TICK)
+#if defined(_STIME_4K_TICK)
     if (interval_ms == _1_TICK) {
         ticks = 1;
     }
@@ -235,7 +258,7 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
     }
 #endif
 
-#if (defined _STIME_2K_TICK)
+#if defined(_STIME_2K_TICK)
     if (interval_ms == _1_TICK) {
         ticks = 1;
     }
@@ -244,19 +267,19 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
     }
 #endif
 
-#if (defined _STIME_1K_TICK)
+#if defined(_STIME_1K_TICK)
     ticks = interval_ms;
 #endif
 
-#if (defined _STIME_500_TICK)
+#if defined(_STIME_500_TICK)
     ticks = interval_ms / 2;
 #endif
 
-#if (defined _STIME_400_TICK)
+#if defined(_STIME_400_TICK)
     ticks = (uint32_t)(interval_ms / 2.5);
 #endif
 
-#if (defined _STIME_200_TICK)
+#if defined(_STIME_200_TICK)
     ticks = interval_ms / 5;
 #endif
 
@@ -314,17 +337,17 @@ static void SchedulerShowTasks(void) {
 
     CONSOLE_PRINTF_SEG;
     console.printk(0, " Stime Task Scheduler (");
-#if (defined _STIME_4K_TICK)
+#if defined(_STIME_4K_TICK)
     console.printk(0, "4K Hz tick)");
-#elif (defined _STIME_2K_TICK)
+#elif defined(_STIME_2K_TICK)
     console.printk(0, "2K Hz tick)");
-#elif (defined _STIME_1K_TICK)
+#elif defined(_STIME_1K_TICK)
     console.printk(0, "1K Hz tick)");
-#elif (defined _STIME_500_TICK)
+#elif defined(_STIME_500_TICK)
     console.printk(0, "500 Hz tick)");
-#elif (defined _STIME_400_TICK)
+#elif defined(_STIME_400_TICK)
     console.printk(0, "400 Hz tick)");
-#elif (defined _STIME_200_TICK)
+#elif defined(_STIME_200_TICK)
     console.printk(0, "200 Hz tick)");
 #endif
     if (task_num_ == 0) {
@@ -389,6 +412,8 @@ StimeApi_t stime = {
 #if defined( _STIME_USE_SYSTICK )
     .config   = InitSysTick   ,
     .getTime  = GetSysTickTime,
+    .tic      = stimeTic      ,
+    .toc      = stimeToc      ,
     .delay.us = DelayUs       ,
     .delay.ms = DelayMs       ,
 #else

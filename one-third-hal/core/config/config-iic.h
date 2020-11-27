@@ -11,39 +11,39 @@ uint8_t g_config_iic_used;
 // todo
 
 // special ones ---------------
-# if defined( STM32F030x8 )
+#if defined(STM32F030x8)
     #define IIC2_EXISTS
 #endif
 
-# if defined( STM32F103xB )
+#if defined(STM32F103xB)
     #define IIC2_EXISTS
 #endif
 
-# if defined( STM32F107xC )
+#if defined(STM32F107xC)
 #endif
 
-# if defined( STM32F303xE )
-    #define IIC2_EXISTS
-    #define IIC3_EXISTS
-#endif
-
-# if defined( STM32F407xx )
+#if defined(STM32F303xE)
     #define IIC2_EXISTS
     #define IIC3_EXISTS
 #endif
 
-# if defined( STM32F427xx )
+#if defined(STM32F407xx)
     #define IIC2_EXISTS
     #define IIC3_EXISTS
 #endif
 
-# if defined( STM32F746xx )
+#if defined(STM32F427xx)
+    #define IIC2_EXISTS
+    #define IIC3_EXISTS
+#endif
+
+#if defined(STM32F746xx)
     #define IIC2_EXISTS
     #define IIC3_EXISTS
     #define IIC4_EXISTS
 #endif
 
-# if defined( STM32F767xx )
+#if defined(STM32F767xx)
     #define IIC2_EXISTS
     #define IIC3_EXISTS
     #define IIC4_EXISTS

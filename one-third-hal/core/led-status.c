@@ -300,8 +300,10 @@ static void LedHeartBeatPwmConfig(void) {
 // ============================================================================
 // should add error mode as an argument as well
 static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
-    ( void )htim_;       // to avoid compile error
-    ( void )pwm_alter_;  // to avoid compile error
+    ( void )LedToggleError;      // to avoid compile error
+    ( void )LedToggleHeartBeat;  // to avoid compile error
+    ( void )htim_;               // to avoid compile error
+    ( void )pwm_alter_;          // to avoid compile error
     heartbeat_mode_ = heatbeat_mode;
     // some assert
     if ((_LED_HEARTBEAT_PIN > 15) || (_LED_ERROR_PIN > 15)) {
@@ -334,7 +336,7 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
 // clang-format off
 LedStatusApi_t led = {
     .config          = LedGpioConfig     ,
-    .toggleHeartBeat = LedToggleHeartBeat, // should be removed
-    .toggleError     = LedToggleError    , // should be removed
+    // .toggleHeartBeat = LedToggleHeartBeat, // should be removed
+    // .toggleError     = LedToggleError    , // should be removed
 };
 // clang-format on

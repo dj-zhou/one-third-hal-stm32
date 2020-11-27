@@ -15,42 +15,35 @@ extern "C" {
 // ============================================================================
 // clang-format off
 // ----------------------------------------------------------------------------
-#if defined( IIC1_EXISTS )
-    #if defined( _USE_IIC1_PB6PB7 ) \
-     || defined( _USE_IIC1_PB8PB9 ) \
-     || defined( _USE_IIC1_PB6PB9 )
+#if defined(IIC1_EXISTS)
+    #if defined(_USE_IIC1_PB6PB7) || defined(_USE_IIC1_PB8PB9) \
+        || defined(_USE_IIC1_PB6PB9)
         #define IIC1_IS_USED
     #endif
 #endif
 
-#if defined( IIC2_EXISTS )
-    #if defined( _USE_IIC2_PB10PB11 ) \
-     || defined( _USE_IIC2_PF1PF0 )   \
-     || defined( _USE_IIC2_PH4PH5 )
+#if defined(IIC2_EXISTS)
+    #if defined(_USE_IIC2_PB10PB11) || defined(_USE_IIC2_PF1PF0) \
+        || defined(_USE_IIC2_PH4PH5)
         #define IIC2_IS_USED
     #endif
 #endif
 
-#if defined( IIC3_EXISTS )
-    #if defined( _USE_IIC3_PA8PC9 ) \
-     || defined( _USE_IIC3_PH7PH8 )
+#if defined(IIC3_EXISTS)
+    #if defined(_USE_IIC3_PA8PC9) || defined(_USE_IIC3_PH7PH8)
         #define IIC3_IS_USED
     #endif
 #endif
 
-#if defined( IIC4_EXISTS )
-    #if defined( _USE_IIC4_PD12PD13 ) \
-     || defined( _USE_IIC4_PF1PF0 )   \
-     || defined( _USE_IIC4_PF14PF15 ) \
-     || defined( _USE_IIC4_PH11PH12 )
+#if defined(IIC4_EXISTS)
+    #if defined(_USE_IIC4_PD12PD13) || defined(_USE_IIC4_PF1PF0) \
+        || defined(_USE_IIC4_PF14PF15) || defined(_USE_IIC4_PH11PH12)
         #define IIC4_IS_USED
     #endif
 #endif
 
-
-
-#if defined( IIC1_IS_USED ) || defined( IIC2_IS_USED ) \
- || defined( IIC3_IS_USED ) || defined( IIC4_IS_USED )
+#if defined(IIC1_IS_USED) || defined(IIC2_IS_USED) || defined(IIC3_IS_USED) \
+    || defined(IIC4_IS_USED)
     #define IIC_IS_USED
 #endif
 // clang-format on
@@ -72,19 +65,19 @@ typedef struct {
 
 // clang-format off
 // ----------------------------------------------------------------------------
-#if defined( IIC1_EXISTS ) && defined( IIC1_IS_USED )
+#if defined(IIC1_EXISTS) && defined(IIC1_IS_USED)
     extern IicApi_t iic1;
 #endif
 
-#if defined( IIC2_EXISTS ) && defined( IIC2_IS_USED )
+#if defined(IIC2_EXISTS) && defined(IIC2_IS_USED)
     extern IicApi_t iic2;
 #endif
 
-#if defined( IIC3_EXISTS ) && defined( IIC3_IS_USED )
+#if defined(IIC3_EXISTS) && defined(IIC3_IS_USED)
     extern IicApi_t iic3;
 #endif
 
-#if defined( IIC4_EXISTS ) && defined( IIC4_IS_USED )
+#if defined(IIC4_EXISTS) && defined(IIC4_IS_USED)
     extern IicApi_t iic4;
 #endif
 

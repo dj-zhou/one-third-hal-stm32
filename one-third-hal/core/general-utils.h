@@ -77,15 +77,15 @@ extern "C" {
 // FreeRTOS must use any of these two macros --------------------
 // configUSE_TIME_SLICING
 // configUSE_PREEMPTION
-#if defined( configUSE_TIME_SLICING ) || defined( configUSE_PREEMPTION )
-    #if !defined( RTOS_USE_FREERTOS )
+#if defined(configUSE_TIME_SLICING) || defined(configUSE_PREEMPTION)
+    #if !defined(RTOS_USE_FREERTOS)
         #define RTOS_USE_FREERTOS
     #endif
 #endif
 // some other RTOS related macros list here
 
 // other RTOS can be added behind
-#if defined( RTOS_USE_FREERTOS )
+#if defined(RTOS_USE_FREERTOS)
     #define RTOS_IS_USED
 #endif
 // clang-format on
@@ -128,19 +128,16 @@ typedef struct {
 } Pin;
 
 // ============================================================================
-// component API
-// clang-format off
 typedef struct {
-    System system  ;
-    Clock  clock   ;
-    Pin    pin     ;
-#if defined( RTOS_IS_USED )
-    Rtos  rtos     ;
+    System system;
+    Clock  clock;
+    Pin    pin;
+#if defined(RTOS_IS_USED)
+    Rtos rtos;
 #endif
-} CoreUtilsApi_t;
+} UtilsApi_t;
 
-extern CoreUtilsApi_t utils;
-// clang-format on
+extern UtilsApi_t utils;
 
 // ============================================================================
 #ifdef __cplusplus

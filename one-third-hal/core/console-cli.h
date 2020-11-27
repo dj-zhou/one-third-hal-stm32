@@ -8,20 +8,20 @@ extern "C" {
 #include "uart-console.h"
 
 // clang-format off
-#if !defined( _CLI_CMD_MAX_LEN )
-    #define _CLI_CMD_MAX_LEN            ( 30 )
+#if !defined(_CLI_CMD_MAX_LEN)
+    #define _CLI_CMD_MAX_LEN        (30)
 #endif
 
-#if !defined( _CLI_CMD_MAX_NUM )
-    #define _CLI_CMD_MAX_NUM            ( 20 )
+#if !defined(_CLI_CMD_MAX_NUM)
+    #define _CLI_CMD_MAX_NUM        (20)
 #endif
 
-#if !defined( _CLI_HISTORY_CMD_NUM )
-    #define _CLI_HISTORY_CMD_NUM        ( 5 )
+#if !defined(_CLI_HISTORY_CMD_NUM)
+    #define _CLI_HISTORY_CMD_NUM    (5)
 #endif
 
-#if !defined( _CLI_CMD_PARAM_MAX_NUM )
-    #define _CLI_CMD_PARAM_MAX_NUM      ( 20 )
+#if !defined(_CLI_CMD_PARAM_MAX_NUM)
+    #define _CLI_CMD_PARAM_MAX_NUM  (20)
 #endif
 // clang-format on
 

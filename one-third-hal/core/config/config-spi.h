@@ -4,6 +4,7 @@
 #include "config.h"
 
 uint8_t g_config_spi_used;
+
 // clang-format off
 
 // commonly existed ones -------------
@@ -12,31 +13,31 @@ uint8_t g_config_spi_used;
 // todo
 
 // special ones ---------------
-# if defined( STM32F107xC )
+#if defined(STM32F107xC)
     #define SPI3_EXISTS
 #endif
 
-# if defined( STM32F303xE )
+#if defined(STM32F303xE)
     #define SPI3_EXISTS
 #endif
 
-# if defined( STM32F407xx )
+#if defined(STM32F407xx)
     #define SPI3_EXISTS
 #endif
 
-# if defined( STM32F427xx )
+#if defined(STM32F427xx)
     #define SPI3_EXISTS
     #define SPI4_EXISTS
 #endif
 
-# if defined( STM32F746xx )
+#if defined(STM32F746xx)
     #define SPI3_EXISTS
     #define SPI4_EXISTS
     #define SPI5_EXISTS
     #define SPI6_EXISTS
 #endif
 
-# if defined( STM32F767xx )
+#if defined(STM32F767xx)
     #define SPI3_EXISTS
     #define SPI4_EXISTS
     #define SPI5_EXISTS

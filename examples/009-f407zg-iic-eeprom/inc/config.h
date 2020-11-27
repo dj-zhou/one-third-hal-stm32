@@ -36,7 +36,7 @@ extern "C" {
 #define _USE_IIC1_PB8PB9
 #include "iic.h"
 #define _EEPROM_USE_AT24C08
-#define _AT24CXX_ON_IIC1
+#define _AT24C08_ON_IIC1
 #include "iic-eeprom.h"
 
 // ============================================================================

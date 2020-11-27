@@ -12,47 +12,44 @@ extern "C" {
 
 // clang-format off
 // can use some other timers for stime ---------------
-#if defined( _STIME_USE_SYSTICK )
+#if defined(_STIME_USE_SYSTICK)
     #define STIME_IS_USED
 #endif
 
 // priority ---------------
-#if defined( _STIME_USE_SYSTICK )
-    #if !defined( _SYSTICK_PREEMPTION_PRIORITY )
-        #define _SYSTICK_PREEMPTION_PRIORITY     1
+#if defined(_STIME_USE_SYSTICK)
+    #if !defined(_SYSTICK_PREEMPTION_PRIORITY)
+        #define _SYSTICK_PREEMPTION_PRIORITY    1
     #endif
-    #if !defined(_SYSTICK_SUB_PRIORITY )
-        #define _SYSTICK_SUB_PRIORITY            0
+    #if !defined(_SYSTICK_SUB_PRIORITY)
+        #define _SYSTICK_SUB_PRIORITY           0
     #endif
 #endif
 
 // tick frequency ---------------
 // 200Hz, 400Hz, 500Hz, 1KHz, 2KHz, and 4KHz
-#if !defined( _STIME_4K_TICK )  && \
-    !defined( _STIME_2K_TICK )  && \
-    !defined( _STIME_1K_TICK )  && \
-    !defined( _STIME_500_TICK ) && \
-    !defined( _STIME_400_TICK ) && \
-    !defined( _STIME_200_TICK )
+#if !defined(_STIME_4K_TICK) && !defined(_STIME_2K_TICK)     \
+    && !defined(_STIME_1K_TICK) && !defined(_STIME_500_TICK) \
+    && !defined(_STIME_400_TICK) && !defined(_STIME_200_TICK)
     #define _STIME_1K_TICK
 #endif
 
 // use task scheduler -----------------
-#if defined( _STIME_USE_SCHEDULER )
-    #if !defined( _STIME_TASK_MAX_NUM )
-        #define _STIME_TASK_MAX_NUM     15
+#if defined(_STIME_USE_SCHEDULER)
+    #if !defined(_STIME_TASK_MAX_NUM)
+        #define _STIME_TASK_MAX_NUM         15
     #endif
-    #if !defined( _STIME_TASK_NAME_LEN )
-        #define _STIME_TASK_NAME_LEN    20
+    #if !defined(_STIME_TASK_NAME_LEN)
+        #define _STIME_TASK_NAME_LEN        20
     #endif
-    #if defined( _STIME_4K_TICK )
-        #define _1_TICK   (UINT32_MAX - 1)
-        #define _2_TICK   (UINT32_MAX - 2)
-        #define _3_TICK   (UINT32_MAX - 3)
-    #endif
-    #if defined( _STIME_2K_TICK )
-        #define _1_TICK   (UINT32_MAX - 4)
-    #endif
+#if defined(_STIME_4K_TICK)
+    #define _1_TICK (UINT32_MAX - 1)
+    #define _2_TICK (UINT32_MAX - 2)
+    #define _3_TICK (UINT32_MAX - 3)
+#endif
+#if defined(_STIME_2K_TICK)
+    #define _1_TICK (UINT32_MAX - 4)
+#endif
 #endif  // _STIME_USE_SCHEDULER
 // clang-format on
 
@@ -84,35 +81,34 @@ typedef struct TaskNode_s {
 #endif  // STIME_IS_USED
 
 // ============================================================================
-// component API
-// clang-format off
-#if defined( STIME_IS_USED )
+#if defined(STIME_IS_USED)
 typedef struct {
-    void ( *us ) ( uint32_t );
-    void ( *ms )  (uint32_t );
+    void (*us)(uint32_t);
+    void (*ms)(uint32_t);
 } Delay;
 
-#if defined( _STIME_USE_SCHEDULER )
-typedef struct  {
-    void ( *config )( void )                                      ;
-    void ( *attach )( uint32_t, uint32_t, TaskHandle, const char*);
-    void ( *show )( void )                                        ;
-    void ( *run )( void )                                         ;
-    void ( *cliSuspend )( uint32_t )                              ;
+#if defined(_STIME_USE_SCHEDULER)
+typedef struct {
+    void (*config)(void);
+    void (*attach)(uint32_t, uint32_t, TaskHandle, const char*);
+    void (*show)(void);
+    void (*run)(void);
+    void (*cliSuspend)(uint32_t);
 } Scheduler;
 #endif
 
 typedef struct {
-    void      ( *config )( void )     ;
-    Stime_t   ( *getTime )( void )    ;
-    Delay     delay                   ;
-#if defined( _STIME_USE_SCHEDULER )
-    Scheduler  scheduler              ;
+    void (*config)(void);
+    Stime_t (*getTime)(void);
+    void (*tic)(void);
+    void (*toc)(char*, char*);
+    Delay delay;
+#if defined(_STIME_USE_SCHEDULER)
+    Scheduler scheduler;
 #endif
 } StimeApi_t;
 extern StimeApi_t stime;
-#endif // STIME_IS_USED
-// clang-format on
+#endif  // STIME_IS_USED
 
 // ============================================================================
 #ifdef __cplusplus

@@ -12,17 +12,17 @@
 #define GPIOD_EXISTS
 
 // special ones ---------------
-# if defined( STM32F107xC )
+#if defined(STM32F107xC)
     #define GPIOE_EXISTS
 #endif
 
-# if defined( STM32F303xE )
-    #define GPIOE_EXISTS // not sure
+#if defined(STM32F303xE)
+    #define GPIOE_EXISTS  // not sure
     #define GPIOF_EXISTS
 #endif
 
-# if defined( STM32F407xx ) || defined (STM32F427xx) \
-  || defined( STM32F746xx ) || defined( STM32F767xx )
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
     #define GPIOE_EXISTS
     #define GPIOF_EXISTS
     #define GPIOG_EXISTS

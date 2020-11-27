@@ -1,4 +1,3 @@
-
 #ifndef __IIC_EEPROM_H
 #define __IIC_EEPROM_H
 
@@ -8,74 +7,82 @@
 #include <stdint.h>
 
 // ============================================================================
-#if defined(_AT24CXX_ON_IIC1)
-#define EEPROM_IIC iic1
-#endif
-#if defined(_AT24CXX_ON_IIC2)
-#define EEPROM_IIC iic2
-#endif
-#if defined(_AT24CXX_ON_IIC3)
-#define EEPROM_IIC iic3
-#endif
-
-// ============================================================================
-// note:
-// this file only works for 24cxx EEPROM chip, and only tested with
-// 24LC08BT-I/OT (sot-23-5)
-
-// ============================================================================
-// EEPROM 24LC08BT-I/OT has 1024 bytes of space, device address is (0xA0 | (0x01
-// << 3)) = 0xA8
-//      device address           offset address
-//  block 0    0xA8                     0 - 255
-//  block 1    0xAA                     0 - 255
-//  block 2    0xAC                     0 - 255
-//  block 3    0xAE                     0 - 255
-// however, the chip only support for reading 16 bytes (in one block) at once
-// notice, EEPROM chip will take some time (50ms?) to write data into memory, so
-// after writing, it is better to wait for some time to do the reading operation
-
-// ============================================================================
-// other similar devices
-// #define EEPROM_AT24C01         128
-// #define EEPROM_AT24C02         256
-// #define EEPROM_AT24C04         512
-// #define EEPROM_AT24C08         1024
-// #define EEPROM_AT24C16         2048
-// #define EEPROM_AT24C32         4096
-// #define EEPROM_AT24C64         8192
-// #define EEPROM_AT24C128        16384
-// #define EEPROM_AT24C256        32768
-
-// ============================================================================
 // clang-format off
-#if defined( _EEPROM_USE_AT24C08 )  // || other eeprom
+#if defined(_EEPROM_USE_AT24C08)  // || other eeprom
     #define EEPROM_IS_USED
 #endif
 
-// ----------------------------------------------------------------------------
-// chip specific macros
-#if defined( _EEPROM_USE_AT24C08 )
-    #define    EEPROM_TOTAL_BYTE_NUM    1024
-    #define    EEPROM_BLOCK_SIZE         256
-    #define    EEPROM_PAGE_SIZE           16
-    #define    EEPROM_FIRST_BLOCK_ADDR  ( 0xA0 | ( 0x01 << 3 ) )
-    #define    EEPROM_BLOCK_ADDR_DIFF   0x02  // not used??
+#if defined(_AT24C08_ON_IIC1)
+    #define EEPROM_IIC iic1
+#endif
+#if defined(_AT24C08_ON_IIC2)
+    #define EEPROM_IIC iic2
+#endif
+#if defined(_AT24C08_ON_IIC3)
+    #define EEPROM_IIC iic3
+#endif
+
+#if !defined(_AT24C08_ON_IIC1) && !defined(_AT24C08_ON_IIC2) \
+    && !defined(_AT24C08_ON_IIC3)
+    #error iic-eeprom: eeprom device should be on one of the iic ports!
 #endif
 // clang-format on
 
 // ============================================================================
+// note:
+// this file only works for 24cxx EEPROM chip, and only tested with
+// 24LC08BT-I/OT (SOT-23-5)
+
+// ============================================================================
+// EEPROM 24LC08BT-I/OT has 1024 bytes of space, device address is (0xA0 | (0x01
+// << 3)) = 0xA8
+//      device address       offset address
+//  block 0    0xA8                 0 - 255
+//  block 1    0xAA                 0 - 255
+//  block 2    0xAC                 0 - 255
+//  block 3    0xAE                 0 - 255
+// however, the chip only support for reading 16 bytes (in one block) at once
+
+// ============================================================================
+//  similar devices and their storage space (bytes)
+// EEPROM_AT24C01           128
+// EEPROM_AT24C02           256
+// EEPROM_AT24C04           512
+// EEPROM_AT24C08          1024
+// EEPROM_AT24C16          2048
+// EEPROM_AT24C32          4096
+// EEPROM_AT24C64          8192
+// EEPROM_AT24C128        16384
+// EEPROM_AT24C256        32768
+
+// ============================================================================
+// clang-format off
+
+// ----------------------------------------------------------------------------
+// chip specific macros
+#if defined(_EEPROM_USE_AT24C08)
+    #define EEPROM_TOTAL_BYTE_NUM   1024
+    #define EEPROM_BLOCK_SIZE        256
+    #define EEPROM_PAGE_SIZE          16
+    #define EEPROM_FIRST_BLOCK_ADDR  (0xA0 | (0x01 << 3))
+    #define EEPROM_BLOCK_ADDR_DIFF  0x02  // not used??
+#endif
+// clang-format on
+
+// ============================================================================
+// clang-format off
 #if !defined(_EEPROM_NODE_MAX_NUM)
-#define _EEPROM_NODE_MAX_NUM 50
+    #define _EEPROM_NODE_MAX_NUM        10
 #endif
 
 #if !defined(_EEPROM_NODE_START_ADDR)
-#define _EEPROM_NODE_START_ADDR 0
+    #define _EEPROM_NODE_START_ADDR      0
 #endif
 
 #if !defined(_EEPROM_NODE_MAX_READ_TIME)
-#define _EEPROM_NODE_MAX_READ_TIME 5
+    #define _EEPROM_NODE_MAX_READ_TIME   5
 #endif
+// clang-format on
 
 // ============================================================================
 #ifdef EEPROM_IS_USED
@@ -159,18 +166,30 @@
      || ((key) == EEPROM_KEY_47) || ((key) == EEPROM_KEY_48) \
      || ((key) == EEPROM_KEY_49) || ((key) == EEPROM_KEY_50))
 
+typedef struct {
+    uint8_t (*byte)(uint16_t);
+    void (*bytes)(uint16_t, uint8_t*, uint16_t);
+} EepromRead;
+
+typedef struct {
+    void (*byte)(uint16_t, uint8_t);
+    void (*bytes)(uint16_t, uint8_t*, uint16_t);
+} EepromWrite;
+
+typedef struct {
+    void (*attach)(uint8_t*, uint16_t);
+    void (*read)(uint8_t*, uint16_t);
+    void (*write)(uint8_t*, uint16_t);
+    void (*show)(void);
+} EepromNodeOperation;
+
 // ============================================================================
 // clang-format off
 typedef struct {
-    void    ( *config )( void )                             ;
-    uint8_t ( *readByte )( uint16_t )                       ;
-    void    ( *writeByte )( uint16_t, uint8_t )             ;
-    void    ( *readNbytes )( uint16_t, uint8_t*, uint16_t ) ;
-    void    ( *writeNbytes )( uint16_t, uint8_t*, uint16_t );
-    void    ( *attachNode )( uint8_t*, uint16_t )           ;
-    void    ( *readNode )( uint8_t*, uint16_t )             ;
-    void    ( *writeNode )( uint8_t*, uint16_t )            ;
-    void    ( *show )( void )                               ;
+    void      (*config)(void)  ;
+    EepromRead           read  ;
+    EepromWrite          write ;
+    EepromNodeOperation  node  ;
 } EepromApi_t;
 // clang-format on
 extern EepromApi_t eeprom;

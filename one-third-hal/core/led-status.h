@@ -15,28 +15,28 @@ extern "C" {
 
 // ============================================================================
 // clang-format off
-#if !defined( _LED_HEARTBEAT_PORT )
-    #define    _LED_HEARTBEAT_PORT      GPIOD
+#if !defined(_LED_HEARTBEAT_PORT)
+    #define _LED_HEARTBEAT_PORT     GPIOD
 #endif
 
-#if !defined( _LED_HEARTBEAT_PIN )
-    #define     _LED_HEARTBEAT_PIN      ( 3 )
+#if !defined(_LED_HEARTBEAT_PIN)
+    #define _LED_HEARTBEAT_PIN      (3)
 #endif
 
-#if !defined( _LED_ERROR_PORT )
-    #define    _LED_ERROR_PORT          GPIOD
+#if !defined(_LED_ERROR_PORT)
+    #define _LED_ERROR_PORT         GPIOD
 #endif
 
-#if !defined( _LED_ERROR_PIN )
-    #define    _LED_ERROR_PIN           ( 4 )
+#if !defined(_LED_ERROR_PIN)
+    #define _LED_ERROR_PIN          (4)
 #endif
 
-#if !defined( _LED_HIGH_DRIVE ) || !defined( _LED_LOW_DRIVE )
-    #define    _LED_HIGH_DRIVE
+#if !defined(_LED_HIGH_DRIVE) || !defined(_LED_LOW_DRIVE)
+    #define _LED_HIGH_DRIVE
 #endif
 
-#if !defined( _LED_HEARTBEAT_TASK_MS )
-    #define    _LED_HEARTBEAT_TASK_MS     ( 10 )
+#if !defined(_LED_HEARTBEAT_TASK_MS)
+    #define _LED_HEARTBEAT_TASK_MS  (10)
 #endif
 // clang-format on
 
@@ -90,14 +90,12 @@ typedef enum {
 } LedError_e;
 
 // ============================================================================
-// clang-format off
 typedef struct {
-    void ( *config )( LedHeartBeat_e mode );
-    void ( *toggleHeartBeat )( void )      ; // should be removed
-    void ( *toggleError )( void )          ; // should be removed
+    void (*config)(LedHeartBeat_e mode);
+    // void (*toggleHeartBeat)(void);  // should be removed
+    // void (*toggleError)(void);      // should be removed
 } LedStatusApi_t;
 extern LedStatusApi_t led;
-// clang-format on
 
 // ============================================================================
 #ifdef __cplusplus
