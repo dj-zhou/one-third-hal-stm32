@@ -706,6 +706,7 @@ static void setPinAlter(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt) {
 #endif
 
 // ============================================================================
+// GPIO_NOPULL, GPIO_PULLUP, GPIO_PULLDOWN
 static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
     assert_param(IS_GPIO_PULL(p));
 
@@ -722,7 +723,7 @@ static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
 #else
 #error setPinPull(): need to implement and verify!
 #endif
-    GPIO_InitStructure.Mode = p;
+    GPIO_InitStructure.Pull = p;
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 
@@ -767,16 +768,16 @@ UtilsApi_t utils = {
     .clock.enableTimer = enableTimerClock ,
     .clock.enableUart  = enableUartClock  ,
     .pin.mode          = setPinMode       ,
-#if defined(STM32F407xx ) || defined( STM32F427xx ) || defined( STM32F746xx ) \
-    || defined( STM32F767xx )
-    .pin.alter         = setPinAlter      ,
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
+    .pin.alter = setPinAlter,
 #endif
-    .pin.pull          = setPinPull       ,
-    .pin.set           = setPin           ,
-    .pin.toggle        = togglePin        ,
-#if defined(RTOS_IS_USED )
-    .rtos.setState     = setRtosState     ,
-    .rtos.getState     = getRtosState     ,
+    .pin.pull   = setPinPull,
+    .pin.set    = setPin    ,
+    .pin.toggle = togglePin ,
+#if defined(RTOS_IS_USED)
+    .rtos.setState = setRtosState,
+    .rtos.getState = getRtosState,
 #endif
 };
 // clang-format on

@@ -80,7 +80,6 @@ typedef struct {
 #if defined(IIC4_EXISTS) && defined(IIC4_IS_USED)
     extern IicApi_t iic4;
 #endif
-
 // clang-format on
 
 // ============================================================================

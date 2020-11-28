@@ -32,7 +32,16 @@ uint8_t g_config_iic_used;
     #define IIC3_EXISTS
 #endif
 
+#if defined(STM32F410Rx)
+    #define IIC2_EXISTS
+#endif
+
 #if defined(STM32F427xx)
+    #define IIC2_EXISTS
+    #define IIC3_EXISTS
+#endif
+
+#if defined(STM32F446xx)
     #define IIC2_EXISTS
     #define IIC3_EXISTS
 #endif

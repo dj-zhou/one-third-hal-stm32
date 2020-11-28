@@ -29,6 +29,17 @@ uint16_t g_config_usart_used;
     #define USART6_EXISTS
 #endif
 
+#if defined(STM32F410Rx)
+    #define USART6_EXISTS
+#endif
+
+#if defined(STM32F446xx)
+    #define USART3_EXISTS
+    #define UART4_EXISTS
+    #define UART5_EXISTS
+    #define USART6_EXISTS
+#endif
+
 #if defined(STM32F427xx) || defined(STM32F746xx) || defined(STM32F767xx)
     #define USART3_EXISTS
     #define UART4_EXISTS

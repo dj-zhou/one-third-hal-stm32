@@ -123,21 +123,21 @@ typedef struct {
 // ============================================================================
 // clang-format off
 typedef struct {
-    LogLevel_e level                                         ;
-    void   ( *config )( uint32_t, uint8_t, char, uint8_t )   ;
-    void   ( *setTxMode )( ConsoleTx_e )                     ;
-    void   ( *enableRxen )( bool )                           ;
-    void   ( *setRxStatus ) (bool )                          ;
-    bool   ( *getRxStatus ) (void )                          ;
-    bool   ( *getRxen )( void )                              ;
-    void   ( *printk )( LogLevel_e level, char* format, ... );
-    void   ( *printf )( char* format, ... )                  ;
-    void   ( *error )( char* format, ... )                   ;
-    void   ( *writeByte )( char )                            ;
-    void   ( *writeStr )( char* )                            ;
-    char   ( *read )( uint16_t )                             ;
+    LogLevel_e level;
+    void (*config)(uint32_t, uint8_t, char, uint8_t)   ;
+    void (*setTxMode)(ConsoleTx_e)                     ;
+    void (*enableRxen)(bool)                           ;
+    void (*setRxStatus)(bool)                          ;
+    bool (*getRxStatus)(void)                          ;
+    bool (*getRxen)(void)                              ;
+    void (*printk)(LogLevel_e level, char* format, ...);
+    void (*printf)(char* format, ...)                  ;
+    void (*error)(char* format, ...)                   ;
+    void (*writeByte)(char)                            ;
+    void (*writeStr)(char*)                            ;
+    char (*read)(uint16_t)                             ;
     // command line interface
-    Cli     cli  ;
+    Cli cli;
 } Console_t;
 extern Console_t console;
 // clang-format on

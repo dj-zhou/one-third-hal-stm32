@@ -21,6 +21,10 @@
     #define GPIOF_EXISTS
 #endif
 
+#if defined(STM32F410Rx)
+    #define GPIOH_EXISTS
+#endif
+
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
     || defined(STM32F767xx)
     #define GPIOE_EXISTS

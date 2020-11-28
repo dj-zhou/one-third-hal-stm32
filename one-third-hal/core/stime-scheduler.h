@@ -37,19 +37,19 @@ extern "C" {
 // use task scheduler -----------------
 #if defined(_STIME_USE_SCHEDULER)
     #if !defined(_STIME_TASK_MAX_NUM)
-        #define _STIME_TASK_MAX_NUM         15
+        #define    _STIME_TASK_MAX_NUM         15
     #endif
     #if !defined(_STIME_TASK_NAME_LEN)
-        #define _STIME_TASK_NAME_LEN        20
+        #define    _STIME_TASK_NAME_LEN        20
     #endif
-#if defined(_STIME_4K_TICK)
-    #define _1_TICK (UINT32_MAX - 1)
-    #define _2_TICK (UINT32_MAX - 2)
-    #define _3_TICK (UINT32_MAX - 3)
-#endif
-#if defined(_STIME_2K_TICK)
-    #define _1_TICK (UINT32_MAX - 4)
-#endif
+    #if defined(_STIME_4K_TICK)
+        #define    _1_TICK    (UINT32_MAX - 1)
+        #define    _2_TICK    (UINT32_MAX - 2)
+        #define    _3_TICK    (UINT32_MAX - 3)
+    #endif
+    #if defined(_STIME_2K_TICK)
+        #define    _1_TICK    (UINT32_MAX - 4)
+    #endif
 #endif  // _STIME_USE_SCHEDULER
 // clang-format on
 
@@ -78,10 +78,8 @@ typedef struct TaskNode_s {
     struct TaskNode_s* _next;
 } TaskNode_t;
 #endif  // _STIME_USE_SCHEDULER
-#endif  // STIME_IS_USED
 
 // ============================================================================
-#if defined(STIME_IS_USED)
 typedef struct {
     void (*us)(uint32_t);
     void (*ms)(uint32_t);

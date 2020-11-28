@@ -76,7 +76,7 @@ typedef enum {
     LED_BEAT19       = 190,
     LED_BEAT20       = 200,  // on for 200 ms, off for 800 ms
     LED_DOUBLE_BLINK = 201,  // flash twice in a period of 1.5 second
-    LED_PWM_MODE     = 202,  // breathing light mode, TODO
+    LED_BREATH       = 202,  // breathing light mode, TODO
 } LedHeartBeat_e;
 
 // ============================================================================
@@ -92,8 +92,6 @@ typedef enum {
 // ============================================================================
 typedef struct {
     void (*config)(LedHeartBeat_e mode);
-    // void (*toggleHeartBeat)(void);  // should be removed
-    // void (*toggleError)(void);      // should be removed
 } LedStatusApi_t;
 extern LedStatusApi_t led;
 

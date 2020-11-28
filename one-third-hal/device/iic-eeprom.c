@@ -17,7 +17,7 @@ typedef struct EepromNode_s {
 
 // ============================================================================
 // ============================================================================
-#ifdef EEPROM_IS_USED
+#if defined(EEPROM_IS_USED)
 
 static EepromNode_t node_[_EEPROM_NODE_MAX_NUM];
 
@@ -290,4 +290,4 @@ EepromApi_t eeprom = {
 };
 // clang-format on
 
-#endif  // #ifdef EEPROM_IS_USED
+#endif  // EEPROM_IS_USED

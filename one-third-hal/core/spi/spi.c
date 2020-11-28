@@ -11,10 +11,16 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
     else {
         hspi->Init.Mode = SPI_MODE_SLAVE;
     }
-    hspi->Init.Direction   = SPI_DIRECTION_2LINES;
+    hspi->Init.Direction = SPI_DIRECTION_2LINES;
+    // 16 bits of data is not supported by HAL, so we will fix this option to
+    // 8 bits. 16 bits data transmission is however supported by this library
     hspi->Init.DataSize    = SPI_DATASIZE_8BIT;
     hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
-    hspi->Init.CLKPhase    = SPI_PHASE_1EDGE;
+#if defined(_SPI_SAMPLE_AT_FALLING_CLOCK)
+    hspi->Init.CLKPhase = SPI_PHASE_2EDGE;
+#elif defined(_SPI_SAMPLE_AT_RISING_CLOCK)
+    hspi->Init.CLKPhase      = SPI_PHASE_1EDGE;
+#endif
     if (!hardware_nss) {
         hspi->Init.NSS = SPI_NSS_SOFT;
     }
@@ -63,14 +69,14 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
     hspi->Init.FirstBit       = SPI_FIRSTBIT_MSB;
     hspi->Init.TIMode         = SPI_TIMODE_DISABLE;
     hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-#if defined(STM32F427xx)
+#if defined(STM32F407xx) || defined(STM32F427xx)
     hspi->Init.CRCPolynomial = 10;
 #elif defined(STM32F767xx)
     hspi->Init.CRCPolynomial = 7;
     hspi->Init.CRCLength     = SPI_CRC_LENGTH_DATASIZE;
     hspi->Init.NSSPMode      = SPI_NSS_PULSE_ENABLE;
 #else
-#error todo
+#error InitSpiSettings(): to do
 #endif
     if (HAL_SPI_Init(hspi) != HAL_OK) {
         // Error_Handler();  // TODO
@@ -78,13 +84,16 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
 }
 
 // ============================================================================
-HAL_StatusTypeDef SpiTransceive(SpiApi_t* spi, uint8_t* tbuf, uint8_t* rbuf,
-                                uint16_t len, uint32_t timeout) {
-    if (spi->param.nss_GPIOx == NULL) {
-        console.error("%s(): Soft NSS not initialized\r\n", __func__);
-    }
+static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
+                                            uint8_t* rbuf, uint16_t len,
+                                            uint32_t timeout) {
     if (spi->param.nss == SPI_SOFT_NSS) {
-        utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
+        if (spi->param.nss_GPIOx != NULL) {
+            utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
+        }
+        else {
+            console.error("%s(): Soft NSS is not initialized\r\n", __func__);
+        }
     }
 
     stime.delay.us(_SPI_START_TIME_DELAY_US);  // to test
@@ -105,17 +114,52 @@ HAL_StatusTypeDef SpiTransceive(SpiApi_t* spi, uint8_t* tbuf, uint8_t* rbuf,
     return HAL_OK;
 }
 
+// ============================================================================
+static HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
+                                             uint16_t* rbuf, uint16_t len,
+                                             uint32_t timeout) {
+    if (spi->param.nss == SPI_SOFT_NSS) {
+        if (spi->param.nss_GPIOx != NULL) {
+            utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
+        }
+        else {
+            console.error("%s(): Soft NSS is not initialized\r\n", __func__);
+        }
+    }
+
+    stime.delay.us(_SPI_START_TIME_DELAY_US);  // to test
+    uint16_t d_send;
+    uint16_t d_recv;
+    uint8_t* d_send_p = ( uint8_t* )&d_send;
+    uint8_t* d_recv_p = ( uint8_t* )&d_recv;
+
+    for (int i = 0; i < len; i++) {
+        d_send = tbuf[i];
+        _SWAP_16(d_send);
+        HAL_SPI_TransmitReceive(&(spi->hspi), d_send_p, d_recv_p, 2, timeout);
+        _SWAP_16(d_recv);
+        rbuf[i] = d_recv;
+        stime.delay.us(_SPI_BYTE_TIME_DELAY_US);  // to test
+    }
+    stime.delay.us(_SPI_END_TIME_DELAY_US);  // to test
+    if (spi->param.nss == SPI_SOFT_NSS) {
+        utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 1);
+    }
+    return HAL_OK;
+}
+
 // ----------------------------------------------------------------------------
 static void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS,
                            uint8_t pin_nss) {
     spi->param.nss_GPIOx = GPIOx_NSS;
     spi->param.nss_pin   = pin_nss;
     utils.pin.mode(GPIOx_NSS, pin_nss, GPIO_MODE_OUTPUT_PP);
-    utils.pin.set(GPIOx_NSS, pin_nss, true);  // initial state: high
+    utils.pin.pull(GPIOx_NSS, pin_nss, GPIO_PULLUP);
+    utils.pin.set(GPIOx_NSS, pin_nss, true);
 }
 
 // ============================================================================
-#if defined(STM32F427xx) || defined(STM32F767xx)
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
 static void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
                         GPIO_TypeDef* GPIOx_MI, uint8_t pin_mi,
                         GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
@@ -128,20 +172,20 @@ static void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
     // MOSI
     GPIO_InitStructure.Pin       = 1 << pin_mo;
     GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_NOPULL;
+    GPIO_InitStructure.Pull      = GPIO_PULLUP;
     GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_MO, &GPIO_InitStructure);
     // MISO
     GPIO_InitStructure.Pin   = 1 << pin_mi;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_MI, &GPIO_InitStructure);
     // SCK
     GPIO_InitStructure.Pin   = 1 << pin_sck;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_SCK, &GPIO_InitStructure);
 }
@@ -158,18 +202,18 @@ static void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
     // NSS
     GPIO_InitStructure.Pin   = 1 << pin_nss;
     GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;
+    GPIO_InitStructure.Pull  = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_NSS, &GPIO_InitStructure);
     InitSpiPins(GPIOx_MO, pin_mo, GPIOx_MI, pin_mi, GPIOx_SCK, pin_sck, alter);
 }
-#endif  // STM32F427xx
+#endif  // STM32F407xx || STM32F427xx || STM32F767xx
 
 // ============================================================================
 #if defined(SPI1_EXISTS) && defined(_USE_SPI1_PA7PA6)
+// PA7: MOSI; PA6: MISO; PA5: SCK; PA4: NSS (hardware)
 static void InitSpi1_PA7PA6(void) {
-
-#if defined(STM32F427xx) || defined(STM32F767xx)
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
     if (spi1.param.nss == SPI_HARD_NSS) {
         InitSpiPinsHardNss(GPIOA, 7, GPIOA, 6, GPIOA, 5, GPIOA, 4,
                            GPIO_AF5_SPI1);
@@ -216,19 +260,26 @@ static void InitSpi1SoftNss(GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss) {
 }
 
 // ----------------------------------------------------------------------------
-static HAL_StatusTypeDef Spi1Transceive(uint8_t* t_data, uint8_t* r_data,
-                                        uint16_t len) {
+static HAL_StatusTypeDef Spi1Transceive8bits(uint8_t* t_data, uint8_t* r_data,
+                                             uint16_t len) {
     uint32_t timeout = 1000;
-    return SpiTransceive(&spi1, t_data, r_data, len, timeout);
+    return SpiTransceive8bits(&spi1, t_data, r_data, len, timeout);
+}
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef Spi1Transceive16bits(uint16_t* t_data,
+                                              uint16_t* r_data, uint16_t len) {
+    uint32_t timeout = 1000;
+    return SpiTransceive16bits(&spi1, t_data, r_data, len, timeout);
 }
 
 // ============================================================================
 // ---------------------
 // clang-format off
 SpiApi_t spi1 = {
-    .config     = InitSpi1       ,
-    .setNss     = InitSpi1SoftNss,
-    .transceive = Spi1Transceive ,
+    .config           = InitSpi1             ,
+    .setNss           = InitSpi1SoftNss      ,
+    .transceive8bits  = Spi1Transceive8bits  ,
+    .transceive16bits = Spi1Transceive16bits ,
 };
 // clang-format on
 #endif  // SPI1_EXISTS && SPI1_IS_USED

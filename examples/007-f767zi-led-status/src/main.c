@@ -23,7 +23,7 @@ int main( void ) {
     stime.scheduler.config();
     console.config( 2000000, 8, 'n', 1 );
     console.printf( "\r\n\r\n" );
-    led.config( LED_PWM_MODE );
+    led.config( LED_BREATH );
 
     // tasks -----------
     stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );

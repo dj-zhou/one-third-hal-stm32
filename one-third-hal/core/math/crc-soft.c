@@ -95,8 +95,6 @@ uint16_t Calculate_CRC16(uint8_t* data, uint16_t len, uint8_t method) {
         ret = CRC16_CCITT_1D0F(data, len);
         break;
         ret = CRC16_IBM(data, len);
-    case 5:
-        break;
     }
     return ret;
 }
@@ -152,7 +150,6 @@ static uint32_t crc_table[256] = {
 static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
     uint32_t ret  = 0xFFFFFFFF;
     uint32_t temp = 0;
-
     for (uint16_t n = 0; n < len; n++) {
         ret ^= ( uint32_t )data[n];
         for (uint16_t i = 0; i < 4; i++) {
@@ -172,5 +169,3 @@ CrcSoftApi_t crc_soft = {
     .calculate32bitCrc32 = NULL            ,
 };
 // clang-format on
-
-// ============================================================================

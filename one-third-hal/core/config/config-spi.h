@@ -25,9 +25,17 @@ uint8_t g_config_spi_used;
     #define SPI3_EXISTS
 #endif
 
+#if defined(STM32F410Rx)
+    #define SPI5_EXISTS
+#endif
+
 #if defined(STM32F427xx)
     #define SPI3_EXISTS
     #define SPI4_EXISTS
+#endif
+
+#if defined(STM32F446xx)
+    #define SPI3_EXISTS
 #endif
 
 #if defined(STM32F746xx)

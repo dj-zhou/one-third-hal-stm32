@@ -61,16 +61,21 @@ extern "C" {
 #endif
 
 #if !defined(_SPI_START_TIME_DELAY_US)
-    #define _SPI_START_TIME_DELAY_US 0
+    #define _SPI_START_TIME_DELAY_US    0
 #endif
 
 #if !defined(_SPI_BYTE_TIME_DELAY_US)
-    #define _SPI_BYTE_TIME_DELAY_US 0
+    #define _SPI_BYTE_TIME_DELAY_US     0
 #endif
 
 #if !defined(_SPI_END_TIME_DELAY_US)
-    #define _SPI_END_TIME_DELAY_US 0
+    #define _SPI_END_TIME_DELAY_US      0
 #endif
+
+#if !defined(_SPI_SAMPLE_AT_FALLING_CLOCK) || !defined(_SPI_SAMPLE_AT_RISING_CLOCK)
+    #define _SPI_SAMPLE_AT_FALLING_CLOCK
+#endif
+
 // clang-format on
 
 // ----------------------------------------------------------------------------
@@ -96,34 +101,35 @@ typedef struct {
     SpiParam_t        param;
     void (*config)(uint16_t, SpiMaster_e, SpiNss_e);
     void (*setNss)(GPIO_TypeDef*, uint8_t);
-    HAL_StatusTypeDef (*transceive)(uint8_t*, uint8_t*, uint16_t);
+    HAL_StatusTypeDef (*transceive8bits)(uint8_t*, uint8_t*, uint16_t);
+    HAL_StatusTypeDef (*transceive16bits)(uint16_t*, uint16_t*, uint16_t);
 } SpiApi_t;
 
 #endif  // SPI_IS_USED
 
 // ----------------------------------------------------------------------------
 // clang-format off
-#if defined( SPI1_EXISTS ) && defined( SPI1_IS_USED )
+#if defined(SPI1_EXISTS) && defined(SPI1_IS_USED)
     extern SpiApi_t spi1;
 #endif
 
-#if defined( SPI2_EXISTS ) && defined( SPI2_IS_USED )
+#if defined(SPI2_EXISTS) && defined(SPI2_IS_USED)
     extern SpiApi_t spi2;
 #endif
 
-#if defined( SPI3_EXISTS ) && defined( SPI3_IS_USED )
+#if defined(SPI3_EXISTS) && defined(SPI3_IS_USED)
     extern SpiApi_t spi3;
 #endif
 
-#if defined( SPI4_EXISTS ) && defined( SPI4_IS_USED )
+#if defined(SPI4_EXISTS) && defined(SPI4_IS_USED)
     extern SpiApi_t spi4;
 #endif
 
-#if defined( SPI5_EXISTS ) && defined( SPI5_IS_USED )
+#if defined(SPI5_EXISTS) && defined(SPI5_IS_USED)
     extern SpiApi_t spi5;
 #endif
 
-#if defined( SPI6_EXISTS ) && defined( SPI6_IS_USED )
+#if defined(SPI6_EXISTS) && defined(SPI6_IS_USED)
     extern SpiApi_t spi6;
 #endif
 // clang-format on

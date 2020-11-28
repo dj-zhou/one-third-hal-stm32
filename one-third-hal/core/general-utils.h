@@ -27,46 +27,44 @@ extern "C" {
 
 // ============================================================================
 // clang-format off
-#if !defined( _SWAP16 )
-    #define _SWAP16( x ) ( x = ( uint16_t )( ( x >> 8 ) | ( x << 8 ) ) )
+// 0x1234 --> 0x3412
+#if !defined(_SWAP_16)
+    #define _SWAP_16(x) (x = (uint16_t)((x >> 8) | (x << 8)))
 #endif
 
-#if !defined( _SWAP32 )
-    #define _SWAP32( x )                                  \
-        ( x = ( ( x >> 24 ) | ( ( x >> 8 ) & 0x0000ff00 ) \
-                | ( ( x << 8 ) & 0x00ff0000 ) | ( x << 24 ) ) )
+// 0x 12345678 --> 0x78563412
+#if !defined(_SWAP_32)
+    #define _SWAP_32(x)                                                     \
+        (x = ((x >> 24) | ((x >> 8) & 0x0000ff00) | ((x << 8) & 0x00ff0000) \
+            | (x << 24)))
 #endif
 
-#if !defined( _CHECK_BIT )
-    #define _CHECK_BIT( var, pos ) ( ( var ) & ( 1 << ( pos ) ) )
+#if !defined(_CHECK_BIT)
+    #define _CHECK_BIT(var, pos) ((var) & (1 << (pos)))
 #endif
 
-#if !defined( _SET_BIT )
-    #define _SET_BIT( var, pos ) ( ( var ) |= ( 1 << ( pos ) ) )
+#if !defined(_SET_BIT)
+    #define _SET_BIT(var, pos) ((var) |= (1 << (pos)))
 #endif
 
-#if !defined( _RESET_BIT )
-    #define _RESET_BIT( var, pos ) ( ( var ) &= ( ~( 1 << ( pos ) ) ) )
+#if !defined(_RESET_BIT)
+    #define _RESET_BIT(var, pos) ((var) &= (~(1 << (pos))))
 #endif
 
-#if !defined( _SIZE_OF_ARRAY )
-    #define _SIZE_OF_ARRAY( x ) ( sizeof( x ) / sizeof( ( x )[0] ) )
+#if !defined(_SIZE_OF_ARRAY)
+    #define _SIZE_OF_ARRAY(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-#if !defined( _PACK )
-#define _PACK( x ) __attribute__( ( packed, aligned( x ) ) )
+#if !defined(offsetof)
+#define offsetof(TYPE, MEMBER) ((size_t) & (( TYPE* )0)->MEMBER)
 #endif
 
-#if !defined( offsetof )
-#define offsetof( TYPE, MEMBER ) ( ( size_t ) & ( ( TYPE* )0 )->MEMBER )
-#endif
-
-#if !defined( container_of )
-#define container_of( ptr, type, member )                         \
-    ( {                                                           \
-        const typeof( ( ( type* )0 )->member )* __mptr = ( ptr ); \
-        ( type* )( ( char* )__mptr - offsetof( type, member ) );  \
-    } )
+#if !defined(container_of)
+#define container_of(ptr, type, member)                      \
+    ({                                                       \
+        const typeof((( type* )0)->member)* __mptr = (ptr);  \
+        ( type* )(( char* )__mptr - offsetof(type, member)); \
+    })
 #endif
 // clang-format on
 
@@ -128,16 +126,17 @@ typedef struct {
 } Pin;
 
 // ============================================================================
+// clang-format off
 typedef struct {
-    System system;
-    Clock  clock;
-    Pin    pin;
+    System system ;
+    Clock  clock  ;
+    Pin    pin    ;
 #if defined(RTOS_IS_USED)
     Rtos rtos;
 #endif
 } UtilsApi_t;
-
 extern UtilsApi_t utils;
+// clang-format on
 
 // ============================================================================
 #ifdef __cplusplus
@@ -145,8 +144,3 @@ extern UtilsApi_t utils;
 #endif
 
 #endif  // __GENERAL_UTILS_H
-
-// ============================================================================
-// supported system clock
-// MCU-type     HSE_VALUE   SYSCLK    PCLK1     PCLK2     ADCCLK??
-// STM32F107xC  25000000    72000000  36000000  72000000  xx

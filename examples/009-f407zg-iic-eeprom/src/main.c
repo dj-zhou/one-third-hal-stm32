@@ -64,7 +64,7 @@ int main(void) {
     stime.scheduler.config();
     console.config(2000000, 8, 'n', 1);
     console.printf("\r\n\r\n");
-    led.config(LED_PWM_MODE);
+    led.config(LED_BREATH);
     iic1.config(400000);
     eeprom.config();
     // tasks -----------
@@ -135,8 +135,8 @@ int main(void) {
     param_read.key = param1.key;  // revise this to see what happens
     eeprom.node.read(( uint8_t* )(&param_read), sizeof(param_read));
     printParameter(param_read);
-    while (1)
-        ;
+    // while (1)
+    //     ;
     // system start to run -----------
     stime.scheduler.run();
 

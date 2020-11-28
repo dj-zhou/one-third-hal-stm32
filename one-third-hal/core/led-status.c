@@ -94,7 +94,7 @@ static void LedErrorOn(bool v) {
 static void blinkHeartBeat(void) {
     static uint16_t loop = 0;
     // in PWM mode ---------------------------
-    if (heartbeat_mode_ == LED_PWM_MODE) {
+    if (heartbeat_mode_ == LED_BREATH) {
         static float x = 0;
         x += pwm_step_size_;
         if (x > 3.1415926 * 2) {
@@ -112,7 +112,7 @@ static void blinkHeartBeat(void) {
     case LED_ON:
         LedHeartBeatOn(true);
         break;
-    case LED_PWM_MODE:
+    case LED_BREATH:
         break;
     case LED_DOUBLE_BLINK:
         if (loop < tick_toggle_) {
@@ -312,14 +312,14 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
             __func__);
     }
     CalculateParameters(heatbeat_mode);
-    if (heatbeat_mode != LED_PWM_MODE) {
+    if (heatbeat_mode != LED_BREATH) {
         utils.pin.mode(_LED_HEARTBEAT_PORT, _LED_HEARTBEAT_PIN,
                        GPIO_MODE_OUTPUT_PP);
         utils.pin.mode(_LED_ERROR_PORT, _LED_ERROR_PIN, GPIO_MODE_OUTPUT_PP);
         LedHeartBeatOn(false);
         LedErrorOn(false);
     }
-    else {                        // heatbeat_mode == LED_PWM_MODE
+    else {                        // heatbeat_mode == LED_BREATH
         LedHeartBeatVerifyPwm();  // if pass, means the PWM pin is good
         LedHeartBeatPwmConfig();
     }
@@ -335,8 +335,6 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
 // ============================================================================
 // clang-format off
 LedStatusApi_t led = {
-    .config          = LedGpioConfig     ,
-    // .toggleHeartBeat = LedToggleHeartBeat, // should be removed
-    // .toggleError     = LedToggleError    , // should be removed
+    .config  = LedGpioConfig ,
 };
 // clang-format on
