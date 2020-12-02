@@ -12,7 +12,7 @@
 #define CMD_ZERO_LO 0x0017  // write
 
 // =============================================================================
-void taskPrint(void) {
+static void taskPrint(void) {
     static int32_t  loop       = 220;
     float           data       = -sin(( double )loop / 180.0 * 3.1415926);
     char*           ptr        = ( char* )&data;
@@ -34,22 +34,24 @@ void taskPrint(void) {
 }
 
 // ============================================================================
-void readAS5048A(void) {
+static void readAM4096(void) {
     static uint32_t loop_count = 0;
-    uint16_t        cmd_read   = CMD_ANGLE;
-    uint16_t        angle_read;
-    uint16_t        cmd_reset;
-    spi1.transceive16bits(&cmd_read, &angle_read, 1);
-    if (loop_count == 50) {
-        console.printf("try to reset\r\n\r\n");
-        cmd_reset = CMD_ZERO_HI;
-        spi1.transceive16bits(&cmd_reset, &angle_read, 1);
-        stime.delay.us(100);
-        cmd_reset = CMD_ZERO_LO;
-        spi1.transceive16bits(&cmd_reset, &angle_read, 1);
+    uint16_t        no_op      = 0x0000;
+    uint16_t        raw;
+    spi1.transceive16bits(&no_op, &raw, 1);
+    console.printf("%5d: raw = %b = %5d, trimmed: %d\r\n", loop_count++, raw,
+                   raw, (raw & 0x7FFF) >> 3);
+}
+
+// ============================================================================
+static void resetEncoder(void) {
+    bool status = HAL_GPIO_ReadPin(GPIOC, 1 << 13);
+    if (status == true) {
+        utils.pin.set(GPIOB, 4, true);
     }
-    _SWAP_16(angle_read);
-    console.printf("%5d: angle = %6d\r\n", loop_count++, angle_read & 0x3fff);
+    else {
+        utils.pin.set(GPIOB, 4, false);
+    }
 }
 
 // ============================================================================
@@ -61,13 +63,17 @@ int main(void) {
     console.config(2000000, 8, 'n', 1);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
-    spi1.config(16, "master", "soft", "high", "falling");
+    spi1.config(32, "master", "soft", "high", "falling");
     spi1.setNss(GPIOF, 12);
+    utils.pin.mode(GPIOB, 4, GPIO_MODE_OUTPUT_PP);  // reset, pull it to HIGH
 
+    utils.pin.mode(GPIOC, 13, GPIO_MODE_INPUT);  // reset, pull it to HIGH
+    utils.pin.pull(GPIOC, 13, GPIO_PULLDOWN);
     // tasks -----------
     // stime.scheduler.attach( 500, 2, taskPrint, "taskPrint" );
     ( void )taskPrint;
-    stime.scheduler.attach(100, 2, readAS5048A, "readAS5048A");
+    stime.scheduler.attach(100, 2, readAM4096, "readAM4096");
+    stime.scheduler.attach(5, 1, resetEncoder, "resetEncoder");
     stime.scheduler.show();
 
     // system start to run -----------
