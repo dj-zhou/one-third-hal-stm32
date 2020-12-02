@@ -44,6 +44,7 @@ volatile uint32_t cli_suspend_second_ = 0;
 #endif
 // STM32F030x8 uses 48 MHz system clock
 #if defined(STM32F030x8)
+    #define US_TICK   6
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
             #define SYSTICK_RELOAD_VALUE  1500
@@ -63,6 +64,7 @@ volatile uint32_t cli_suspend_second_ = 0;
 // STM32F107xC uses 72 MHz system clock
 // STM32F303xE uses 72 MHz system clock
 #elif defined(STM32F103xB) || defined(STM32F107xC) || defined(STM32F303xE)
+    #define US_TICK   9
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
             #define SYSTICK_RELOAD_VALUE  2250
@@ -80,6 +82,7 @@ volatile uint32_t cli_suspend_second_ = 0;
     #endif
 // STM32F407 uses 168 MHz system clock
 #elif defined(STM32F407xx)
+    #define US_TICK   21
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
             #define SYSTICK_RELOAD_VALUE   5250
@@ -95,8 +98,9 @@ volatile uint32_t cli_suspend_second_ = 0;
             #define SYSTICK_RELOAD_VALUE 105000
         #endif
     #endif
-// STM32F427 uses 180 MHz system clock
+// STM32F427 uses 180 MHz system clock, why not use 176Mhz?
 #elif defined(STM32F427xx)
+    #define US_TICK   22 // 22.5 is the right number ... to fix
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
             #define SYSTICK_RELOAD_VALUE   5625
@@ -115,6 +119,7 @@ volatile uint32_t cli_suspend_second_ = 0;
 // STM32F746 uses 216 MHz system clock
 // STM32F767 uses 216 MHz system clock
 #elif defined(STM32F746xx) || defined(STM32F767xx)
+    #define US_TICK   27
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
             #define SYSTICK_RELOAD_VALUE   6750
@@ -152,7 +157,7 @@ static Stime_t GetSysTickTime(void) {
     uint32_t val = SysTick->VAL;
     Stime_t  st;
     st.s  = second_;
-    st.us = tick_ * SYSTICK_MS_SCALE + (SYSTICK_RELOAD_VALUE - val) / 9;
+    st.us = tick_ * SYSTICK_MS_SCALE + (SYSTICK_RELOAD_VALUE - val) / US_TICK;
     // enable the SysTick, or use HAL_ResumeTick()
     SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
     return st;
@@ -192,7 +197,7 @@ static void DelayUs(uint32_t us) {
     do {
         cur_time.s  = second_;
         cur_time.us = tick_ * SYSTICK_MS_SCALE
-                      + (SYSTICK_RELOAD_VALUE - SysTick->VAL) / 9;
+                      + (SYSTICK_RELOAD_VALUE - SysTick->VAL) / US_TICK;
         cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
 
         for (uint8_t i = 0; i < 2; i++) {
