@@ -81,25 +81,32 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #if defined(SPI_IS_USED)
 
-typedef enum {
-    SPI_MASTER = (( uint8_t )1),
-    SPI_SLAVE  = (( uint8_t )2),
-} SpiMaster_e;
-typedef enum {
-    SPI_SOFT_NSS = (( uint8_t )1),
-    SPI_HARD_NSS = (( uint8_t )2),
-} SpiNss_e;
+// typedef enum {
+//     SPI_MASTER = (( uint8_t )1),
+//     SPI_SLAVE  = (( uint8_t )2),
+// } SpiMaster_e;
+// typedef enum {
+//     SPI_SOFT_NSS = (( uint8_t )1),
+//     SPI_HARD_NSS = (( uint8_t )2),
+// } SpiNss_e;
+
+// typedef enum {
+//     SPI_SCK_INACTIVE_LOW  = (( uint8_t )0),
+//     SPI_SCK_INACTIVE_HIGH = (( uint8_t )1),
+// } SpiSck_e;
 
 typedef struct {
-    SpiMaster_e   master;
-    SpiNss_e      nss;
+    unsigned char master;  // 'm' or 's'
+    unsigned char nss;     // 'h' or 's'
+    unsigned char sck;     // 'h' or 'l'
+    unsigned char phase;   // 'f' or 'r'
     GPIO_TypeDef* nss_GPIOx;
     uint8_t       nss_pin;
 } SpiParam_t;
 typedef struct {
     SPI_HandleTypeDef hspi;
     SpiParam_t        param;
-    void (*config)(uint16_t, SpiMaster_e, SpiNss_e);
+    void (*config)(uint16_t, const char*, const char*, const char*, const char*);
     void (*setNss)(GPIO_TypeDef*, uint8_t);
     HAL_StatusTypeDef (*transceive8bits)(uint8_t*, uint8_t*, uint16_t);
     HAL_StatusTypeDef (*transceive16bits)(uint16_t*, uint16_t*, uint16_t);

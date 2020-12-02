@@ -1,11 +1,12 @@
 #include "spi.h"
+#include <string.h>
 
 // ============================================================================
 #if defined(SPI_IS_USED)
 static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
-                            bool master, bool hardware_nss) {
+                            SpiParam_t param) {
     utils.clock.enableSpi(hspi->Instance);
-    if (master) {
+    if (param.master == 'm') {
         hspi->Init.Mode = SPI_MODE_MASTER;
     }
     else {
@@ -14,18 +15,27 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
     hspi->Init.Direction = SPI_DIRECTION_2LINES;
     // 16 bits of data is not supported by HAL, so we will fix this option to
     // 8 bits. 16 bits data transmission is however supported by this library
-    hspi->Init.DataSize    = SPI_DATASIZE_8BIT;
-    hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
-#if defined(_SPI_SAMPLE_AT_FALLING_CLOCK)
-    hspi->Init.CLKPhase = SPI_PHASE_2EDGE;
-#elif defined(_SPI_SAMPLE_AT_RISING_CLOCK)
-    hspi->Init.CLKPhase      = SPI_PHASE_1EDGE;
-#endif
-    if (!hardware_nss) {
+    hspi->Init.DataSize = SPI_DATASIZE_8BIT;
+    if (param.sck == 'h') {
+        hspi->Init.CLKPolarity = SPI_POLARITY_LOW;
+    }
+    else {
+        hspi->Init.CLKPolarity = SPI_POLARITY_HIGH;
+    }
+    if (param.phase == 'f') {
+        hspi->Init.CLKPhase = SPI_PHASE_2EDGE;
+    }
+    else if (param.phase == 'r') {
+        hspi->Init.CLKPhase = SPI_PHASE_1EDGE;
+    }
+    else {
+        // todo
+    }
+    if (param.nss == 's') {
         hspi->Init.NSS = SPI_NSS_SOFT;
     }
     else {
-        if (master) {
+        if (param.master == 'm') {
             hspi->Init.NSS = SPI_NSS_HARD_OUTPUT;
         }
         else {
@@ -70,9 +80,9 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
     hspi->Init.TIMode         = SPI_TIMODE_DISABLE;
     hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 #if defined(STM32F407xx) || defined(STM32F427xx)
-    hspi->Init.CRCPolynomial = 10;
+    hspi->Init.CRCPolynomial = 10;  // as from the CubeMX generated code
 #elif defined(STM32F767xx)
-    hspi->Init.CRCPolynomial = 7;
+    hspi->Init.CRCPolynomial = 7;  // as from the CubeMX generated code
     hspi->Init.CRCLength     = SPI_CRC_LENGTH_DATASIZE;
     hspi->Init.NSSPMode      = SPI_NSS_PULSE_ENABLE;
 #else
@@ -87,7 +97,7 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
 static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
                                             uint8_t* rbuf, uint16_t len,
                                             uint32_t timeout) {
-    if (spi->param.nss == SPI_SOFT_NSS) {
+    if (spi->param.nss == 's') {
         if (spi->param.nss_GPIOx != NULL) {
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
         }
@@ -108,7 +118,7 @@ static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
         }
     }
     stime.delay.us(_SPI_END_TIME_DELAY_US);  // to test
-    if (spi->param.nss == SPI_SOFT_NSS) {
+    if (spi->param.nss == 's') {
         utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 1);
     }
     return HAL_OK;
@@ -118,7 +128,7 @@ static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
 static HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
                                              uint16_t* rbuf, uint16_t len,
                                              uint32_t timeout) {
-    if (spi->param.nss == SPI_SOFT_NSS) {
+    if (spi->param.nss == 's') {
         if (spi->param.nss_GPIOx != NULL) {
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
         }
@@ -142,7 +152,7 @@ static HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
         stime.delay.us(_SPI_BYTE_TIME_DELAY_US);  // to test
     }
     stime.delay.us(_SPI_END_TIME_DELAY_US);  // to test
-    if (spi->param.nss == SPI_SOFT_NSS) {
+    if (spi->param.nss == 's') {
         utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 1);
     }
     return HAL_OK;
@@ -214,7 +224,7 @@ static void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
 // PA7: MOSI; PA6: MISO; PA5: SCK; PA4: NSS (hardware)
 static void InitSpi1_PA7PA6(void) {
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
-    if (spi1.param.nss == SPI_HARD_NSS) {
+    if (spi1.param.nss == 'h') {
         InitSpiPinsHardNss(GPIOA, 7, GPIOA, 6, GPIOA, 5, GPIOA, 4,
                            GPIO_AF5_SPI1);
     }
@@ -239,11 +249,39 @@ static void InitSpi1_PB5PB4(void) {
 #if defined(SPI1_EXISTS) && defined(SPI1_IS_USED)
 
 // ----------------------------------------------------------------------------
-static void InitSpi1(uint16_t prescale, SpiMaster_e master,
-                     SpiNss_e hardware_nss) {
+static void InitSpi1(uint16_t prescale, const char* master,
+                     const char* hardware_nss, const char* sck,
+                     const char* phase) {
     g_config_spi_used |= 1 << 1;  // not started from 0
-    spi1.param.master    = master;
-    spi1.param.nss       = hardware_nss;
+    // -------------------
+    if (strcmp(master, "master") == 0) {
+        spi1.param.master = 'm';
+    }
+    else if (strcmp(master, "slave") == 0) {
+        spi1.param.master = 's';
+    }
+    // -------------------
+    if (strcmp(hardware_nss, "hard") == 0) {
+        spi1.param.nss = 'h';
+    }
+    else if (strcmp(hardware_nss, "soft") == 0) {
+        spi1.param.nss = 'h';
+    }
+    // -------------------
+    if (strcmp(sck, "high") == 0) {
+        spi1.param.sck = 'h';
+    }
+    else if (strcmp(sck, "low") == 0) {
+        spi1.param.sck = 'l';
+    }
+    // -------------------
+    if (strcmp(phase, "falling") == 0) {
+        spi1.param.sck = 'f';
+    }
+    else if (strcmp(phase, "rising") == 0) {
+        spi1.param.sck = 'r';
+    }
+
     spi1.param.nss_GPIOx = NULL;
     spi1.hspi.Instance   = SPI1;
 #if defined(_USE_SPI1_PA7PA6)
@@ -251,7 +289,7 @@ static void InitSpi1(uint16_t prescale, SpiMaster_e master,
 #elif defined(_USE_SPI1_PB5PB4)
     InitSpi1_PB5PB4();
 #endif
-    InitSpiSettings(&(spi1.hspi), prescale, master, hardware_nss);
+    InitSpiSettings(&(spi1.hspi), prescale, spi1.param);
 }
 
 // ----------------------------------------------------------------------------

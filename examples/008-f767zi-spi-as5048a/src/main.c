@@ -61,7 +61,7 @@ int main(void) {
     console.config(2000000, 8, 'n', 1);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
-    spi1.config(16, SPI_MASTER, SPI_SOFT_NSS);
+    spi1.config(16, "master", "soft", "high", "falling");
     spi1.setNss(GPIOF, 12);
 
     // tasks -----------
