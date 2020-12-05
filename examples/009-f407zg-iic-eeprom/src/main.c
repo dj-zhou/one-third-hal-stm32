@@ -62,7 +62,7 @@ int main(void) {
     utils.system.initNvic(4);
     stime.config();
     stime.scheduler.config();
-    console.config(2000000, 8, 'n', 1);
+    console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
     iic1.config(400000);

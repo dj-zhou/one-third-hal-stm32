@@ -124,7 +124,7 @@ typedef struct {
 // clang-format off
 typedef struct {
     LogLevel_e level;
-    void (*config)(uint32_t, uint8_t, char, uint8_t)   ;
+    void (*config)(uint32_t)                           ;
     void (*setTxMode)(ConsoleTx_e)                     ;
     void (*enableRxen)(bool)                           ;
     void (*setRxStatus)(bool)                          ;

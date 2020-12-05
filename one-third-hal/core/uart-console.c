@@ -18,7 +18,9 @@ bool            console_rx_enabled_ = true;
 #if defined(CONSOLE_IS_USED)
 
 UART_HandleTypeDef hconsole_;
-
+#if defined(STM32F303xE) || defined(STM32F767xx)
+uint16_t uh_mask_;
+#endif
 // ----------------------------------------------------------------------------
 struct {
     char  buffer[_CONSOLE_BUFF_LEN];
@@ -33,13 +35,24 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len);
 // common used functions
 static void ConsoleUartIRQ(void) {
     uint8_t recv;
-    if ((__HAL_UART_GET_FLAG(&hconsole_, UART_FLAG_RXNE) != RESET)) {
-        // this HAL API is very un-efficient, need to revise to register
+    // new way, need more test -----------
+    if (__HAL_UART_GET_FLAG(&hconsole_, UART_FLAG_RXNE) != RESET) {
+#if defined(STM32F303xE) || defined(STM32F767xx)
+        recv = (uint8_t)(hconsole_.Instance->RDR & ( uint8_t )uh_mask_);
+#else
+        // this HAL API is very un-efficient, need to revise
         HAL_UART_Receive(&hconsole_, &recv, 1, 1000);
+#endif
+        if (console_rx_enabled_) {
+            ConsoleSetChar(&recv, 1);
+        }
     }
-    if (console_rx_enabled_) {
-        ConsoleSetChar(&recv, 1);
-    }
+    // reference code: may be different for different series:
+    // clear the interrupt flag
+    // hconsole_.Instance->SR &= ( uint16_t )~USART_FLAG_RXNE;
+    // // receive data
+    // uint8_t recv = ( uint8_t )( hconsole_.Instance->DR & ( uint16_t )0x01FF
+    // ); ConsoleSetChar( &recv, 1 );
 }
 
 // ----------------------------------------------------------------------------
@@ -175,6 +188,7 @@ static void InitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
     hconsole_.Init.BaudRate = baud_rate;
     switch (len) {
     case 9:
+        // todo: this may need extra attention in IRQ
         hconsole_.Init.WordLength = UART_WORDLENGTH_9B;
         break;
     case 8:
@@ -196,10 +210,12 @@ static void InitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
     switch (parity) {
     case 'O':
     case 'o':
+        // todo: this may need extra attention
         hconsole_.Init.Parity = UART_PARITY_ODD;
         break;
     case 'E':
     case 'e':
+        // todo: this may need extra attention
         hconsole_.Init.Parity = UART_PARITY_EVEN;
         break;
     case 'N':
@@ -214,7 +230,10 @@ static void InitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
 #if defined(STM32F303xE) || defined(STM32F767xx)
     hconsole_.Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
     hconsole_.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    UART_MASK_COMPUTATION(&hconsole_);
+    uh_mask_ = hconsole_.Mask;
 #endif
+
     HAL_UART_Init(&hconsole_);  // if != HAL_OK ??
 }
 
@@ -238,9 +257,7 @@ static void consoleWriteStr(char* ptr) {
 // ============================================================================
 // no hardware to test it, need to test in the future
 #if defined(_CONSOLE_USE_UART1_PA9PA10) && defined(USART1_EXISTS)
-static void InitUSART1_PA9PA10(uint32_t baud_rate, uint8_t len, char parity,
-                               uint8_t stop_b) {
-
+static void InitUSART1_PA9PA10(void) {
 #if defined(STM32F103xB)
     InitUartPins(GPIOA, 9, GPIOA, 10, 0);
 #elif defined(STM32F107xC)
@@ -251,21 +268,14 @@ static void InitUSART1_PA9PA10(uint32_t baud_rate, uint8_t len, char parity,
 #else
 #error InitUSART1_PA9PA10(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART1);
-    InitUartSettings(USART1, baud_rate, len, parity, stop_b);
 
     InitUartNvic(USART1_IRQn);
-
-    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART1_PA9PA10  && defined( USART1_EXISTS )
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART1_PB6PB7) && defined(USART1_EXISTS)
-static void InitUSART1_PB6PB7(uint32_t baud_rate, uint8_t len, char parity,
-                              uint8_t stop_b) {
-
+static void InitUSART1_PB6PB7(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOB, 6, GPIOB, 7);
     __HAL_RCC_AFIO_CLK_ENABLE();
@@ -273,13 +283,7 @@ static void InitUSART1_PB6PB7(uint32_t baud_rate, uint8_t len, char parity,
 #else
 #error InitUSART1_PB6PB7(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART1);
-    InitUartSettings(USART1, baud_rate, len, parity, stop_b);
-
     InitUartNvic(USART1_IRQn);
-
-    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART1_PA9PA10
 
@@ -298,9 +302,7 @@ void USART1_IRQHandler(void) {
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART2_PA2PA3) && defined(USART2_EXISTS)
-static void InitUSART2_PA2PA3(uint32_t baud_rate, uint8_t len, char parity,
-                              uint8_t stop_b) {
-
+static void InitUSART2_PA2PA3(void) {
 #if defined(STM32F030x8)
     InitUartPins(GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2);  // verified
 #elif defined(STM32F103xB)
@@ -312,13 +314,8 @@ static void InitUSART2_PA2PA3(uint32_t baud_rate, uint8_t len, char parity,
 #else
 #error InitUSART2_PA2PA3(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART2);
-    InitUartSettings(USART2, baud_rate, len, parity, stop_b);
 
     InitUartNvic(USART2_IRQn);
-
-    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART2_PA2PA3 && defined( USART2_EXISTS )
 
@@ -326,9 +323,7 @@ static void InitUSART2_PA2PA3(uint32_t baud_rate, uint8_t len, char parity,
 #if defined(_CONSOLE_USE_UART2_PD5PD6) && defined(USART2_EXISTS)
 // TODO
 // STM32F107VCT6 does not have USART2 on these pins
-static void InitUSART2_PD5PD6(uint32_t baud_rate, uint8_t len, char parity,
-                              uint8_t stop_b) {
-
+static void InitUSART2_PD5PD6(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOD, 5, GPIOD, 6);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
@@ -336,15 +331,8 @@ static void InitUSART2_PD5PD6(uint32_t baud_rate, uint8_t len, char parity,
 #else
 #error InitUSART2_PD5PD6(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART2);
-    InitUartSettings(USART2, baud_rate, len, parity, stop_b);
-
-    // these may work only for F103, F107, etc, will fix
 
     InitUartNvic(USART2_IRQn);
-
-    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART2_PD5PD6 && defined( USART2_EXISTS )
 
@@ -370,31 +358,22 @@ void USART2_IRQHandler(void) {
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART3_PB10PB11) && defined(USART3_EXISTS)
-static void InitUSART3_PB10PB11(uint32_t baud_rate, uint8_t len, char parity,
-                                uint8_t stop_b) {
-
+static void InitUSART3_PB10PB11(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOB, 10, GPIOB, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
 #error InitUSART3_PB10PB11(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART3);
-    InitUartSettings(USART3, baud_rate, len, parity, stop_b);
 
     // these may work only for F103, F107, etc, will fix
     InitUartNvic(USART3_IRQn);
-
-    // __HAL_USART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PB10PB11 && defined( USART3_EXISTS )
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART3_PC10PC11) && defined(USART3_EXISTS)
-static void InitUSART3_PC10PC11(uint32_t baud_rate, uint8_t len, char parity,
-                                uint8_t stop_b) {
-
+static void InitUSART3_PC10PC11(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOC, 10, GPIOC, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
@@ -402,20 +381,14 @@ static void InitUSART3_PC10PC11(uint32_t baud_rate, uint8_t len, char parity,
 #else
 #error InitUSART3_PC10PC11(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(USART3);
-    InitUartSettings(USART3, baud_rate, len, parity, stop_b);
 
     InitUartNvic(USART3_IRQn);
-
-    // __HAL_USART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PC10PC11 && defined( USART3_EXISTS )
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART3_PD8PD9) && defined(USART3_EXISTS)
-static void InitUSART3_PD8PD9(uint32_t baud_rate, uint8_t len, char parity,
-                              uint8_t stop_b) {
+static void InitUSART3_PD8PD9(void) {
 
 #if defined(STM32F107xC)
     InitUartPins(GPIOD, 8, GPIOD, 9);  // verified
@@ -427,13 +400,7 @@ static void InitUSART3_PD8PD9(uint32_t baud_rate, uint8_t len, char parity,
 #error InitUSART3_PD8PD9(): need to implement and verify!
 #endif
 
-    // usart setting
-    utils.clock.enableUart(USART3);
-    InitUartSettings(USART3, baud_rate, len, parity, stop_b);
-
     InitUartNvic(USART3_IRQn);
-
-    // __HAL_UART_ENABLE( &hconsole_ );
 }
 #endif  // _CONSOLE_USE_UART3_PD8PD9 && defined( USART3_EXISTS )
 
@@ -459,21 +426,13 @@ void USART3_IRQHandler(void) {
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART4_PC10PC11) && defined(UART4_EXISTS)
-static void InitUART4_PC10PC11(uint32_t baud_rate, uint8_t len, char parity,
-                               uint8_t stop_b) {
-
+static void InitUART4_PC10PC11(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOC, 10, GPIOC, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
 #error InitUART4_PC10PC11(): need to implement and verify!
 #endif
-
-    // usart setting
-    utils.clock.enableUart(UART4);
-    InitUartSettings(UART4, baud_rate, len, parity, stop_b);
-
-    // these may work only for F103, F107, etc, will fix
 
     InitUartNvic(UART4_IRQn);
 }
@@ -494,17 +453,12 @@ void UART4_IRQHandler(void) {
 // ---------------------------------------------------------------------------
 // UART5 test on PC12 (TX) & PD2 (RX)
 // supported baud rate: 115200, 230400, 460800, 576000, 921600
-static void InitUART5_PC12PD2(uint32_t baud_rate, uint8_t len, char parity,
-                              uint8_t stop_b) {
-
+static void InitUART5_PC12PD2(void) {
 #if defined(STM32F107xC)
     InitUartPins(GPIOC, 12, GPIOD, 2);  // verified
 #else
 #error InitUART5_PC12PD2(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(UART5);
-    InitUartSettings(UART5, baud_rate, len, parity, stop_b);
 
     InitUartNvic(UART5_IRQn);
 }
@@ -521,17 +475,12 @@ void UART5_IRQHandler(void) {
 
 // ============================================================================
 #if defined(_CONSOLE_USE_UART7_PE8PE7) && defined(UART7_EXISTS)
-static void InitUART7_PE8PE7(uint32_t baud_rate, uint8_t len, char parity,
-                             uint8_t stop_b) {
-
+static void InitUART7_PE8PE7(void) {
 #if defined(STM32F427xx)
     InitUartPins(GPIOE, 8, GPIOE, 7, GPIO_AF8_UART7);  // verified
 #else
 #error InitUART7_PE8PE7(): need to implement and verify!
 #endif
-    // usart setting
-    utils.clock.enableUart(UART7);
-    InitUartSettings(UART7, baud_rate, len, parity, stop_b);
 
     InitUartNvic(UART7_IRQn);
 }
@@ -668,8 +617,7 @@ static void    CliAttachCmd(char* str, CliHandle p) {
 // ============================================================================
 // HAL_StatusTypeDef CliSuspend( int argc, char** argv );
 // -----------------------------
-static void consoleConfig(uint32_t baud_rate, uint8_t len, char parity,
-                          uint8_t stop_b) {
+static void consoleConfig(uint32_t baud_rate) {
 
     console.level = LOG_INFO;
     rb.r_ptr      = rb.buffer;
@@ -677,37 +625,50 @@ static void consoleConfig(uint32_t baud_rate, uint8_t len, char parity,
 
 #if defined(_CONSOLE_USE_UART1_PA9PA10)
     g_config_usart_used |= 1 << 1;
-    InitUSART1_PA9PA10(baud_rate, len, parity, stop_b);
+    InitUSART1_PA9PA10();
+    hconsole_.Instance = USART1;
 #elif defined(_CONSOLE_USE_UART1_PB6PB7)
     g_config_usart_used |= 1 << 1;
-    InitUSART1_PB6PB7(baud_rate, len, parity, stop_b);
+    InitUSART1_PB6PB7();
+    hconsole_.Instance = USART1;
 #elif defined(_CONSOLE_USE_UART2_PA2PA3)
     g_config_usart_used |= 1 << 2;
-    InitUSART2_PA2PA3(baud_rate, len, parity, stop_b);
+    InitUSART2_PA2PA3();
+    hconsole_.Instance     = USART2;
 #elif defined(_CONSOLE_USE_UART2_PD5PD6)
     g_config_usart_used |= 1 << 2;
-    InitUSART2_PD5PD6(baud_rate, len, parity, stop_b);
+    InitUSART2_PD5PD6();
+    hconsole_.Instance     = USART2;
 #elif defined(_CONSOLE_USE_UART3_PB10PB11)
     g_config_usart_used |= 1 << 3;
-    InitUSART3_PB10PB11(baud_rate, len, parity, stop_b);
+    InitUSART3_PB10PB11();
+    hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_UART3_PC10PC11)
     g_config_usart_used |= 1 << 3;
-    InitUSART3_PC10PC11(baud_rate, len, parity, stop_b);
+    InitUSART3_PC10PC11();
+    hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_UART3_PD8PD9)
     g_config_usart_used |= 1 << 3;
-    InitUSART3_PD8PD9(baud_rate, len, parity, stop_b);
+    InitUSART3_PD8PD9();
+    hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_UART4_PC10PC11)
     g_config_usart_used |= 1 << 4;
-    InitUART4_PC10PC11(baud_rate, len, parity, stop_b);
+    InitUART4_PC10PC11();
+    hconsole_.Instance     = UART4;
 #elif defined(_CONSOLE_USE_UART5_PC12PD2)
     g_config_usart_used |= 1 << 5;
-    InitUART5_PC12PD2(baud_rate, len, parity, stop_b);
+    InitUART5_PC12PD2();
+    hconsole_.Instance     = UART5;
 #elif defined(_CONSOLE_USE_UART7_PE8PE7)
     g_config_usart_used |= 1 << 7;
-    InitUART7_PE8PE7(baud_rate, len, parity, stop_b);
+    InitUART7_PE8PE7();
+    hconsole_.Instance     = UART7;
 #else
 #error consoleConfig(): not implemented!
 #endif
+    // usart setting -------------
+    utils.clock.enableUart(hconsole_.Instance);
+    InitUartSettings(hconsole_.Instance, baud_rate, 8, 'n', 1);
     __HAL_UART_ENABLE(&hconsole_);
 
     // command line interface -------------

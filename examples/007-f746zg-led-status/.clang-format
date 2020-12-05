@@ -2,15 +2,15 @@
 # 语言: None, Cpp, Java, JavaScript, ObjC, Proto, TableGen, TextProto
 Language:	Cpp
 # BasedOnStyle:	LLVM
-# 访问说明符(public、private等)的偏移
+# 访问说明符（public、private等）的偏移
 AccessModifierOffset:	-4
-# 开括号(开圆括号、开尖括号、开方括号)后的对齐: Align, DontAlign, AlwaysBreak(总是在开括号后换行)
+# 开括号（开圆括号、开尖括号、开方括号）后的对齐: Align, DontAlign, AlwaysBreak（总是在开括号后换行）
 AlignAfterOpenBracket:	Align
 # 连续赋值时，对齐所有等号
 AlignConsecutiveAssignments:	true
 # 连续声明时，对齐所有声明的变量名
 AlignConsecutiveDeclarations:	true
-# 左对齐逃脱换行(使用反斜杠换行)的反斜杠
+# 左对齐逃脱换行（使用反斜杠换行）的反斜杠
 AlignEscapedNewlinesLeft:	true
 # 水平对齐二元和三元表达式的操作数
 AlignOperands:	true
@@ -22,16 +22,16 @@ AllowAllParametersOfDeclarationOnNextLine:	true
 AllowShortBlocksOnASingleLine:	false
 # 允许短的case标签放在同一行
 AllowShortCaseLabelsOnASingleLine:	false
-# 允许短的函数放在同一行: None, InlineOnly(定义在类中), Empty(空函数), Inline(定义在类中，空函数), All
+# 允许短的函数放在同一行: None, InlineOnly（定义在类中）, Empty（空函数）, Inline（定义在类中，空函数）, All
 AllowShortFunctionsOnASingleLine:	Empty
 # 允许短的if语句保持在同一行
 AllowShortIfStatementsOnASingleLine:	false
 # 允许短的循环保持在同一行
 AllowShortLoopsOnASingleLine:	false
-# 总是在定义返回类型后换行(deprecated)
+# 总是在定义返回类型后换行（deprecated）
 AlwaysBreakAfterDefinitionReturnType:	None
-# 总是在返回类型后换行: None, All, TopLevel(顶级函数，不包括在类中的函数), 
-#   AllDefinitions(所有的定义，不包括声明), TopLevelDefinitions(所有的顶级函数的定义)
+# 总是在返回类型后换行: None, All, TopLevel（顶级函数，不包括在类中的函数）, 
+#   AllDefinitions（所有的定义，不包括声明）, TopLevelDefinitions（所有的顶级函数的定义）
 AlwaysBreakAfterReturnType:	None
 # 总是在多行string字面量前换行
 AlwaysBreakBeforeMultilineStrings:	false
@@ -65,11 +65,11 @@ BraceWrapping:
   BeforeElse:	true
   # 缩进大括号
   IndentBraces:	false
-# 在二元运算符前换行: None(在操作符后换行), NonAssignment(在非赋值的操作符前换行), All(在操作符前换行)
+# 在二元运算符前换行: None（在操作符后换行）, NonAssignment（在非赋值的操作符前换行）, All（在操作符前换行）
 BreakBeforeBinaryOperators:	NonAssignment
-# 在大括号前换行: Attach(始终将大括号附加到周围的上下文), Linux(除函数、命名空间和类定义，与Attach类似), 
-#   Mozilla(除枚举、函数、记录定义，与Attach类似), Stroustrup(除函数定义、catch、else，与Attach类似), 
-#   Allman(总是在大括号前换行), GNU(总是在大括号前换行，并对于控制语句的大括号增加额外的缩进), WebKit(在函数前换行), Custom
+# 在大括号前换行: Attach（始终将大括号附加到周围的上下文）, Linux（除函数、命名空间和类定义，与Attach类似）, 
+#   Mozilla（除枚举、函数、记录定义，与Attach类似）, Stroustrup（除函数定义、catch、else，与Attach类似）, 
+#   Allman（总是在大括号前换行），GNU（总是在大括号前换行，并对于控制语句的大括号增加额外的缩进）, WebKit（在函数前换行）, Custom
 #   注：这里认为语句块也属于函数
 BreakBeforeBraces:	Custom
 # 在三元运算符前换行
@@ -92,11 +92,11 @@ Cpp11BracedListStyle:	false
 DerivePointerAlignment:	false
 # 关闭格式化
 DisableFormat:	false
-# 自动检测函数的调用和定义是否被格式为每行一个参数(Experimental)
+# 自动检测函数的调用和定义是否被格式为每行一个参数（Experimental）
 ExperimentalAutoDetectBinPacking:	false
 # 需要被解读为foreach循环而不是函数调用的宏
 ForEachMacros:	[ foreach, Q_FOREACH, BOOST_FOREACH ]
-# 对#include进行排序，匹配了某正则表达式的#include拥有对应的优先级，匹配不到的则默认优先级为INT_MAX(优先级越小排序越靠前)，
+# 对#include进行排序，匹配了某正则表达式的#include拥有对应的优先级，匹配不到的则默认优先级为INT_MAX（优先级越小排序越靠前），
 #   可以定义负数优先级从而保证某些#include永远在最前面
 IncludeCategories: 
   - Regex:	'^"(llvm|llvm-c|clang|clang-c)/'
@@ -119,7 +119,7 @@ MacroBlockBegin:	''
 MacroBlockEnd:	''
 # 连续空行的最大数量
 MaxEmptyLinesToKeep:	1
-# 命名空间的缩进: None, Inner(缩进嵌套的命名空间中的内容), All
+# 命名空间的缩进: None, Inner（缩进嵌套的命名空间中的内容）, All
 NamespaceIndentation:	Inner
 # 使用ObjC块时缩进宽度
 ObjCBlockIndentWidth:	4
@@ -127,7 +127,7 @@ ObjCBlockIndentWidth:	4
 ObjCSpaceAfterProperty:	false
 # 在ObjC的protocol列表前添加一个空格
 ObjCSpaceBeforeProtocolList:	true
-# 在call(后对函数调用换行的penalty
+# 在call（后对函数调用换行的penalty
 PenaltyBreakBeforeFirstCallParameter:	19
 # 在一个注释中引入换行的penalty
 PenaltyBreakComment:	300
@@ -153,16 +153,16 @@ SpaceBeforeAssignmentOperators:	true
 SpaceBeforeParens:	ControlStatements
 # 在空的圆括号中添加空格
 SpaceInEmptyParentheses:	false
-# 在尾随的评论前添加的空格数(只适用于//)
+# 在尾随的评论前添加的空格数（只适用于//）
 SpacesBeforeTrailingComments:	2
 # 在尖括号的<后和>前添加空格
-SpacesInAngles:	true
-# 在容器(ObjC和JavaScript的数组和字典等)字面量中添加空格
+SpacesInAngles:	false
+# 在容器（ObjC和JavaScript的数组和字典等）字面量中添加空格
 SpacesInContainerLiterals:	true
 # 在C风格类型转换的括号中添加空格
 SpacesInCStyleCastParentheses:	true
 # 在圆括号的(后和)前添加空格
-SpacesInParentheses:	true
+SpacesInParentheses:	false
 # 在方括号的[后和]前添加空格，lamda表达式和未指明大小的数组的声明不受影响
 SpacesInSquareBrackets:	false
 # 标准: Cpp03, Cpp11, Auto
@@ -171,3 +171,4 @@ Standard:	Cpp11
 TabWidth:	4
 # 使用tab字符: Never, ForIndentation, ForContinuationAndIndentation, Always
 UseTab:	Never
+

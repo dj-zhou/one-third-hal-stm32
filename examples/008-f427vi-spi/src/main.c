@@ -18,7 +18,8 @@ void taskPrint(void) {
     console.printf("address of spi1 = %08d\r\n", addr1);
     console.printf("address of spi1.transceive8bits = %08d\r\n", addr2);
     console.printf("address diff = %d\r\n", addr2 - addr1);
-    SpiApi_t* spi = container_of(&(spi1.transceive8bits), SpiApi_t, transceive8bits);
+    SpiApi_t* spi =
+        container_of(&(spi1.transceive8bits), SpiApi_t, transceive8bits);
     console.printf("address of spi = %08d\r\n", ( uint32_t )spi);
 }
 
@@ -29,7 +30,7 @@ int main(void) {
     utils.system.initNvic(4);
     stime.config();
     stime.scheduler.config();
-    console.config(2000000, 8, 'n', 1);
+    console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_DOUBLE_BLINK);
     spi1.config(16, "master", "soft", "high", "falling");

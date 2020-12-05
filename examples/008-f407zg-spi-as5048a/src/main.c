@@ -36,7 +36,7 @@ int main(void) {
     utils.system.initNvic(4);
     stime.config();
     stime.scheduler.config();
-    console.config(2000000, 8, 'n', 1);
+    console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
     spi1.config(16, "master", "soft", "high", "falling");
