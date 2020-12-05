@@ -1,4 +1,7 @@
+#include "config.h"
+
 #include "stime-scheduler.h"
+#include "uart-console.h"
 #include <stdio.h>
 #include <string.h>
 

@@ -123,6 +123,7 @@ typedef struct {
     void (*pull)(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p);
     void (*set)(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v);
     void (*toggle)(GPIO_TypeDef* GPIOx, uint8_t pin_n);
+    bool (*read)(GPIO_TypeDef* GPIOx, uint8_t pin_n);
 } Pin;
 
 // ============================================================================

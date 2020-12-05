@@ -307,9 +307,7 @@ static void InitUSART2_PA2PA3(uint32_t baud_rate, uint8_t len, char parity,
     InitUartPins(GPIOA, 2, GPIOA, 3);                   // verified
 #elif defined(STM32F107xC)
     InitUartPins(GPIOA, 2, GPIOA, 3);                    // verified
-#elif defined(STM32F303xE)
-    InitUartPins(GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2);  // verifing
-#elif defined(STM32F407xx)
+#elif defined(STM32F303xE) || defined(STM32F407xx) || defined(STM32F767xx)
     InitUartPins(GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2);  // verified
 #else
 #error InitUSART2_PA2PA3(): need to implement and verify!
@@ -358,10 +356,10 @@ void USART2_IRQHandler(void) {
 // STM32F030x8 is verified
 // STM32F103xB is verified
 // STM32F107xC is verified
-// STM32F303xE is verifying
+// STM32F303xE is verified
 // STM32F407xx is verified
 #if defined(STM32F030x8) || defined(STM32F103xB) || defined(STM32F107xC) \
-    || defined(STM32F303xE) || defined(STM32F407xx)
+    || defined(STM32F303xE) || defined(STM32F407xx) || defined(STM32F767xx)
     ConsoleUartIRQ();
 #else
 #error USART2_IRQHandler(): need to implement and verify!

@@ -361,9 +361,8 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
         Error_Handler(hclk_m * 5000000);
     }
     if (HSE_VALUE == 8000000) {
-        RCC_OscInitTypeDef       RCC_OscInitStruct   = { 0 };
-        RCC_ClkInitTypeDef       RCC_ClkInitStruct   = { 0 };
-        RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
         __HAL_RCC_PWR_CLK_ENABLE();
         __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
@@ -394,11 +393,6 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 
         if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7)
             != HAL_OK) {
-            Error_Handler(HSE_VALUE * 5);
-        }
-        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART3;
-        PeriphClkInitStruct.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
-        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
     }
@@ -592,9 +586,25 @@ static void enableUartClock(USART_TypeDef* USARTx) {
     if (USARTx == USART1) { __HAL_RCC_USART1_CLK_ENABLE(); return; }
 #endif
 #if defined(USART2_EXISTS)
+#if defined(STM32F746xx) || defined(STM32F767xx)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct2 = { 0 };
+    PeriphClkInitStruct2.PeriphClockSelection = RCC_PERIPHCLK_USART2;
+    PeriphClkInitStruct2.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct2) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
+    }
+#endif // STM32F746xx || STM32F767xx
     if (USARTx == USART2) { __HAL_RCC_USART2_CLK_ENABLE(); return; }
 #endif
 #if defined(USART3_EXISTS)
+#if defined(STM32F746xx) || defined(STM32F767xx)
+    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct3 = { 0 };
+    PeriphClkInitStruct3.PeriphClockSelection = RCC_PERIPHCLK_USART3;
+    PeriphClkInitStruct3.Usart3ClockSelection = RCC_USART3CLKSOURCE_PCLK1;
+    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct3) != HAL_OK) {
+        Error_Handler(HSE_VALUE * 5);
+    }
+#endif // STM32F746xx || STM32F767xx
     if (USARTx == USART3) { __HAL_RCC_USART3_CLK_ENABLE(); return; }
 #endif
 #if defined(UART4_EXISTS)
@@ -744,6 +754,11 @@ static void togglePin(GPIO_TypeDef* GPIOx, uint8_t pin_n) {
 }
 
 // ============================================================================
+static bool readPin(GPIO_TypeDef* GPIOx, uint8_t pin_n) {
+    return HAL_GPIO_ReadPin(GPIOx, 1 << pin_n);
+}
+
+// ============================================================================
 #if defined(RTOS_IS_USED)
 // ----------------------------------------------------------------------------
 static void setRtosState(RtosState_e state) {
@@ -775,6 +790,7 @@ UtilsApi_t utils = {
     .pin.pull   = setPinPull,
     .pin.set    = setPin    ,
     .pin.toggle = togglePin ,
+    .pin.read   = readPin   ,
 #if defined(RTOS_IS_USED)
     .rtos.setState = setRtosState,
     .rtos.getState = getRtosState,
