@@ -4,6 +4,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+// ============================================================================
 
 // if use this library, we must we this module
 #include "config.h"
@@ -21,70 +22,57 @@ extern "C" {
 // ============================================================================
 // project interface --------------
 // clang-format off
-
-// only _CONSOLE_USE_UART1_PA9PA10 can be used for firmware upgrading
-#if !defined(_CONSOLE_USE_UART1_PA9PA10)     \
-    && !defined(_CONSOLE_USE_UART1_PB6PB7)   \
-    && !defined(_CONSOLE_USE_UART2_PA2PA3)   \
-    && !defined(_CONSOLE_USE_UART2_PD5PD6)   \
-    && !defined(_CONSOLE_USE_UART3_PB10PB11) \
-    && !defined(_CONSOLE_USE_UART3_PC10PC11) \
-    && !defined(_CONSOLE_USE_UART3_PD8PD9)   \
-    && !defined(_CONSOLE_USE_UART4_PC10PC11) \
-    && !defined(_CONSOLE_USE_UART5_PC12PD2)  \
-    && !defined(_CONSOLE_USE_UART7_PE8PE7)
-    #define _CONSOLE_USE_UART2_PA2PA3
+#if defined(_CONSOLE_USE_USART1_PA9PA10) || defined(_CONSOLE_USE_USART1_PB6PB7)
+    #define CONSOLE_USE_USART1
 #endif
 
-#if defined(_CONSOLE_USE_UART1_PA9PA10) || defined(_CONSOLE_USE_UART1_PB6PB7) \
-    || defined(_CONSOLE_USE_UART2_PA2PA3)                                     \
-    || defined(_CONSOLE_USE_UART2_PD5PD6)                                     \
-    || defined(_CONSOLE_USE_UART3_PB10PB11)                                   \
-    || defined(_CONSOLE_USE_UART3_PC10PC11)                                   \
-    || defined(_CONSOLE_USE_UART3_PD8PD9)                                     \
-    || defined(_CONSOLE_USE_UART4_PC10PC11)                                   \
-    || defined(_CONSOLE_USE_UART5_PC12PD2)                                    \
-    || defined(_CONSOLE_USE_UART7_PE8PE7)
+#if defined(_CONSOLE_USE_USART2_PA2PA3) || defined(_CONSOLE_USE_USART2_PD5PD6)
+    #define CONSOLE_USE_USART2
+#endif
+
+#if defined(_CONSOLE_USE_USART3_PB10PB11) || defined(_CONSOLE_USE_USART3_PC10PC11) \
+   || defined (_CONSOLE_USE_USART3_PD8PD9)
+    #define CONSOLE_USE_USART3
+#endif
+
+#if defined(_CONSOLE_USE_UART4_PC10PC11)
+    #define CONSOLE_USE_UART4
+#endif
+
+#if defined(_CONSOLE_USE_UART5_PC12PD2)
+    #define CONSOLE_USE_UART5
+#endif
+
+// USART6: TODO
+
+#if defined(_CONSOLE_USE_UART7_PE8PE7)
+    #define CONSOLE_USE_UART7
+#endif
+
+#if defined(CONSOLE_USE_USART1)     \
+    || defined(CONSOLE_USE_USART2)  \
+    || defined(CONSOLE_USE_USART3)  \
+    || defined(CONSOLE_USE_UART4)   \
+    || defined(CONSOLE_USE_UART5)   \
+    || defined(CONSOLE_USE_USART6)  \
+    || defined(CONSOLE_USE_UART7)
     #define CONSOLE_IS_USED
-#endif
-
-#if !defined(_CONSOLE_SIGN_DATA_SIZE)
-    #define _CONSOLE_SIGN_DATA_SIZE     (50)  // > 20
-#endif
-
-#if !defined(_CONSOLE_BUFF_LEN)
-    #define _CONSOLE_BUFF_LEN           (100)
 #endif
 // clang-format on
 
 // ============================================================================
 #if defined(CONSOLE_IS_USED)
-typedef enum {
-    TX_PP = 0,
-    TX_OD = 1,
-} ConsoleTx_e;
 
-// to print with color (escaping)
-#define NOC "\033[0m"
-#define GRY "\033[0;30m"
-#define RED "\033[0;31m"
-#define GRN "\033[0;32m"
-#define YLW "\033[0;33m"
-#define BLU "\033[0;34m"
-#define PRP "\033[0;35m"
-#define CYN "\033[0;36m"
-#define WHT "\033[0;37m"
-#define HGRY "\033[1;30m"
-#define HRED "\033[1;31m"
-#define HGRN "\033[1;32m"
-#define HYLW "\033[1;33m"
-#define HBLU "\033[1;34m"
-#define HPRP "\033[1;35m"
-#define HCYN "\033[1;36m"
-#define HWHT "\033[1;37m"
+// clang-format off
+#if !defined(_CONSOLE_SIGN_DATA_SIZE)
+    #define    _CONSOLE_SIGN_DATA_SIZE    (50)  // > 20
+#endif
+
+#if !defined(_CONSOLE_BUFF_LEN)
+    #define    _CONSOLE_BUFF_LEN         (100)
+#endif
 
 // priority ----------------------------
-// clang-format off
 #if defined(RTOS_USE_FREERTOS)
     #if !defined(_CONSOLE_PREEMPTION_PRIORITY)
         #define _CONSOLE_PREEMPTION_PRIORITY        20
@@ -114,30 +102,46 @@ typedef enum {
     LOG_INFO,  // informational messages that require no action, can be shut off
 } LogLevel_e;
 
+typedef enum {
+    TX_PP = 0,
+    TX_OD = 1,
+} UartTx_e;
+
+typedef struct {
+    void (*mode)(UartTx_e);
+} ConsoleTx;
+
+typedef struct {
+    void (*enable)(bool);
+    bool (*get)(void);
+    void (*setStatus)(bool);
+    bool (*getStatus)(void);
+} ConsoleRx;
+
+typedef struct {
+    void (*byte)(char);
+    void (*str)(char*);
+} ConsoleWrite;
+
 typedef struct {
     void (*setLevel)(LogLevel_e l);
     void (*attach)(char* str, CliHandle p);
     void (*process)(void);
-} Cli;
+} ConsoleCli;
 
 // ============================================================================
 // clang-format off
 typedef struct {
     LogLevel_e level;
     void (*config)(uint32_t)                           ;
-    void (*setTxMode)(ConsoleTx_e)                     ;
-    void (*enableRxen)(bool)                           ;
-    void (*setRxStatus)(bool)                          ;
-    bool (*getRxStatus)(void)                          ;
-    bool (*getRxen)(void)                              ;
     void (*printk)(LogLevel_e level, char* format, ...);
     void (*printf)(char* format, ...)                  ;
     void (*error)(char* format, ...)                   ;
-    void (*writeByte)(char)                            ;
-    void (*writeStr)(char*)                            ;
     char (*read)(uint16_t)                             ;
-    // command line interface
-    Cli cli;
+    ConsoleTx    tx    ;
+    ConsoleRx    rx    ;
+    ConsoleWrite write ;
+    ConsoleCli   cli   ;
 } Console_t;
 extern Console_t console;
 // clang-format on

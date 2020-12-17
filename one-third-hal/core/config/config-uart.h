@@ -1,9 +1,9 @@
-#ifndef __CONFIG_USART_H
-#define __CONFIG_USART_H
+#ifndef __CONFIG_UART_H
+#define __CONFIG_UART_H
 
 #include "config.h"
 
-uint16_t g_config_usart_used;
+uint16_t g_config_uart_used;
 
 // clang-format off
 
@@ -51,4 +51,4 @@ uint16_t g_config_usart_used;
 
 // clang-format on
 
-#endif  // __CONFIG_USART_H
+#endif  // __CONFIG_UART_H

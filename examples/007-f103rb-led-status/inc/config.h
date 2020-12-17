@@ -8,8 +8,8 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 
 // ============================================================================
-// ----------------------------------------------------------------------------
 // one-third-core includes
+// ----------------------------------------------------------------------------
 #include "general-utils.h"
 
 // ----------------------------------------------------------------------------
@@ -19,9 +19,9 @@ extern "C" {
 #include "stime-scheduler.h"
 
 // ----------------------------------------------------------------------------
-#define _CONSOLE_USE_UART2_PA2PA3
-// #define _CONSOLE_USE_UART3_PC10PC11
-// #define _CONSOLE_USE_UART1_PB6PB7
+#define _CONSOLE_USE_USART2_PA2PA3
+// #define _CONSOLE_USE_USART3_PC10PC11
+// #define _CONSOLE_USE_USART1_PB6PB7
 // #define _CONSOLE_USE_UART5_PC12PD2
 #include "uart-console.h"
 

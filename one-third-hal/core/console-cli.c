@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(CONSOLE_IS_USED)
 Cli_t    cli_;
 CliCmd_t cmd_[_CLI_CMD_MAX_NUM];
 
@@ -114,18 +115,18 @@ static void CliReadCmdHistory(uint8_t way) {
 
     if (cli_.history.buff[cli_.history.index][0] != 0) {
         for (int i = strlen(cli_.cmd_buff_cursor); i > 0; i--) {
-            console.writeByte(' ');
+            console.write.byte(' ');
         }
 
         for (int i = strlen(cli_.cmd_buff); i > 0; i--) {
-            console.writeStr("\b \b");
+            console.write.str("\b \b");
         }
 
         strcpy(cli_.cmd_buff, &cli_.history.buff[cli_.history.index][0]);
         cli_.cmd_buff_cursor =
             cli_.cmd_buff + strlen(&cli_.history.buff[cli_.history.index][0]);
         cli_.cmd_buff_tail = cli_.cmd_buff_cursor;
-        console.writeStr(cli_.cmd_buff);
+        console.write.str(cli_.cmd_buff);
 
         if (cli_.history.index-- == 0) {
             cli_.history.index = _CLI_HISTORY_CMD_NUM - 1;
@@ -146,10 +147,10 @@ void CliInput(char read_char) {
         strcpy(str, cli_.cmd_buff_cursor);
         memcpy((cli_.cmd_buff_cursor + 1), str, strlen(str) + 1);
         *cli_.cmd_buff_cursor = read_char;
-        console.writeByte(read_char);
-        console.writeStr(str);
+        console.write.byte(read_char);
+        console.write.str(str);
         for (uint16_t i = strlen(str); i > 0; i--) {
-            console.writeByte('\b');
+            console.write.byte('\b');
         }
         cli_.cmd_buff_cursor++;
         cli_.cmd_buff_tail++;
@@ -159,7 +160,7 @@ void CliInput(char read_char) {
 // ============================================================================
 void CliTabCompletion(char read_char) {
     ( void )read_char;
-    console.writeStr(cli_.out_message);
+    console.write.str(cli_.out_message);
     console.printk(0, "%s(): todo\r\n", __func__);
 }
 
@@ -170,7 +171,7 @@ void CliBackspace(void) {
     if (cli_.cmd_buff_cursor != cli_.cmd_buff) {
         do {
             if (cli_.cmd_buff_cursor == cli_.cmd_buff) {
-                console.writeStr(" ");
+                console.write.str(" ");
                 cli_.cmd_buff_cursor++;
             }
             strcpy(str, cli_.cmd_buff_cursor);
@@ -178,12 +179,12 @@ void CliBackspace(void) {
             cli_.cmd_buff_tail--;
             memcpy((cli_.cmd_buff_cursor), str, strlen(str) + 1);
 
-            console.writeStr("\b \b");
-            console.writeStr(str);
-            console.writeStr(" \b");
+            console.write.str("\b \b");
+            console.write.str(str);
+            console.write.str(" \b");
 
             for (uint16_t i = strlen(str); i > 0; i--) {
-                console.writeByte('\b');
+                console.write.byte('\b');
             }
         } while ((cli_.cmd_buff_cursor == cli_.cmd_buff)
                  && (*cli_.cmd_buff_cursor == ' '));
@@ -204,18 +205,18 @@ void CliDirection(char read_char) {
     case 'C':  // right direciton key
         // console.printk( 0, "right" );
         if (*cli_.cmd_buff_cursor != '\0') {
-            console.writeByte(0x1b);
-            console.writeByte(0x5b);
-            console.writeByte('C');
+            console.write.byte(0x1b);
+            console.write.byte(0x5b);
+            console.write.byte('C');
             cli_.cmd_buff_cursor++;
         }
         break;
     case 'D':  // left direciton key
         // console.printk( 0, "left" );
         if (cli_.cmd_buff_cursor != cli_.cmd_buff) {
-            console.writeByte(0x1b);
-            console.writeByte(0x5b);
-            console.writeByte('D');
+            console.write.byte(0x1b);
+            console.write.byte(0x5b);
+            console.write.byte('D');
             cli_.cmd_buff_cursor--;
         }
         break;
@@ -337,16 +338,16 @@ void CliProcessCmd(char* str) {
 // ============================================================================
 HAL_StatusTypeDef CliShowCmd(void) {
 
-    console.writeStr("\r\n");
+    console.write.str("\r\n");
     CONSOLE_PRINTF_SEG;
-    console.writeStr("console registered commands:");
+    console.write.str("console registered commands:");
     for (uint8_t i = 0; i < _CLI_CMD_MAX_NUM; i++) {
         if (cmd_[i].str) {
-            console.writeStr("\r\n  ");
-            console.writeStr(cmd_[i].str);
+            console.write.str("\r\n  ");
+            console.write.str(cmd_[i].str);
         }
     }
-    console.writeStr("\r\n");
+    console.write.str("\r\n");
     CONSOLE_PRINTF_SEG;
     return HAL_OK;
 }
@@ -403,7 +404,7 @@ HAL_StatusTypeDef CliLogSetLevel(int argc, char** argv) {
 // ============================================================================
 HAL_StatusTypeDef CliShowFirmware(void) {
 
-    console.writeStr("\r\n");
+    console.write.str("\r\n");
     CONSOLE_PRINTF_SEG;
     char* ptr;
     ( void )ptr;
@@ -536,7 +537,9 @@ HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
     }
     uint32_t seconds = atoi(argv[1]);
     stime.scheduler.cliSuspend(seconds);
-    console.setRxStatus(false);
+    console.rx.setStatus(false);
     return HAL_OK;
 }
-#endif
+#endif  // _STIME_USE_SCHEDULER
+
+#endif  // CONSOLE_IS_USED

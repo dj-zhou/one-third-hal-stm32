@@ -1,10 +1,11 @@
 #include "spi.h"
 #include <string.h>
 
-// ============================================================================
 #if defined(SPI_IS_USED)
-static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
-                            SpiParam_t param) {
+
+// ============================================================================
+void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
+                     SpiParam_t param) {
     utils.clock.enableSpi(hspi->Instance);
     if (param.master == 'm') {
         hspi->Init.Mode = SPI_MODE_MASTER;
@@ -94,9 +95,9 @@ static void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
 }
 
 // ============================================================================
-static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
-                                            uint8_t* rbuf, uint16_t len,
-                                            uint32_t timeout) {
+HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
+                                     uint8_t* rbuf, uint16_t len,
+                                     uint32_t timeout) {
     if (spi->param.nss == 's') {
         if (spi->param.nss_GPIOx != NULL) {
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
@@ -125,9 +126,9 @@ static HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
 }
 
 // ============================================================================
-static HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
-                                             uint16_t* rbuf, uint16_t len,
-                                             uint32_t timeout) {
+HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
+                                      uint16_t* rbuf, uint16_t len,
+                                      uint32_t timeout) {
     if (spi->param.nss == 's') {
         if (spi->param.nss_GPIOx != NULL) {
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
@@ -159,8 +160,7 @@ static HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
 }
 
 // ----------------------------------------------------------------------------
-static void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS,
-                           uint8_t pin_nss) {
+void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss) {
     spi->param.nss_GPIOx = GPIOx_NSS;
     spi->param.nss_pin   = pin_nss;
     utils.pin.mode(GPIOx_NSS, pin_nss, GPIO_MODE_OUTPUT_PP);
@@ -170,10 +170,9 @@ static void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS,
 
 // ============================================================================
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
-static void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
-                        GPIO_TypeDef* GPIOx_MI, uint8_t pin_mi,
-                        GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
-                        uint32_t alter) {
+void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo, GPIO_TypeDef* GPIOx_MI,
+                 uint8_t pin_mi, GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
+                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_MO);
     utils.clock.enableGpio(GPIOx_MI);
     utils.clock.enableGpio(GPIOx_SCK);
@@ -202,11 +201,11 @@ static void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
 
 // ----------------------------------------------------------------------------
 // not tested
-static void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
-                               GPIO_TypeDef* GPIOx_MI, uint8_t pin_mi,
-                               GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
-                               GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss,
-                               uint32_t alter) {
+void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
+                        GPIO_TypeDef* GPIOx_MI, uint8_t pin_mi,
+                        GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
+                        GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss,
+                        uint32_t alter) {
     utils.clock.enableGpio(GPIOx_SCK);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // NSS
@@ -218,109 +217,6 @@ static void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
     InitSpiPins(GPIOx_MO, pin_mo, GPIOx_MI, pin_mi, GPIOx_SCK, pin_sck, alter);
 }
 #endif  // STM32F407xx || STM32F427xx || STM32F767xx
-
-// ============================================================================
-#if defined(SPI1_EXISTS) && defined(_USE_SPI1_PA7PA6)
-// PA7: MOSI; PA6: MISO; PA5: SCK; PA4: NSS (hardware)
-static void InitSpi1_PA7PA6(void) {
-#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
-    if (spi1.param.nss == 'h') {
-        InitSpiPinsHardNss(GPIOA, 7, GPIOA, 6, GPIOA, 5, GPIOA, 4,
-                           GPIO_AF5_SPI1);
-    }
-    else {
-        InitSpiPins(GPIOA, 7, GPIOA, 6, GPIOA, 5, GPIO_AF5_SPI1);
-        // initialize the software nss pin by another function call
-    }
-#else
-#error InitSpi1_PA7PA6(): to implement and verify!
-#endif
-}
-#endif  // SPI1_EXISTS || _USE_SPI1_PA7PA6
-
-// ============================================================================
-#if defined(SPI1_EXISTS) && defined(_USE_SPI1_PB5PB4)
-static void InitSpi1_PB5PB4(void) {
-    // todo
-}
-#endif  // SPI1_EXISTS || _USE_SPI1_PB5PB4
-
-// ============================================================================
-#if defined(SPI1_EXISTS) && defined(SPI1_IS_USED)
-
-// ----------------------------------------------------------------------------
-static void InitSpi1(uint16_t prescale, const char* master,
-                     const char* hardware_nss, const char* sck,
-                     const char* phase) {
-    g_config_spi_used |= 1 << 1;  // not started from 0
-    // -------------------
-    if (strcmp(master, "master") == 0) {
-        spi1.param.master = 'm';
-    }
-    else if (strcmp(master, "slave") == 0) {
-        spi1.param.master = 's';
-    }
-    // -------------------
-    if (strcmp(hardware_nss, "hard") == 0) {
-        spi1.param.nss = 'h';
-    }
-    else if (strcmp(hardware_nss, "soft") == 0) {
-        spi1.param.nss = 'h';
-    }
-    // -------------------
-    if (strcmp(sck, "high") == 0) {
-        spi1.param.sck = 'h';
-    }
-    else if (strcmp(sck, "low") == 0) {
-        spi1.param.sck = 'l';
-    }
-    // -------------------
-    if (strcmp(phase, "falling") == 0) {
-        spi1.param.sck = 'f';
-    }
-    else if (strcmp(phase, "rising") == 0) {
-        spi1.param.sck = 'r';
-    }
-
-    spi1.param.nss_GPIOx = NULL;
-    spi1.hspi.Instance   = SPI1;
-#if defined(_USE_SPI1_PA7PA6)
-    InitSpi1_PA7PA6();
-#elif defined(_USE_SPI1_PB5PB4)
-    InitSpi1_PB5PB4();
-#endif
-    InitSpiSettings(&(spi1.hspi), prescale, spi1.param);
-}
-
-// ----------------------------------------------------------------------------
-static void InitSpi1SoftNss(GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss) {
-    InitSpiSoftNss(&spi1, GPIOx_NSS, pin_nss);
-}
-
-// ----------------------------------------------------------------------------
-static HAL_StatusTypeDef Spi1Transceive8bits(uint8_t* t_data, uint8_t* r_data,
-                                             uint16_t len) {
-    uint32_t timeout = 1000;
-    return SpiTransceive8bits(&spi1, t_data, r_data, len, timeout);
-}
-// ----------------------------------------------------------------------------
-static HAL_StatusTypeDef Spi1Transceive16bits(uint16_t* t_data,
-                                              uint16_t* r_data, uint16_t len) {
-    uint32_t timeout = 1000;
-    return SpiTransceive16bits(&spi1, t_data, r_data, len, timeout);
-}
-
-// ============================================================================
-// ---------------------
-// clang-format off
-SpiApi_t spi1 = {
-    .config           = InitSpi1             ,
-    .setNss           = InitSpi1SoftNss      ,
-    .transceive8bits  = Spi1Transceive8bits  ,
-    .transceive16bits = Spi1Transceive16bits ,
-};
-// clang-format on
-#endif  // SPI1_EXISTS && SPI1_IS_USED
 
 // ============================================================================
 #endif  // SPI_IS_USED

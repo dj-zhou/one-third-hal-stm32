@@ -9,6 +9,7 @@ extern "C" {
 #include "config.h"
 
 #include "config-spi.h"
+#include <string.h>
 
 // ============================================================================
 // https://stm32f4-discovery.net/2014/04/library-05-spi-for-stm32f4xx/
@@ -60,6 +61,7 @@ extern "C" {
     #define SPI_IS_USED
 #endif
 
+// different devices need different settings -- to fix -----------
 #if !defined(_SPI_START_TIME_DELAY_US)
     #define _SPI_START_TIME_DELAY_US    0
 #endif
@@ -72,29 +74,10 @@ extern "C" {
     #define _SPI_END_TIME_DELAY_US      0
 #endif
 
-#if !defined(_SPI_SAMPLE_AT_FALLING_CLOCK) || !defined(_SPI_SAMPLE_AT_RISING_CLOCK)
-    #define _SPI_SAMPLE_AT_FALLING_CLOCK
-#endif
-
 // clang-format on
 
 // ----------------------------------------------------------------------------
 #if defined(SPI_IS_USED)
-
-// typedef enum {
-//     SPI_MASTER = (( uint8_t )1),
-//     SPI_SLAVE  = (( uint8_t )2),
-// } SpiMaster_e;
-// typedef enum {
-//     SPI_SOFT_NSS = (( uint8_t )1),
-//     SPI_HARD_NSS = (( uint8_t )2),
-// } SpiNss_e;
-
-// typedef enum {
-//     SPI_SCK_INACTIVE_LOW  = (( uint8_t )0),
-//     SPI_SCK_INACTIVE_HIGH = (( uint8_t )1),
-// } SpiSck_e;
-
 typedef struct {
     unsigned char master;  // 'm' or 's'
     unsigned char nss;     // 'h' or 's'
@@ -103,16 +86,37 @@ typedef struct {
     GPIO_TypeDef* nss_GPIOx;
     uint8_t       nss_pin;
 } SpiParam_t;
+
 typedef struct {
     SPI_HandleTypeDef hspi;
     SpiParam_t        param;
-    void (*config)(uint16_t, const char*, const char*, const char*, const char*);
+    void (*config)(uint16_t, const char*, const char*, const char*,
+                   const char*);
     void (*setNss)(GPIO_TypeDef*, uint8_t);
     HAL_StatusTypeDef (*transceive8bits)(uint8_t*, uint8_t*, uint16_t);
     HAL_StatusTypeDef (*transceive16bits)(uint16_t*, uint16_t*, uint16_t);
 } SpiApi_t;
 
-#endif  // SPI_IS_USED
+void              InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
+                                  SpiParam_t param);
+HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
+                                     uint8_t* rbuf, uint16_t len,
+                                     uint32_t timeout);
+HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
+                                      uint16_t* rbuf, uint16_t len,
+                                      uint32_t timeout);
+void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss);
+
+#if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
+void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo, GPIO_TypeDef* GPIOx_MI,
+                 uint8_t pin_mi, GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
+                 uint32_t alter);
+void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
+                        GPIO_TypeDef* GPIOx_MI, uint8_t pin_mi,
+                        GPIO_TypeDef* GPIOx_SCK, uint8_t pin_sck,
+                        GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss,
+                        uint32_t alter);
+#endif  // STM32F407xx || STM32F427xx || STM32F767xx
 
 // ----------------------------------------------------------------------------
 // clang-format off
@@ -140,6 +144,8 @@ typedef struct {
     extern SpiApi_t spi6;
 #endif
 // clang-format on
+
+#endif  // SPI_IS_USED
 
 // ============================================================================
 #ifdef __cplusplus

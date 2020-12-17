@@ -678,18 +678,10 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
     enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin = GPIO_PIN_x;
-#if defined(STM32F030x8) || defined(STM32F103xB) || defined(STM32F107xC) \
-    || defined(STM32F303xE)
-    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#elif defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
-    || defined(STM32F767xx)
-    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-#else
-#error setPinMode(): need to implement and verify!
-#endif
-    GPIO_InitStructure.Mode = mode;
-    GPIO_InitStructure.Pull = GPIO_NOPULL;  // to verify
+    GPIO_InitStructure.Pin   = GPIO_PIN_x;
+    GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
+    GPIO_InitStructure.Mode  = mode;
+    GPIO_InitStructure.Pull  = GPIO_NOPULL;  // to verify
 
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
@@ -723,17 +715,9 @@ static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
     enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin = 1 << pin_n;
-#if defined(STM32F030x8) || defined(STM32F103xB) || defined(STM32F107xC) \
-    || defined(STM32F303xE)
-    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
-#elif defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
-    || defined(STM32F767xx)
-    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-#else
-#error setPinPull(): need to implement and verify!
-#endif
-    GPIO_InitStructure.Pull = p;
+    GPIO_InitStructure.Pin   = 1 << pin_n;
+    GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
+    GPIO_InitStructure.Pull  = p;
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 

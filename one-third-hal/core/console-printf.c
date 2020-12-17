@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#if defined(CONSOLE_IS_USED)
+
 // ============================================================================
 // this file is only used by the module uart-console
 
@@ -31,8 +33,8 @@ void printf_b(char* sign_data, unsigned int data) {
     }
 
     if (((bits_number / 4) > 0) && ((bits_number / 4) <= 4)) {
-        console.writeStr("0b ");
-        console.writeStr(&sign_data[20 - ((bits_number >> 2) * 5)]);
+        console.write.str("0b ");
+        console.write.str(&sign_data[20 - ((bits_number >> 2) * 5)]);
     }
 }
 
@@ -44,7 +46,7 @@ void printf_f(char* sign_data, double data) {
     char  fmt[10];
     // temporary solution ------------------
     if ((data > -1) && (data < 0)) {
-        console.writeByte('-');
+        console.write.byte('-');
     }
     // --------------------
     str = strchr(sign_data, '.');
@@ -64,27 +66,27 @@ void printf_f(char* sign_data, double data) {
     index +=
         snprintf(&buff[index], _CONSOLE_SIGN_DATA_SIZE - 1 - index, fmt, temp);
     if (index >= width) {
-        console.writeStr(buff);
+        console.write.str(buff);
     }
     else {
         index = width - index;
         if (*sign_data == '-') {
-            console.writeStr(buff);
+            console.write.str(buff);
             while (index--) {
-                console.writeByte(' ');
+                console.write.byte(' ');
             }
         }
         else if (*sign_data == '0') {
             while (index--) {
-                console.writeByte('0');
+                console.write.byte('0');
             }
-            console.writeStr(buff);
+            console.write.str(buff);
         }
         else {
             while (index--) {
-                console.writeByte(' ');
+                console.write.byte(' ');
             }
-            console.writeStr(buff);
+            console.write.str(buff);
         }
     }
 }
@@ -93,97 +95,97 @@ void printf_f(char* sign_data, double data) {
 void printf_d(char* sign_data, int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_ld(char* sign_data, long data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_c(char* sign_data, int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_o(char* sign_data, unsigned int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_u(char* sign_data, unsigned int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_x(char* sign_data, unsigned int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_lx(char* sign_data, long data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_X(char* sign_data, unsigned int data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_lX(char* sign_data, long data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_e(char* sign_data, double data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_g(char* sign_data, double data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_s(char* sign_data, char* data) {
     ( void )sign_data;
-    console.writeStr(data);
+    console.write.str(data);
 }
 
 // ============================================================================
 void printf_p(char* sign_data, void* data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
 void printf_n(char* sign_data, int* data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
     snprintf(buff, _CONSOLE_SIGN_DATA_SIZE - 1, sign_data, data);
-    console.writeStr(buff);
+    console.write.str(buff);
 }
 
 // ============================================================================
@@ -226,14 +228,14 @@ void ConsolePrintf(char* sign_data, char* format, va_list ap) {
     char* fmt = format;
     while (*fmt) {
         while (*fmt != '%' && *fmt != '\0') {
-            console.writeByte(*fmt++);
+            console.write.byte(*fmt++);
         }
         if (*fmt == '%') {
             if (*++fmt == '%') {
-                console.writeByte(*fmt++);
+                console.write.byte(*fmt++);
             }
             else if (*fmt == '\0') {
-                console.writeByte('%');
+                console.write.byte('%');
                 break;
             }
             else if ('\0' != (SeekSignifier(&fmt, sign_data, sign))) {
@@ -292,22 +294,24 @@ void ConsolePrintf(char* sign_data, char* format, va_list ap) {
                         printf_f(sign_data, va_arg(ap, double));
                     } break;
                     default: {
-                        console.writeStr(RED "\r\n printf(");
-                        console.writeStr(sign_data);
-                        console.writeStr(") not supported." NOC);
+                        console.write.str(RED "\r\n printf(");
+                        console.write.str(sign_data);
+                        console.write.str(") not supported." NOC);
                     }
                     }
                 } break;
                 default: {
-                    console.writeStr("\r\n printf(");
-                    console.writeStr(sign_data);
-                    console.writeStr(") ERROR");
+                    console.write.str("\r\n printf(");
+                    console.write.str(sign_data);
+                    console.write.str(") ERROR");
                 }
                 }
             }
             else {
-                console.writeByte('%');
+                console.write.byte('%');
             }
         }
     }
 }
+
+#endif  // CONSOLE_IS_USED

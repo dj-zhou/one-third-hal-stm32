@@ -7,7 +7,7 @@ int main(void) {
     utils.pin.mode(GPIOD, 4, GPIO_MODE_OUTPUT_PP);
     stime.config();
     console.config(2000000);
-    static int loop_count = 0;
+    int loop_count = 0;
 
     while (1) {
         // just some delay
@@ -21,7 +21,8 @@ int main(void) {
         utils.pin.toggle(GPIOD, 4);
 
         console.printf(YLW "%s\r\n " NOC, FIRMWARE);
-        console.printf("%5d = %b\r\n", loop_count++, loop_count);
+        console.printf("%5d = %b\r\n", loop_count, loop_count);
+        loop_count++;
         float pi = 3.1415926;
         console.printf(GRN "pi = %f\r\n" NOC, pi);
         const char str[] = "this is a one-third demo program";

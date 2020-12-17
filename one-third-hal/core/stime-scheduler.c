@@ -178,14 +178,20 @@ static void stimeToc(char* mu, char* message) {
     long time;
     if (strcmp(mu, "ms") == 0) {
         time = (toc_.s - tic_.s) * 1000 + (toc_.us - tic_.us) / 1000;
+#if defined(CONSOLE_IS_USED)
         console.printf("%s consumes %ld ms.\r\n", message, time);
+#endif
         return;
     }
     if (strcmp(mu, "us") == 0) {
         time = (toc_.s - tic_.s) * 1000000 + (toc_.us - tic_.us);
+#if defined(CONSOLE_IS_USED)
         console.printf("%s consumes %ld us.\r\n", message, time);
+#endif
         return;
     }
+    ( void )message;
+    ( void )time;
 }
 
 // ----------------------------------------------------------------------------
@@ -298,12 +304,16 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
 static void SchedulerAttachTask(uint32_t interval_ms, uint32_t time_init,
                                 TaskHandle task_handle, const char* task_name) {
     if (time_init == 0) {
+#if defined(CONSOLE_IS_USED)
         console.error("%s: wrong argument, time_init cannot be 0!\r\n",
                       __func__);
+#endif
     }
     if (task_num_ > _STIME_TASK_MAX_NUM) {
+#if defined(CONSOLE_IS_USED)
         console.error("%s: too many tasks been registered!\r\n,__func__",
                       __func__);
+#endif
     }
     uint32_t ticks = IntervalToTicks(interval_ms);
     uint8_t  len   = strlen(task_name) < _STIME_TASK_NAME_LEN
@@ -344,6 +354,7 @@ static void SchedulerProcess(void) {
 static void SchedulerShowTasks(void) {
 
     CONSOLE_PRINTF_SEG;
+#if defined(CONSOLE_IS_USED)
     console.printk(0, " Stime Task Scheduler (");
 #if defined(_STIME_4K_TICK)
     console.printk(0, "4K Hz tick)");
@@ -358,30 +369,41 @@ static void SchedulerShowTasks(void) {
 #elif defined(_STIME_200_TICK)
     console.printk(0, "200 Hz tick)");
 #endif
+#endif
     if (task_num_ == 0) {
+#if defined(CONSOLE_IS_USED)
         console.printk(0, "  |  no task\r\n");
         CONSOLE_PRINTF_SEG;
+#endif
         return;
     }
     if (task_num_ == 1) {
+#if defined(CONSOLE_IS_USED)
         console.printk(0, "  |  1 task\r\n");
+#endif
     }
     else {
+#if defined(CONSOLE_IS_USED)
         console.printk(0, " | %2d tasks\r\n", task_num_);
+#endif
     }
     for (uint8_t i = 0; i < task_num_; i++) {
+#if defined(CONSOLE_IS_USED)
         console.printk(0, " %2d (%d): %s\r\n", i + 1, node_[i]._this.ticks,
                        node_[i]._this.name);
+#endif
     }
+#if defined(CONSOLE_IS_USED)
     CONSOLE_PRINTF_SEG;
+#endif
 }
 
 // ----------------------------------------------------------------------------
 void SchedulerRun(void) {
     while (true) {
         if (cli_suspend_second_ <= second_) {
-            if (!console.getRxStatus()) {
-                console.setRxStatus(true);
+            if (!console.rx.getStatus()) {
+                console.rx.setStatus(true);
             }
             console.cli.process();
         }

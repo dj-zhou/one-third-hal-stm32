@@ -8,6 +8,8 @@ extern "C" {
 #include "uart-console.h"
 #include <stdarg.h>
 
+#if defined(CONSOLE_IS_USED)
+
 // ============================================================================
 // this file is only used by the module uart-console
 
@@ -29,6 +31,8 @@ void printf_s(char* sign_data, char* data);
 void printf_p(char* sign_data, void* data);
 void printf_n(char* sign_data, int* data);
 void ConsolePrintf(char* sign_data, char* format, va_list ap);
+
+#endif  // CONSOLE_IS_USED
 
 // ============================================================================
 #ifdef __cplusplus

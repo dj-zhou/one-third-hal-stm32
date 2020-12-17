@@ -55,8 +55,10 @@ static void CalculateParameters(LedHeartBeat_e mode) {
         pwm_step_size_ = 0.015;
     }
     else {
+#if defined(CONSOLE_IS_USED)
         console.error("%s(): _LED_HEARTBEAT_TASK_MS cannot be %d\r\n",
                       _LED_HEARTBEAT_TASK_MS);
+#endif
     }
 }
 
@@ -248,9 +250,11 @@ static void LedHeartBeatVerifyPwm(void) {
     // if reach this line, the pin is not supported for PWM, or need to check
     // and update this library
     if ((PWM_TIMx_ == NULL) && (pwm_channel_ == 255)) {
+#if defined(CONSOLE_IS_USED)
         console.error("%s(): not a PWM pin, or you can refer to datasheet and "
                       "extend this library.\r\n",
                       __func__);
+#endif
     }
 }
 
@@ -307,9 +311,11 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
     heartbeat_mode_ = heatbeat_mode;
     // some assert
     if ((_LED_HEARTBEAT_PIN > 15) || (_LED_ERROR_PIN > 15)) {
+#if defined(CONSOLE_IS_USED)
         console.error(
             "%s(): _LED_HEARTBEAT_PIN or _LED_ERROR_PIN out of range\r\n",
             __func__);
+#endif
     }
     CalculateParameters(heatbeat_mode);
     if (heatbeat_mode != LED_BREATH) {

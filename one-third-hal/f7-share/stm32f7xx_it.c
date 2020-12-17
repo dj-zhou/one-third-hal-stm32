@@ -33,3 +33,5 @@ __attribute__((weak)) void PendSV_Handler(void) {}
 __attribute__((weak)) void SysTick_Handler(void) {
     HAL_IncTick();
 }
+
+__attribute__((weak)) void USART2_IRQHandler(void) {}

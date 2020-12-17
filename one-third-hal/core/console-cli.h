@@ -7,6 +7,8 @@ extern "C" {
 
 #include "uart-console.h"
 
+#if defined(CONSOLE_IS_USED)
+
 // clang-format off
 #if !defined(_CLI_CMD_MAX_LEN)
     #define _CLI_CMD_MAX_LEN        (30)
@@ -65,6 +67,8 @@ HAL_StatusTypeDef CliSystem(int argc, char** argv);
 #if defined(_STIME_USE_SCHEDULER)
 HAL_StatusTypeDef CliSuspend(int argc, char** argv);
 #endif
+
+#endif  // CONSOLE_IS_USED
 
 // ============================================================================
 #ifdef __cplusplus
