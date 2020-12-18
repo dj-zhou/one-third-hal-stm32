@@ -5,6 +5,15 @@
 #include <math.h>
 
 // ============================================================================
+#ifdef CONSOLE_IS_USED
+#define led_printf(...) (console.printf(__VA_ARGS__))
+#define led_error(...) (console.error(__VA_ARGS__))
+#else
+#define led_printf(...) ({ ; })
+#define led_error(...) ({ ; })
+#endif
+
+// ============================================================================
 static LedHeartBeat_e    heartbeat_mode_;
 static uint16_t          tick_toggle_;
 static uint16_t          tick_period_;
@@ -46,7 +55,22 @@ static void CalculateParameters(LedHeartBeat_e mode) {
         tick_period_ = 100;
         break;
     }
-    if (_LED_HEARTBEAT_TASK_MS == 10) {
+    if (_LED_HEARTBEAT_TASK_MS == 40) {
+        tick_toggle_ /= 4;
+        tick_period_ /= 4;
+        pwm_step_size_ = 0.12;
+    }
+    else if (_LED_HEARTBEAT_TASK_MS == 30) {
+        tick_toggle_ /= 3;
+        tick_period_ /= 3;
+        pwm_step_size_ = 0.09;
+    }
+    else if (_LED_HEARTBEAT_TASK_MS == 20) {
+        tick_toggle_ /= 2;
+        tick_period_ /= 2;
+        pwm_step_size_ = 0.06;
+    }
+    else if (_LED_HEARTBEAT_TASK_MS == 10) {
         pwm_step_size_ = 0.03;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 5) {
@@ -55,10 +79,8 @@ static void CalculateParameters(LedHeartBeat_e mode) {
         pwm_step_size_ = 0.015;
     }
     else {
-#if defined(CONSOLE_IS_USED)
-        console.error("%s(): _LED_HEARTBEAT_TASK_MS cannot be %d\r\n",
-                      _LED_HEARTBEAT_TASK_MS);
-#endif
+        led_error("%s(): _LED_HEARTBEAT_TASK_MS cannot be %d\r\n",
+                  _LED_HEARTBEAT_TASK_MS);
     }
 }
 
@@ -250,11 +272,9 @@ static void LedHeartBeatVerifyPwm(void) {
     // if reach this line, the pin is not supported for PWM, or need to check
     // and update this library
     if ((PWM_TIMx_ == NULL) && (pwm_channel_ == 255)) {
-#if defined(CONSOLE_IS_USED)
-        console.error("%s(): not a PWM pin, or you can refer to datasheet and "
-                      "extend this library.\r\n",
-                      __func__);
-#endif
+        led_error("%s(): not a PWM pin, or you can refer to datasheet and "
+                  "extend this library.\r\n",
+                  __func__);
     }
 }
 
@@ -311,11 +331,8 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
     heartbeat_mode_ = heatbeat_mode;
     // some assert
     if ((_LED_HEARTBEAT_PIN > 15) || (_LED_ERROR_PIN > 15)) {
-#if defined(CONSOLE_IS_USED)
-        console.error(
-            "%s(): _LED_HEARTBEAT_PIN or _LED_ERROR_PIN out of range\r\n",
-            __func__);
-#endif
+        led_error("%s(): _LED_HEARTBEAT_PIN or _LED_ERROR_PIN out of range\r\n",
+                  __func__);
     }
     CalculateParameters(heatbeat_mode);
     if (heatbeat_mode != LED_BREATH) {

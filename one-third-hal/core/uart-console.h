@@ -12,13 +12,6 @@ extern "C" {
 #include <stdbool.h>
 #include <stdint.h>
 
-#define CONSOLE_PRINTF_SEG                                                    \
-    do {                                                                      \
-        console.printk(0,                                                     \
-                       YLW "------------------------------------------------" \
-                           "--------------------------------\r\n" NOC);       \
-    } while (0)
-
 // ============================================================================
 // project interface --------------
 // clang-format off
@@ -147,6 +140,20 @@ extern Console_t console;
 // clang-format on
 
 #endif  // CONSOLE_IS_USED
+
+#if defined(CONSOLE_IS_USED)
+#define CONSOLE_PRINTF_SEG                                                    \
+    do {                                                                      \
+        console.printk(0,                                                     \
+                       YLW "------------------------------------------------" \
+                           "--------------------------------\r\n" NOC);       \
+    } while (0)
+#else
+#define CONSOLE_PRINTF_SEG \
+    do {                   \
+        ;                  \
+    } while (0)
+#endif
 
 // ============================================================================
 #ifdef __cplusplus

@@ -14,7 +14,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _STIME_USE_SYSTICK
-#define _STIME_2K_TICK
+#define _STIME_4K_TICK
 #define _STIME_USE_SCHEDULER
 #include "stime-scheduler.h"
 
@@ -31,7 +31,7 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #define _LED_HEARTBEAT_PORT GPIOB
 #define _LED_HEARTBEAT_PIN 7
-#define _LED_HEARTBEAT_TASK_MS 10
+#define _LED_HEARTBEAT_TASK_MS (40)
 #include "led-status.h"
 
 // ----------------------------------------------------------------------------

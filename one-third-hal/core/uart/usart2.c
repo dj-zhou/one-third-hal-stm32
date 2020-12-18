@@ -59,24 +59,58 @@ static void InitUsart2(uint32_t baud, uint8_t data_size, char parity,
 }
 
 // ----------------------------------------------------------------------------
-static void Usart2DmaConfig(void) {
-    DMA_HandleTypeDef hdma_usart2_rx;
-    /* USART2 DMA Init */
-    /* USART2_RX Init */
-    hdma_usart2_rx.Instance                 = DMA1_Stream5;
-    hdma_usart2_rx.Init.Channel             = DMA_CHANNEL_4;
-    hdma_usart2_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    hdma_usart2_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_usart2_rx.Init.MemInc              = DMA_MINC_ENABLE;
-    hdma_usart2_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart2_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_usart2_rx.Init.Mode                = DMA_CIRCULAR;
-    hdma_usart2_rx.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-    hdma_usart2_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
-    if (HAL_DMA_Init(&hdma_usart2_rx) != HAL_OK) {
-        //   Error_Handler();
+// this is still buggy, doo not use, and do not delete!!
+/// reference: function HAL_DMA_Init() in stm32f7xx_hal_dma.c
+static void Usart2DmaConfig(uint8_t* buffer, uint32_t len) {
+
+    __HAL_UART_DISABLE_IT(&(usart2.huart), UART_IT_RXNE);
+    __HAL_RCC_DMA1_CLK_ENABLE();
+#if defined(STM32F767xx)
+    // disable the DMA
+    DMA1_Stream5->CR &= ~DMA_SxCR_EN;
+    // Check if the DMA Stream is effectively disabled
+    while ((DMA1_Stream5->CR & DMA_SxCR_EN) != RESET) {
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    // Get the CR register value
+    uint32_t tmp = DMA1_Stream5->CR;
+    // Clear CHSEL, MBURST, PBURST, PL, MSIZE, PSIZE, MINC, PINC, CIRC, DIR, CT
+    // and DBM bits
+    tmp &= ((uint32_t) ~(DMA_SxCR_CHSEL | DMA_SxCR_MBURST | DMA_SxCR_PBURST
+                         | DMA_SxCR_PL | DMA_SxCR_MSIZE | DMA_SxCR_PSIZE
+                         | DMA_SxCR_MINC | DMA_SxCR_PINC | DMA_SxCR_CIRC
+                         | DMA_SxCR_DIR | DMA_SxCR_CT | DMA_SxCR_DBM));
+    ( void )tmp;
+    // Prepare the DMA Stream configuration
+    tmp |= DMA_CHANNEL_4 | DMA_PERIPH_TO_MEMORY | DMA_PINC_DISABLE
+           | DMA_MINC_ENABLE | DMA_PDATAALIGN_BYTE | DMA_MDATAALIGN_BYTE
+           | DMA_CIRCULAR | DMA_PRIORITY_VERY_HIGH;
+
+    // Memory burst and peripheral is disabled, no need to config
+
+    // write to register
+    DMA1_Stream5->CR = tmp;
+
+    // Get the DMAy_Streamx FCR value
+    tmp = DMA1_Stream5->FCR;
+
+    // Clear DMDIS and FTH bits
+    tmp &= (uint32_t) ~(DMA_SxFCR_DMDIS | DMA_SxFCR_FTH);
+
+    // Configure DMAy Streamx FIFO:
+    // Set DMDIS bits according to DMA_FIFOMode value
+    // Set FTH bits according to DMA_FIFOThreshold value
+    tmp |= DMA_FIFOMODE_DISABLE | DMA_FIFO_THRESHOLD_1QUARTERFULL;
+
+    // Write to DMAy Streamx FCR
+    DMA1_Stream5->FCR = tmp;
+
+    HAL_UART_Receive_IT(&(usart2.huart), buffer, len);
+
+    // enable the DMA
+    DMA1_Stream5->CR |= DMA_SxCR_EN;
+    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 6, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+#endif
 }
 
 // ----------------------------------------------------------------------------

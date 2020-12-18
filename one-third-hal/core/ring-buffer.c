@@ -2,6 +2,19 @@
 #include <stdint.h>
 
 // ============================================================================
+#ifdef CONSOLE_IS_USED
+#define rb_printf(...) (console.printf(__VA_ARGS__))
+#define rb_printk(...) (console.printk(__VA_ARGS__))
+#define rb_error(...) (console.error(__VA_ARGS__))
+#else
+#define rb_printf(...) ({ ; })
+#define rb_printk(...) ({ ; })
+#define rb_error(...) ({ ; })
+#endif
+
+static void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
+
+// ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
     while (idx >= rb->capacity) {
         idx -= rb->capacity;
@@ -131,9 +144,11 @@ static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
             index->count[index->found] = 0;
             index->pos[index->found++] = indices[0];
             if (index->found >= _RINGBUFFER_MAX_PATTERN_FOUND) {
-#if defined(CONSOLE_IS_USED)
-                console.printf("waring: communication too heavy!\r\n");
-#endif
+                rb_printf("waring: communication too heavy!\r\n");
+                // debug purpose:
+                RingBufferShow(rb, 'h', 9);
+                while (1)
+                    ;
             }
         }
         // counts the effective number of bytes in a (potential) packet -----
@@ -195,69 +210,51 @@ static RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
 // ============================================================================
 static void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     if (!rb->initialized) {
-#if defined(CONSOLE_IS_USED)
-        console.printk(0, "%s(): error: not initialized!\r\n", __func__);
-#endif
+        rb_printk(0, "%s(): error: not initialized!\r\n", __func__);
         return;
     }
     width = (width < 5) ? 5 : width;  // force to show at least 5 items in a row
-#if defined(CONSOLE_IS_USED)
-    console.printk(
-        0,
-        "--------------\r\nringbuffer (capacity = %d, count = %d, " HGRN
-        "head" NOC ", " HCYN "tail" NOC ", " HYLW "head & tail" NOC ")\r\n",
-        rb->capacity, rb->count);
-#endif
+    rb_printk(0,
+              "--------------\r\nringbuffer (capacity = %d, count = %d, " HGRN
+              "head" NOC ", " HCYN "tail" NOC ", " HYLW "head & tail" NOC
+              ")\r\n",
+              rb->capacity, rb->count);
     for (int16_t i = 0; i < rb->capacity; i++) {
-#if defined(CONSOLE_IS_USED)
         if ((rb->head == i) && (rb->tail == i)) {
-            console.printk(0, HYLW);
+            rb_printk(0, HYLW);
         }
         else if (rb->head == i) {
-            console.printk(0, HGRN);
+            rb_printk(0, HGRN);
         }
         else if (rb->tail == i) {
-            console.printk(0, HCYN);
+            rb_printk(0, HCYN);
         }
-#endif
         switch (style) {
         case 'h':
         case 'H':
-#if defined(CONSOLE_IS_USED)
-            console.printk(0, " %3X ", rb->buffer[i]);
-#endif
+            rb_printk(0, " %3X ", rb->buffer[i]);
             break;
         case 'd':
         case 'D':
-#if defined(CONSOLE_IS_USED)
-            console.printk(0, " %3d ", rb->buffer[i]);
-#endif
+            rb_printk(0, " %3d ", rb->buffer[i]);
             break;
         }
         if ((rb->head == i) || (rb->tail == i)) {
-#if defined(CONSOLE_IS_USED)
-            console.printk(0, NOC);
-#endif
+            rb_printk(0, NOC);
         }
         if ((i + 1) % width == 0) {
-#if defined(CONSOLE_IS_USED)
-            console.printk(0, "\r\n");
-#endif
+            rb_printk(0, "\r\n");
         }
     }
-#if defined(CONSOLE_IS_USED)
-    console.printk(0, "\r\n");
-#endif
+    rb_printk(0, "\r\n");
 }
 
 // ============================================================================
 static void RingBufferInsight(RingBufferIndex_t* index) {
-#if defined(CONSOLE_IS_USED)
-    console.printk(0, "--------\r\n found %d pattern(s):\r\n", index->found);
+    rb_printk(0, "--------\r\n found %d pattern(s):\r\n", index->found);
     for (int i = 0; i < index->found; i++) {
-        console.printf("%3d (%3d)\r\n", index->pos[i], index->count[i]);
+        rb_printf("%3d (%3d)\r\n", index->pos[i], index->count[i]);
     }
-#endif
     ( void )index;
 }
 

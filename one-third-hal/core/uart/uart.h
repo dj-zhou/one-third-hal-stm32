@@ -85,7 +85,7 @@ typedef struct {
 } UartRingBuffer;
 
 typedef struct {
-    void (*config)(void);
+    void (*config)(uint8_t* data, uint32_t len);
 } UartDma;
 
 typedef struct {

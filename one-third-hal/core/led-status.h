@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #if !defined(_LED_HEARTBEAT_TASK_MS)
-    #define _LED_HEARTBEAT_TASK_MS  (10)
+    #define _LED_HEARTBEAT_TASK_MS  (30)
 #endif
 // clang-format on
 

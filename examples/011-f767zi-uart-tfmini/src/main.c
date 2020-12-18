@@ -94,7 +94,7 @@ void Usart2IdleIrqCallback(void) {
     ringbuffer.search(&(usart2.rb), pattern, sizeof_array(pattern), &index);
     // ringbuffer.insight(&index);
     int8_t error_flag;
-    if ((index.found > 0) && (index.count >= 9)) {
+    if ((index.found > 0) && (index.count[index.found - 1] >= 9)) {
         // move head to the last packet, and then pop a packet
         ringbuffer.move(&(usart2.rb), index.pos[index.found - 1]);
         ringbuffer.popN(&(usart2.rb), tfmini_packet,
@@ -120,6 +120,7 @@ int main(void) {
     led.config(LED_BREATH);
     usart2.config(115200, 8, 'n', 1);
     usart2.ring.config(rx_buffer, sizeof_array(rx_buffer));
+    // usart2.dma.config(rx_buffer, sizeof_array(rx_buffer));  // not working!
     tfmini_set_mode(TFMINI_MODE_MM);
     // tasks -----------
     stime.scheduler.show();
