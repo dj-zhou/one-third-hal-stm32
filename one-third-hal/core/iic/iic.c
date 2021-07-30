@@ -44,7 +44,7 @@ static void InitIic1_PB8PB9(void) {
 
 // ----------------------------------------------------------------------------
 static void InitIic1(uint32_t speed) {
-    g_config_iic_used |= 1 << 1;  // not started from 0
+    // g_config_iic_used |= 1 << 1;  // not started from 0
     iic1.bit_rate = speed;
 #if defined(_USE_IIC1_PB6PB7)
     InitIic1_PB6PB7();  // todo

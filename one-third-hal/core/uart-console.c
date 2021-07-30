@@ -39,7 +39,7 @@ static void ConsoleUartIRQ(void) {
     // new way, need more test -----------
     if (__HAL_UART_GET_FLAG(&hconsole_, UART_FLAG_RXNE) != RESET) {
 #if defined(STM32F303xE) || defined(STM32F767xx)
-        recv = (uint8_t)(hconsole_.Instance->RDR & ( uint8_t )uh_mask_);
+        recv = ( uint8_t )(hconsole_.Instance->RDR & ( uint8_t )uh_mask_);
 #else
         // this HAL API is very un-efficient, need to revise
         HAL_UART_Receive(&hconsole_, &recv, 1, 1000);
@@ -565,8 +565,9 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len) {
                 }
             }
             else {
-                strncpy(rb.w_ptr, ( char* )buf,
-                        (uint16_t)((rb.buffer + _CONSOLE_BUFF_LEN) - rb.w_ptr));
+                strncpy(
+                    rb.w_ptr, ( char* )buf,
+                    ( uint16_t )((rb.buffer + _CONSOLE_BUFF_LEN) - rb.w_ptr));
                 buf      = buf + (rb.buffer + _CONSOLE_BUFF_LEN - rb.w_ptr);
                 len      = len - (rb.buffer + _CONSOLE_BUFF_LEN - rb.w_ptr);
                 rb.w_ptr = rb.buffer;
@@ -581,7 +582,7 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len) {
             }
             else {
                 strncpy(rb.w_ptr, ( char* )buf,
-                        (uint16_t)((rb.r_ptr - 1) - rb.w_ptr));
+                        ( uint16_t )((rb.r_ptr - 1) - rb.w_ptr));
                 buf      = buf + ((rb.r_ptr - 1) - rb.w_ptr);
                 len      = 0;
                 rb.w_ptr = rb.r_ptr - 1;
@@ -615,43 +616,43 @@ static void consoleConfig(uint32_t baud_rate) {
     rb.w_ptr      = rb.buffer;
 
 #if defined(_CONSOLE_USE_USART1_PA9PA10)
-    g_config_uart_used |= 1 << 1;
+    // g_config_uart_used |= 1 << 1;
     InitUSART1_PA9PA10();
     hconsole_.Instance = USART1;
 #elif defined(_CONSOLE_USE_USART1_PB6PB7)
-    g_config_uart_used |= 1 << 1;
+    // g_config_uart_used |= 1 << 1;
     InitUSART1_PB6PB7();
     hconsole_.Instance = USART1;
 #elif defined(_CONSOLE_USE_USART2_PA2PA3)
-    g_config_uart_used |= 1 << 2;
+    // g_config_uart_used |= 1 << 2;
     InitUSART2_PA2PA3();
     hconsole_.Instance     = USART2;
 #elif defined(_CONSOLE_USE_USART2_PD5PD6)
-    g_config_uart_used |= 1 << 2;
+    // g_config_uart_used |= 1 << 2;
     InitUSART2_PD5PD6();
     hconsole_.Instance     = USART2;
 #elif defined(_CONSOLE_USE_USART3_PB10PB11)
-    g_config_uart_used |= 1 << 3;
+    // g_config_uart_used |= 1 << 3;
     InitUSART3_PB10PB11();
     hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_USART3_PC10PC11)
-    g_config_uart_used |= 1 << 3;
+    // g_config_uart_used |= 1 << 3;
     InitUSART3_PC10PC11();
     hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_USART3_PD8PD9)
-    g_config_uart_used |= 1 << 3;
+    // g_config_uart_used |= 1 << 3;
     InitUSART3_PD8PD9();
     hconsole_.Instance     = USART3;
 #elif defined(_CONSOLE_USE_UART4_PC10PC11)
-    g_config_uart_used |= 1 << 4;
+    // g_config_uart_used |= 1 << 4;
     InitUART4_PC10PC11();
     hconsole_.Instance     = UART4;
 #elif defined(_CONSOLE_USE_UART5_PC12PD2)
-    g_config_uart_used |= 1 << 5;
+    // g_config_uart_used |= 1 << 5;
     InitUART5_PC12PD2();
     hconsole_.Instance     = UART5;
 #elif defined(_CONSOLE_USE_UART7_PE8PE7)
-    g_config_uart_used |= 1 << 7;
+    // g_config_uart_used |= 1 << 7;
     InitUART7_PE8PE7();
     hconsole_.Instance     = UART7;
 #else

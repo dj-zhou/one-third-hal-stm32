@@ -180,7 +180,7 @@ static void LedHeartBeatVerifyPwm(void) {
     if (_LED_HEARTBEAT_PORT == GPIOB) {
         // PB0 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 0) {  // TIM3_CH3
-            g_config_timer_used |= 1 << 3;
+            // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
             PWM_TIMx_    = TIM3;
             pwm_channel_ = TIM_CHANNEL_3;
@@ -192,7 +192,7 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB1 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 1) {  // TIM3_CH4
-            g_config_timer_used |= 1 << 3;
+            // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
             PWM_TIMx_    = TIM3;
             pwm_channel_ = TIM_CHANNEL_4;
@@ -204,7 +204,7 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB3 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 3) {  // TIM2_CH2
-            g_config_timer_used |= 1 << 2;
+            // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
             PWM_TIMx_    = TIM2;
             pwm_channel_ = TIM_CHANNEL_2;
@@ -216,7 +216,7 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB7 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 7) {  // TIM4_CH2
-            g_config_timer_used |= 1 << 4;
+            // g_config_timer_used |= 1 << 4;
 #if defined(TIM4_EXISTS)
             PWM_TIMx_    = TIM4;
             pwm_channel_ = TIM_CHANNEL_2;
@@ -228,7 +228,7 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB11 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM2_CH4
-            g_config_timer_used |= 1 << 2;
+            // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
             PWM_TIMx_    = TIM2;
             pwm_channel_ = TIM_CHANNEL_4;
@@ -240,7 +240,7 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB14 --------known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 14) {  // TIM12_CH1
-            g_config_timer_used |= 1 << 12;
+            // g_config_timer_used |= 1 << 12;
 #if defined(TIM12_EXISTS)
             PWM_TIMx_    = TIM12;
             pwm_channel_ = TIM_CHANNEL_1;
@@ -257,7 +257,7 @@ static void LedHeartBeatVerifyPwm(void) {
     if (_LED_HEARTBEAT_PORT == GPIOE) {
         // PE11 --------known boards: f407zg
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM1_CH2
-            g_config_timer_used |= 1 << 1;
+            // g_config_timer_used |= 1 << 1;
 #if defined(TIM1_EXISTS)
             PWM_TIMx_    = TIM1;
             pwm_channel_ = TIM_CHANNEL_2;

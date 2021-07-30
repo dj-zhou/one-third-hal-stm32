@@ -33,7 +33,7 @@ static void InitSpi1_PB5PB4(void) {
 static void InitSpi1(uint16_t prescale, const char* master,
                      const char* hardware_nss, const char* sck,
                      const char* phase) {
-    g_config_spi_used |= 1 << 1;  // not started from 0
+    // g_config_spi_used |= 1 << 1;  // not started from 0
     // -------------------
     if (strcmp(master, "master") == 0) {
         spi1.param.master = 'm';

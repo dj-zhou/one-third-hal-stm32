@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-uint32_t g_config_timer_used;
+// uint32_t g_config_timer_used;
 
 // clang-format off
 

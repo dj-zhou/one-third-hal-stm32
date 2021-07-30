@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-uint16_t g_config_uart_used;
+// uint16_t g_config_uart_used;
 
 // clang-format off
 

@@ -3,7 +3,7 @@
 
 #include "config.h"
 
-uint8_t g_config_iic_used;
+// uint8_t g_config_iic_used;
 // clang-format off
 
 // commonly existed ones -------------
