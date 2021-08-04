@@ -15,15 +15,15 @@ extern "C" {
 #include "general.h"
 
 #if defined(STM32F030x8)
-#include "stm32f0xx.h"
+#include "../CMSIS/Device/ST/STM32F0xx/Include/stm32f0xx.h"
 #elif defined(STM32F103xB) || defined(STM32F107xC)
-#include "stm32f1xx.h"
+#include "../CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h"
 #elif defined(STM32F303xE)
-#include "stm32f3xx.h"
+#include "../CMSIS/Device/ST/STM32F3xx/Include/stm32f3xx.h"
 #elif defined(STM32F407xx) || defined(STM32F427xx)
-#include "stm32f4xx.h"
+#include "../CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
 #elif defined(STM32F746xx) || defined(STM32F767xx)
-#include "stm32f7xx.h"
+#include "../CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h"
 #endif
 
 #include <stdbool.h>

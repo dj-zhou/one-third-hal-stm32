@@ -1,4 +1,5 @@
-#include "config.h"
+// #include "config.h"
+#include "stm32f1xx_hal.h"
 
 void HAL_MspInit(void) {
 

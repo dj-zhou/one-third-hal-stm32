@@ -1,3 +1,7 @@
 build/
 bin/
 .vscode/
+*.d
+*.o
+*.a
+*.lst
