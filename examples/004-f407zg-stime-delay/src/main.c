@@ -11,8 +11,8 @@ int main(void) {
     console.printf("\r\n");
 
     uint32_t loop_count = 0;
-    Stime_t  time       = stime.getTime();
-    Stime_t  time_old   = time;
+    Stime_t time = stime.getTime();
+    Stime_t time_old = time;
 
     while (1) {
         time = stime.getTime();

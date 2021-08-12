@@ -6,6 +6,7 @@ extern "C" {
 #endif
 
 #include "config.h"
+#include <stdint.h>
 
 // ============================================================================
 // project interface --------------

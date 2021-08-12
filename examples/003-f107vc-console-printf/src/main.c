@@ -2,7 +2,7 @@
 
 // ============================================================================
 int main(void) {
-    utils.system.initClock(72, 36, 36);
+    utils.system.initClock(72, 36, 72);
     utils.system.initNvic(4);
     utils.pin.mode(GPIOD, 4, GPIO_MODE_OUTPUT_PP);
     stime.config();
@@ -16,10 +16,10 @@ int main(void) {
                 ;
             }
         }
-        console.printf(
-            "\r\n\r\n---------------------------------------------\r\n");
         utils.pin.toggle(GPIOD, 4);
 
+        console.printf(
+            "\r\n\r\n---------------------------------------------\r\n");
         console.printf(YLW "%s\r\n " NOC, FIRMWARE);
         console.printf("%5d = %b\r\n", loop_count, loop_count);
         loop_count++;

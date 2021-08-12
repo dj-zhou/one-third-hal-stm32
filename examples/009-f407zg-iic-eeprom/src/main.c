@@ -4,10 +4,10 @@
 #pragma pack(1)
 typedef struct Parameters_s {
     uint16_t key;
-    uint8_t  a;
+    uint8_t a;
     uint16_t b[4];
-    float    c;
-    double   d;
+    float c;
+    double d;
 } Parameters_t;
 #pragma pack()
 
@@ -15,23 +15,23 @@ Parameters_t param1;
 Parameters_t param2;
 
 static void initParameters(void) {
-    param1.key  = EEPROM_KEY_01;
-    param1.a    = 1;
+    param1.key = EEPROM_KEY_01;
+    param1.a = 1;
     param1.b[0] = 10;
     param1.b[1] = 20;
     param1.b[2] = 30;
     param1.b[3] = 40;
-    param1.c    = -987;
-    param1.d    = 152;
+    param1.c = -987;
+    param1.d = 152;
 
-    param2.key  = EEPROM_KEY_02;
-    param2.a    = 16;
+    param2.key = EEPROM_KEY_02;
+    param2.a = 16;
     param2.b[0] = 1111;
     param2.b[1] = 2222;
     param2.b[2] = 4444;
     param2.b[3] = 5555;
-    param2.c    = 111.24;
-    param2.d    = -5555.32;
+    param2.c = 111.24;
+    param2.d = -5555.32;
 }
 
 static void printParameter(Parameters_t param) {
@@ -47,8 +47,8 @@ static void printParameter(Parameters_t param) {
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 220;
-    float          data = -sin(( double )loop / 180.0 * 3.1415926);
-    char*          ptr  = ( char* )&data;
+    float data = -sin(( double )loop / 180.0 * 3.1415926);
+    char* ptr = ( char* )&data;
     console.printf("data = %f, ", data);
     for (int i = 0; i < 4; i++) {
         console.printf("%X ", *ptr++);

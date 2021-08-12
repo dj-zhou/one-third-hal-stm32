@@ -28,9 +28,10 @@ int main(void) {
     stime.scheduler.attach(1000, 2, taskPrint, "taskPrint");
     stime.scheduler.show();
 
-    // system start to run -----------
+    // system starts to run -----------
     stime.scheduler.run();
 
+    // it would never reach here -----------
     console.printf("main ends.\r\n");
     return 0;
 }

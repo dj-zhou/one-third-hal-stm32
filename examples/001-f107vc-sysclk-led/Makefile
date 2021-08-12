@@ -7,23 +7,31 @@ LIBS      = -lc -lm -lnosys
 OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f107xc.s
 LD_SCRIPT = $(LIB_PATH)/lds/STM32F107VCTx_FLASH.ld
-# ------------------------------------------
-CPU        = -mcpu=cortex-m3
-FPU        =
-FLOAT-ABI  = -mfloat-abi=soft
+PRJ_OUT   = bin
+PRJ_NAME  = $(STM32Fx)-binary
 
+PRJ_INCH =  \
+    $(LIB_PATH)/core \
+    $(LIB_PATH)/core/config \
+    $(LIB_PATH)/core/iic \
+    $(LIB_PATH)/core/math \
+    $(LIB_PATH)/core/spi \
+    $(LIB_PATH)/core/uart \
+    $(LIB_PATH)/device \
+    ./inc
+
+# ------------------------------------------
 ifneq (,$(findstring STM32F1,$(STM32Fx)))
-    LIB_SHARE   = f1-share
-	LIB_HAL     = f1-v1.8.4
-	STM32Family = STM32F1xx
+    CPU        = -mcpu=cortex-m3
+    FPU        =
+    FLOAT-ABI  = -mfloat-abi=soft
+    LIB_SHARE  = f1-share
+    LIB_HAL    = f1-v1.8.4
+    STM32Family= STM32F1xx
 else
-    $(info not a STM32F1 family, you need to revise the Makefile)
+    $(info not a STM32F1xx family device, you need to revise the Makefile)
 endif
 
-# use STM32Fx to choose
-# this is important!
-PRJ_PATH += $(LIB_PATH)/${LIB_SHARE}
-HAL_PATH += $(LIB_PATH)/${LIB_HAL}
 # =============================================================================
 CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
@@ -34,7 +42,6 @@ AR = $(CROSS_COMPILE)ar
 
 # =============================================================================
 MCU     = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
-# CSTD    = -std=gnu99
 C_DEFS  = -D$(STM32Fx) -DUSE_HAL_DRIVER
 C_DEFS += -DFIRMWARE=\"$(shell basename ${PWD})\"
 C_DEFS += -DPRJ_GIT_CMT=\"$(shell git rev-parse --short HEAD)\"
@@ -45,17 +52,15 @@ C_DEFS += -DLIB_GIT_BRH=\"$(shell git rev-parse --abbrev-ref HEAD)\"
 C_DEFS += -DLIB_GIT_VER=\"$(shell git describe --abbrev=7 --dirty --always --tags)\"
 
 # =============================================================================
+HAL_PATH += $(LIB_PATH)/${LIB_HAL}
 HAL_OUT  = $(LIB_PATH)/$(STM32Fx)-hal
 HAL_DIRS:= $(shell find $(HAL_PATH) -maxdepth 10 -type d)
 HAL_SRCS = $(foreach dir,$(HAL_DIRS),$(wildcard $(dir)/*.c))
 HAL_OBJS = $(addprefix $(HAL_OUT)/,$(notdir $(HAL_SRCS:.c=.o)))
 vpath %.c $(sort $(dir $(HAL_SRCS)))
-$(info HAL_OBJS:)
-$(info  $(HAL_OBJS))
 
 # =============================================================================
-PRJ_OUT  = bin
-PRJ_NAME = $(STM32Fx)-binary
+PRJ_PATH += $(LIB_PATH)/${LIB_SHARE}
 PRJ_DIRS:= $(shell find $(PRJ_PATH) -maxdepth 10 -type d)
 PRJ_SRCS = $(foreach dir,$(PRJ_DIRS),$(wildcard $(dir)/*.c))
 PRJ_OBJS = $(addprefix $(PRJ_OUT)/,$(notdir $(PRJ_SRCS:.c=.o)))
@@ -63,19 +68,17 @@ vpath %.c $(sort $(dir $(PRJ_SRCS)))
 PRJ_OBJS+= $(addprefix $(PRJ_OUT)/,$(notdir $(ASM_SRC:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SRC)))
 
-HAL_INC = \
-	-I$(LIB_PATH)/CMSIS/Include \
-	-I$(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
-	-I$(LIB_PATH)/${LIB_HAL}/inc \
-	-I$(LIB_PATH)/${LIB_SHARE} \
-	-I./hal
+HAL_INCH = \
+    $(LIB_PATH)/CMSIS/Include \
+    $(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
+    $(LIB_PATH)/${LIB_HAL}/inc \
+    $(LIB_PATH)/${LIB_SHARE} \
+    ./inc
+HAL_INC  = $(HAL_INCH:%=-I%)
 
-PRJ_INCH:= $(shell find $(LIB_PATH)/core -maxdepth 10 -type d)
 PRJ_INCs = $(shell find -L $(PRJ_INCH) -name '*.h' -exec dirname {} \; | uniq)
 PRJ_INC  = $(PRJ_INCs:%=-I%)
-PRJ_INC += ${HAL_INC} -I./inc
-$(info PRJ_INC:)
-$(info  $(PRJ_INC))
+PRJ_INC += ${HAL_INC}
 
 # =============================================================================
 CFLAGS   = $(MCU) $(C_DEFS) $(OPT)
@@ -136,10 +139,11 @@ clean:
 erase:
 	st-flash erase
 
-# -----------------------------------------------------------------------------
-debug: CFLAGS+= -D __DEBUG
+# -----------------
+debug: CFLAGS+= -D __DEBUG $(PRJ_INC)
 debug: CFLAGS+= -D MAKE_TYPE=\"DEBUG\"
-debug: $(PRJ_OUT)/$(PROJ).elf
+debug: $(PRJ_OUT)/$(PRJ_NAME).elf
+	$(SZ) $(PRJ_OUT)/$(PRJ_NAME).elf
 
 -include $(wildcard $(PRJ_OUT)/*.d)
 -include $(wildcard $(HAL_OUT)/*.d)

@@ -9,9 +9,25 @@ Tested on:
 * F107VC
 * F407ZG
 
+Try different builds:
+
+```bash
+make release -j12
+make download
+```
+
+or:
+
+```bash
+make debug -j12
+make download
+```
+
+Run `make clean` before building different target.
+
 #### `002-f107vc-stime`
 
-Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `core-stime.c`, since it is not a part of the library). Configure the module `stime` in `config.h` as:
+Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in `SysTick_Handler()` (need to add it manually in `stime-scheduler.c`, since it is not a part of the library). Configure the module `stime` in `config.h` as:
 
 ```c
 #define _STIME_USE_SYSTICK
@@ -19,9 +35,11 @@ Setup the SysTick to 4KHz/2KHz/1Khz/500Hz/400Hz/200Hz, and toggle a GPIO pin in 
 #include "stime-scheduler.h"
 ```
 
+where we configure the system tick to 2Khz. We can revise it to `_STIME_4K_TICK`, etc, while the revision will not change the GPIO blink rate.
+
 #### `003-f107vc-console-printf`
 
-Setup a UART/USART port as the console, and use the console to print data, just like use it as `printf()` in `stdio.h`.
+Setup a UART/USART port as the console, and use the console to print data, just like using it as `printf()` in `stdio.h`.
 
 * The example code uses `UART5` on PC12 (TXD) and PD2 (RXD) as the console, configure it in `config.h` as:
 
@@ -30,13 +48,26 @@ Setup a UART/USART port as the console, and use the console to print data, just 
   #include "uart-console.h"
   ```
 
-* Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 921600` to see its color effect.
+* Color `printf()` is used in this example. Use `screen /dev/ttyUSB0 2000000` to see its color effect:
+
+  ```bash
+  ---------------------------------------------
+  003-f107vc-console-printf
+      74 = 0b 0000 0000 0100 1010
+  pi = 3.14159
+   this is a one-third demo program
+   data_int = 3752, 7250, EA8
+   data_int = ea8, 3752, 
+   printf(%lu) not supported.
+  ```
+
+  (should be in different color)
 
 #### `004-f107vc-stime-delay`
 
-This project demos the delay functions using the delay functions in `stime`, and print the time difference in the terminal.
+This project demos the delay functions using the delay functions defined in the module `stime`, and print the time difference through the console.
 
-Notice that these delay functions would block the program.
+The delay functions are blocking.
 
 #### `005-f107vc-stime-scheduler`
 
@@ -46,6 +77,8 @@ This project uses the module `stime ` as a task scheduler. To enable it, just ad
 #define _STIME_USE_SCHEDULER
 ```
 
+The scheduler will run CLI (refer to example 006) by default.
+
 #### `006-f107vc-console-cli`
 
 This project demonstrate the interaction from `screen` with the micro-controller using the built in `cli`. On the other hand, this project uses:
@@ -53,6 +86,42 @@ This project demonstrate the interaction from `screen` with the micro-controller
 1. `scheduler` module to manage the tasks;
 
 <img src="./console-cli.gif" width="700px">
+
+2. If set the log level to 1, only the CLI interface will be shown. From there, you can try:
+
+   ```bash
+   cli-suspend 5
+   ```
+
+   after [ENTER], the CLI will be suspended for  5 seconds.
+
+Built in CLI interface can be found by command:
+
+```bash
+help
+```
+
+Help information for any command can be seen by:
+
+```bash
+[command] help
+```
+
+For example:
+
+```bash
+1/3: log help
+log
+   view: see available log levels
+   down: lower the log level
+   rise: rise the log level
+    [x]: set log level to x
+1/3: cli-suspend help
+cli-suspend
+    [x]: suspend the cli for x seconds
+```
+
+
 
 #### `007-fxxxxx-led-status`
 
