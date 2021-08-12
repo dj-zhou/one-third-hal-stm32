@@ -15,7 +15,7 @@ int main(void) {
     led.config(LED_BREATH);
 
     RingBufferIndex_t index;
-    RingBuffer_t      rb = ringbuffer.config(rx_buffer, 27);
+    RingBuffer_t rb = ringbuffer.config(rx_buffer, 27);
     console.printf("address of rx_buffer: 0x%08X\r\n", rx_buffer);
     console.printf("          rb.buffer : 0x%08X\r\n", rb.buffer);
     console.printf("            rb.head : 0x%08X\r\n", rb.head);

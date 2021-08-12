@@ -10,7 +10,6 @@
 // clang-format off
 #if defined(_EEPROM_USE_AT24C08)  // || other eeprom
     #define EEPROM_IS_USED
-#endif
 
 #if defined(_AT24C08_ON_IIC1)
     #define EEPROM_IIC iic1
@@ -25,6 +24,7 @@
 #if !defined(_AT24C08_ON_IIC1) && !defined(_AT24C08_ON_IIC2) \
     && !defined(_AT24C08_ON_IIC3)
     #error iic-eeprom: eeprom device should be on one of the iic ports!
+#endif
 #endif
 // clang-format on
 
@@ -181,15 +181,15 @@ typedef struct {
     void (*read)(uint8_t*, uint16_t);
     void (*write)(uint8_t*, uint16_t);
     void (*show)(void);
-} EepromNodeOperation;
+} EepromNodeOp;
 
 // ============================================================================
 // clang-format off
 typedef struct {
-    void      (*config)(void)  ;
-    EepromRead           read  ;
-    EepromWrite          write ;
-    EepromNodeOperation  node  ;
+    void (*config)(void);
+    EepromRead      read;
+    EepromWrite    write;
+    EepromNodeOp    node;
 } EepromApi_t;
 // clang-format on
 extern EepromApi_t eeprom;

@@ -13,9 +13,9 @@
 
 // =============================================================================
 void taskPrint(void) {
-    static int32_t  loop       = 220;
-    float           data       = -sin(( double )loop / 180.0 * 3.1415926);
-    char*           ptr        = ( char* )&data;
+    static int32_t loop = 220;
+    float data = -sin(( double )loop / 180.0 * 3.1415926);
+    char* ptr = ( char* )&data;
     static uint32_t loop_count = 0;
     console.printf("-------------------\r\n");
     console.printf("%5d,data = %f, ", loop_count++, data);
@@ -36,9 +36,9 @@ void taskPrint(void) {
 // ============================================================================
 void readAS5048A(void) {
     static uint32_t loop_count = 0;
-    uint16_t        cmd_read   = CMD_ANGLE;
-    uint16_t        angle_read;
-    uint16_t        cmd_reset;
+    uint16_t cmd_read = CMD_ANGLE;
+    uint16_t angle_read;
+    uint16_t cmd_reset;
     spi1.transceive16bits(&cmd_read, &angle_read, 1);
     if (loop_count == 50) {
         console.printf("try to reset\r\n\r\n");
