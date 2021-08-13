@@ -21,8 +21,8 @@ PRJ_INCH =  \
 
 # ------------------------------------------
 ifneq (,$(findstring STM32F7,$(STM32Fx)))
-    CPU        = -mcpu=cortex-m4
-    FPU        = -mfpu=fpv4-sp-d16
+    CPU        = -mcpu=cortex-m7
+    FPU        = -mfpu=fpv5-sp-d16
     FLOAT-ABI  = -mfloat-abi=hard
     LIB_SHARE  = f7-share
     LIB_HAL    = f7-v1.16.0

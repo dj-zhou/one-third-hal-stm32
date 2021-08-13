@@ -2,16 +2,24 @@
 # custom settings
 STM32Fx   = STM32F407xx
 LIB_PATH  = ../../one-third-hal
-PRJ_PATH  = . $(LIB_PATH)/core
+PRJ_PATH  = . $(LIB_PATH)/core $(LIB_PATH)/device
 LIBS      = -lc -lm -lnosys
 OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f407xx.s
 LD_SCRIPT = $(LIB_PATH)/lds/STM32F407ZGTx_FLASH.ld
 PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
+
+PRJ_INCH =  \
+    $(LIB_PATH)/core \
+    $(LIB_PATH)/core/config \
+    $(LIB_PATH)/core/iic \
+    $(LIB_PATH)/core/math \
+    $(LIB_PATH)/core/spi \
+    $(LIB_PATH)/core/uart \
+    $(LIB_PATH)/device
+
 # ------------------------------------------
-
-
 ifneq (,$(findstring STM32F4,$(STM32Fx)))
     CPU       = -mcpu=cortex-m4
     FPU       = -mfpu=fpv4-sp-d16
@@ -20,7 +28,7 @@ ifneq (,$(findstring STM32F4,$(STM32Fx)))
     LIB_HAL    = f4-v1.25.2
     STM32Family= STM32F4xx
 else
-    $(info not a STM32F1 family, you need to revise the Makefile)
+    $(info not a STM32F4xx family device, you need to revise the Makefile)
 endif
 
 # =============================================================================
@@ -59,14 +67,14 @@ vpath %.c $(sort $(dir $(PRJ_SRCS)))
 PRJ_OBJS+= $(addprefix $(PRJ_OUT)/,$(notdir $(ASM_SRC:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SRC)))
 
-HAL_INC = \
-	-I$(LIB_PATH)/CMSIS/Include \
-	-I$(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
-	-I$(LIB_PATH)/${LIB_HAL}/inc \
-	-I$(LIB_PATH)/${LIB_SHARE} \
-	-I./inc
+HAL_INCH = \
+    $(LIB_PATH)/CMSIS/Include \
+    $(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
+    $(LIB_PATH)/${LIB_HAL}/inc \
+    $(LIB_PATH)/${LIB_SHARE} \
+    ./inc
+HAL_INC  = $(HAL_INCH:%=-I%)
 
-PRJ_INCH:= $(shell find $(LIB_PATH)/core -maxdepth 10 -type d)
 PRJ_INCs = $(shell find -L $(PRJ_INCH) -name '*.h' -exec dirname {} \; | uniq)
 PRJ_INC  = $(PRJ_INCs:%=-I%)
 PRJ_INC += ${HAL_INC}
