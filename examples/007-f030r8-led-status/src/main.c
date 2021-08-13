@@ -4,7 +4,7 @@
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 0;
-    double         data = -sin(( double )loop / 180.0 * 3.1415926);
+    double data = -sin(( double )loop / 180.0 * 3.1415926);
     console.printf("%5d: hello %s, data = %3.4f\r\n", loop++, FIRMWARE, data);
 }
 
