@@ -4,8 +4,8 @@
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 0;
-    float          data = sin(( double )loop / 180.0 * 3.1415926);
-    char*          ptr  = ( char* )&data;
+    float data = sin(( double )loop / 180.0 * 3.1415926);
+    char* ptr = ( char* )&data;
     console.printf("%5d, %s, data = %f, ", loop++, FIRMWARE, data);
     for (int i = 0; i < 4; i++) {
         console.printf("%02X ", *ptr++);

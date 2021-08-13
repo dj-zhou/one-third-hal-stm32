@@ -181,15 +181,15 @@ typedef struct {
     void (*read)(uint8_t*, uint16_t);
     void (*write)(uint8_t*, uint16_t);
     void (*show)(void);
-} EepromNodeOperation;
+} EepromNodeOp;
 
 // ============================================================================
 // clang-format off
 typedef struct {
-    void      (*config)(void)  ;
-    EepromRead           read  ;
-    EepromWrite          write ;
-    EepromNodeOperation  node  ;
+    void (*config)(void);
+    EepromRead      read;
+    EepromWrite    write;
+    EepromNodeOp    node;
 } EepromApi_t;
 // clang-format on
 extern EepromApi_t eeprom;

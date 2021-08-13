@@ -6,20 +6,20 @@ uint8_t rx_buffer[27];
 uint8_t tfmini_packet[9];
 
 typedef enum TFminiMeasureMode {
-    TFMINI_MODE_CM      = 1,
+    TFMINI_MODE_CM = 1,
     TFMINI_MODE_PIXHAWK = 2,
-    TFMINI_MODE_MM      = 3,
+    TFMINI_MODE_MM = 3,
 } TFminiMeasureMode_e;
 
 TFminiMeasureMode_e measure_mode;
-uint16_t            dist_mm;
-uint16_t            strength;
-float               temp_c;
+uint16_t dist_mm;
+uint16_t strength;
+float temp_c;
 
 // ============================================================================
 void tfmini_set_mode(TFminiMeasureMode_e mode) {
     uint8_t cmd[] = { 0x5A, 0x05, 0x05, 0x00, 0x00 };
-    measure_mode  = mode;
+    measure_mode = mode;
     switch (measure_mode) {
     case TFMINI_MODE_CM:  // 9 bytes output with cm unit
         cmd[3] = 0x01;
@@ -60,25 +60,25 @@ static void tfmini_parse(uint8_t* data, int8_t* error_flag) {
     }
     else {
         *error_flag = -9;
-        dist_mm     = 0;
-        strength    = 0;
-        temp_c      = 0;
+        dist_mm = 0;
+        strength = 0;
+        temp_c = 0;
         return;
     }
     //  calculate the data ----------
     switch (measure_mode) {
     case TFMINI_MODE_CM:
-        dist_mm  = 10 * (data[3] << 8 | data[2]);  // scaled to mm
+        dist_mm = 10 * (data[3] << 8 | data[2]);  // scaled to mm
         strength = data[5] << 8 | data[4];
-        temp_c   = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
+        temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
         break;
     case TFMINI_MODE_PIXHAWK:
         // not implemented
         break;
     case TFMINI_MODE_MM:
-        dist_mm  = data[3] << 8 | data[2];
+        dist_mm = data[3] << 8 | data[2];
         strength = data[5] << 8 | data[4];
-        temp_c   = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
+        temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
         break;
     }
     return;
@@ -88,7 +88,7 @@ static void tfmini_parse(uint8_t* data, int8_t* error_flag) {
 void Usart2IdleIrqCallback(void) {
     // ringbuffer.show(&(usart2.rb), 'H', 9);
     RingBufferIndex_t index;
-    uint8_t           pattern[2];
+    uint8_t pattern[2];
     pattern[0] = 0x59;
     pattern[1] = 0x59;
     ringbuffer.search(&(usart2.rb), pattern, sizeof_array(pattern), &index);
