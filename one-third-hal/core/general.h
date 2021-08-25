@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 #if !defined(_CHECK_BIT)
-    #define _CHECK_BIT(var, pos) ((var) & (1 << (pos)))
+    #define _CHECK_BIT(var, pos) (!!((var) & (1 << (pos))))
 #endif
 
 #if !defined(_SET_BIT)
