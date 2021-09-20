@@ -112,7 +112,8 @@ volatile uint32_t cli_suspend_second_ = 0;
             #define SYSTICK_RELOAD_VALUE 105000
         #endif
     #endif
-// STM32F427 uses 180 MHz system clock, why not use 176Mhz?
+// STM32F427 uses 180 MHz system clock: US_TICK should be 22.5, unavailable
+// STM32F427 uses 176 MHz system clock: the following is precise (not tested!)
 #elif defined(STM32F427xx)
     #define US_TICK   22 // 22.5 is the right number ... to fix
     #if defined(_STIME_USE_SYSTICK)
@@ -297,7 +298,7 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
 #endif
 
 #if defined(_STIME_400_TICK)
-    ticks = (uint32_t)(interval_ms / 2.5);
+    ticks = ( uint32_t )(interval_ms / 2.5);
 #endif
 
 #if defined(_STIME_200_TICK)
@@ -319,8 +320,8 @@ static void SchedulerAttachTask(uint32_t interval_ms, uint32_t time_init,
     }
     uint32_t ticks = IntervalToTicks(interval_ms);
     uint8_t  len   = strlen(task_name) < _STIME_TASK_NAME_LEN
-                      ? strlen(task_name)
-                      : _STIME_TASK_NAME_LEN;
+                         ? strlen(task_name)
+                         : _STIME_TASK_NAME_LEN;
     if (task_num_ == 0) {
         node_[0]._this.run    = 0;
         node_[0]._this.time   = time_init;

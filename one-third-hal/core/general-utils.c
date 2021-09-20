@@ -302,9 +302,7 @@ static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
 #if defined(STM32F427xx)
 static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
-    if ((hclk_m != 180) || (pclk1_m != 45) || (pclk2_m != 90)) {
-        Error_Handler(hclk_m * 5000000);
-    }
+    uint32_t           hclk, pclk1, pclk2;
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
     __HAL_RCC_PWR_CLK_ENABLE();
@@ -314,22 +312,48 @@ static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+    if ((hclk_m == 180) && (pclk1_m != 45) && (pclk2_m != 90)) {
 
-    if (HSE_VALUE == 8000000) {
-        RCC_OscInitStruct.PLL.PLLM = 8;
-        RCC_OscInitStruct.PLL.PLLN = 360;
-        RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-        RCC_OscInitStruct.PLL.PLLQ = 4;
+        if (HSE_VALUE == 8000000) {
+            RCC_OscInitStruct.PLL.PLLM = 8;
+            RCC_OscInitStruct.PLL.PLLN = 360;
+            RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+            RCC_OscInitStruct.PLL.PLLQ = 4;
+        }
+        else if (HSE_VALUE == 24000000) {
+            RCC_OscInitStruct.PLL.PLLM = 24;
+            RCC_OscInitStruct.PLL.PLLN = 360;
+            RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+            RCC_OscInitStruct.PLL.PLLQ = 4;
+        }
+        else {
+            // #error not supported.
+        }
+        hclk  = 180000000;
+        pclk1 = 45000000;
+        pclk2 = 90000000;
     }
-    else if (HSE_VALUE == 24000000) {
-        RCC_OscInitStruct.PLL.PLLM = 24;
-        RCC_OscInitStruct.PLL.PLLN = 360;
-        RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-        RCC_OscInitStruct.PLL.PLLQ = 4;
+    else if ((hclk_m == 176) && (pclk1_m != 44) && (pclk2_m != 88)) {
+        if (HSE_VALUE == 8000000) {
+            RCC_OscInitStruct.PLL.PLLM = 8;
+            RCC_OscInitStruct.PLL.PLLN = 352;
+            RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+            RCC_OscInitStruct.PLL.PLLQ = 4;
+        }
+        else if (HSE_VALUE == 24000000) {
+            RCC_OscInitStruct.PLL.PLLM = 24;
+            RCC_OscInitStruct.PLL.PLLN = 352;
+            RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+            RCC_OscInitStruct.PLL.PLLQ = 4;
+        }
+        else {
+            // #error not supported.
+        }
+        hclk  = 176000000;
+        pclk1 = 44000000;
+        pclk2 = 88000000;
     }
-    else {
-        // #error not supported.
-    }
+
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
@@ -348,8 +372,7 @@ static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK) {
         Error_Handler(HSE_VALUE * 5);
     }
-
-    return VerifyClocks(180000000, 45000000, 90000000);
+    return VerifyClocks(hclk, pclk1, pclk2);
 }
 #endif  // STM32F427xx
 
