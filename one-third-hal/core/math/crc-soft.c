@@ -4,7 +4,7 @@
 
 // ============================================================================
 typedef uint16_t bit_order_16(uint16_t value);
-typedef uint8_t  bit_order_8(uint8_t value);
+typedef uint8_t bit_order_8(uint8_t value);
 
 // ============================================================================
 static uint16_t straight_16(uint16_t value) {
@@ -148,7 +148,7 @@ static uint32_t crc_table[256] = {
 
 // ============================================================================
 static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
-    uint32_t ret  = 0xFFFFFFFF;
+    uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
     for (uint16_t n = 0; n < len; n++) {
         ret ^= ( uint32_t )data[n];

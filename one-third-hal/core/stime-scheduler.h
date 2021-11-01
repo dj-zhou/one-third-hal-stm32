@@ -67,15 +67,15 @@ typedef struct {
 typedef void (*TaskHandle)(void);
 
 typedef struct TaskCell_s {
-    uint8_t    run;    // 1: need to run, 0: do not need to run
-    uint16_t   time;   // count down time, when 0, set run = 1
-    uint16_t   ticks;  // total tick number for a loop
-    char       name[_STIME_TASK_NAME_LEN];
+    uint8_t run;     // 1: need to run, 0: do not need to run
+    uint16_t time;   // count down time, when 0, set run = 1
+    uint16_t ticks;  // total tick number for a loop
+    char name[_STIME_TASK_NAME_LEN];
     TaskHandle handle;
 } TaskCell_t;
 
 typedef struct TaskNode_s {
-    TaskCell_t         _this;
+    TaskCell_t _this;
     struct TaskNode_s* _next;
 } TaskNode_t;
 #endif  // _STIME_USE_SCHEDULER

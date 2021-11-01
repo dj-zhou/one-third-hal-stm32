@@ -94,8 +94,8 @@ typedef struct {
     void (*priority)(uint16_t);
     void (*transmit)(uint8_t*, uint16_t);
     struct RingBuffer_s rb;
-    UartDma             dma;
-    UartRingBuffer      ring;
+    UartDma dma;
+    UartRingBuffer ring;
 } UartApi_t;
 
 #endif  // UART_IS_USED

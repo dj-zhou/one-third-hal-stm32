@@ -62,7 +62,7 @@ static void Error_Handler(uint32_t hclk) {
 // ============================================================================
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
                                       uint32_t pclk2) {
-    hclk_  = HAL_RCC_GetHCLKFreq();
+    hclk_ = HAL_RCC_GetHCLKFreq();
     pclk1_ = HAL_RCC_GetPCLK1Freq();
 #if !defined(STM32F030x8)
     pclk2_ = HAL_RCC_GetPCLK2Freq();
@@ -88,19 +88,19 @@ static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL6;
-        RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL6;
+        RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
 
         RCC_ClkInitStruct.ClockType =
             RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
 
         if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1)
@@ -127,12 +127,12 @@ static HAL_StatusTypeDef InitClock_F103xB(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
         RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-        RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+        RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
@@ -140,8 +140,8 @@ static HAL_StatusTypeDef InitClock_F103xB(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                       | RCC_CLOCKTYPE_PCLK1
                                       | RCC_CLOCKTYPE_PCLK2;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -169,17 +169,17 @@ static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
         // 25Mhz / 5 * 8 / 5 * 9 = 72 Mhz
-        RCC_OscInitStruct.OscillatorType       = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState             = RCC_HSE_ON;
-        RCC_OscInitStruct.HSEPredivValue       = RCC_HSE_PREDIV_DIV5;
-        RCC_OscInitStruct.HSIState             = RCC_HSI_ON;
-        RCC_OscInitStruct.Prediv1Source        = RCC_PREDIV1_SOURCE_PLL2;
-        RCC_OscInitStruct.PLL2.PLL2State       = RCC_PLL2_ON;
-        RCC_OscInitStruct.PLL2.PLL2MUL         = RCC_PLL2_MUL8;
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV5;
+        RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+        RCC_OscInitStruct.Prediv1Source = RCC_PREDIV1_SOURCE_PLL2;
+        RCC_OscInitStruct.PLL2.PLL2State = RCC_PLL2_ON;
+        RCC_OscInitStruct.PLL2.PLL2MUL = RCC_PLL2_MUL8;
         RCC_OscInitStruct.PLL2.HSEPrediv2Value = RCC_HSE_PREDIV2_DIV5;
-        RCC_OscInitStruct.PLL.PLLState         = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource        = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLMUL           = RCC_PLL_MUL9;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
@@ -187,8 +187,8 @@ static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                       | RCC_CLOCKTYPE_PCLK1
                                       | RCC_CLOCKTYPE_PCLK2;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -218,12 +218,12 @@ static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-        RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
-        RCC_OscInitStruct.PLL.PREDIV     = RCC_PREDIV_DIV1;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
+        RCC_OscInitStruct.PLL.PREDIV = RCC_PREDIV_DIV1;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
@@ -231,8 +231,8 @@ static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                       | RCC_CLOCKTYPE_PCLK1
                                       | RCC_CLOCKTYPE_PCLK2;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -262,10 +262,10 @@ static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_ClkInitStruct.ClockType      = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     if (HSE_VALUE == 12000000) {
         RCC_OscInitStruct.PLL.PLLM = 8;
@@ -282,8 +282,8 @@ static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
     else {
         // #error not supported.
     }
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
@@ -302,16 +302,16 @@ static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
 #if defined(STM32F427xx)
 static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
-    uint32_t           hclk, pclk1, pclk2;
+    uint32_t hclk, pclk1, pclk2;
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
     if ((hclk_m == 180) && (pclk1_m != 45) && (pclk2_m != 90)) {
 
         if (HSE_VALUE == 8000000) {
@@ -329,7 +329,7 @@ static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
         else {
             // #error not supported.
         }
-        hclk  = 180000000;
+        hclk = 180000000;
         pclk1 = 45000000;
         pclk2 = 90000000;
     }
@@ -349,15 +349,20 @@ static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
         else {
             // #error not supported.
         }
-        hclk  = 176000000;
+        hclk = 176000000;
         pclk1 = 44000000;
         pclk2 = 88000000;
+    }
+    else {
+        hclk = 0;
+        pclk1 = 0;
+        pclk2 = 0;
     }
 
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                   | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
@@ -391,13 +396,13 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
         __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
         RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
-        RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-        RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-        RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-        RCC_OscInitStruct.PLL.PLLM       = 8;
-        RCC_OscInitStruct.PLL.PLLN       = 432;
-        RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-        RCC_OscInitStruct.PLL.PLLQ       = 2;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM = 8;
+        RCC_OscInitStruct.PLL.PLLN = 432;
+        RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+        RCC_OscInitStruct.PLL.PLLQ = 2;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
@@ -409,8 +414,8 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK
                                       | RCC_CLOCKTYPE_PCLK1
                                       | RCC_CLOCKTYPE_PCLK2;
-        RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
-        RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
         RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
         RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
@@ -701,10 +706,10 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
     enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin   = GPIO_PIN_x;
+    GPIO_InitStructure.Pin = GPIO_PIN_x;
     GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
-    GPIO_InitStructure.Mode  = mode;
-    GPIO_InitStructure.Pull  = GPIO_NOPULL;  // to verify
+    GPIO_InitStructure.Mode = mode;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;  // to verify
 
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
@@ -723,7 +728,7 @@ static void setPinAlter(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt) {
 
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
 
-    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Alternate = alt;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // this may differ for platforms
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
@@ -738,9 +743,9 @@ static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
     enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin   = 1 << pin_n;
+    GPIO_InitStructure.Pin = 1 << pin_n;
     GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
-    GPIO_InitStructure.Pull  = p;
+    GPIO_InitStructure.Pull = p;
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
 }
 

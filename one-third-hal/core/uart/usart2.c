@@ -137,10 +137,10 @@ __attribute__((weak)) void Usart2IdleIrqCallback(void) {
 
 // ============================================================================
 void USART2_IRQHandler(void) {
-    uint32_t flag   = 0;
+    uint32_t flag = 0;
     uint32_t source = 0;
     // RX interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(usart2.huart), UART_FLAG_RXNE);
+    flag = __HAL_UART_GET_FLAG(&(usart2.huart), UART_FLAG_RXNE);
     source = __HAL_UART_GET_IT_SOURCE(&(usart2.huart), UART_IT_RXNE);
     if (flag != RESET && source != RESET) {
         uint8_t recv;
@@ -148,7 +148,7 @@ void USART2_IRQHandler(void) {
         ringbuffer.push(&(usart2.rb), recv);
     }
     // IDLE interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(usart2.huart), UART_FLAG_IDLE);
+    flag = __HAL_UART_GET_FLAG(&(usart2.huart), UART_FLAG_IDLE);
     source = __HAL_UART_GET_IT_SOURCE(&(usart2.huart), UART_IT_IDLE);
     if (flag != RESET && source != RESET) {
         __HAL_UART_CLEAR_IDLEFLAG(&(usart2.huart));

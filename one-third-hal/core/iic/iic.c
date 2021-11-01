@@ -14,8 +14,8 @@ static void InitIic1_PB8PB9(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
-    GPIO_InitStruct.Pin   = GPIO_PIN_8 | GPIO_PIN_9;
-    GPIO_InitStruct.Mode  = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
     __HAL_AFIO_REMAP_I2C1_ENABLE();
@@ -28,10 +28,10 @@ static void InitIic1_PB8PB9(void) {
     __HAL_RCC_GPIOB_CLK_ENABLE();
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
-    GPIO_InitStruct.Pin       = GPIO_PIN_8 | GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
@@ -54,15 +54,15 @@ static void InitIic1(uint32_t speed) {
     InitIic1_PB6PB9();  // todo
 #endif
     utils.clock.enableIic(I2C1);
-    iic1.hiic.Instance             = I2C1;
-    iic1.hiic.Init.ClockSpeed      = speed;
-    iic1.hiic.Init.DutyCycle       = I2C_DUTYCYCLE_2;
-    iic1.hiic.Init.OwnAddress1     = 0;
-    iic1.hiic.Init.AddressingMode  = I2C_ADDRESSINGMODE_7BIT;
+    iic1.hiic.Instance = I2C1;
+    iic1.hiic.Init.ClockSpeed = speed;
+    iic1.hiic.Init.DutyCycle = I2C_DUTYCYCLE_2;
+    iic1.hiic.Init.OwnAddress1 = 0;
+    iic1.hiic.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
     iic1.hiic.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
-    iic1.hiic.Init.OwnAddress2     = 0;
+    iic1.hiic.Init.OwnAddress2 = 0;
     iic1.hiic.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
-    iic1.hiic.Init.NoStretchMode   = I2C_NOSTRETCH_DISABLE;
+    iic1.hiic.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
     if (HAL_I2C_Init(&(iic1.hiic)) != HAL_OK) {
         console.error("iic1 initialization failed\r\n");
     }

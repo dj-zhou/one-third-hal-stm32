@@ -1,6 +1,6 @@
 ### Example Projects
 
-#### `001-fxxxxx-sysclk-led`
+#### `001-sysclk-led`
 
 Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
 
@@ -63,7 +63,7 @@ Setup a UART/USART port as the console, and use the console to print data, just 
 
   (should be in different color)
 
-#### `004-f107vc-stime-delay`
+#### `004-stime-delay`
 
 This project demos the delay functions using the delay functions defined in the module `stime`, and print the time difference through the console.
 
@@ -123,7 +123,7 @@ cli-suspend
 
 
 
-#### `007-fxxxxx-led-status`
+#### `007-led-status`
 
 This project is based on previous example project, and add the following:
 
@@ -140,7 +140,7 @@ Tested on:
 * F746ZG
 * F767ZI
 
-#### `008-fxxxxx-spi`
+#### `008-spi`
 
 Try the SPI interface, need logic analyzer to see how it works. Examples of devices using the SPI interface will be added later.
 
@@ -149,7 +149,7 @@ Tested on:
 * F427VI
 * F767ZI
 
-#### `009-fxxxxx-iic-eeprom`
+#### `009-iic-eeprom`
 
 Example of using the IIC interface to write to and read from a EEPROM chip: AT24C02. `EepromNode_t` related code will be added later.
 

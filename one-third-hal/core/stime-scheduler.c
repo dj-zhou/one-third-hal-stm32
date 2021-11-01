@@ -158,7 +158,7 @@ volatile uint32_t cli_suspend_second_ = 0;
 // SysTick is a 24-bit count down counter
 // if FreeRTOS is used, this functions may be overwritten
 static void InitSysTick(void) {
-    tick_   = 0;
+    tick_ = 0;
     second_ = 0;
     HAL_SYSTICK_Config(SYSTICK_RELOAD_VALUE - 1U);
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK_DIV8);
@@ -170,8 +170,8 @@ static Stime_t GetSysTickTime(void) {
     // disable the SysTick, or use HAL_SuspendTick()
     CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
     uint32_t val = SysTick->VAL;
-    Stime_t  st;
-    st.s  = second_;
+    Stime_t st;
+    st.s = second_;
     st.us = tick_ * SYSTICK_MS_SCALE + (SYSTICK_RELOAD_VALUE - val) / US_TICK;
     // enable the SysTick, or use HAL_ResumeTick()
     SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);
@@ -180,7 +180,7 @@ static Stime_t GetSysTickTime(void) {
 
 // ----------------------------------------------------------------------------
 static Stime_t tic_, toc_;
-static void    stimeTic(void) {
+static void stimeTic(void) {
     tic_ = GetSysTickTime();
 }
 
@@ -209,10 +209,10 @@ static void DelayUs(uint32_t us) {
         return;
     }
     volatile Stime_t cur_time = GetSysTickTime();
-    uint32_t         cur_us   = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
-    uint32_t         final_us = cur_us + ( uint32_t )us;
+    uint32_t cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
+    uint32_t final_us = cur_us + ( uint32_t )us;
     do {
-        cur_time.s  = second_;
+        cur_time.s = second_;
         cur_time.us = tick_ * SYSTICK_MS_SCALE
                       + (SYSTICK_RELOAD_VALUE - SysTick->VAL) / US_TICK;
         cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
@@ -232,19 +232,19 @@ static void DelayMs(uint32_t ms) {
 }
 
 #if defined(_STIME_USE_SCHEDULER)
-TaskNode_t     node_[_STIME_TASK_MAX_NUM];
+TaskNode_t node_[_STIME_TASK_MAX_NUM];
 static uint8_t task_num_ = 0;
 
 // ----------------------------------------------------------------------------
 static void SchedulerConfig(void) {
     // data initialization !! ------------------------
     for (uint16_t i = 0; i < _STIME_TASK_MAX_NUM; i++) {
-        node_[i]._this.run   = 0;
-        node_[i]._this.time  = UINT16_MAX;
+        node_[i]._this.run = 0;
+        node_[i]._this.time = UINT16_MAX;
         node_[i]._this.ticks = UINT16_MAX;
         memset(node_[i]._this.name, 0, _STIME_TASK_NAME_LEN);
         node_[i]._this.handle = NULL;
-        node_[i]._next        = NULL;
+        node_[i]._next = NULL;
     }
 }
 
@@ -298,7 +298,7 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
 #endif
 
 #if defined(_STIME_400_TICK)
-    ticks = ( uint32_t )(interval_ms / 2.5);
+    ticks = (uint32_t)(interval_ms / 2.5);
 #endif
 
 #if defined(_STIME_200_TICK)
@@ -319,24 +319,24 @@ static void SchedulerAttachTask(uint32_t interval_ms, uint32_t time_init,
                     __func__);
     }
     uint32_t ticks = IntervalToTicks(interval_ms);
-    uint8_t  len   = strlen(task_name) < _STIME_TASK_NAME_LEN
-                         ? strlen(task_name)
-                         : _STIME_TASK_NAME_LEN;
+    uint8_t len = strlen(task_name) < _STIME_TASK_NAME_LEN
+                      ? strlen(task_name)
+                      : _STIME_TASK_NAME_LEN;
     if (task_num_ == 0) {
-        node_[0]._this.run    = 0;
-        node_[0]._this.time   = time_init;
-        node_[0]._this.ticks  = ticks;
+        node_[0]._this.run = 0;
+        node_[0]._this.time = time_init;
+        node_[0]._this.ticks = ticks;
         node_[0]._this.handle = task_handle;
         snprintf(node_[0]._this.name, len + 1, task_name);
 
         node_[0]._next = NULL;
     }
     else {
-        uint8_t iter             = task_num_;
-        node_[iter - 1]._next    = &node_[iter];
-        node_[iter]._this.run    = 0;
-        node_[iter]._this.time   = time_init;
-        node_[iter]._this.ticks  = ticks;
+        uint8_t iter = task_num_;
+        node_[iter - 1]._next = &node_[iter];
+        node_[iter]._this.run = 0;
+        node_[iter]._this.time = time_init;
+        node_[iter]._this.ticks = ticks;
         node_[iter]._this.handle = task_handle;
         snprintf(node_[iter]._this.name, len + 1, task_name);
     }
@@ -404,7 +404,7 @@ void SchedulerRun(void) {
 
 // ----------------------------------------------------------------------------
 void SchedulerCliSuspendTime(uint32_t seconds) {
-    Stime_t cur_time    = GetSysTickTime();
+    Stime_t cur_time = GetSysTickTime();
     cli_suspend_second_ = cur_time.s + seconds;
 }
 #endif  // _STIME_USE_SCHEDULER

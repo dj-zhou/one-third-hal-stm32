@@ -34,11 +34,11 @@ extern "C" {
 
 typedef enum RingBufferError {
     RINGBUFFER_NO_ERROR = 0,
-    RINGBUFFER_ERR_OOR  = -1,  // OOR = out of range
-    RINGBUFFER_ERR_CNM  = -2,  // CNM = can not move
-    RINGBUFFER_ERR_SPS  = -3,  // SPS = search pattern small
+    RINGBUFFER_ERR_OOR = -1,   // OOR = out of range
+    RINGBUFFER_ERR_CNM = -2,   // CNM = can not move
+    RINGBUFFER_ERR_SPS = -3,   // SPS = search pattern small
     RINGBUFFER_ERR_SNCP = -4,  // SNCP = search no complete packet
-    RINGBUFFER_ERR_PNI  = -5,  // PNI = pop negative number of items
+    RINGBUFFER_ERR_PNI = -5,   // PNI = pop negative number of items
     RINGBUFFER_ERR_PTMI = -6,  // PTMI = pop too many items
 } RingBufferError_e;
 

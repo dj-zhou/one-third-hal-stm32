@@ -4,20 +4,20 @@
 #include <string.h>
 
 #if defined(CONSOLE_IS_USED)
-Cli_t    cli_;
+Cli_t cli_;
 CliCmd_t cmd_[_CLI_CMD_MAX_NUM];
 
 // ============================================================================
 void CliDeInit() {
-    cli_.cmd_buff_tail   = cli_.cmd_buff;
+    cli_.cmd_buff_tail = cli_.cmd_buff;
     cli_.cmd_buff_cursor = cli_.cmd_buff;
-    cli_.cmd_buff[0]     = '\0';
+    cli_.cmd_buff[0] = '\0';
 }
 
 // ============================================================================
 static char* CliGetParam(char* str, uint8_t num) {
-    char*   dst = str;
-    uint8_t i   = 0;
+    char* dst = str;
+    uint8_t i = 0;
     while (*dst == ' ') {
         dst++;
     }
@@ -48,7 +48,7 @@ static char* CliGetParam(char* str, uint8_t num) {
 static void CliFormatCmd(char* strtop, char** parameter) {
     char* strend;
 
-    cli_.argc    = 0;
+    cli_.argc = 0;
     cli_.argv[0] = cli_.argv_buff;
 
     do {
@@ -279,7 +279,7 @@ static char* CliMatchChar(char* src, char* dst) {
 // ============================================================================
 static CliCmd_t* CliSeekCmd(char* str) {
     uint8_t num = 0;
-    char *  src, *dst;
+    char *src, *dst;
     do {
         src = cmd_[num].str;
         dst = str;
@@ -303,7 +303,7 @@ static CliCmd_t* CliSeekCmd(char* str) {
 // ============================================================================
 void CliProcessCmd(char* str) {
     HAL_StatusTypeDef ret = HAL_OK;
-    CliCmd_t*         cmd;
+    CliCmd_t* cmd;
 
     char* parameter[10] = { NULL, NULL, NULL, NULL, NULL,
                             NULL, NULL, NULL, NULL, NULL };

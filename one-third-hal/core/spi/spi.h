@@ -84,12 +84,12 @@ typedef struct {
     unsigned char sck;     // 'h' or 'l'
     unsigned char phase;   // 'f' or 'r'
     GPIO_TypeDef* nss_GPIOx;
-    uint8_t       nss_pin;
+    uint8_t nss_pin;
 } SpiParam_t;
 
 typedef struct {
     SPI_HandleTypeDef hspi;
-    SpiParam_t        param;
+    SpiParam_t param;
     void (*config)(uint16_t, const char*, const char*, const char*,
                    const char*);
     void (*setNss)(GPIO_TypeDef*, uint8_t);
@@ -97,8 +97,8 @@ typedef struct {
     HAL_StatusTypeDef (*transceive16bits)(uint16_t*, uint16_t*, uint16_t);
 } SpiApi_t;
 
-void              InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
-                                  SpiParam_t param);
+void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
+                     SpiParam_t param);
 HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
                                      uint8_t* rbuf, uint16_t len,
                                      uint32_t timeout);

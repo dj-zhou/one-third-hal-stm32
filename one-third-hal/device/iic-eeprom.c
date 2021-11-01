@@ -75,7 +75,7 @@ static uint16_t GetOffsetPageAddr(uint16_t addr) {
 // ============================================================================
 static void EepromConfig(void) {
     for (uint16_t i = 0; i < _EEPROM_NODE_MAX_NUM; i++) {
-        node_[i].key  = 0;
+        node_[i].key = 0;
         node_[i].addr = 0;
         node_[i].size = 0;
     }
@@ -83,8 +83,8 @@ static void EepromConfig(void) {
 
 // ============================================================================
 static uint8_t EepromReadByte(uint16_t addr) {
-    uint8_t  data;
-    uint16_t block_addr        = GetBlockAddr(addr);
+    uint8_t data;
+    uint16_t block_addr = GetBlockAddr(addr);
     uint16_t offset_block_addr = GetOffsetBlockAddr(addr);
 
     uint8_t result = EepromIicRead(block_addr, offset_block_addr,
@@ -101,9 +101,9 @@ static uint8_t EepromReadByte(uint16_t addr) {
 
 // ============================================================================
 static void EepromWriteByte(uint16_t addr, uint8_t data) {
-    uint16_t block_addr        = GetBlockAddr(addr);
+    uint16_t block_addr = GetBlockAddr(addr);
     uint16_t offset_block_addr = GetOffsetBlockAddr(addr);
-    uint8_t  result            = EepromIicWrite(block_addr, offset_block_addr,
+    uint8_t result = EepromIicWrite(block_addr, offset_block_addr,
                                     I2C_MEMADD_SIZE_8BIT, &data, 1, 100);
     if (HAL_OK == result) {
         stime.delay.ms(10);  // if FreeRTOS is used, use RTOS delay
@@ -123,9 +123,9 @@ static void EepromReadNbytes(uint16_t addr, uint8_t* buf_read, uint16_t size) {
     uint16_t offset_page_addr;
     uint8_t* remain_bytes_addr = buf_read;
     while (size > 0) {
-        block_addr        = GetBlockAddr(addr);
+        block_addr = GetBlockAddr(addr);
         offset_block_addr = GetOffsetBlockAddr(addr);
-        offset_page_addr  = GetOffsetPageAddr(addr);
+        offset_page_addr = GetOffsetPageAddr(addr);
         if (offset_page_addr + size <= EEPROM_PAGE_SIZE) {
             EepromIicRead(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                           remain_bytes_addr, size, 10000);
@@ -156,9 +156,9 @@ static void EepromWriteNbytes(uint16_t addr, uint8_t* buf_write,
     uint8_t* remain_bytes_addr = buf_write;
 
     while (size > 0) {
-        block_addr        = GetBlockAddr(addr);
+        block_addr = GetBlockAddr(addr);
         offset_block_addr = GetOffsetBlockAddr(addr);
-        offset_page_addr  = GetOffsetPageAddr(addr);
+        offset_page_addr = GetOffsetPageAddr(addr);
         if (offset_page_addr + size <= EEPROM_PAGE_SIZE) {
             EepromIicWrite(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                            remain_bytes_addr, size, 10000);
@@ -190,10 +190,10 @@ static uint16_t EepromGetKeyfromNode(uint8_t* ram_addr, uint16_t size) {
 
 // ============================================================================
 static uint8_t attached_node_num_ = 0;
-static void    EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
+static void EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
     uint16_t eeprom_key = EepromGetKeyfromNode(ram_addr, size);
     if (attached_node_num_ == 0) {
-        node_[0].key  = eeprom_key;
+        node_[0].key = eeprom_key;
         node_[0].addr = _EEPROM_NODE_START_ADDR;
         node_[0].size = size + 2;  // two bytes for crc16 checksum: todo
     }
@@ -205,7 +205,7 @@ static void    EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
             }
             node_[attached_node_num_].addr = node_[i].addr + node_[i].size;
         }
-        node_[attached_node_num_].key  = eeprom_key;
+        node_[attached_node_num_].key = eeprom_key;
         node_[attached_node_num_].size = size + 2;
     }
     attached_node_num_++;
@@ -218,8 +218,8 @@ static void    EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
 //  size: the size of the memory block, NOT including the two crc16 bytes
 static void EepromReadNode(uint8_t* ram_addr, uint16_t size) {
     uint16_t crc16_read;
-    bool     read_done  = false;
-    uint8_t  read_cout  = 0;
+    bool read_done = false;
+    uint8_t read_cout = 0;
     uint16_t eeprom_key = EepromGetKeyfromNode(ram_addr, size);
     for (uint8_t i = 0; i < attached_node_num_; i++) {
         if (node_[i].key != eeprom_key) {

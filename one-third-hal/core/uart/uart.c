@@ -10,16 +10,16 @@ void InitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT, GPIO_TypeDef* GPIOx_R,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin       = 1 << pin_nT;
-    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_PULLUP;
-    GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin   = 1 << pin_nR;
-    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_PULLUP;
+    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_R, &GPIO_InitStructure);
 }
@@ -68,11 +68,11 @@ void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
         huart->Init.Parity = UART_PARITY_NONE;
         break;
     }
-    huart->Init.Mode         = UART_MODE_TX_RX;
-    huart->Init.HwFlowCtl    = UART_HWCONTROL_NONE;
+    huart->Init.Mode = UART_MODE_TX_RX;
+    huart->Init.HwFlowCtl = UART_HWCONTROL_NONE;
     huart->Init.OverSampling = UART_OVERSAMPLING_16;
 #if defined(STM32F303xE) || defined(STM32F767xx)
-    huart->Init.OneBitSampling         = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart->Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
 #endif
 

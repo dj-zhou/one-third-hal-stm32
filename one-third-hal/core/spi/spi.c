@@ -77,15 +77,15 @@ void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
     uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
     console.printk(0, "%s(): SPI baudrate = %3.3f KHz\r\n", __func__,
                    pclk2 / prescale / 1000.0);
-    hspi->Init.FirstBit       = SPI_FIRSTBIT_MSB;
-    hspi->Init.TIMode         = SPI_TIMODE_DISABLE;
+    hspi->Init.FirstBit = SPI_FIRSTBIT_MSB;
+    hspi->Init.TIMode = SPI_TIMODE_DISABLE;
     hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
 #if defined(STM32F407xx) || defined(STM32F427xx)
     hspi->Init.CRCPolynomial = 10;  // as from the CubeMX generated code
 #elif defined(STM32F767xx)
     hspi->Init.CRCPolynomial = 7;  // as from the CubeMX generated code
-    hspi->Init.CRCLength     = SPI_CRC_LENGTH_DATASIZE;
-    hspi->Init.NSSPMode      = SPI_NSS_PULSE_ENABLE;
+    hspi->Init.CRCLength = SPI_CRC_LENGTH_DATASIZE;
+    hspi->Init.NSSPMode = SPI_NSS_PULSE_ENABLE;
 #else
 #error InitSpiSettings(): to do
 #endif
@@ -162,7 +162,7 @@ HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
 // ----------------------------------------------------------------------------
 void InitSpiSoftNss(SpiApi_t* spi, GPIO_TypeDef* GPIOx_NSS, uint8_t pin_nss) {
     spi->param.nss_GPIOx = GPIOx_NSS;
-    spi->param.nss_pin   = pin_nss;
+    spi->param.nss_pin = pin_nss;
     utils.pin.mode(GPIOx_NSS, pin_nss, GPIO_MODE_OUTPUT_PP);
     utils.pin.pull(GPIOx_NSS, pin_nss, GPIO_PULLUP);
     utils.pin.set(GPIOx_NSS, pin_nss, true);
@@ -179,22 +179,22 @@ void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo, GPIO_TypeDef* GPIOx_MI,
 
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // MOSI
-    GPIO_InitStructure.Pin       = 1 << pin_mo;
-    GPIO_InitStructure.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull      = GPIO_PULLUP;
-    GPIO_InitStructure.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStructure.Pin = 1 << pin_mo;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_MO, &GPIO_InitStructure);
     // MISO
-    GPIO_InitStructure.Pin   = 1 << pin_mi;
-    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_PULLUP;
+    GPIO_InitStructure.Pin = 1 << pin_mi;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_MI, &GPIO_InitStructure);
     // SCK
-    GPIO_InitStructure.Pin   = 1 << pin_sck;
-    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_PULLUP;
+    GPIO_InitStructure.Pin = 1 << pin_sck;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_SCK, &GPIO_InitStructure);
 }
@@ -209,9 +209,9 @@ void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
     utils.clock.enableGpio(GPIOx_SCK);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // NSS
-    GPIO_InitStructure.Pin   = 1 << pin_nss;
-    GPIO_InitStructure.Mode  = GPIO_MODE_AF_PP;
-    GPIO_InitStructure.Pull  = GPIO_PULLUP;
+    GPIO_InitStructure.Pin = 1 << pin_nss;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_NSS, &GPIO_InitStructure);
     InitSpiPins(GPIOx_MO, pin_mo, GPIOx_MI, pin_mi, GPIOx_SCK, pin_sck, alter);

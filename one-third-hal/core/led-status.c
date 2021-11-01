@@ -14,13 +14,13 @@
 #endif
 
 // ============================================================================
-static LedHeartBeat_e    heartbeat_mode_;
-static uint16_t          tick_toggle_;
-static uint16_t          tick_period_;
-static TIM_TypeDef*      PWM_TIMx_    = NULL;
-static uint8_t           pwm_channel_ = 255;
-static uint8_t           pwm_alter_;
-static float             pwm_step_size_;
+static LedHeartBeat_e heartbeat_mode_;
+static uint16_t tick_toggle_;
+static uint16_t tick_period_;
+static TIM_TypeDef* PWM_TIMx_ = NULL;
+static uint8_t pwm_channel_ = 255;
+static uint8_t pwm_alter_;
+static float pwm_step_size_;
 static TIM_HandleTypeDef htim_;
 
 // ============================================================================
@@ -180,9 +180,9 @@ static void LedHeartBeatVerifyPwm(void) {
     if (_LED_HEARTBEAT_PORT == GPIOB) {
         // PB0 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 0) {  // TIM3_CH3
-            // g_config_timer_used |= 1 << 3;
+                                        // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
-            PWM_TIMx_    = TIM3;
+            PWM_TIMx_ = TIM3;
             pwm_channel_ = TIM_CHANNEL_3;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -192,9 +192,9 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB1 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 1) {  // TIM3_CH4
-            // g_config_timer_used |= 1 << 3;
+                                        // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
-            PWM_TIMx_    = TIM3;
+            PWM_TIMx_ = TIM3;
             pwm_channel_ = TIM_CHANNEL_4;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -204,9 +204,9 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB3 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 3) {  // TIM2_CH2
-            // g_config_timer_used |= 1 << 2;
+                                        // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
-            PWM_TIMx_    = TIM2;
+            PWM_TIMx_ = TIM2;
             pwm_channel_ = TIM_CHANNEL_2;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -216,9 +216,9 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB7 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 7) {  // TIM4_CH2
-            // g_config_timer_used |= 1 << 4;
+                                        // g_config_timer_used |= 1 << 4;
 #if defined(TIM4_EXISTS)
-            PWM_TIMx_    = TIM4;
+            PWM_TIMx_ = TIM4;
             pwm_channel_ = TIM_CHANNEL_2;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -228,9 +228,9 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB11 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM2_CH4
-            // g_config_timer_used |= 1 << 2;
+                                         // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
-            PWM_TIMx_    = TIM2;
+            PWM_TIMx_ = TIM2;
             pwm_channel_ = TIM_CHANNEL_4;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -240,9 +240,9 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB14 --------known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 14) {  // TIM12_CH1
-            // g_config_timer_used |= 1 << 12;
+                                         // g_config_timer_used |= 1 << 12;
 #if defined(TIM12_EXISTS)
-            PWM_TIMx_    = TIM12;
+            PWM_TIMx_ = TIM12;
             pwm_channel_ = TIM_CHANNEL_1;
 #endif
 #if defined(STM32F427xx) || defined(STM32F767xx)
@@ -257,9 +257,9 @@ static void LedHeartBeatVerifyPwm(void) {
     if (_LED_HEARTBEAT_PORT == GPIOE) {
         // PE11 --------known boards: f407zg
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM1_CH2
-            // g_config_timer_used |= 1 << 1;
+                                         // g_config_timer_used |= 1 << 1;
 #if defined(TIM1_EXISTS)
-            PWM_TIMx_    = TIM1;
+            PWM_TIMx_ = TIM1;
             pwm_channel_ = TIM_CHANNEL_2;
 #endif
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F767xx)
@@ -286,11 +286,11 @@ static void LedHeartBeatPwmConfig(void) {
     utils.clock.enableTimer(PWM_TIMx_);
 
     // timer base initialization -------------------
-    htim_.Instance               = PWM_TIMx_;
-    htim_.Init.Prescaler         = 100 - 1;
-    htim_.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim_.Init.Period            = 2000;
-    htim_.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim_.Instance = PWM_TIMx_;
+    htim_.Init.Prescaler = 100 - 1;
+    htim_.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim_.Init.Period = 2000;
+    htim_.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
     htim_.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     while (HAL_TIM_OC_Init(&htim_) != HAL_OK) {
         // Error_Handler();
@@ -299,7 +299,7 @@ static void LedHeartBeatPwmConfig(void) {
     TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
     sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
     while (HAL_TIMEx_MasterConfigSynchronization(&htim_, &sMasterConfig)
            != HAL_OK) {
         // Error_Handler();
@@ -308,8 +308,8 @@ static void LedHeartBeatPwmConfig(void) {
     // OC initialization -------------------
     TIM_OC_InitTypeDef sConfigOC = { 0 };
 
-    sConfigOC.OCMode     = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse      = 0;
+    sConfigOC.OCMode = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse = 0;
     sConfigOC.OCPolarity = TIM_OCPOLARITY_LOW;
     sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
     while (HAL_TIM_OC_ConfigChannel(&htim_, &sConfigOC, pwm_channel_)

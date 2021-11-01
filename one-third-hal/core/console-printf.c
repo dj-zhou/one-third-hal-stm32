@@ -18,7 +18,7 @@ void printf_b(char* sign_data, unsigned int data) {
     }
     else {
         *strchr(sign_data, 'b') = '\0';
-        bits_number             = atoi(sign_data + 1);
+        bits_number = atoi(sign_data + 1);
     }
 
     sign_data[19] = '\0';
@@ -28,7 +28,7 @@ void printf_b(char* sign_data, unsigned int data) {
         }
         else {
             sign_data[i] = (data & 0x01) | 0x30;
-            data         = data >> 1;
+            data = data >> 1;
         }
     }
 
@@ -40,10 +40,10 @@ void printf_b(char* sign_data, unsigned int data) {
 
 // ============================================================================
 void printf_f(char* sign_data, double data) {
-    char  buff[_CONSOLE_SIGN_DATA_SIZE];
-    int   accuracy = 5, width = 0, index = 0, temp = ( int )data;
+    char buff[_CONSOLE_SIGN_DATA_SIZE];
+    int accuracy = 5, width = 0, index = 0, temp = ( int )data;
     char* str;
-    char  fmt[10];
+    char fmt[10];
     // temporary solution ------------------
     if ((data > -1) && (data < 0)) {
         console.write.byte('-');
@@ -52,13 +52,13 @@ void printf_f(char* sign_data, double data) {
     str = strchr(sign_data, '.');
     if (str) {
         accuracy = atoi(str + 1);
-        width    = atoi(++sign_data);
+        width = atoi(++sign_data);
         if (width < 0) {
             width = -width;
         }
     }
     index = snprintf(&buff[0], _CONSOLE_SIGN_DATA_SIZE - 1, "%d.", temp);
-    temp  = (( int )((( double )data - ( double )temp) * (pow(10, accuracy))));
+    temp = (( int )((( double )data - ( double )temp) * (pow(10, accuracy))));
     if (temp < 0) {
         temp = -temp;
     }
@@ -190,16 +190,16 @@ void printf_n(char* sign_data, int* data) {
 
 // ============================================================================
 static char SeekSignifier(char** str, char* sign_data, char* sign) {
-    char* fmt    = *str;
+    char* fmt = *str;
     *sign_data++ = '%';
-    sign[0]      = '\0';
-    sign[1]      = '\0';
+    sign[0] = '\0';
+    sign[1] = '\0';
     do {
         if (((*fmt >= 'a' && *fmt <= 'z') || (*fmt >= 'A' && *fmt <= 'Z'))
             && (*fmt != 'l')) {
             *sign_data++ = *fmt;
-            *sign_data   = '\0';
-            *str         = fmt + 1;
+            *sign_data = '\0';
+            *str = fmt + 1;
             if (sign[0] == '\0') {
                 sign[0] = *fmt;
             }
@@ -224,7 +224,7 @@ static char SeekSignifier(char** str, char* sign_data, char* sign) {
 
 // ============================================================================
 void ConsolePrintf(char* sign_data, char* format, va_list ap) {
-    char  sign[2];
+    char sign[2];
     char* fmt = format;
     while (*fmt) {
         while (*fmt != '%' && *fmt != '\0') {

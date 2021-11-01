@@ -28,23 +28,23 @@ extern "C" {
 // clang-format on
 
 typedef struct {
-    char*     str;
+    char* str;
     CliHandle p;
 } CliCmd_t;
 
 typedef struct {
-    char    buff[_CLI_HISTORY_CMD_NUM][_CLI_CMD_MAX_LEN];
+    char buff[_CLI_HISTORY_CMD_NUM][_CLI_CMD_MAX_LEN];
     uint8_t index;
 } CliHistory_t;
 
 typedef struct {
-    int   argc;
+    int argc;
     char* cmd_buff_tail;
     char* cmd_buff_cursor;
     char* out_message;
     char* argv[_CLI_CMD_PARAM_MAX_NUM];
-    char  argv_buff[_CLI_CMD_MAX_LEN];
-    char  cmd_buff[_CLI_CMD_MAX_LEN];
+    char argv_buff[_CLI_CMD_MAX_LEN];
+    char cmd_buff[_CLI_CMD_MAX_LEN];
     // history
     CliHistory_t history;
 } Cli_t;

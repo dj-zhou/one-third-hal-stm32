@@ -64,7 +64,7 @@ static void InitSpi1(uint16_t prescale, const char* master,
     }
 
     spi1.param.nss_GPIOx = NULL;
-    spi1.hspi.Instance   = SPI1;
+    spi1.hspi.Instance = SPI1;
 #if defined(_USE_SPI1_PA7PA6)
     InitSpi1_PA7PA6();
 #elif defined(_USE_SPI1_PB5PB4)

@@ -3,7 +3,7 @@
 #if defined(UART5_EXISTS) && defined(UART5_IS_USED)
 
 static RingBuffer_t ring_;
-static bool         ring_initialized_ = false;
+static bool ring_initialized_ = false;
 
 // ============================================================================
 #if defined(STM32F303xE) || defined(STM32F767xx)
@@ -47,16 +47,16 @@ static void Uart5DmaConfig(void) {
     DMA_HandleTypeDef hdma_uart5_rx;
     /* UART5 DMA Init */
     /* UART5_RX Init */
-    hdma_uart5_rx.Instance                 = DMA1_Stream5;
-    hdma_uart5_rx.Init.Channel             = DMA_CHANNEL_4;
-    hdma_uart5_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    hdma_uart5_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_uart5_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_uart5_rx.Instance = DMA1_Stream5;
+    hdma_uart5_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_uart5_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_uart5_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_uart5_rx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_uart5_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_uart5_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_uart5_rx.Init.Mode                = DMA_CIRCULAR;
-    hdma_uart5_rx.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-    hdma_uart5_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    hdma_uart5_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_uart5_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_uart5_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_uart5_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_uart5_rx) != HAL_OK) {
         //   Error_Handler();
     }
@@ -65,7 +65,7 @@ static void Uart5DmaConfig(void) {
 
 // ----------------------------------------------------------------------------
 static void Uart5RingbufferConfig(uint8_t* data, uint16_t len) {
-    ring_             = RingBufferConfig(data, len);
+    ring_ = RingBufferConfig(data, len);
     ring_initialized_ = true;
 }
 
@@ -88,10 +88,10 @@ __attribute__((weak)) void Uart5IdleIrqCallback(void) {
 
 // ============================================================================
 void UART5_IRQHandler(void) {
-    uint32_t flag   = 0;
+    uint32_t flag = 0;
     uint32_t source = 0;
     // RX interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(uart5.huart), UART_FLAG_RXNE);
+    flag = __HAL_UART_GET_FLAG(&(uart5.huart), UART_FLAG_RXNE);
     source = __HAL_UART_GET_IT_SOURCE(&(uart5.huart), UART_IT_RXNE);
     if (flag != RESET && source != RESET) {
         uint8_t recv;
@@ -101,7 +101,7 @@ void UART5_IRQHandler(void) {
         }
     }
     // IDLE interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(uart5.huart), UART_FLAG_IDLE);
+    flag = __HAL_UART_GET_FLAG(&(uart5.huart), UART_FLAG_IDLE);
     source = __HAL_UART_GET_IT_SOURCE(&(uart5.huart), UART_IT_IDLE);
     if (flag != RESET && source != RESET) {
         __HAL_UART_CLEAR_IDLEFLAG(&(uart5.huart));

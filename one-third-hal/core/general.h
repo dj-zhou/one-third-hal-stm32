@@ -89,11 +89,11 @@ extern "C" {
 #pragma pack(1)
 typedef struct RingBuffer_s {
     uint8_t* buffer;
-    int16_t  head;
-    int16_t  tail;
+    int16_t head;
+    int16_t tail;
     uint16_t capacity;
     uint16_t count;
-    bool     initialized;
+    bool initialized;
 } RingBuffer_t;
 #pragma pack()
 

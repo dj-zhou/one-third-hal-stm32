@@ -3,7 +3,7 @@
 #if defined(USART6_EXISTS) && defined(USART6_IS_USED)
 
 static RingBuffer_t ring_;
-static bool         ring_initialized_ = false;
+static bool ring_initialized_ = false;
 
 // ============================================================================
 #if defined(STM32F303xE) || defined(STM32F767xx)
@@ -62,16 +62,16 @@ static void Usart6DmaConfig(void) {
     DMA_HandleTypeDef hdma_usart6_rx;
     /* USART6 DMA Init */
     /* USART6_RX Init */
-    hdma_usart6_rx.Instance                 = DMA1_Stream5;
-    hdma_usart6_rx.Init.Channel             = DMA_CHANNEL_4;
-    hdma_usart6_rx.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-    hdma_usart6_rx.Init.PeriphInc           = DMA_PINC_DISABLE;
-    hdma_usart6_rx.Init.MemInc              = DMA_MINC_ENABLE;
+    hdma_usart6_rx.Instance = DMA1_Stream5;
+    hdma_usart6_rx.Init.Channel = DMA_CHANNEL_4;
+    hdma_usart6_rx.Init.Direction = DMA_PERIPH_TO_MEMORY;
+    hdma_usart6_rx.Init.PeriphInc = DMA_PINC_DISABLE;
+    hdma_usart6_rx.Init.MemInc = DMA_MINC_ENABLE;
     hdma_usart6_rx.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
-    hdma_usart6_rx.Init.MemDataAlignment    = DMA_MDATAALIGN_BYTE;
-    hdma_usart6_rx.Init.Mode                = DMA_CIRCULAR;
-    hdma_usart6_rx.Init.Priority            = DMA_PRIORITY_VERY_HIGH;
-    hdma_usart6_rx.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
+    hdma_usart6_rx.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+    hdma_usart6_rx.Init.Mode = DMA_CIRCULAR;
+    hdma_usart6_rx.Init.Priority = DMA_PRIORITY_VERY_HIGH;
+    hdma_usart6_rx.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_usart6_rx) != HAL_OK) {
         //   Error_Handler();
     }
@@ -80,7 +80,7 @@ static void Usart6DmaConfig(void) {
 
 // ----------------------------------------------------------------------------
 static void Usart6RingbufferConfig(uint8_t* data, uint16_t len) {
-    ring_             = RingBufferConfig(data, len);
+    ring_ = RingBufferConfig(data, len);
     ring_initialized_ = true;
 }
 
@@ -103,10 +103,10 @@ __attribute__((weak)) void Usart6IdleIrqCallback(void) {
 
 // ============================================================================
 void USART6_IRQHandler(void) {
-    uint32_t flag   = 0;
+    uint32_t flag = 0;
     uint32_t source = 0;
     // RX interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(usart6.huart), UART_FLAG_RXNE);
+    flag = __HAL_UART_GET_FLAG(&(usart6.huart), UART_FLAG_RXNE);
     source = __HAL_UART_GET_IT_SOURCE(&(usart6.huart), UART_IT_RXNE);
     if (flag != RESET && source != RESET) {
         uint8_t recv;
@@ -116,7 +116,7 @@ void USART6_IRQHandler(void) {
         }
     }
     // IDLE interrupt -----------------
-    flag   = __HAL_UART_GET_FLAG(&(usart6.huart), UART_FLAG_IDLE);
+    flag = __HAL_UART_GET_FLAG(&(usart6.huart), UART_FLAG_IDLE);
     source = __HAL_UART_GET_IT_SOURCE(&(usart6.huart), UART_IT_IDLE);
     if (flag != RESET && source != RESET) {
         __HAL_UART_CLEAR_IDLEFLAG(&(usart6.huart));

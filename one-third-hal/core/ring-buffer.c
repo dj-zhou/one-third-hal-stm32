@@ -28,11 +28,11 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 // ============================================================================
 static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
     RingBuffer_t rb;
-    rb.buffer      = data;
-    rb.capacity    = size;
-    rb.head        = -1;
-    rb.tail        = 0;
-    rb.count       = 0;
+    rb.buffer = data;
+    rb.capacity = size;
+    rb.head = -1;
+    rb.tail = 0;
+    rb.count = 0;
     rb.initialized = true;
     return rb;
 }
@@ -110,7 +110,7 @@ static bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
 static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
-                                          uint8_t            len,
+                                          uint8_t len,
                                           RingBufferIndex_t* index) {
     if (len < 2) {
         return RINGBUFFER_ERR_SPS;  // the pattern must be larger than 1
@@ -126,7 +126,7 @@ static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
 
     // start to search ----------------------
     int search_count = 0;
-    index->found     = 0;
+    index->found = 0;
     while (search_count < rb->count - len + 1) {
         // match test --------
         int match_count = 0;

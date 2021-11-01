@@ -49,44 +49,44 @@ extern "C" {
 //      second
 //   5. PWM mode, (breathing light mode), only special pins have this mode
 typedef enum {
-    LED_OFF          = 0,   // off
-    LED_ON           = 1,   // on
-    LED_BLINK1       = 2,   // Blink once per second
-    LED_BLINK2       = 3,   // Blink twice per second
-    LED_BLINK3       = 4,   // Blink three times per second
-    LED_BLINK4       = 5,   // Blink four times per second
-    LED_BEAT01       = 10,  // on for 10 ms, off for 990 ms
-    LED_BEAT02       = 20,  // on for 20 ms, off for 980 ms
-    LED_BEAT03       = 30,
-    LED_BEAT04       = 40,
-    LED_BEAT05       = 50,
-    LED_BEAT06       = 60,
-    LED_BEAT07       = 70,
-    LED_BEAT08       = 80,
-    LED_BEAT09       = 90,
-    LED_BEAT10       = 100,
-    LED_BEAT11       = 110,
-    LED_BEAT12       = 120,
-    LED_BEAT13       = 130,
-    LED_BEAT14       = 140,
-    LED_BEAT15       = 150,
-    LED_BEAT16       = 160,
-    LED_BEAT17       = 170,
-    LED_BEAT18       = 180,
-    LED_BEAT19       = 190,
-    LED_BEAT20       = 200,  // on for 200 ms, off for 800 ms
+    LED_OFF = 0,      // off
+    LED_ON = 1,       // on
+    LED_BLINK1 = 2,   // Blink once per second
+    LED_BLINK2 = 3,   // Blink twice per second
+    LED_BLINK3 = 4,   // Blink three times per second
+    LED_BLINK4 = 5,   // Blink four times per second
+    LED_BEAT01 = 10,  // on for 10 ms, off for 990 ms
+    LED_BEAT02 = 20,  // on for 20 ms, off for 980 ms
+    LED_BEAT03 = 30,
+    LED_BEAT04 = 40,
+    LED_BEAT05 = 50,
+    LED_BEAT06 = 60,
+    LED_BEAT07 = 70,
+    LED_BEAT08 = 80,
+    LED_BEAT09 = 90,
+    LED_BEAT10 = 100,
+    LED_BEAT11 = 110,
+    LED_BEAT12 = 120,
+    LED_BEAT13 = 130,
+    LED_BEAT14 = 140,
+    LED_BEAT15 = 150,
+    LED_BEAT16 = 160,
+    LED_BEAT17 = 170,
+    LED_BEAT18 = 180,
+    LED_BEAT19 = 190,
+    LED_BEAT20 = 200,        // on for 200 ms, off for 800 ms
     LED_DOUBLE_BLINK = 201,  // flash twice in a period of 1.5 second
-    LED_BREATH       = 202,  // breathing light mode, TODO
+    LED_BREATH = 202,        // breathing light mode, TODO
 } LedHeartBeat_e;
 
 // ============================================================================
 // error mode
 // some error modes use both heart beat led and error led for indicating
 typedef enum {
-    NoError            = 0,  // no error, led off
+    NoError = 0,  // no error, led off
     Can1NoMailBoxError = 2,
     Can2NoMailBoxError = 3,
-    E2promReadError    = 4,
+    E2promReadError = 4,
 } LedError_e;
 
 // ============================================================================
