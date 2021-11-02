@@ -245,6 +245,17 @@ The above setup steps are also simplified into:
 dj setup stm32-tools
 ```
 
+#### Compile in Docker Container
+
+You can compile the example code in docker container, no matter of your host system, just run:
+
+```bash
+cd path/to/one-third-hal-stm32
+./build-in-docker
+```
+
+TODO: add stlink into the Dockerfile and use script to download firmware to microcontrollers.
+
 #### Examples
 
 Examples can be found in `examples` directory.
