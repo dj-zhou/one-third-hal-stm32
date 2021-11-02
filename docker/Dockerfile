@@ -18,10 +18,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     libftdi-dev libusb-1.0-0-dev zlib1g zlib1g-dev python-yaml \ 
     libncurses-dev wget
 
-ARG filename="gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2"
-ARG link="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/10.3-2021.10/${filename}"
 
-RUN wget "$link" --no-check-certificate
+ARG compiler_date="9-2020"
+ARG compiler_q="q2"
+ARG url="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm"
+ARG file="gcc-arm-none-eabi-${compiler_date}-${compiler_q}-update"
+ARG filename="${file}-x86_64-linux.tar.bz2"
+
+RUN wget "${url}/${compiler_date}${compiler_q}/${filename}" --no-check-certificate
 RUN tar xjf ${filename} -C /usr/share/
 
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-ar /usr/bin/arm-none-eabi-ar
@@ -30,6 +34,7 @@ RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-g++ /usr/bin/arm-none-eabi-g++
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
+
 # mount the project directory to the container
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \

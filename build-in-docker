@@ -61,4 +61,4 @@ docker exec ${container_name} ${target_path}/docker/build \
     ${target_path}
 
 # play some tricky (it is not a good practise) ------------------------
-sudo chown $(whoami):$(whoami) ./ -R
+sudo chown $(whoami):$(whoami) ./example -R
