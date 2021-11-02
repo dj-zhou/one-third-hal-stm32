@@ -7,25 +7,8 @@ RED='\033[0;31m'
 GRN='\033[0;32m'
 YLW='\033[0;33m'
 
-container_name="ros2-book-compiler"
+container_name="one-third-stm32-compiler"
 target_path="/proj"
-
-# read argument and asign values, otherwise set default values ------------------------
-builddir=""
-while getopts "d:" flag; do
-    case "${flag}" in
-    d) builddir="${OPTARG}" ;;
-    esac
-done
-
-if [ -z $builddir ]; then
-    if [ -f "CMakeLists.txt" ]; then
-        builddir="_bdocker.cmake"
-    elif [ -f "Makefile" ]; then
-        builddir="_bdocker.make" # not used in this project
-    # add more support to other build system
-    fi
-fi
 
 # stop the container if it is running ------------------------
 if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" &&
@@ -61,4 +44,4 @@ docker exec ${container_name} ${target_path}/docker/build \
     ${target_path}
 
 # play some tricky (it is not a good practise) ------------------------
-sudo chown $(whoami):$(whoami) ./example -R
+sudo chown $(whoami):$(whoami) ./examples -R
