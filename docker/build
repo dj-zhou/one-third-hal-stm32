@@ -1,0 +1,9 @@
+#!/bin/bash
+set -eu -o pipefail
+
+# cd into the root directory, which is passed in from build-in-docker
+cd "$1"
+
+# build the example projects
+cd examples
+./make.sh

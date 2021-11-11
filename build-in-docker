@@ -1,0 +1,47 @@
+#!/bin/bash
+set -eu -o pipefail
+
+# environment setup ------------------------
+NOC='\033[0m'
+RED='\033[0;31m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+
+container_name="one-third-stm32-compiler"
+target_path="/proj"
+
+# stop the container if it is running ------------------------
+if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" &&
+"$(docker container inspect -f '{{.State.Running}}' ${container_name})" == "true" ]]; then
+    echo -e "${YLW}Stop container ${container_name}${NOC} ..."
+    docker stop ${container_name}
+fi
+
+# remove the container if it exists but not running (is this needed? not sure now) ------------------------
+if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" ]]; then
+    echo -e "${YLW}Remove container ${container_name}${NOC} ..."
+    docker rm ${container_name}
+fi
+
+# build an image from Dockerfile ------------------------
+# if Dockerfile is not changed, it will finish very soon
+# FIXME, variable target_path is not passed into Dockerfile, so you see "target=/proj" in the last line in Dockerfile
+DOCKER_BUILDKIT=1 docker build \
+    -t $(basename $PWD) \
+    -f docker/Dockerfile \
+    docker
+
+# create a container and run it ------------------------
+docker run -d \
+    -it \
+    --rm \
+    --name ${container_name} \
+    --mount type=bind,source="$(pwd)",target=${target_path} \
+    $(basename $PWD)
+
+# build the project in the container ------------------------
+docker exec ${container_name} ${target_path}/docker/build \
+    ${target_path}
+
+# play some tricky (it is not a good practise) ------------------------
+sudo chown $(whoami):$(whoami) ./examples -R

@@ -54,15 +54,15 @@ The library is in directory `one-third-hal`, its structure is as following:
 
   The are modified to fit the library, and are not supposed to be revised again for different project, that why those files are in the library.
 
-* **f1-v1.8.2**: the HAL library for STM32F1 series of version v1.8.2. The files are generated from **STM32CubeMx**. Unused files are removed.
+* **f1-v1.8.4**: the HAL library for STM32F1 series of version v1.8.4. The files are generated from **STM32CubeMx**, with unused files removed.
 
-* **f0-share/f0-v1.11.1**: the same as above, except that they are for F0 series.
+* **f0-share** && **f0-v1.11.1**: the same as above, except that they are for F0 series.
 
-* **f3-share/f3-v1.11.1**: the same as above, except that they are for F3 series.
+* **f3-share** &&**f3-v1.11.1**: the same as above, except that they are for F3 series.
 
-* **f4-share/f4-v1.25.2**: the same as above, except that they are for F4 series.
+* **f4-share** && **f4-v1.25.2**: the same as above, except that they are for F4 series.
 
-* **f7-share/f7-v1.16.0**: the same as above, except that they are for F7 series.
+* **f7-share** && **f7-v1.16.0**: the same as above, except that they are for F7 series.
 
 * **lds**: the linker scripts for different micro-controllers.
 
@@ -72,22 +72,22 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 ##### `general-utils`
 
-* `utils.system.initClock( void )`: setup the system clock. Note: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
-* `utils.system.initNvic( uint8_t group )`: setup the interrupt group priority.
-* `utils.clock.enableGpio( GPIO_TypeDef* GPIOx )`: To enable the clock of a GPIO group. This function is used by other modules.
-* `utils.clock.enableTimer( TIM_TypeDef* TIMx )`: To enable the clock of a Timer. This function is used by other modules.
-* `utils.clock.enableUart( USART_TypeDef* USARTx )`: To enable the clock of a UART/USART group. This function is used by other modules.
+* `utils.system.initClock(...)`: setup the system clock. Note 1: we can only setup supported HCLK, PCLK1 and PCLK2 values, if they are set differently, ERROR LED will blink fast. This is the only way to show error before `uart-console` been setup correctly. Note 2: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
+* `utils.system.initNvic(uint8_t group)`: setup the interrupt group priority.
+* `utils.clock.enableGpio(GPIO_TypeDef* GPIOx)`: To enable the clock of a GPIO group. This function is used by other modules.
+* `utils.clock.enableTimer(TIM_TypeDef* TIMx)`: To enable the clock of a Timer. This function is used by other modules.
+* `utils.clock.enableUart(USART_TypeDef* USARTx)`: To enable the clock of a UART/USART group. This function is used by other modules.
 * `utils.clock.enableSpi(SPI_TypeDef* SPIx)`: to enable the clock of a SPI module. This function is used by other modules.
-* `utils.pin.mode( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io )`: to set the GPIO mode.
-* `utils.pin.pull( GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p )`: to enable internal pull up or pull down resister of a GPIO pin. 
-* `utils.pin.set( GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v )`: to set a pin as HIGH (true) or LOW (false).
-* `utils.pin.toggle( GPIO_TypeDef* GPIOx, uint8_t pin_n )`: to toggle an output GPIO pin.
+* `utils.pin.mode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t io)`: to set the GPIO mode.
+* `utils.pin.pull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p)`: to enable internal pull up or pull down resister of a GPIO pin. 
+* `utils.pin.set(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v)`: to set a pin as HIGH (true) or LOW (false).
+* `utils.pin.toggle(GPIO_TypeDef* GPIOx, uint8_t pin_n)`: to toggle an output GPIO pin.
 * It also defines some common used MACROs as well, like `_SWAP16`, `_SWAP32`, `_CHECK_BIT`, `_SIZE_OF_ARRAY`, `_PACK`, and `offsetof()` and `container_of()`.
 
 If some RTOS is used as with this library, two more functions are used to deal with the status of the RTOS:
 
-* `rtos.setState( RtosState_t state )`: set it to `FREERTOS_NOSTART` or `FREERTOS_STARTED`, and maybe other RTOS MACROs.
-* `RtosState_t rtos.getState( void )`: get the running status of a RTOS.
+* `rtos.setState(RtosState_t stat)`: set it to `FREERTOS_NOSTART` or `FREERTOS_STARTED`, and maybe other RTOS MACROs.
+* `RtosState_t rtos.getState(void `: get the running status of a RTOS.
 
 ##### `stime-scheduler`
 
@@ -244,6 +244,17 @@ The above setup steps are also simplified into:
 ```bash
 dj setup stm32-tools
 ```
+
+#### Compile in Docker Container
+
+You can compile the example code in docker container, no matter of your host system, just run:
+
+```bash
+cd path/to/one-third-hal-stm32
+./build-in-docker
+```
+
+TODO: add stlink into the Dockerfile and use script to download firmware to microcontrollers.
 
 #### Examples
 
