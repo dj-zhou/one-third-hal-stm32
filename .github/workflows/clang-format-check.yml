@@ -10,5 +10,5 @@ jobs:
       uses: jidicula/clang-format-action@v4.2.0
       with:
         clang-format-version: '11'
-        exclude-regex: (CMSIS|stm32f*_hal_*|*_hal_conf.h|system_stm32f*.c)
+        exclude-regex: (one-third-hal/CMSIS|one-third-hal/f0*|one-third-hal/f1*|one-third-hal/f3*|one-third-hal/f4*|one-third-hal/f7*)
         fallback-style: 'Google' # optional
