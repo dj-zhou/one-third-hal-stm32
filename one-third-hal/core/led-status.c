@@ -124,7 +124,7 @@ static void blinkHeartBeat(void) {
         if (x > 3.1415926 * 2) {
             x = 0;
         }
-        uint16_t pwm_value = (uint16_t)((sin(x) + 1) / 2 * 2000);
+        uint16_t pwm_value = ( uint16_t )((sin(x) + 1) / 2 * 2000);
         __HAL_TIM_SET_COMPARE(&htim_, pwm_channel_, pwm_value);
         return;
     }

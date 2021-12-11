@@ -66,6 +66,7 @@ typedef struct {
     void (*initNvic)(uint8_t group);
 } UtilsSystem;
 typedef struct {
+    void (*enableCan)(CAN_TypeDef* CANx);
     void (*enableGpio)(GPIO_TypeDef* GPIOx);
     void (*enableIic)(I2C_TypeDef* I2Cx);
     void (*enableSpi)(SPI_TypeDef* SPIx);

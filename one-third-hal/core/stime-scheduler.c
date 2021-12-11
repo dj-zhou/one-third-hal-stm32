@@ -298,7 +298,7 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
 #endif
 
 #if defined(_STIME_400_TICK)
-    ticks = (uint32_t)(interval_ms / 2.5);
+    ticks = ( uint32_t )(interval_ms / 2.5);
 #endif
 
 #if defined(_STIME_200_TICK)

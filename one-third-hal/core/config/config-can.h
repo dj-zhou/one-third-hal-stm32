@@ -15,7 +15,7 @@
 #endif
 
 #if defined(STM32F103xB)
-    #define CAN1_EXISTS // may just called CAN
+    #define CAN1_EXISTS // may just called CAN?
 #endif
 
 #if defined(STM32F107xC)
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(STM32F303xE)
-    #define CAN1_EXISTS // may just called CAN
+    #define CAN1_EXISTS // may just called CAN?
 #endif
 
 #if defined(STM32F407xx)

@@ -153,7 +153,7 @@ static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
     for (uint16_t n = 0; n < len; n++) {
         ret ^= ( uint32_t )data[n];
         for (uint16_t i = 0; i < 4; i++) {
-            temp = crc_table[(uint8_t)((ret >> 24) & 0xff)];
+            temp = crc_table[( uint8_t )((ret >> 24) & 0xff)];
             ret <<= 8;
             ret ^= temp;
         }

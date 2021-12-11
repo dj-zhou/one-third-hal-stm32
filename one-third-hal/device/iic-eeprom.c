@@ -181,7 +181,7 @@ static uint16_t EepromGetKeyfromNode(uint8_t* ram_addr, uint16_t size) {
     if (size < 2) {
         console.error("\r\n%s(): not a node!\r\n", __func__);
     }
-    uint16_t key = (uint8_t)(ram_addr[1]) << 8 | (uint8_t)(ram_addr[0]);
+    uint16_t key = ( uint8_t )(ram_addr[1]) << 8 | ( uint8_t )(ram_addr[0]);
     if (!IS_EEPROM_KEY(key)) {
         console.error("\r\n%s(): not a valid key!\r\n", __func__);
     }
