@@ -490,6 +490,24 @@ static void InitNvicInterrupt(uint8_t group) {
 }
 
 // ============================================================================
+#if defined(CAN_EXISTS)
+static void enableCanClock(CAN_TypeDef* CANx) {
+// clang-format off
+#if defined(CAN1_EXISTS)
+    if (CANx == CAN1) { __HAL_RCC_CAN1_CLK_ENABLE(); return; }
+#endif
+#if defined(CAN2_EXISTS)
+    if (CANx == CAN2) { __HAL_RCC_CAN2_CLK_ENABLE(); return; }
+#endif
+#if defined(CAN3_EXISTS)
+    if (CANx == CAN3) { __HAL_RCC_CAN3_CLK_ENABLE(); return; }
+#endif
+    // clang-format on
+    ( void )CANx;
+}
+#endif  // CAN_EXISTS
+
+// ============================================================================
 static void enableGpioClock(GPIO_TypeDef* GPIOx) {
 // clang-format off
 #if defined(GPIOA_EXISTS)
@@ -789,6 +807,9 @@ static RtosState_e getRtosState(void) {
 UtilsApi_t utils = {
     .system.initClock  = InitSystemClock  ,
     .system.initNvic   = InitNvicInterrupt,
+#if defined(CAN_EXISTS)
+    .clock.enableCan   = enableCanClock   ,
+#endif
     .clock.enableGpio  = enableGpioClock  ,
     .clock.enableIic   = enableIicClock   ,
     .clock.enableSpi   = enableSpiClock   ,

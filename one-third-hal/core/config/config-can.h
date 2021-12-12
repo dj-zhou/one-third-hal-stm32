@@ -15,7 +15,7 @@
 #endif
 
 #if defined(STM32F103xB)
-    #define CAN1_EXISTS // may just called CAN
+    #define CAN1_EXISTS
 #endif
 
 #if defined(STM32F107xC)
@@ -24,7 +24,8 @@
 #endif
 
 #if defined(STM32F303xE)
-    #define CAN1_EXISTS // may just called CAN
+    #define CAN1_EXISTS
+    #define CAN1 CAN // it is called CAN in HAL
 #endif
 
 #if defined(STM32F407xx)
@@ -57,6 +58,9 @@
     #define CAN3_EXISTS
 #endif
 
+#if defined(CAN1_EXISTS) || defined(CAN2_EXISTS) || defined(CAN3_EXISTS)
+    #define CAN_EXISTS
+#endif
 // clang-format on
 
 #endif  // __CONFIG_CAN_H

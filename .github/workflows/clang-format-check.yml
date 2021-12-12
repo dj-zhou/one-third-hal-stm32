@@ -5,10 +5,10 @@ jobs:
     name: Formatting Check
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Run clang-format style check for C/C++ programs.
-      uses: jidicula/clang-format-action@v4.2.0
-      with:
-        clang-format-version: '11'
-        exclude-regex: (one-third-hal/CMSIS|one-third-hal/f0*|one-third-hal/f1*|one-third-hal/f3*|one-third-hal/f4*|one-third-hal/f7*)
-        fallback-style: 'Google' # optional
+      - uses: actions/checkout@v2
+      - name: Run clang-format style check for C/C++ programs.
+        uses: jidicula/clang-format-action@v4.2.0
+        with:
+          clang-format-version: "13"
+          exclude-regex: (one-third-hal/CMSIS|one-third-hal/f0*|one-third-hal/f1*|one-third-hal/f3*|one-third-hal/f4*|one-third-hal/f7*)
+          fallback-style: "Google" # optional
