@@ -5,9 +5,10 @@
 extern "C" {
 #endif
 // ============================================================================
+// must be on the top
+#include "config.h"
 
-#include "config.h"  // must be on the top
-
+#include "config-can.h"
 #include "config-gpio.h"
 #include "config-spi.h"
 #include "config-timer.h"
@@ -66,7 +67,9 @@ typedef struct {
     void (*initNvic)(uint8_t group);
 } UtilsSystem;
 typedef struct {
+#if defined(CAN_IS_USED)
     void (*enableCan)(CAN_TypeDef* CANx);
+#endif
     void (*enableGpio)(GPIO_TypeDef* GPIOx);
     void (*enableIic)(I2C_TypeDef* I2Cx);
     void (*enableSpi)(SPI_TypeDef* SPIx);

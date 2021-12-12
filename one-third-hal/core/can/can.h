@@ -24,20 +24,26 @@ extern "C" {
     #endif
 #endif
 
-#if defined(CAN1_EXISTS) || defined(CAN2_EXISTS)
+#if defined(CAN3_EXISTS) // todo
+    #define CAN3_IS_USED
+#endif
+
+#if defined(CAN1_IS_USED) || defined(CAN2_IS_USED)|| defined(CAN3_IS_USED)
     #define CAN_IS_USED
 #endif
 // clang-format on
 
 // ----------------------------------------------------------------------------
 #if defined(CAN_IS_USED)
-typedef void (*CAN_IRQ_Hook)(CAN_RxHeaderTypeDef*);
 
 // functions to be called inside the CAN module
 void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
 HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
                                   uint32_t type, uint8_t* data, uint8_t len);
+
+// todo
+typedef void (*CAN_IRQ_Hook)(CAN_RxHeaderTypeDef*);
 
 typedef struct {
     CAN_HandleTypeDef hcan;
