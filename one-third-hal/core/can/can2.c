@@ -29,7 +29,7 @@ static void InitCan2(uint16_t b_rate_k, uint32_t mode) {
 #endif
     utils.clock.enableCan(can2.hcan.Instance);
 
-    InitCanSettings(&(can2.hcan), b_rate_k, mode);
+    can_settings(&(can2.hcan), b_rate_k, mode);
     // start CAN
     if (HAL_CAN_Start(&(can2.hcan)) != HAL_OK) {
         console.error("failed to start can\r\n");
@@ -42,9 +42,29 @@ static void InitCan2(uint16_t b_rate_k, uint32_t mode) {
 }
 
 // ----------------------------------------------------------------------------
+static bool CheckBitRateCan2(uint16_t b_rate_k) {
+    return can_check_bit_rate(b_rate_k);
+}
+
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef SendDataCan2(uint16_t can_id, uint8_t* data,
+                                      uint8_t len) {
+    return can_send_packet(&(can2.hcan), can_id, CAN_RTR_DATA, data, len);
+}
+
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef SendRemoteCan2(uint16_t can_id, uint8_t* data,
+                                        uint8_t len) {
+    return can_send_packet(&(can2.hcan), can_id, CAN_RTR_REMOTE, data, len);
+}
+
+// ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can2 = {
-    .config      = InitCan2             ,
+    .config       = InitCan2        ,
+    .sendData     = SendDataCan2    ,
+    .sendRemote   = SendRemoteCan2  ,
+    .checkBitRate = CheckBitRateCan2,
 };
 // clang-format on
 

@@ -34,17 +34,23 @@ extern "C" {
 typedef void (*CAN_IRQ_Hook)(CAN_RxHeaderTypeDef*);
 
 // functions to be called inside the CAN module
-void InitCanSettings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
+void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
+bool can_check_bit_rate(uint16_t b_rate_k);
+HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
+                                  uint32_t type, uint8_t* data, uint8_t len);
 
 typedef struct {
     CAN_HandleTypeDef hcan;
     void (*config)(uint16_t b_rate_k, uint32_t mode);
-    void (*filter)(void);  // a place holder
-    uint8_t (*send)(CAN_TxHeaderTypeDef* msg, uint8_t* data);
+    HAL_StatusTypeDef (*sendData)(uint16_t can_id, uint8_t* data, uint8_t len);
+    HAL_StatusTypeDef (*sendRemote)(uint16_t can_id, uint8_t* data,
+                                    uint8_t len);
+    bool (*checkBitRate)(uint16_t b_rate_k);
+    // place holders
+    void (*filter)(void);
     void (*irqRegister)(uint16_t, CAN_IRQ_Hook, const char*);
     void (*irqRegisterUpdate)(uint8_t, uint8_t);
     void (*irqRegisterShow)(void);
-    bool (*checkBitRate)(uint16_t bit_rate);
     void (*rxPrint)(CAN_RxHeaderTypeDef* msg, uint8_t* data);
     void (*txPrint)(CAN_TxHeaderTypeDef* msg, uint8_t* data);
 } CanApi_t;

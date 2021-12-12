@@ -18,6 +18,7 @@ void InitCan1_PD1PD0() {
     HAL_GPIO_Init(GPIOD, &gpio);
 }
 #endif
+
 // ----------------------------------------------------------------------------
 static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     can1.hcan.Instance = CAN1;
@@ -35,7 +36,7 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 #endif
     utils.clock.enableCan(can1.hcan.Instance);
 
-    InitCanSettings(&(can1.hcan), b_rate_k, mode);
+    can_settings(&(can1.hcan), b_rate_k, mode);
     // start CAN
     if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
         console.error("failed to start can\r\n");
@@ -49,9 +50,29 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 }
 
 // ----------------------------------------------------------------------------
+static bool CheckBitRateCan1(uint16_t b_rate_k) {
+    return can_check_bit_rate(b_rate_k);
+}
+
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef SendDataCan1(uint16_t can_id, uint8_t* data,
+                                      uint8_t len) {
+    return can_send_packet(&(can1.hcan), can_id, CAN_RTR_DATA, data, len);
+}
+
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
+                                        uint8_t len) {
+    return can_send_packet(&(can1.hcan), can_id, CAN_RTR_REMOTE, data, len);
+}
+
+// ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config = InitCan1,
+    .config       = InitCan1        ,
+    .sendData     = SendDataCan1    ,
+    .sendRemote   = SendRemoteCan1  ,
+    .checkBitRate = CheckBitRateCan1,
 };
 // clang-format on
 

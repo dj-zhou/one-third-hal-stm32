@@ -14,7 +14,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _STIME_USE_SYSTICK
-#define _STIME_200_TICK
+#define _STIME_1K_TICK
 #define _STIME_USE_SCHEDULER
 #include "stime-scheduler.h"
 

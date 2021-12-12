@@ -3,22 +3,12 @@
 
 // =============================================================================
 static void taskCan1Test(void) {
-    CAN_TxHeaderTypeDef can_tx_header;
-    can_tx_header.IDE = CAN_ID_STD;
-    can_tx_header.StdId = 0x011;
-    can_tx_header.RTR = CAN_RTR_DATA;
-    can_tx_header.DLC = 2;
-    can_tx_header.TransmitGlobalTime = DISABLE;
-
     uint8_t data[8];
-    data[0] = 0xAA;
-    data[1] = 0xBB;
-
-    uint32_t mailbox;
-
+    for (int i = 0; i < 8; i++) {
+        data[i] = (i + 1) * 16 + (i + 1);
+    }
     static uint32_t loop_count = 0;
-    if (HAL_CAN_AddTxMessage(&(can1.hcan), &can_tx_header, data, &mailbox)
-        != HAL_OK) {
+    if (can1.sendData(0xAA, data, 8) != HAL_OK) {
         console.printf("%5d: failed to send a CAN1 message\r\n", loop_count);
     }
     else {
@@ -29,22 +19,12 @@ static void taskCan1Test(void) {
 
 // =============================================================================
 static void taskCan2Test(void) {
-    CAN_TxHeaderTypeDef can_tx_header;
-    can_tx_header.IDE = CAN_ID_STD;
-    can_tx_header.StdId = 0x022;
-    can_tx_header.RTR = CAN_RTR_DATA;
-    can_tx_header.DLC = 2;
-    can_tx_header.TransmitGlobalTime = DISABLE;
-
     uint8_t data[8];
     data[0] = 0x88;
     data[1] = 0x99;
 
-    uint32_t mailbox;
-
     static uint32_t loop_count = 0;
-    if (HAL_CAN_AddTxMessage(&(can2.hcan), &can_tx_header, data, &mailbox)
-        != HAL_OK) {
+    if (can2.sendData(0xBB, data, 2) != HAL_OK) {
         console.printf("%5d: failed to send a CAN2 message\r\n", loop_count);
     }
     else {
@@ -62,8 +42,11 @@ int main(void) {
     console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
-    can1.config(500, CAN_MODE_NORMAL);
-    can2.config(500, CAN_MODE_NORMAL);
+    if (!can1.checkBitRate(428)) {
+        console.printf("can1 bit rate check failed!\r\n");
+    };
+    can1.config(1000, CAN_MODE_NORMAL);
+    can2.config(1000, CAN_MODE_NORMAL);
     // tasks -----------
     stime.scheduler.attach(2000, 1, taskCan1Test, "taskCan1Test");
     stime.scheduler.attach(2000, 1000, taskCan2Test, "taskCan2Test");
