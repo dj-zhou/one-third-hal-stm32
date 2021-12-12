@@ -548,6 +548,7 @@ static void enableGpioClock(GPIO_TypeDef* GPIOx) {
 }
 
 // ============================================================================
+#if defined(IIC_EXISTS)
 static void enableIicClock(I2C_TypeDef* IICx) {
 // clang-format off
 #if defined(IIC1_EXISTS)
@@ -565,6 +566,7 @@ static void enableIicClock(I2C_TypeDef* IICx) {
     // clang-format on
     ( void )IICx;
 }
+#endif  // IIC_EXISTS
 
 // ============================================================================
 static void enableTimerClock(TIM_TypeDef* TIMx) {
@@ -626,6 +628,7 @@ static void enableTimerClock(TIM_TypeDef* TIMx) {
 
 // ============================================================================
 // to be extended
+#if defined(UART_EXISTS)
 static void enableUartClock(USART_TypeDef* USARTx) {
     // clang-format off
 #if defined(USART1_EXISTS)
@@ -671,8 +674,10 @@ static void enableUartClock(USART_TypeDef* USARTx) {
     // clang-format on
     ( void )USARTx;
 }
+#endif  // UART_EXISTS
 
 // ============================================================================
+#if defined(SPI_EXISTS)
 static void enableSpiClock(SPI_TypeDef* SPIx) {
     // clang-format off
 #if defined(SPI1_EXISTS)
@@ -696,6 +701,7 @@ static void enableSpiClock(SPI_TypeDef* SPIx) {
     // clang-format on
     ( void )SPIx;
 }
+#endif  // SPI_EXISTS
 
 // ============================================================================
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
@@ -811,10 +817,16 @@ UtilsApi_t utils = {
     .clock.enableCan   = enableCanClock   ,
 #endif
     .clock.enableGpio  = enableGpioClock  ,
+#if defined(IIC_EXISTS)
     .clock.enableIic   = enableIicClock   ,
+#endif
+#if defined(SPI_EXISTS)
     .clock.enableSpi   = enableSpiClock   ,
+#endif
     .clock.enableTimer = enableTimerClock ,
+#if defined(UART_EXISTS)
     .clock.enableUart  = enableUartClock  ,
+#endif
     .pin.mode          = setPinMode       ,
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
     || defined(STM32F767xx)

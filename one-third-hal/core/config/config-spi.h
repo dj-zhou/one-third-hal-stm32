@@ -52,6 +52,10 @@
     #define SPI6_EXISTS
 #endif
 
+#if defined(SPI1_EXISTS) || defined(SPI2_EXISTS) || defined(SPI3_EXISTS) \
+ || defined(SPI4_EXISTS) || defined(SPI5_EXISTS) || defined(SPI6_EXISTS)
+    #define SPI_EXISTS
+#endif
 // clang-format on
 
 #endif  // __CONFIG_SPI_H
