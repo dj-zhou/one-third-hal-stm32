@@ -49,6 +49,11 @@
     #define UART8_EXISTS
 #endif
 
+#if defined(USART1_EXISTS) || defined(USART2_EXISTS) || defined(USART3_EXISTS) \
+ || defined(UART4_EXISTS)  || defined(UART5_EXISTS)  || defined(USART6_EXISTS) \
+ || defined(UART7_EXISTS)  || defined(UART8_EXISTS)
+    #define UART_EXISTS
+#endif
 // clang-format on
 
 #endif  // __CONFIG_UART_H

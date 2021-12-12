@@ -58,6 +58,10 @@
     #define IIC4_EXISTS
 #endif
 
+#if defined(IIC1_EXISTS) || defined(IIC2_EXISTS) || defined(IIC3_EXISTS) \
+ || defined(IIC4_EXISTS)
+    #define IIC_EXISTS
+#endif
 // clang-format on
 
 #endif  // __CONFIG_IIC_H

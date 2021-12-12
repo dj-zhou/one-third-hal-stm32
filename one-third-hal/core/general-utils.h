@@ -10,6 +10,7 @@ extern "C" {
 
 #include "config-can.h"
 #include "config-gpio.h"
+#include "config-iic.h"
 #include "config-spi.h"
 #include "config-timer.h"
 #include "config-uart.h"
@@ -72,10 +73,16 @@ typedef struct {
     void (*enableCan)(CAN_TypeDef* CANx);
 #endif
     void (*enableGpio)(GPIO_TypeDef* GPIOx);
+#if defined(IIC_EXISTS)
     void (*enableIic)(I2C_TypeDef* I2Cx);
+#endif
+#if defined(SPI_EXISTS)
     void (*enableSpi)(SPI_TypeDef* SPIx);
+#endif
     void (*enableTimer)(TIM_TypeDef* TIMx);
+#if defined(UART_EXISTS)
     void (*enableUart)(USART_TypeDef* USARTx);
+#endif
 } UtilsClock;
 
 typedef struct {
