@@ -66,8 +66,9 @@ typedef struct {
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
     void (*initNvic)(uint8_t group);
 } UtilsSystem;
+
 typedef struct {
-#if defined(CAN_IS_USED)
+#if defined(CAN_EXISTS)
     void (*enableCan)(CAN_TypeDef* CANx);
 #endif
     void (*enableGpio)(GPIO_TypeDef* GPIOx);
@@ -76,6 +77,7 @@ typedef struct {
     void (*enableTimer)(TIM_TypeDef* TIMx);
     void (*enableUart)(USART_TypeDef* USARTx);
 } UtilsClock;
+
 typedef struct {
     void (*mode)(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode);
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \

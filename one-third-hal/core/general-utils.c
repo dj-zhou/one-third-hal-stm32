@@ -490,7 +490,7 @@ static void InitNvicInterrupt(uint8_t group) {
 }
 
 // ============================================================================
-#if defined(CAN_IS_USED)
+#if defined(CAN_EXISTS)
 static void enableCanClock(CAN_TypeDef* CANx) {
 // clang-format off
 #if defined(CAN1_EXISTS)
@@ -505,7 +505,7 @@ static void enableCanClock(CAN_TypeDef* CANx) {
     // clang-format on
     ( void )CANx;
 }
-#endif
+#endif  // CAN_EXISTS
 
 // ============================================================================
 static void enableGpioClock(GPIO_TypeDef* GPIOx) {
@@ -807,7 +807,7 @@ static RtosState_e getRtosState(void) {
 UtilsApi_t utils = {
     .system.initClock  = InitSystemClock  ,
     .system.initNvic   = InitNvicInterrupt,
-#if defined(CAN_IS_USED)
+#if defined(CAN_EXISTS)
     .clock.enableCan   = enableCanClock   ,
 #endif
     .clock.enableGpio  = enableGpioClock  ,

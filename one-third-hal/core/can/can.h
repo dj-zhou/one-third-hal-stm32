@@ -25,10 +25,10 @@ extern "C" {
 #endif
 
 #if defined(CAN3_EXISTS) // todo
-    #define CAN3_IS_USED
+     // #define CAN3_IS_USED
 #endif
 
-#if defined(CAN1_IS_USED) || defined(CAN2_IS_USED)|| defined(CAN3_IS_USED)
+#if defined(CAN1_IS_USED) || defined(CAN2_IS_USED) || defined(CAN3_IS_USED)
     #define CAN_IS_USED
 #endif
 // clang-format on
