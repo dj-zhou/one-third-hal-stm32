@@ -1,5 +1,4 @@
 #include "config.h"
-#include <math.h>
 
 // =============================================================================
 static void taskCan1Test(void) {

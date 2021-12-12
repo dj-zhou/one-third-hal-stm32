@@ -74,8 +74,15 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
         tx_data[i] = data[i];
     }
     uint32_t mailbox;
-    return HAL_CAN_AddTxMessage(handle, &tx_header, tx_data, &mailbox);
-    // how to use "mailbox"?
+    HAL_StatusTypeDef state =
+        HAL_CAN_AddTxMessage(handle, &tx_header, tx_data, &mailbox);
+    // is this the right way to check mailbox?
+    if ((mailbox != CAN_TX_MAILBOX0) && (mailbox != CAN_TX_MAILBOX1)
+        && (mailbox != CAN_TX_MAILBOX2)) {
+        console.printf("%s(): no mail box.", __func__);
+        return HAL_ERROR;
+    }
+    return state;
 }
 
 // ============================================================================
