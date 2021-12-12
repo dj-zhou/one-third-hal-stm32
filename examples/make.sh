@@ -7,6 +7,9 @@ NOC='\033[0m'
 
 # available targets: all, hal, clean, hal-clean
 
+script_dir="$(dirname "$0")"
+pushd "$script_dir" &>/dev/null
+
 # if $1 does not exit, assign "all" to target
 target="${1:-"all"}"
 directories="$(ls)"
@@ -33,17 +36,21 @@ function _make() { # target, index, dir
     target="$1"
     index="$2"
     dir="$3"
+
+    pushd "$dir" &>/dev/null
     echo -e "\n------------------------------------------------------"
-    echo -e "(below) #$index: ${GRN}$dir${NOC}"
-    cd $dir
+    echo -e "(below) #$index: ${GRN}$(pwd)${NOC}"
     if [ "$target" = "all" ]; then
         make $target -j$(nproc)
     else
         make $target
     fi
-    echo -e "(above) #$index: ${GRN}$dir${NOC}"
+    echo -e "(above) #$index: ${GRN}$(pwd)${NOC}"
     echo "------------------------------------------------------"
-    cd ..
+    if [[ "$target" = "all" || "$target" = "hal" ]]; then
+        sleep 1
+    fi
+    popd &>/dev/null
 }
 
 index=0
@@ -52,18 +59,17 @@ for i in $directories; do
     # if that is a project, build it
     if [[ -d $i ]] && [[ -f $i/Makefile ]]; then
         index=$((index + 1))
-        sleep 1
         _make $target $index $i
     elif [[ -d $i ]] && [[ ! -f $i/Makefile ]]; then
-        cd $i
+        pushd "$i" &>/dev/null
         subdirectories="$(ls)"
         for j in $subdirectories; do
             if [[ -d $j ]] && [[ -f $j/Makefile ]]; then
                 index=$((index + 1))
-                sleep 1
                 _make $target $index $j
             fi
         done
-        cd ..
+        popd &>/dev/null
     fi
 done
+popd &>/dev/null
