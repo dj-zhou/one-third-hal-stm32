@@ -27,7 +27,7 @@ static const uint32_t CAN_bit_rate_table[CAN_BIT_RATE_NUM][5] = {
     { 500, CAN_SJW_1TQ, CAN_BS1_9TQ, CAN_BS2_4TQ, 6 },    // 500K
                                                           // 800K unavailable
     // generated from CubeMX
-    { 1000, CAN_SJW_1TQ, CAN_BS1_11TQ, CAN_BS2_2TQ, 3 },  // 1000K
+    { 1000, CAN_SJW_1TQ, CAN_BS1_9TQ, CAN_BS2_4TQ, 3 },  // 1000K
 };
 #endif  // STM32F407xx
 
@@ -36,10 +36,10 @@ static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
     uint8_t iter;
     for (iter = 0; iter < CAN_BIT_RATE_NUM; iter++) {
         if (b_rate_k == CAN_bit_rate_table[iter][0]) {
-            can_init->SyncJumpWidth = ( uint8_t )CAN_bit_rate_table[iter][1];
-            can_init->TimeSeg1 = ( uint8_t )CAN_bit_rate_table[iter][2];
-            can_init->TimeSeg2 = ( uint8_t )CAN_bit_rate_table[iter][3];
-            can_init->Prescaler = ( uint8_t )CAN_bit_rate_table[iter][4];
+            can_init->SyncJumpWidth = CAN_bit_rate_table[iter][1];
+            can_init->TimeSeg1 = CAN_bit_rate_table[iter][2];
+            can_init->TimeSeg2 = CAN_bit_rate_table[iter][3];
+            can_init->Prescaler = CAN_bit_rate_table[iter][4];
             break;
         }
     }
@@ -58,7 +58,7 @@ static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
 //     CAN_MODE_SILENT_LOOPBACK
 void InitCanSettings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k,
                      uint32_t mode) {
-    hcan->Init.Mode = ( uint32_t )mode;
+    hcan->Init.Mode = mode;
     CAN_Bit_Rate_Process(b_rate_k, &(hcan->Init));
     hcan->Init.TimeTriggeredMode = DISABLE;
     hcan->Init.AutoBusOff = DISABLE;
