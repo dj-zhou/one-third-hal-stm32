@@ -45,7 +45,8 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
                          _CAN_SUB_PRIORITY);
-    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    // HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    __HAL_CAN_ENABLE_IT(&(can1.hcan), CAN1_RX0_IRQn);
 }
 
 // ----------------------------------------------------------------------------
