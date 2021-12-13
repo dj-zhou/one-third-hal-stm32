@@ -39,14 +39,22 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     can_settings(&(can1.hcan), b_rate_k, mode);
     // start CAN
     if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start can\r\n");
+        console.error("failed to start CAN1\r\n");
     };
     // enable interrupts
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
-    // CAN1 interrupt Init
-
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 0, 0);
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
+                         _CAN_SUB_PRIORITY);
     HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+}
+
+// ----------------------------------------------------------------------------
+void CAN1_RX0_IRQHandler(void) {
+    CAN_RxHeaderTypeDef msg;
+    uint8_t data[8];
+    HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
+    console.printf("I received a packet\r\n");
+    HAL_CAN_IRQHandler(&(can1.hcan));
 }
 
 // ----------------------------------------------------------------------------

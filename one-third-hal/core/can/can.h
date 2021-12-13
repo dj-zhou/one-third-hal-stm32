@@ -36,6 +36,25 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #if defined(CAN_IS_USED)
 
+// FreeRTOS related configuration
+#ifdef RTOS_USE_FREERTOS
+    #ifndef _CAN_PREEMPTION_PRIORITY
+        #define _CAN_PREEMPTION_PRIORITY     6   // cannot be equal or smaller to 5
+    #endif
+    #ifndef _CAN_SUB_PRIORITY
+        #define _CAN_SUB_PRIORITY            0
+    #endif
+// ----------------------------------------------------------------------------
+// bare-metal
+#else
+    #ifndef _CAN_PREEMPTION_PRIORITY
+        #define _CAN_PREEMPTION_PRIORITY     1
+    #endif
+    #ifndef _CAN_SUB_PRIORITY
+        #define _CAN_SUB_PRIORITY            0
+    #endif
+#endif
+
 // functions to be called inside the CAN module
 void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
@@ -62,6 +81,7 @@ typedef struct {
 } CanApi_t;
 
 #endif  // CAN_IS_USED
+
 // ----------------------------------------------------------------------------
 // clang-format off
 #if defined(CAN1_EXISTS) && defined(CAN1_IS_USED)
