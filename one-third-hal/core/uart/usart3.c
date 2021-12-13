@@ -53,7 +53,7 @@ static void InitUsart3(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(USART3_IRQn, 15);
+    InitUartNvic(USART3_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
