@@ -37,10 +37,6 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     utils.clock.enableCan(can1.hcan.Instance);
 
     can_settings(&(can1.hcan), b_rate_k, mode);
-    // start CAN
-    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start CAN1\r\n");
-    };
 
     CAN_FilterTypeDef can_filter;
     can_filter.FilterBank = 0;
@@ -56,7 +52,10 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     if (HAL_CAN_ConfigFilter(&(can1.hcan), &can_filter) != HAL_OK) {
         console.error("filter setup wrong.\r\n");
     }
-
+    // start CAN
+    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
+        console.error("failed to start CAN1\r\n");
+    };
     // enable interrupts
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
