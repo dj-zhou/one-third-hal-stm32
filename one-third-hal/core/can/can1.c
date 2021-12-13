@@ -41,11 +41,26 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
         console.error("failed to start CAN1\r\n");
     };
+
+    CAN_FilterTypeDef can_filter;
+    can_filter.FilterBank = 0;
+    can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    can_filter.FilterIdHigh = 0x0000;
+    can_filter.FilterIdLow = 0x0000;
+    can_filter.FilterMaskIdHigh = 0x0000;
+    can_filter.FilterMaskIdLow = 0x0000;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterActivation = ENABLE;
+    can_filter.SlaveStartFilterBank = 0;
+    if (HAL_CAN_ConfigFilter(&(can1.hcan), &can_filter) != HAL_OK) {
+        console.error("filter setup wrong.\r\n");
+    }
+
     // enable interrupts
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
                          _CAN_SUB_PRIORITY);
-    // HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
     __HAL_CAN_ENABLE_IT(&(can1.hcan), CAN1_RX0_IRQn);
 }
 
@@ -78,10 +93,10 @@ static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
 // ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config       = InitCan1        ,
-    .sendData     = SendDataCan1    ,
-    .sendRemote   = SendRemoteCan1  ,
-    .checkBitRate = CheckBitRateCan1,
+    .config          = InitCan1           ,
+    .sendData        = SendDataCan1       ,
+    .sendRemote      = SendRemoteCan1     ,
+    .checkBitRate    = CheckBitRateCan1   ,
 };
 // clang-format on
 

@@ -37,6 +37,7 @@ extern "C" {
 #if defined(CAN_IS_USED)
 
 // FreeRTOS related configuration
+// clang-format off
 #ifdef RTOS_USE_FREERTOS
     #ifndef _CAN_PREEMPTION_PRIORITY
         #define _CAN_PREEMPTION_PRIORITY     6   // cannot be equal or smaller to 5
@@ -54,6 +55,7 @@ extern "C" {
         #define _CAN_SUB_PRIORITY            0
     #endif
 #endif
+// clang-format on
 
 // functions to be called inside the CAN module
 void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
