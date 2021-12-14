@@ -40,8 +40,6 @@ static void InitCan2(uint16_t b_rate_k, uint32_t mode) {
     HAL_CAN_ActivateNotification(&(can2.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_NVIC_SetPriority(CAN2_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
                          _CAN_SUB_PRIORITY);
-    HAL_NVIC_SetPriority(CAN2_RX1_IRQn, _CAN_PREEMPTION_PRIORITY,
-                         _CAN_SUB_PRIORITY);
     __HAL_CAN_ENABLE_IT(&(can2.hcan), CAN1_RX0_IRQn);
 }
 
