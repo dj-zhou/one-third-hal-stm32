@@ -1,0 +1,9 @@
+#!/bin/bash
+
+NOC='\033[0m'
+GRN='\033[0;32m'
+YLW='\033[0;33m'
+
+image_name="one-third-hal-stm32-image"
+container_name="one-third-hal-stm32-container"
+target_path="/one-third"
