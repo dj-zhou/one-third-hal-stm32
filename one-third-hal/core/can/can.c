@@ -86,6 +86,16 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
 }
 
 // ============================================================================
+void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data) {
+    console.printf("%s receives a packet (id: 0x%04X, DLC: %d):", canx,
+                   msg.StdId, msg.DLC);
+    for (int i = 0; i < msg.DLC; i++) {
+        console.printf(" %02X", data[i]);
+    }
+    console.printf("\r\n");
+}
+
+// ============================================================================
 // arguments
 // bit_rate (Kbps):
 // 15, 20, 25, 40, 50, 62, 80, 100, 125, 200, 250, 400, 500, 800, 1000

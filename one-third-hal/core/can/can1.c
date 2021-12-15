@@ -60,11 +60,7 @@ void CAN1_RX0_IRQHandler(void) {
     HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
 
     // if the CAN packet is not processed, then print it:
-    console.printf("CAN1 receives: 0x%04X (%d): ", msg.StdId, msg.DLC);
-    for (int i = 0; i < msg.DLC; i++) {
-        console.printf(" %02X", data[i]);
-    }
-    console.printf("\r\n");
+    can_rx_print("CAN1", msg, data);
 }
 
 // ----------------------------------------------------------------------------
