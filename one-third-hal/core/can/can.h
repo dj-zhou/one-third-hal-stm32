@@ -62,7 +62,8 @@ void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
 HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
                                   uint32_t type, uint8_t* data, uint8_t len);
-void can_rx_print(const char * canx, CAN_RxHeaderTypeDef msg, uint8_t * data ) ;
+void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data);
+
 // todo
 typedef void (*CAN_IRQ_Hook)(CAN_RxHeaderTypeDef*);
 
