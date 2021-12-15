@@ -37,16 +37,30 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
     utils.clock.enableCan(can1.hcan.Instance);
 
     can_settings(&(can1.hcan), b_rate_k, mode);
-    // start CAN
-    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start can\r\n");
-    };
+
     // enable interrupts
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
-    // CAN1 interrupt Init
+    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
+                         _CAN_SUB_PRIORITY);
 
-    HAL_NVIC_SetPriority(CAN1_RX0_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    // the following does not work! do not use and do not delete
+    // __HAL_CAN_ENABLE_IT(&(can1.hcan), CAN1_RX0_IRQn);
+
+    // start CAN
+    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
+        console.error("failed to start CAN1\r\n");
+    };
+}
+
+// ----------------------------------------------------------------------------
+void CAN1_RX0_IRQHandler(void) {
+    CAN_RxHeaderTypeDef msg;
+    uint8_t data[8];
+    HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
+
+    // if the CAN packet is not processed, then print it:
+    can_rx_print("CAN1", msg, data);
 }
 
 // ----------------------------------------------------------------------------
@@ -69,10 +83,10 @@ static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
 // ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config       = InitCan1        ,
-    .sendData     = SendDataCan1    ,
-    .sendRemote   = SendRemoteCan1  ,
-    .checkBitRate = CheckBitRateCan1,
+    .config          = InitCan1           ,
+    .sendData        = SendDataCan1       ,
+    .sendRemote      = SendRemoteCan1     ,
+    .checkBitRate    = CheckBitRateCan1   ,
 };
 // clang-format on
 

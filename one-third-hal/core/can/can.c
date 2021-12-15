@@ -74,8 +74,25 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
         tx_data[i] = data[i];
     }
     uint32_t mailbox;
-    return HAL_CAN_AddTxMessage(handle, &tx_header, tx_data, &mailbox);
-    // how to use "mailbox"?
+    HAL_StatusTypeDef state =
+        HAL_CAN_AddTxMessage(handle, &tx_header, tx_data, &mailbox);
+    // is this the right way to check mailbox?
+    if ((mailbox != CAN_TX_MAILBOX0) && (mailbox != CAN_TX_MAILBOX1)
+        && (mailbox != CAN_TX_MAILBOX2)) {
+        console.printf("%s(): no mail box.", __func__);
+        return HAL_ERROR;
+    }
+    return state;
+}
+
+// ============================================================================
+void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data) {
+    console.printf("%s receives a packet (id: 0x%04X, DLC: %d):", canx,
+                   msg.StdId, msg.DLC);
+    for (int i = 0; i < msg.DLC; i++) {
+        console.printf(" %02X", data[i]);
+    }
+    console.printf("\r\n");
 }
 
 // ============================================================================
@@ -95,9 +112,25 @@ void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode) {
     hcan->Init.AutoWakeUp = DISABLE;
     hcan->Init.AutoRetransmission = DISABLE;
     hcan->Init.ReceiveFifoLocked = DISABLE;
-    hcan->Init.TransmitFifoPriority = DISABLE;
+    hcan->Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(hcan) != HAL_OK) {
-        console.error("failed to setup the CAN interface\r\n");
+        console.error("failed to setup the CAN interface.\r\n");
+    }
+
+    // filter: to accept all, may have some bug because mixed all CANs
+    CAN_FilterTypeDef can_filter = { 0 };
+    can_filter.FilterBank = 0;
+    can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    can_filter.FilterIdHigh = 0x0000;
+    can_filter.FilterIdLow = 0x0000;
+    can_filter.FilterMaskIdHigh = 0x0000;
+    can_filter.FilterMaskIdLow = 0x0000;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterActivation = ENABLE;
+    can_filter.SlaveStartFilterBank = 0;
+    if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK) {
+        console.error("failed to setup CAN filter.\r\n");
     }
 }
 
