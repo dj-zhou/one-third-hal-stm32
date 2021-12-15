@@ -102,9 +102,25 @@ void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode) {
     hcan->Init.AutoWakeUp = DISABLE;
     hcan->Init.AutoRetransmission = DISABLE;
     hcan->Init.ReceiveFifoLocked = DISABLE;
-    hcan->Init.TransmitFifoPriority = DISABLE;
+    hcan->Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(hcan) != HAL_OK) {
-        console.error("failed to setup the CAN interface\r\n");
+        console.error("failed to setup the CAN interface.\r\n");
+    }
+
+    // filter: to accept all, may have some bug because mixed all CANs
+    CAN_FilterTypeDef can_filter = { 0 };
+    can_filter.FilterBank = 0;
+    can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    can_filter.FilterIdHigh = 0x0000;
+    can_filter.FilterIdLow = 0x0000;
+    can_filter.FilterMaskIdHigh = 0x0000;
+    can_filter.FilterMaskIdLow = 0x0000;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterActivation = ENABLE;
+    can_filter.SlaveStartFilterBank = 0;
+    if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK) {
+        console.error("failed to setup CAN filter.\r\n");
     }
 }
 

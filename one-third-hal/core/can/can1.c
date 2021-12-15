@@ -38,29 +38,19 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 
     can_settings(&(can1.hcan), b_rate_k, mode);
 
-    CAN_FilterTypeDef can_filter;
-    can_filter.FilterBank = 0;
-    can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    can_filter.FilterScale = CAN_FILTERSCALE_32BIT;
-    can_filter.FilterIdHigh = 0x0000;
-    can_filter.FilterIdLow = 0x0000;
-    can_filter.FilterMaskIdHigh = 0x0000;
-    can_filter.FilterMaskIdLow = 0x0000;
-    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
-    can_filter.FilterActivation = ENABLE;
-    can_filter.SlaveStartFilterBank = 0;
-    if (HAL_CAN_ConfigFilter(&(can1.hcan), &can_filter) != HAL_OK) {
-        console.error("filter setup wrong.\r\n");
-    }
-    // start CAN
-    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start CAN1\r\n");
-    };
     // enable interrupts
     HAL_CAN_ActivateNotification(&(can1.hcan), CAN_IT_RX_FIFO0_MSG_PENDING);
     HAL_NVIC_SetPriority(CAN1_RX0_IRQn, _CAN_PREEMPTION_PRIORITY,
                          _CAN_SUB_PRIORITY);
-    __HAL_CAN_ENABLE_IT(&(can1.hcan), CAN1_RX0_IRQn);
+
+    HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+    // the following does not work! do not use and do not delete
+    // __HAL_CAN_ENABLE_IT(&(can1.hcan), CAN1_RX0_IRQn);
+
+    // start CAN
+    if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
+        console.error("failed to start CAN1\r\n");
+    };
 }
 
 // ----------------------------------------------------------------------------
@@ -68,8 +58,13 @@ void CAN1_RX0_IRQHandler(void) {
     CAN_RxHeaderTypeDef msg;
     uint8_t data[8];
     HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
-    console.printf("I received a packet\r\n");
-    HAL_CAN_IRQHandler(&(can1.hcan));
+
+    // if the CAN packet is not processed, then print it:
+    console.printf("CAN1 receives: 0x%04X (%d): ", msg.StdId, msg.DLC);
+    for (int i = 0; i < msg.DLC; i++) {
+        console.printf(" %02X", data[i]);
+    }
+    console.printf("\r\n");
 }
 
 // ----------------------------------------------------------------------------
