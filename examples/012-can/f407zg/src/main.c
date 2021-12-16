@@ -21,13 +21,19 @@ static void taskCan2Test(void) {
     uint8_t data[8];
     data[0] = 0x88;
     data[1] = 0x99;
+    data[2] = 0xAA;
+    data[3] = 0xBB;
 
     static uint32_t loop_count = 0;
-    if (can2.sendData(0xBB, data, 2) != HAL_OK) {
+    if (can2.sendData(0x666, data, 4) != HAL_OK) {
         console.printf("%5d: failed to send a CAN2 message\r\n", loop_count);
     }
     else {
-        console.printf("%5d: sent a CAN2 message\r\n", loop_count);
+        console.printf("%5d: sent a CAN2 message: (0x0666, 4)", loop_count);
+        for (int i = 0; i < 4; i++) {
+            console.printf(" %02X", data[i]);
+        }
+        console.printf("\r\n");
     }
     loop_count++;
 }
@@ -60,6 +66,7 @@ int main(void) {
     can2.config(1000, CAN_MODE_NORMAL);
 
     can1.irq.attach(0x666, Can1IrqTest1, "Can1IrqTest1");
+
     // tasks -----------
     stime.scheduler.attach(2000, 1, taskCan1Test, "taskCan1Test");
     stime.scheduler.attach(2000, 1000, taskCan2Test, "taskCan2Test");
