@@ -49,6 +49,11 @@ extern "C" {
             ( type* )(( char* )__mptr - offsetof(type, member)); \
         })
 #endif
+
+// #if !defined(_wrs_pack_align)
+//     #define _wrs_pack_align(x) __attribute__((packed, aligned(x)))
+// #endif
+
 // clang-format on
 
 // ============================================================================

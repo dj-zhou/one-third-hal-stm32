@@ -57,6 +57,34 @@ extern "C" {
 #endif
 // clang-format on
 
+// ----------------------------------------------------------------------------
+// clang-format off
+#ifndef _CAN_IRQ_MAX_NUM
+    #define _CAN_IRQ_MAX_NUM     20
+#endif
+
+#ifndef _CAN_IRQ_DESCR_SIZE
+    #define _CAN_IRQ_DESCR_SIZE  30
+#endif
+
+typedef void (*can_irq_hook)(CAN_RxHeaderTypeDef*, uint8_t*);
+
+// clang-format off
+typedef struct CanIrqCpnt_s {
+    uint16_t     cob_id;
+    char         descr[_CAN_IRQ_DESCR_SIZE];
+    can_irq_hook hook;
+} CanIrqCpnt_t;
+
+typedef struct CanIrqNode_s {
+    struct CanIrqCpnt_s  this_;
+    struct CanIrqNode_s* next_;
+} CanIrqNode_t;
+// clang-format on
+
+// clang-format on
+
+// ----------------------------------------------------------------------------
 // functions to be called inside the CAN module
 void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
@@ -64,8 +92,10 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
                                   uint32_t type, uint8_t* data, uint8_t len);
 void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data);
 
-// todo
-typedef void (*CAN_IRQ_Hook)(CAN_RxHeaderTypeDef*);
+typedef struct {
+    void (*attach)(uint16_t, can_irq_hook, const char*);
+    void (*show)(void);
+} CanIrq_t;
 
 typedef struct {
     CAN_HandleTypeDef hcan;
@@ -74,11 +104,10 @@ typedef struct {
     HAL_StatusTypeDef (*sendRemote)(uint16_t can_id, uint8_t* data,
                                     uint8_t len);
     bool (*checkBitRate)(uint16_t b_rate_k);
+    CanIrq_t irq;
     // place holders
     void (*filter)(void);
-    void (*irqRegister)(uint16_t, CAN_IRQ_Hook, const char*);
-    void (*irqRegisterUpdate)(uint8_t, uint8_t);
-    void (*irqRegisterShow)(void);
+
     void (*rxPrint)(CAN_RxHeaderTypeDef* msg, uint8_t* data);
     void (*txPrint)(CAN_TxHeaderTypeDef* msg, uint8_t* data);
 } CanApi_t;

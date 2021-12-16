@@ -1,8 +1,54 @@
 #include "can.h"
+#include <string.h>
 
 // ============================================================================
 #if defined(CAN1_EXISTS) && defined(CAN1_IS_USED)
 
+// ----------------------------------------------------------------------------
+// TO verify: is this the right way to initialize?
+static CanIrqNode_t can1_node[_CAN_IRQ_MAX_NUM] = { 0 };
+static uint8_t can1_node_num = 0;
+
+static void CAN1_IRQ_Register(uint16_t cob_id, can_irq_hook hook,
+                              const char* str) {
+    uint8_t len;
+    uint8_t str_len = strlen(str);
+    if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
+        len = _CAN_IRQ_DESCR_SIZE - 1;
+    }
+    else {
+        len = str_len;
+    }
+
+    if (can1_node_num == 0) {
+        can1_node[0].this_.cob_id = cob_id;
+        bzero(can1_node[0].this_.descr, _CAN_IRQ_DESCR_SIZE);
+        strncpy(can1_node[0].this_.descr, str, len);
+        can1_node[0].this_.descr[len] = '\0';
+        can1_node[0].this_.hook = hook;
+        can1_node[0].next_ = NULL;
+    }
+    else {
+        can1_node[can1_node_num].this_.cob_id = cob_id;
+        bzero(can1_node[can1_node_num].this_.descr, _CAN_IRQ_DESCR_SIZE);
+        strncpy(can1_node[can1_node_num].this_.descr, str, len);
+        can1_node[can1_node_num].this_.descr[len] = '\0';
+        can1_node[can1_node_num].this_.hook = hook;
+        can1_node[can1_node_num - 1].next_ = &can1_node[can1_node_num];
+    }
+    can1_node_num++;
+}
+
+// ============================================================================
+static void CAN1_IRQ_Show_Registration(void) {
+    console.printf("CAN1 registered IRQ functions are:\r\n");
+    for (uint8_t i = 0; i < can1_node_num; i++) {
+        console.printf("COB ID = 0x%03X : %s\r\n", can1_node[i].this_.cob_id,
+                       can1_node[i].this_.descr);
+    }
+}
+
+// ============================================================================
 #if defined(STM32F407xx)
 void InitCan1_PD1PD0() {
     GPIO_InitTypeDef gpio = { 0 };
@@ -54,12 +100,19 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 }
 
 // ----------------------------------------------------------------------------
-void CAN1_RX0_IRQHandler(void) {
+void __attribute__((weak)) CAN1_RX0_IRQHandler(void) {
     CAN_RxHeaderTypeDef msg;
     uint8_t data[8];
     HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
 
-    // if the CAN packet is not processed, then print it:
+    for (uint8_t i = 0; i < can1_node_num; i++) {
+        if (can1_node[i].this_.cob_id == msg.StdId) {
+            can1_node[i].this_.hook(&msg, data);
+            return;
+        }
+    }
+
+    // if the CAN packet is not processed, then print it
     can_rx_print("CAN1", msg, data);
 }
 
@@ -83,10 +136,12 @@ static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
 // ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config          = InitCan1           ,
-    .sendData        = SendDataCan1       ,
-    .sendRemote      = SendRemoteCan1     ,
-    .checkBitRate    = CheckBitRateCan1   ,
+    .config       = InitCan1           ,
+    .sendData     = SendDataCan1       ,
+    .sendRemote   = SendRemoteCan1     ,
+    .checkBitRate = CheckBitRateCan1   ,
+    .irq.attach   = CAN1_IRQ_Register  ,
+    .irq.show     = CAN1_IRQ_Show_Registration,
 };
 // clang-format on
 

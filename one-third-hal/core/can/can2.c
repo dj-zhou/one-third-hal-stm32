@@ -48,7 +48,7 @@ static void InitCan2(uint16_t b_rate_k, uint32_t mode) {
 }
 
 // ----------------------------------------------------------------------------
-void CAN2_RX0_IRQHandler(void) {
+void __attribute__((weak)) CAN2_RX0_IRQHandler(void) {
     CAN_RxHeaderTypeDef msg;
     uint8_t data[8];
     HAL_CAN_GetRxMessage(&(can2.hcan), CAN_RX_FIFO0, &msg, data);
