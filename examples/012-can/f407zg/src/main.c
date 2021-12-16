@@ -6,12 +6,20 @@ static void taskCan1Test(void) {
     for (int i = 0; i < 8; i++) {
         data[i] = (i + 1) * 16 + (i + 1);
     }
+
+    uint16_t id = 0x555;
+    uint8_t len = 8;
     static uint32_t loop_count = 0;
-    if (can1.sendData(0xAA, data, 8) != HAL_OK) {
+    if (can1.sendData(id, data, len) != HAL_OK) {
         console.printf("%5d: failed to send a CAN1 message\r\n", loop_count);
     }
     else {
-        console.printf("%5d: sent a CAN1 message\r\n", loop_count);
+        console.printf("%5d: sent a CAN1 message: (0x%04X, %d)", loop_count, id,
+                       len);
+        for (int i = 0; i < len; i++) {
+            console.printf(" %02X", data[i]);
+        }
+        console.printf("\r\n");
     }
     loop_count++;
 }
@@ -24,13 +32,16 @@ static void taskCan2Test(void) {
     data[2] = 0xAA;
     data[3] = 0xBB;
 
+    uint16_t id = 0x0666;
+    uint8_t len = 4;
     static uint32_t loop_count = 0;
-    if (can2.sendData(0x666, data, 4) != HAL_OK) {
+    if (can2.sendData(id, data, len) != HAL_OK) {
         console.printf("%5d: failed to send a CAN2 message\r\n", loop_count);
     }
     else {
-        console.printf("%5d: sent a CAN2 message: (0x0666, 4)", loop_count);
-        for (int i = 0; i < 4; i++) {
+        console.printf("%5d: sent a CAN2 message: (0x%04X, %d)", loop_count, id,
+                       len);
+        for (int i = 0; i < len; i++) {
             console.printf(" %02X", data[i]);
         }
         console.printf("\r\n");
