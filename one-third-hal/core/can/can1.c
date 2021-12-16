@@ -136,11 +136,11 @@ static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
 // ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config       = InitCan1           ,
-    .sendData     = SendDataCan1       ,
-    .sendRemote   = SendRemoteCan1     ,
-    .checkBitRate = CheckBitRateCan1   ,
-    .irq.attach   = CAN1_IRQ_Register  ,
+    .config       = InitCan1                  ,
+    .sendData     = SendDataCan1              ,
+    .sendRemote   = SendRemoteCan1            ,
+    .checkBitRate = CheckBitRateCan1          ,
+    .irq.attach   = CAN1_IRQ_Register         ,
     .irq.show     = CAN1_IRQ_Show_Registration,
 };
 // clang-format on

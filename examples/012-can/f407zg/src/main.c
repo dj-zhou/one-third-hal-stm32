@@ -37,7 +37,7 @@ static void Can1IrqTest1(CAN_RxHeaderTypeDef* msg, uint8_t* data) {
     if (msg->StdId != 0x666) {
         return;
     }
-    console.printf("%s: ", __func__);
+    console.printf(GRN "%s: " NOC, __func__);
     for (int i = 0; i < msg->DLC; i++) {
         console.printf(" 0x%02X", data[i]);
     }
