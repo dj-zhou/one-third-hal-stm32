@@ -41,13 +41,14 @@ int main(void) {
     stime.scheduler.config();
     console.config(2000000);
     console.printf("\r\n\r\n");
-    led.config(LED_BREATH);
+    led.config(LED_DOUBLE_BLINK);
+    // can -----------
     if (!can1.checkBitRate(428)) {
         console.printf("can1 bit rate check failed!\r\n");
     };
     can1.config(1000, CAN_MODE_NORMAL);
-
     can1.irq.attach(0x666, Can1IrqTest, "Can1IrqTest");
+
     // tasks -----------
     stime.scheduler.attach(2000, 1, taskCan1Test, "taskCan1Test");
     stime.scheduler.show();
