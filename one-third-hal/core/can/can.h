@@ -82,8 +82,6 @@ typedef struct CanIrqNode_s {
 } CanIrqNode_t;
 // clang-format on
 
-// clang-format on
-
 // ----------------------------------------------------------------------------
 // functions to be called inside the CAN module
 void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);

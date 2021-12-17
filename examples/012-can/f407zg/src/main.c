@@ -50,8 +50,19 @@ static void taskCan2Test(void) {
 }
 
 // ============================================================================
-static void Can1IrqTest1(CAN_RxHeaderTypeDef* msg, uint8_t* data) {
+static void Can1IrqTest(CAN_RxHeaderTypeDef* msg, uint8_t* data) {
     if (msg->StdId != 0x666) {
+        return;
+    }
+    console.printf(GRN "%s: " NOC, __func__);
+    for (int i = 0; i < msg->DLC; i++) {
+        console.printf(" 0x%02X", data[i]);
+    }
+    console.printf("\r\n");
+}
+// ============================================================================
+static void Can2IrqTest(CAN_RxHeaderTypeDef* msg, uint8_t* data) {
+    if (msg->StdId != 0x0AA) {
         return;
     }
     console.printf(GRN "%s: " NOC, __func__);
@@ -76,7 +87,8 @@ int main(void) {
     can1.config(1000, CAN_MODE_NORMAL);
     can2.config(1000, CAN_MODE_NORMAL);
 
-    can1.irq.attach(0x666, Can1IrqTest1, "Can1IrqTest1");
+    can1.irq.attach(0x666, Can1IrqTest, "Can1IrqTest");
+    can2.irq.attach(0x0AA, Can2IrqTest, "Can2IrqTest");
 
     // tasks -----------
     stime.scheduler.attach(2000, 1, taskCan1Test, "taskCan1Test");

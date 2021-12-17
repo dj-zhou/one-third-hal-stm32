@@ -9,8 +9,7 @@
 static CanIrqNode_t can1_node[_CAN_IRQ_MAX_NUM] = { 0 };
 static uint8_t can1_node_num = 0;
 
-static void CAN1_IRQ_Register(uint16_t cob_id, can_irq_hook hook,
-                              const char* str) {
+static void IrqAttachCan1(uint16_t cob_id, can_irq_hook hook, const char* str) {
     uint8_t len;
     uint8_t str_len = strlen(str);
     if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
@@ -40,7 +39,7 @@ static void CAN1_IRQ_Register(uint16_t cob_id, can_irq_hook hook,
 }
 
 // ============================================================================
-static void CAN1_IRQ_Show_Registration(void) {
+static void IrqShowCan1(void) {
     console.printf("CAN1 registered IRQ functions are:\r\n");
     for (uint8_t i = 0; i < can1_node_num; i++) {
         console.printf("COB ID = 0x%03X : %s\r\n", can1_node[i].this_.cob_id,
@@ -101,8 +100,8 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 
 // ----------------------------------------------------------------------------
 void __attribute__((weak)) CAN1_RX0_IRQHandler(void) {
-    CAN_RxHeaderTypeDef msg;
-    uint8_t data[8];
+    CAN_RxHeaderTypeDef msg = { 0 };
+    uint8_t data[8] = { 0 };
     HAL_CAN_GetRxMessage(&(can1.hcan), CAN_RX_FIFO0, &msg, data);
 
     for (uint8_t i = 0; i < can1_node_num; i++) {
@@ -111,9 +110,9 @@ void __attribute__((weak)) CAN1_RX0_IRQHandler(void) {
             return;
         }
     }
-
-    // if the CAN packet is not processed, then print it
+#if defined(_CAN1_IRQ_SHOW_UNKNOWN_MSG)
     can_rx_print("CAN1", msg, data);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -136,12 +135,12 @@ static HAL_StatusTypeDef SendRemoteCan1(uint16_t can_id, uint8_t* data,
 // ----------------------------------------------------------------------------
 // clang-format off
 CanApi_t can1 = {
-    .config       = InitCan1                  ,
-    .sendData     = SendDataCan1              ,
-    .sendRemote   = SendRemoteCan1            ,
-    .checkBitRate = CheckBitRateCan1          ,
-    .irq.attach   = CAN1_IRQ_Register         ,
-    .irq.show     = CAN1_IRQ_Show_Registration,
+    .config       = InitCan1        ,
+    .sendData     = SendDataCan1    ,
+    .sendRemote   = SendRemoteCan1  ,
+    .checkBitRate = CheckBitRateCan1,
+    .irq.attach   = IrqAttachCan1   ,
+    .irq.show     = IrqShowCan1     ,
 };
 // clang-format on
 
