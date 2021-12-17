@@ -48,6 +48,21 @@ static void IrqShowCan1(void) {
 }
 
 // ============================================================================
+#if defined(STM32F107xC)
+void InitCan1_PD1PD0() {
+    GPIO_InitTypeDef gpio = { 0 };
+    gpio.Pin = GPIO_PIN_0;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &gpio);
+
+    gpio.Pin = GPIO_PIN_1;
+    gpio.Mode = GPIO_MODE_AF_PP;
+    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOD, &gpio);
+}
+#endif
+
 #if defined(STM32F407xx)
 void InitCan1_PD1PD0() {
     GPIO_InitTypeDef gpio = { 0 };
