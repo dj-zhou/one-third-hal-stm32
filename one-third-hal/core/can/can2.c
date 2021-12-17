@@ -49,7 +49,7 @@ static void IrqShowCan2(void) {
 
 // ============================================================================
 #if defined(STM32F407xx)
-void InitCan2_PB13PB12() {
+void InitCan2_PB13PB12(void) {
     GPIO_InitTypeDef gpio = { 0 };
     utils.clock.enableGpio(GPIOB);
     // CAN2 GPIO Configuration

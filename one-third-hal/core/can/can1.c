@@ -49,7 +49,7 @@ static void IrqShowCan1(void) {
 
 // ============================================================================
 #if defined(STM32F107xC)
-void InitCan1_PD1PD0() {
+void InitCan1_PD1PD0(void) {
     utils.clock.enableGpio(GPIOD);
     // CAN1 GPIO Configuration
     // PD0     ------> CAN1_RX
@@ -71,7 +71,7 @@ void InitCan1_PD1PD0() {
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F407xx)
-void InitCan1_PD1PD0() {
+void InitCan1_PD1PD0(void) {
     utils.clock.enableGpio(GPIOD);
     GPIO_InitTypeDef gpio = { 0 };
     // CAN1 GPIO Configuration
