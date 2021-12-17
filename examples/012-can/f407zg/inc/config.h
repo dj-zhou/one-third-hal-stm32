@@ -34,6 +34,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _USE_CAN1_PD1PD0
+#define _CAN1_IRQ_SHOW_UNKNOWN_MSG
 #define _USE_CAN2_PB13PB12
 #include "can.h"
 
