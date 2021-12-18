@@ -50,6 +50,8 @@ static void IrqShowCan1(void) {
 // ============================================================================
 #if defined(STM32F107xC)
 void InitCan1_PD1PD0(void) {
+    // don't forget to enable AFIO clock
+    __HAL_RCC_AFIO_CLK_ENABLE();
     utils.clock.enableGpio(GPIOD);
     // CAN1 GPIO Configuration
     // PD0     ------> CAN1_RX
