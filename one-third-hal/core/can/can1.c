@@ -48,10 +48,34 @@ static void IrqShowCan1(void) {
 }
 
 // ============================================================================
-#if defined(STM32F407xx)
-void InitCan1_PD1PD0() {
-    GPIO_InitTypeDef gpio = { 0 };
+#if defined(STM32F107xC)
+void InitCan1_PD1PD0(void) {
+    // don't forget to enable AFIO clock
+    __HAL_RCC_AFIO_CLK_ENABLE();
     utils.clock.enableGpio(GPIOD);
+    // CAN1 GPIO Configuration
+    // PD0     ------> CAN1_RX
+    // PD1     ------> CAN1_TX
+    GPIO_InitTypeDef gpio = { 0 };
+    gpio.Pin = GPIO_PIN_0;
+    gpio.Mode = GPIO_MODE_INPUT;
+    gpio.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &gpio);
+
+    gpio.Pin = GPIO_PIN_1;
+    gpio.Mode = GPIO_MODE_AF_PP;
+    gpio.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOD, &gpio);
+
+    __HAL_AFIO_REMAP_CAN1_3();
+}
+#endif
+
+// ----------------------------------------------------------------------------
+#if defined(STM32F407xx)
+void InitCan1_PD1PD0(void) {
+    utils.clock.enableGpio(GPIOD);
+    GPIO_InitTypeDef gpio = { 0 };
     // CAN1 GPIO Configuration
     // PD0     ------> CAN1_RX
     // PD1     ------> CAN1_TX

@@ -5,12 +5,38 @@
 #if defined(CAN_IS_USED)
 
 // ============================================================================
+#if defined(STM32F107xC)
+
+// STM32F107 with 25 external crystal that the APB1 = 36M
+#define CAN_BIT_RATE_NUM 15
+// 36000000 / 4 / ( 1 + 6 + 2) = 1000K
+static const uint32_t bit_rate_table[CAN_BIT_RATE_NUM][5] = {
+    // bit rate, CAN_SJW,   CAN_BS1, CAN_BS2,    CAN_Prescaler
+    { 15, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 150 },  // 15K
+    { 20, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 200 },   // 20k
+    { 25, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 90 },   // 25k
+    { 40, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 100 },   // 40k
+    { 50, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 45 },   // 50k
+    { 62, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 36 },   // 62.5k
+    { 80, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 50 },    // 80k
+    { 100, CAN_SJW_1TQ, CAN_BS1_5TQ, CAN_BS2_2TQ, 45 },   // 100K
+    { 125, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 18 },  // 125K
+    { 200, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 20 },   // 200K
+    { 250, CAN_SJW_1TQ, CAN_BS1_13TQ, CAN_BS2_2TQ, 9 },   // 250k
+    { 400, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 10 },   // 400K
+    { 500, CAN_SJW_1TQ, CAN_BS1_5TQ, CAN_BS2_2TQ, 9 },    // 500K
+    { 800, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 5 },    // 800K
+    { 1000, CAN_SJW_1TQ, CAN_BS1_6TQ, CAN_BS2_2TQ, 4 },   // 1000K
+};
+#endif  // STM32F107xC
+
+// ----------------------------------------------------------------------------
 #if defined(STM32F407xx)
 
 // STM32F407 with 12M external crystal that the APB1 = 42M
 // 42000000 / 3 / ( 1 + 9 + 4) = 1000K
 #define CAN_BIT_RATE_NUM 14
-static const uint32_t CAN_bit_rate_table[CAN_BIT_RATE_NUM][5] = {
+static const uint32_t bit_rate_table[CAN_BIT_RATE_NUM][5] = {
     // bit rate, CAN_SJW, CAN_BS1, CAN_BS2, CAN_Prescaler
     // to be verified ----------
     { 15, CAN_SJW_1TQ, CAN_BS1_9TQ, CAN_BS2_4TQ, 200 },   // 15K
@@ -36,11 +62,11 @@ static const uint32_t CAN_bit_rate_table[CAN_BIT_RATE_NUM][5] = {
 static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
     uint8_t iter;
     for (iter = 0; iter < CAN_BIT_RATE_NUM; iter++) {
-        if (b_rate_k == CAN_bit_rate_table[iter][0]) {
-            can_init->SyncJumpWidth = CAN_bit_rate_table[iter][1];
-            can_init->TimeSeg1 = CAN_bit_rate_table[iter][2];
-            can_init->TimeSeg2 = CAN_bit_rate_table[iter][3];
-            can_init->Prescaler = CAN_bit_rate_table[iter][4];
+        if (b_rate_k == bit_rate_table[iter][0]) {
+            can_init->SyncJumpWidth = bit_rate_table[iter][1];
+            can_init->TimeSeg1 = bit_rate_table[iter][2];
+            can_init->TimeSeg2 = bit_rate_table[iter][3];
+            can_init->Prescaler = bit_rate_table[iter][4];
             break;
         }
     }
@@ -52,7 +78,7 @@ static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
 // ============================================================================
 bool can_check_bit_rate(uint16_t b_rate_k) {
     for (uint8_t i = 0; i < CAN_BIT_RATE_NUM; i++) {
-        if (( uint32_t )b_rate_k == CAN_bit_rate_table[i][0]) {
+        if (( uint32_t )b_rate_k == bit_rate_table[i][0]) {
             return true;
         }
     }
