@@ -95,7 +95,6 @@ typedef struct CanIrqNode_s {
 
 // ----------------------------------------------------------------------------
 // functions to be called inside the CAN module
-void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
 HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
                                   uint32_t type, uint8_t* data, uint8_t len);
@@ -104,6 +103,7 @@ void can_irq_show_registration(const char* str, CanIrqNode_t* node,
                                uint8_t num);
 bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
                     can_irq_hook hook, const char* str);
+void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 
 typedef struct {
     void (*attach)(uint16_t, can_irq_hook, const char*);
