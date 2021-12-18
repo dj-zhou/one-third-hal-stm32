@@ -6,7 +6,7 @@ extern "C" {
 #endif
 // ============================================================================
 
-// if use this library, we must we this module
+// if use this library, we must use this module
 #include "config.h"
 
 #include <stdbool.h>

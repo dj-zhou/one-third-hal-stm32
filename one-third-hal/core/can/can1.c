@@ -1,4 +1,5 @@
 #include "can.h"
+#include <stdio.h>
 #include <string.h>
 
 // ============================================================================
@@ -40,11 +41,7 @@ static void IrqAttachCan1(uint16_t cob_id, can_irq_hook hook, const char* str) {
 
 // ============================================================================
 static void IrqShowCan1(void) {
-    console.printf("CAN1 registered IRQ functions are:\r\n");
-    for (uint8_t i = 0; i < can1_node_num; i++) {
-        console.printf("COB ID = 0x%03X : %s\r\n", can1_node[i].this_.cob_id,
-                       can1_node[i].this_.descr);
-    }
+    can_irq_show_registration("CAN1", can1_node, can1_node_num);
 }
 
 // ============================================================================
@@ -118,7 +115,7 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 
     // start CAN
     if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start CAN1\r\n");
+        can_error(0, "failed to start CAN1\r\n");
     };
 }
 

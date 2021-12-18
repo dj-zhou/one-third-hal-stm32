@@ -48,7 +48,7 @@ int main(void) {
     };
     can1.config(1000, CAN_MODE_NORMAL);
     can1.irq.attach(0x666, Can1IrqTest, "Can1IrqTest");
-
+    can1.irq.show();
     // tasks -----------
     stime.scheduler.attach(2000, 1, taskCan1Test, "taskCan1Test");
     stime.scheduler.show();

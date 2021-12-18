@@ -71,7 +71,7 @@ static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
         }
     }
     if (iter == CAN_BIT_RATE_NUM) {
-        console.error("CAN_Bit_Rate_Process(): wrong bit rate!\r\n");
+        can_error(0, "CAN_Bit_Rate_Process(): wrong bit rate!\r\n");
     }
 }
 
@@ -106,7 +106,7 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
     // is this the right way to check mailbox?
     if ((mailbox != CAN_TX_MAILBOX0) && (mailbox != CAN_TX_MAILBOX1)
         && (mailbox != CAN_TX_MAILBOX2)) {
-        console.printf("%s(): no mail box.", __func__);
+        can_printk(0, "%s(): no mail box.", __func__);
         return HAL_ERROR;
     }
     return state;
@@ -114,14 +114,31 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
 
 // ============================================================================
 void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data) {
-    console.printf(YLW "%s IRQ " NOC "(id: 0x%04X, DLC: %d):", canx, msg.StdId,
-                   msg.DLC);
+    can_printk(0, YLW "%s IRQ " NOC "(id: 0x%04X, DLC: %d):", canx, msg.StdId,
+               msg.DLC);
     for (int i = 0; i < msg.DLC; i++) {
-        console.printf(" %02X", data[i]);
+        can_printk(0, " %02X", data[i]);
     }
-    console.printf("\r\n");
+    can_printk(0, "\r\n");
 }
 
+// ============================================================================
+void can_irq_show_registration(const char* str, CanIrqNode_t* node,
+                               uint8_t num) {
+    CONSOLE_PRINTF_SEG;
+    can_printk(0, "%s IRQ registration | %2d callback", str, num);
+    if (num <= 1) {
+        can_printk(0, "\r\n");
+    }
+    else {
+        can_printk(0, "s\r\n");
+    }
+    for (uint8_t i = 0; i < num; i++) {
+        can_printk(0, "COB ID = 0x%03X : %s\r\n", node[i].this_.cob_id,
+                   node[i].this_.descr);
+    }
+    CONSOLE_PRINTF_SEG;
+}
 // ============================================================================
 // arguments
 // bit_rate (Kbps):
@@ -141,7 +158,7 @@ void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode) {
     hcan->Init.ReceiveFifoLocked = DISABLE;
     hcan->Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(hcan) != HAL_OK) {
-        console.error("failed to setup the CAN interface.\r\n");
+        can_error(0, "failed to setup the CAN interface.\r\n");
     }
 
     // filter: to accept all, may have some bug because mixed all CANs
@@ -157,7 +174,7 @@ void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode) {
     can_filter.FilterActivation = ENABLE;
     can_filter.SlaveStartFilterBank = 0;
     if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK) {
-        console.error("failed to setup CAN filter.\r\n");
+        can_error(0, "failed to setup CAN filter.\r\n");
     }
 }
 
