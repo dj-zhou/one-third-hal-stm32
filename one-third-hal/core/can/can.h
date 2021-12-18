@@ -102,6 +102,9 @@ HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
 void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data);
 void can_irq_show_registration(const char* str, CanIrqNode_t* node,
                                uint8_t num);
+bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
+                    can_irq_hook hook, const char* str);
+
 typedef struct {
     void (*attach)(uint16_t, can_irq_hook, const char*);
     void (*show)(void);

@@ -108,6 +108,7 @@ int main(void) {
     can1.config(1000, CAN_MODE_NORMAL);
     can2.config(1000, CAN_MODE_NORMAL);
     can1.irq.attach(0x666, Can1IrqTest, "Can1IrqTest");
+    can1.irq.attach(0x666, Can2IrqTest, "Can2IrqTest");  // this will fail
     can2.irq.attach(0x0AB, Can2IrqTest, "Can2IrqTest");
     can1.irq.show();
     can2.irq.show();

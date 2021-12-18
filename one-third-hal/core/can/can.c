@@ -139,6 +139,45 @@ void can_irq_show_registration(const char* str, CanIrqNode_t* node,
     }
     CONSOLE_PRINTF_SEG;
 }
+
+// ============================================================================
+bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
+                    can_irq_hook hook, const char* str) {
+    uint8_t len;
+    uint8_t str_len = strlen(str);
+    if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
+        len = _CAN_IRQ_DESCR_SIZE - 1;
+    }
+    else {
+        len = str_len;
+    }
+    // you cannot attach two callback functions to one ID
+    if (num > 0) {
+        for (uint8_t i = 0; i < num; i++) {
+            if (node[0].this_.cob_id == cob_id) {
+                return false;
+            }
+        }
+    }
+    if (num == 0) {
+        node[0].this_.cob_id = cob_id;
+        bzero(node[0].this_.descr, _CAN_IRQ_DESCR_SIZE);
+        strncpy(node[0].this_.descr, str, len);
+        node[0].this_.descr[len] = '\0';
+        node[0].this_.hook = hook;
+        node[0].next_ = NULL;
+    }
+    else {
+        node[num].this_.cob_id = cob_id;
+        bzero(node[num].this_.descr, _CAN_IRQ_DESCR_SIZE);
+        strncpy(node[num].this_.descr, str, len);
+        node[num].this_.descr[len] = '\0';
+        node[num].this_.hook = hook;
+        node[num - 1].next_ = &node[num];
+    }
+    return true;
+}
+
 // ============================================================================
 // arguments
 // bit_rate (Kbps):

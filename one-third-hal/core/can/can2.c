@@ -10,32 +10,9 @@ static CanIrqNode_t can2_node[_CAN_IRQ_MAX_NUM] = { 0 };
 static uint8_t can2_node_num = 0;
 
 static void IrqAttachCan2(uint16_t cob_id, can_irq_hook hook, const char* str) {
-    uint8_t len;
-    uint8_t str_len = strlen(str);
-    if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
-        len = _CAN_IRQ_DESCR_SIZE - 1;
+    if (can_irq_attach(can2_node, can2_node_num, cob_id, hook, str)) {
+        can2_node_num++;
     }
-    else {
-        len = str_len;
-    }
-
-    if (can2_node_num == 0) {
-        can2_node[0].this_.cob_id = cob_id;
-        bzero(can2_node[0].this_.descr, _CAN_IRQ_DESCR_SIZE);
-        strncpy(can2_node[0].this_.descr, str, len);
-        can2_node[0].this_.descr[len] = '\0';
-        can2_node[0].this_.hook = hook;
-        can2_node[0].next_ = NULL;
-    }
-    else {
-        can2_node[can2_node_num].this_.cob_id = cob_id;
-        bzero(can2_node[can2_node_num].this_.descr, _CAN_IRQ_DESCR_SIZE);
-        strncpy(can2_node[can2_node_num].this_.descr, str, len);
-        can2_node[can2_node_num].this_.descr[len] = '\0';
-        can2_node[can2_node_num].this_.hook = hook;
-        can2_node[can2_node_num - 1].next_ = &can2_node[can2_node_num];
-    }
-    can2_node_num++;
 }
 
 // ============================================================================
