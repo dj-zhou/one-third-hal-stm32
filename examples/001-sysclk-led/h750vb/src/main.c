@@ -7,6 +7,9 @@ int main(void) {
     utils.system.initNvic(4);
     utils.pin.mode(GPIOC, 13, GPIO_MODE_OUTPUT_PP);
     utils.pin.set(GPIOC, 13, false);
+    SCB_EnableICache();
+    SCB_EnableDCache();
+    HAL_Init();
     while (1) {
         // some delay ------------
         for (int i = 0; i < 10000; i++) {

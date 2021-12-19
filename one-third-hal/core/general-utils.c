@@ -495,8 +495,8 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
             Error_Handler(HSE_VALUE * 5);
         }
-        /** Initializes the CPU, AHB and APB buses clocks
-         */
+
+        // Initializes the CPU, AHB and APB buses clocks
         RCC_ClkInitStruct.ClockType =
             RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1
             | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1
@@ -853,7 +853,7 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
 
     enableGpioClock(GPIOx);
 
-    GPIO_InitTypeDef GPIO_InitStructure= {0};
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     GPIO_InitStructure.Pin = GPIO_PIN_x;
     GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
     GPIO_InitStructure.Mode = mode;

@@ -27,7 +27,6 @@ ifneq (,$(findstring STM32H7,$(STM32Fx)))
     LIB_SHARE  = h7-share
     LIB_HAL    = h7-v1.8.0
     STM32Family= STM32H7xx
-	HAL_INCH   = $(LIB_PATH)/${LIB_HAL}/inc/Legacy
 else
     $(info not a STM32H7xx family device, you need to revise the Makefile)
 endif
