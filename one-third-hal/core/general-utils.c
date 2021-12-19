@@ -7,19 +7,18 @@ static RtosState_e rtos_state_;
 
 // ============================================================================
 // clang-format off
-// #if defined(_LED_HEARTBEAT_PORT)
-//     #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
-// #else
-//     #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
-// #endif
-// #if defined(_LED_HEARTBEAT_PIN)
-//     #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
-// #else
-//     #define ERROR_LED_PIN 5  // not sure if this will conflict with something
-// #endif
+#if defined(_LED_HEARTBEAT_PORT)
+    #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
+#else
+    #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
+#endif
+#if defined(_LED_HEARTBEAT_PIN)
+    #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
+#else
+    #define ERROR_LED_PIN 5  // not sure if this will conflict with something
+#endif
 // clang-format on
-#define ERROR_LED_PORT GPIOC
-#define ERROR_LED_PIN 13
+
 // ============================================================================
 static void Error_Handler(uint32_t hclk) {
     int step;
