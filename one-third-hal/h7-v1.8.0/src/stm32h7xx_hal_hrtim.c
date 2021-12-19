@@ -6103,6 +6103,7 @@ uint32_t HAL_HRTIM_WaveformGetOutputState(HRTIM_HandleTypeDef * hhrtim,
                                           uint32_t TimerIdx,
                                           uint32_t Output)
 {
+  (void)TimerIdx;
   uint32_t output_bit = (uint32_t)RESET;
   uint32_t output_state;
 

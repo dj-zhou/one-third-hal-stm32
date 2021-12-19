@@ -90,17 +90,16 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
 
 #if defined(SYSTEM_CLOCK_HAS_APB1234)
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
-                                      uint32_t pclk2, uint32_t pclk3,
-                                      uint32_t pclk4) {
+                                      uint32_t pclk2) {
     uint32_t hclk_ = HAL_RCC_GetHCLKFreq();
     uint32_t pclk1_ = HAL_RCC_GetPCLK1Freq();
     uint32_t pclk2_ = HAL_RCC_GetPCLK2Freq();
-    uint32_t pclk3_ = HAL_RCC_GetPCLK3Freq();
-    uint32_t pclk4_ = HAL_RCC_GetPCLK4Freq();
+    // do not have the following two functions
+    // uint32_t pclk3_ = HAL_RCC_GetPCLK3Freq();
+    // uint32_t pclk4_ = HAL_RCC_GetPCLK4Freq();
 
     // no addclk?
-    if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)
-        || (pclk3_ != pclk3) || (pclk4_ != pclk4)) {
+    if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
         Error_Handler(hclk);
     }
     return HAL_OK;
@@ -519,7 +518,7 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         // #error not supported.
     }
 
-    return VerifyClocks(480000000, 120000000, 120000000, 120000000, 120000000);
+    return VerifyClocks(480000000, 120000000, 120000000);
 }
 #endif  // STM32H750xx
 
@@ -573,7 +572,7 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
                                          uint16_t pclk2_m, uint16_t pclk3_m,
                                          uint16_t pclk4_m) {
 #if defined(STM32H750xx)
-    InitClock_H750xx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk3_m);
+    InitClock_H750xx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk4_m);
 #else
 #error InitSystemClock(): to implement and verify!
 #endif
@@ -754,7 +753,7 @@ static void enableTimerClock(TIM_TypeDef* TIMx) {
 // to be extended
 #if defined(UART_EXISTS)
 static void enableUartClock(USART_TypeDef* USARTx) {
-    // clang-format off
+// clang-format off
 #if defined(USART1_EXISTS)
     if (USARTx == USART1) { __HAL_RCC_USART1_CLK_ENABLE(); return; }
 #endif
@@ -803,7 +802,7 @@ static void enableUartClock(USART_TypeDef* USARTx) {
 // ============================================================================
 #if defined(SPI_EXISTS)
 static void enableSpiClock(SPI_TypeDef* SPIx) {
-    // clang-format off
+// clang-format off
 #if defined(SPI1_EXISTS)
     if (SPIx == SPI1) { __HAL_RCC_SPI1_CLK_ENABLE(); return; }
 #endif
@@ -840,8 +839,9 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
 // micro controllers
 
 // these need to be tested ------------------
-#if !defined(STM32F030x8) && !defined(STM32F303xE) && !defined(STM32F407xx) \
-    && !defined(STM32F427xx) && !defined(STM32F746xx) && !defined(STM32F767xx)
+#if !defined(STM32F030x8) && !defined(STM32F303xE) && !defined(STM32F407xx)    \
+    && !defined(STM32F427xx) && !defined(STM32F746xx) && !defined(STM32F767xx) \
+    && !defined(STM32H750xx)
     if (((GPIOx == GPIOB)
          && ((GPIO_PIN_x & GPIO_PIN_3) || (GPIO_PIN_x & GPIO_PIN_4)))
         || ((GPIOx == GPIOA) && (GPIO_PIN_x == GPIO_PIN_15))) {
@@ -866,7 +866,6 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
     || defined(STM32F767xx)
 static void setPinAlter(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt) {
-
     uint16_t GPIO_PIN_x = 1 << pin_n;
 
     enableGpioClock(GPIOx);

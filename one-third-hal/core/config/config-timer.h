@@ -85,7 +85,6 @@
     #define TIM6_EXISTS
     #define TIM7_EXISTS
     #define TIM8_EXISTS
-    #define TIM9_EXISTS
     #define TIM12_EXISTS
     #define TIM13_EXISTS
     #define TIM14_EXISTS

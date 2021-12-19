@@ -26,7 +26,7 @@
           peripherals. The D2 domain contains peripherals and a CPU
           (Cortex-M4). The D3 domain contains the system control, I/O logic
           and low-power peripherals.
-      (+) STM32H72x, STM32H73x, STM32H742, STM32H743, STM32H750 and STM32H753 
+      (+) STM32H72x, STM32H73x, STM32H742, STM32H743, STM32H750 and STM32H753
           devices have 3 power domains (D1, D2 and D3).
           The domain D1 contains a CPU (Cortex-M7), a Flash memory and some
           peripherals. The D2 domain contains peripherals. The D3 domains
@@ -564,6 +564,7 @@ void HAL_PWR_DisableWakeUpPin (uint32_t WakeUpPinx)
   */
 void HAL_PWR_EnterSLEEPMode (uint32_t Regulator, uint8_t SLEEPEntry)
 {
+  (void)Regulator;
   /* Check the parameters */
   assert_param (IS_PWR_REGULATOR (Regulator));
   assert_param (IS_PWR_SLEEP_ENTRY (SLEEPEntry));

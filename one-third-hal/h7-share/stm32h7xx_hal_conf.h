@@ -25,6 +25,11 @@
  extern "C" {
 #endif
 
+#include "crystal.h"
+#ifdef CRYSTAL_FREQ
+#define HSE_VALUE CRYSTAL_FREQ
+#endif
+
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 

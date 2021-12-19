@@ -83,7 +83,7 @@ extern "C" {
     || defined(STM32F303xE)
     #define    GPIO_13RD_SPEED_HIGH    GPIO_SPEED_FREQ_HIGH
 #elif defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
-    || defined(STM32F767xx)
+    || defined(STM32F767xx) || defined(STM32H750xx)
     #define    GPIO_13RD_SPEED_HIGH    GPIO_SPEED_FREQ_VERY_HIGH
 #else
 #error to implement and verify!
