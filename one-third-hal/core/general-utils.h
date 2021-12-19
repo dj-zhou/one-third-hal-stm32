@@ -81,11 +81,9 @@ typedef struct {
 typedef struct {
 #if defined(SYSTEM_CLOCK_HAS_APB1)
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t);
-#endif
-#if defined(SYSTEM_CLOCK_HAS_APB12)
+#elif defined(SYSTEM_CLOCK_HAS_APB12)
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
-#endif
-#if defined(SYSTEM_CLOCK_HAS_APB1234)
+#elif defined(SYSTEM_CLOCK_HAS_APB1234)
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t, uint16_t,
                                    uint16_t);
 #endif

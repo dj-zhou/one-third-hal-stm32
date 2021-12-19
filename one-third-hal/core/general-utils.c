@@ -19,10 +19,6 @@ static RtosState_e rtos_state_;
 #endif
 // clang-format on
 
-// static uint32_t hclk_;
-// static uint32_t pclk1_;
-// static uint32_t pclk2_;
-
 // ============================================================================
 static void Error_Handler(uint32_t hclk) {
     int step;
@@ -68,10 +64,8 @@ static void Error_Handler(uint32_t hclk) {
 // ============================================================================
 #if defined(SYSTEM_CLOCK_HAS_APB1)
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1) {
-    uint32_t hclk_;
-    uint32_t pclk1_;
-    hclk_ = HAL_RCC_GetHCLKFreq();
-    pclk1_ = HAL_RCC_GetPCLK1Freq();
+    uint32_t hclk_ = HAL_RCC_GetHCLKFreq();
+    uint32_t pclk1_ = HAL_RCC_GetPCLK1Freq();
 
     if ((hclk_ != hclk) || (pclk1_ != pclk1)) {
         Error_Handler(hclk);
@@ -83,12 +77,9 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1) {
 #if defined(SYSTEM_CLOCK_HAS_APB12)
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
                                       uint32_t pclk2) {
-    uint32_t hclk_;
-    uint32_t pclk1_;
-    uint32_t pclk2_;
-    hclk_ = HAL_RCC_GetHCLKFreq();
-    pclk1_ = HAL_RCC_GetPCLK1Freq();
-    pclk2_ = HAL_RCC_GetPCLK2Freq();
+    uint32_t hclk_ = HAL_RCC_GetHCLKFreq();
+    uint32_t pclk1_ = HAL_RCC_GetPCLK1Freq();
+    uint32_t pclk2_ = HAL_RCC_GetPCLK2Freq();
     // no addclk?
     if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
         Error_Handler(hclk);
@@ -101,16 +92,11 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
                                       uint32_t pclk2, uint32_t pclk3,
                                       uint32_t pclk4) {
-    uint32_t hclk_;
-    uint32_t pclk1_;
-    uint32_t pclk2_;
-    uint32_t pclk3_;
-    uint32_t pclk4_;
-    hclk_ = HAL_RCC_GetHCLKFreq();
-    pclk1_ = HAL_RCC_GetPCLK1Freq();
-    pclk2_ = HAL_RCC_GetPCLK2Freq();
-    pclk3_ = HAL_RCC_GetPCLK3Freq();
-    pclk4_ = HAL_RCC_GetPCLK4Freq();
+    uint32_t hclk_ = HAL_RCC_GetHCLKFreq();
+    uint32_t pclk1_ = HAL_RCC_GetPCLK1Freq();
+    uint32_t pclk2_ = HAL_RCC_GetPCLK2Freq();
+    uint32_t pclk3_ = HAL_RCC_GetPCLK3Freq();
+    uint32_t pclk4_ = HAL_RCC_GetPCLK4Freq();
 
     // no addclk?
     if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)
@@ -157,7 +143,7 @@ static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m) {
     }
     return VerifyClocks(48000000, 48000000);
 }
-#endif
+#endif  // STM32F030x8
 
 // ============================================================================
 #if defined(STM32F103xB)
@@ -248,7 +234,7 @@ static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
     }
     return VerifyClocks(72000000, 36000000, 72000000);
 }
-#endif
+#endif  // STM32F107xC
 
 // ============================================================================
 #if defined(STM32F303xE)
@@ -290,7 +276,7 @@ static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
     }
     return VerifyClocks(72000000, 36000000, 72000000);
 }
-#endif
+#endif  // STM32F303xE
 
 // ============================================================================
 #if defined(STM32F407xx)
@@ -474,11 +460,11 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 
     return VerifyClocks(216000000, 54000000, 108000000);
 }
-#endif
+#endif  // STM32F746xx || STM32F767xx
 
 // ============================================================================
 #if defined(STM32H750xx)
-static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
+static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m, uint16_t pclk3_m,
                                           uint16_t pclk4_m) {
     if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)
@@ -535,7 +521,7 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 
     return VerifyClocks(480000000, 120000000, 120000000, 120000000, 120000000);
 }
-#endif
+#endif  // STM32H750xx
 
 // ============================================================================
 // ============================================================================
@@ -543,6 +529,7 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m) {
 #if defined(STM32F030x8)
     InitClock_F030x8(hclk_m, pclk1_m);
+#else
 #error InitSystemClock(): to implement and verify!
 #endif
     // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
@@ -586,7 +573,7 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
                                          uint16_t pclk2_m, uint16_t pclk3_m,
                                          uint16_t pclk4_m) {
 #if defined(STM32H750xx)
-    InitClock_H7xxxx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk3_m);
+    InitClock_H750xx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk3_m);
 #else
 #error InitSystemClock(): to implement and verify!
 #endif
@@ -948,7 +935,13 @@ static RtosState_e getRtosState(void) {
 // ============================================================================
 // clang-format off
 UtilsApi_t utils = {
+#if defined(SYSTEM_CLOCK_HAS_APB1)
     .system.initClock  = InitSystemClock  ,
+#elif defined(SYSTEM_CLOCK_HAS_APB12)
+    .system.initClock  = InitSystemClock  ,
+#elif defined(SYSTEM_CLOCK_HAS_APB1234)
+    .system.initClock  = InitSystemClock  ,
+#endif
     .system.initNvic   = InitNvicInterrupt,
 #if defined(CAN_EXISTS)
     .clock.enableCan   = enableCanClock   ,
