@@ -1,6 +1,6 @@
 # =============================================================================
 # custom settings
-STM32Fx   = STM32H750xx
+STM32Hx   = STM32H750xx
 LIB_PATH  = ../../../one-third-hal
 PRJ_PATH  = . $(LIB_PATH)/core $(LIB_PATH)/device
 LIBS      = -lc -lm -lnosys
@@ -8,7 +8,7 @@ OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32h750xx.s
 LD_SCRIPT = $(LIB_PATH)/lds/STM32H750VBTx_FLASH.ld
 PRJ_OUT   = bin
-PRJ_NAME  = $(STM32Fx)-binary
+PRJ_NAME  = $(STM32Hx)-binary
 
 PRJ_INCH =  \
     $(LIB_PATH)/core \
@@ -20,7 +20,7 @@ PRJ_INCH =  \
     $(LIB_PATH)/device
 
 # ------------------------------------------
-ifneq (,$(findstring STM32H7,$(STM32Fx)))
+ifneq (,$(findstring STM32H7,$(STM32Hx)))
     CPU        = -mcpu=cortex-m7
     FPU        = -mfpu=fpv5-d16
     FLOAT-ABI  = -mfloat-abi=hard
@@ -41,7 +41,7 @@ AR = $(CROSS_COMPILE)ar
 
 # =============================================================================
 MCU     = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
-C_DEFS  = -D$(STM32Fx) -DUSE_HAL_DRIVER
+C_DEFS  = -D$(STM32Hx) -DUSE_HAL_DRIVER
 C_DEFS += -DFIRMWARE=\"$(shell basename ${PWD})\"
 C_DEFS += -DPRJ_GIT_CMT=\"$(shell git rev-parse --short HEAD)\"
 C_DEFS += -DPRJ_GIT_BRH=\"$(shell git rev-parse --abbrev-ref HEAD)\"
@@ -52,7 +52,7 @@ C_DEFS += -DLIB_GIT_VER=\"$(shell git describe --abbrev=7 --dirty --always --tag
 
 # =============================================================================
 HAL_PATH += $(LIB_PATH)/${LIB_HAL}
-HAL_OUT  = $(LIB_PATH)/$(STM32Fx)-hal
+HAL_OUT  = $(LIB_PATH)/$(STM32Hx)-hal
 HAL_DIRS:= $(shell find $(HAL_PATH) -maxdepth 10 -type d)
 HAL_SRCS = $(foreach dir,$(HAL_DIRS),$(wildcard $(dir)/*.c))
 HAL_OBJS = $(addprefix $(HAL_OUT)/,$(notdir $(HAL_SRCS:.c=.o)))
@@ -88,7 +88,7 @@ CFLAGS  += -Wall -fdata-sections -ffunction-sections
 CFLAGS  += -MMD -MP -MF"$(@:%.o=%.d)" -g -gdwarf-2
 LDFLAGS  = $(MCU) -specs=nano.specs -T$(LD_SCRIPT) $(LIBS)
 LDFLAGS += -Wl,-Map=$(PRJ_OUT)/$(PRJ_NAME).map,--cref -Wl,--gc-sections
-LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
+LDFLAGS += -l$(STM32Hx) -L$(HAL_OUT)/
 
 # =============================================================================
 .PHONY:
@@ -113,11 +113,11 @@ $(PRJ_OUT):
 
 # -----------------
 hal: CFLAGS+=$(HAL_INC)
-hal: $(HAL_OUT)/lib$(STM32Fx).a
+hal: $(HAL_OUT)/lib$(STM32Hx).a
 $(HAL_OUT)/%.o: %.c Makefile | $(HAL_OUT)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(HAL_OUT)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(HAL_OUT)/lib$(STM32Fx).a: $(HAL_OBJS) 
+$(HAL_OUT)/lib$(STM32Hx).a: $(HAL_OBJS) 
 	$(AR) -r $@ $(HAL_OBJS)
 
 $(HAL_OUT):
