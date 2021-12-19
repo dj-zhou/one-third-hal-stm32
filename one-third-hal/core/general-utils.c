@@ -830,7 +830,7 @@ static void enableSpiClock(SPI_TypeDef* SPIx) {
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
 static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
     assert_param(IS_GPIO_MODE(mode));
-    uint16_t GPIO_PIN_x = 1 << pin_n;
+    uint32_t GPIO_PIN_x = 1 << pin_n;
 
 // #if defined(STM32F107xC )  // || ( defined STM32F10Xxxxx)
 // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
@@ -853,7 +853,7 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
 
     enableGpioClock(GPIOx);
 
-    GPIO_InitTypeDef GPIO_InitStructure;
+    GPIO_InitTypeDef GPIO_InitStructure= {0};
     GPIO_InitStructure.Pin = GPIO_PIN_x;
     GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
     GPIO_InitStructure.Mode = mode;
