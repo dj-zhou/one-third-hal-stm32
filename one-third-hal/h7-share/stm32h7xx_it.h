@@ -1,6 +1,5 @@
-
-#ifndef __STM32F7xx_IT_H
-#define __STM32F7xx_IT_H
+#ifndef __STM32H7xx_IT_H
+#define __STM32H7xx_IT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,10 +14,9 @@ __attribute__((weak)) void SVC_Handler(void);
 __attribute__((weak)) void DebugMon_Handler(void);
 __attribute__((weak)) void PendSV_Handler(void);
 __attribute__((weak)) void SysTick_Handler(void);
-// __attribute__((weak)) void USART2_IRQHandler(void);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32F7xx_IT_H */
+#endif  // __STM32H7xx_IT_H
