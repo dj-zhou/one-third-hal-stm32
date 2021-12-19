@@ -32,5 +32,5 @@ __attribute__((weak)) void DebugMon_Handler(void) {}
 __attribute__((weak)) void PendSV_Handler(void) {}
 
 __attribute__((weak)) void SysTick_Handler(void) {
-    HAL_IncTick();
+    // HAL_IncTick();
 }
