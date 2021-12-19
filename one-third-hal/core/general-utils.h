@@ -26,6 +26,8 @@ extern "C" {
 #include "../CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
 #elif defined(STM32F746xx) || defined(STM32F767xx)
 #include "../CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h"
+#elif defined(STM32H750xx)
+#include "../CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h"
 #endif
 
 #include <stdbool.h>
@@ -63,6 +65,7 @@ typedef struct {
     RtosState_e (*getState)(void);
 } UtilsRtos;
 #endif  // RTOS_IS_USED
+
 typedef struct {
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
     void (*initNvic)(uint8_t group);

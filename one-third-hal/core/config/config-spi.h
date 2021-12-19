@@ -52,6 +52,13 @@
     #define SPI6_EXISTS
 #endif
 
+#if defined(STM32H750xx)
+    #define SPI3_EXISTS
+    #define SPI4_EXISTS
+    #define SPI5_EXISTS
+    #define SPI6_EXISTS
+#endif
+
 #if defined(SPI1_EXISTS) || defined(SPI2_EXISTS) || defined(SPI3_EXISTS) \
  || defined(SPI4_EXISTS) || defined(SPI5_EXISTS) || defined(SPI6_EXISTS)
     #define SPI_EXISTS

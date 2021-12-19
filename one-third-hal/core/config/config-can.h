@@ -58,9 +58,19 @@
     #define CAN3_EXISTS
 #endif
 
+#if defined(STM32H750xx)
+    #define FDCAN1_EXISTS
+    #define FDCAN2_EXISTS
+#endif
+
 #if defined(CAN1_EXISTS) || defined(CAN2_EXISTS) || defined(CAN3_EXISTS)
     #define CAN_EXISTS
 #endif
+
+#if defined(FDCAN1_EXISTS) || defined(FDCAN1_EXISTS)
+    #define FDCAN_EXISTS
+#endif
+
 // clang-format on
 
 #endif  // __CONFIG_CAN_H
