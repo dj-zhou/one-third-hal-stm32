@@ -9,6 +9,7 @@ extern "C" {
 #include "config.h"
 
 #include "config-can.h"
+#include "uart-console.h"
 
 // clang-format off
 #if defined(CAN1_EXISTS)
@@ -35,6 +36,16 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #if defined(CAN_IS_USED)
+
+#ifdef CONSOLE_IS_USED
+#define can_printf(...) (console.printf(__VA_ARGS__))
+#define can_printk(...) (console.printk(__VA_ARGS__))
+#define can_error(...) (console.error(__VA_ARGS__))
+#else
+#define can_printf(...) ({ ; })
+#define can_printk(...) ({ ; })
+#define can_error(...) ({ ; })
+#endif
 
 // FreeRTOS related configuration
 // clang-format off
@@ -84,11 +95,15 @@ typedef struct CanIrqNode_s {
 
 // ----------------------------------------------------------------------------
 // functions to be called inside the CAN module
-void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 bool can_check_bit_rate(uint16_t b_rate_k);
 HAL_StatusTypeDef can_send_packet(CAN_HandleTypeDef* handle, uint16_t can_id,
                                   uint32_t type, uint8_t* data, uint8_t len);
 void can_rx_print(const char* canx, CAN_RxHeaderTypeDef msg, uint8_t* data);
+void can_irq_show_registration(const char* str, CanIrqNode_t* node,
+                               uint8_t num);
+bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
+                    can_irq_hook hook, const char* str);
+void can_settings(CAN_HandleTypeDef* hcan, uint16_t b_rate_k, uint32_t mode);
 
 typedef struct {
     void (*attach)(uint16_t, can_irq_hook, const char*);

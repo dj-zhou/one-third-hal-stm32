@@ -1,4 +1,5 @@
 #include "can.h"
+#include <stdio.h>
 #include <string.h>
 
 // ============================================================================
@@ -9,42 +10,16 @@
 static CanIrqNode_t can1_node[_CAN_IRQ_MAX_NUM] = { 0 };
 static uint8_t can1_node_num = 0;
 
+// ============================================================================
 static void IrqAttachCan1(uint16_t cob_id, can_irq_hook hook, const char* str) {
-    uint8_t len;
-    uint8_t str_len = strlen(str);
-    if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
-        len = _CAN_IRQ_DESCR_SIZE - 1;
+    if (can_irq_attach(can1_node, can1_node_num, cob_id, hook, str)) {
+        can1_node_num++;
     }
-    else {
-        len = str_len;
-    }
-
-    if (can1_node_num == 0) {
-        can1_node[0].this_.cob_id = cob_id;
-        bzero(can1_node[0].this_.descr, _CAN_IRQ_DESCR_SIZE);
-        strncpy(can1_node[0].this_.descr, str, len);
-        can1_node[0].this_.descr[len] = '\0';
-        can1_node[0].this_.hook = hook;
-        can1_node[0].next_ = NULL;
-    }
-    else {
-        can1_node[can1_node_num].this_.cob_id = cob_id;
-        bzero(can1_node[can1_node_num].this_.descr, _CAN_IRQ_DESCR_SIZE);
-        strncpy(can1_node[can1_node_num].this_.descr, str, len);
-        can1_node[can1_node_num].this_.descr[len] = '\0';
-        can1_node[can1_node_num].this_.hook = hook;
-        can1_node[can1_node_num - 1].next_ = &can1_node[can1_node_num];
-    }
-    can1_node_num++;
 }
 
 // ============================================================================
 static void IrqShowCan1(void) {
-    console.printf("CAN1 registered IRQ functions are:\r\n");
-    for (uint8_t i = 0; i < can1_node_num; i++) {
-        console.printf("COB ID = 0x%03X : %s\r\n", can1_node[i].this_.cob_id,
-                       can1_node[i].this_.descr);
-    }
+    can_irq_show_registration("CAN1", can1_node, can1_node_num);
 }
 
 // ============================================================================
@@ -118,7 +93,7 @@ static void InitCan1(uint16_t b_rate_k, uint32_t mode) {
 
     // start CAN
     if (HAL_CAN_Start(&(can1.hcan)) != HAL_OK) {
-        console.error("failed to start CAN1\r\n");
+        can_error(0, "failed to start CAN1\r\n");
     };
 }
 
