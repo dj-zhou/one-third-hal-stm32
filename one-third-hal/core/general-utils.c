@@ -19,9 +19,9 @@ static RtosState_e rtos_state_;
 #endif
 // clang-format on
 
-static uint32_t hclk_;
-static uint32_t pclk1_;
-static uint32_t pclk2_;
+// static uint32_t hclk_;
+// static uint32_t pclk1_;
+// static uint32_t pclk2_;
 
 // ============================================================================
 static void Error_Handler(uint32_t hclk) {
@@ -44,6 +44,12 @@ static void Error_Handler(uint32_t hclk) {
     else if (hclk < 300000000) {
         step = 5000;
     }
+    else if (hclk < 400000000) {
+        step = 6000;
+    }
+    else if (hclk < 500000000) {
+        step = 6600;
+    }
     else {
         step = 10000;
     }
@@ -60,27 +66,65 @@ static void Error_Handler(uint32_t hclk) {
 }
 
 // ============================================================================
-static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
-                                      uint32_t pclk2) {
+#if defined(SYSTEM_CLOCK_HAS_APB1)
+static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1) {
+    uint32_t hclk_;
+    uint32_t pclk1_;
     hclk_ = HAL_RCC_GetHCLKFreq();
     pclk1_ = HAL_RCC_GetPCLK1Freq();
-#if !defined(STM32F030x8)
+
+    if ((hclk_ != hclk) || (pclk1_ != pclk1)) {
+        Error_Handler(hclk);
+    }
+    return HAL_OK;
+}
+#endif  // SYSTEM_CLOCK_HAS_APB1
+
+#if defined(SYSTEM_CLOCK_HAS_APB12)
+static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
+                                      uint32_t pclk2) {
+    uint32_t hclk_;
+    uint32_t pclk1_;
+    uint32_t pclk2_;
+    hclk_ = HAL_RCC_GetHCLKFreq();
+    pclk1_ = HAL_RCC_GetPCLK1Freq();
     pclk2_ = HAL_RCC_GetPCLK2Freq();
-#else
-    pclk2_ = 0;
-#endif
     // no addclk?
     if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
         Error_Handler(hclk);
     }
     return HAL_OK;
 }
+#endif  // SYSTEM_CLOCK_HAS_APB12
+
+#if defined(SYSTEM_CLOCK_HAS_APB1234)
+static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
+                                      uint32_t pclk2, uint32_t pclk3,
+                                      uint32_t pclk4) {
+    uint32_t hclk_;
+    uint32_t pclk1_;
+    uint32_t pclk2_;
+    uint32_t pclk3_;
+    uint32_t pclk4_;
+    hclk_ = HAL_RCC_GetHCLKFreq();
+    pclk1_ = HAL_RCC_GetPCLK1Freq();
+    pclk2_ = HAL_RCC_GetPCLK2Freq();
+    pclk3_ = HAL_RCC_GetPCLK3Freq();
+    pclk4_ = HAL_RCC_GetPCLK4Freq();
+
+    // no addclk?
+    if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)
+        || (pclk3_ != pclk3) || (pclk4_ != pclk4)) {
+        Error_Handler(hclk);
+    }
+    return HAL_OK;
+}
+#endif  // SYSTEM_CLOCK_HAS_APB1234
 
 // ============================================================================
 #if defined(STM32F030x8)
-static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m,
-                                          uint16_t pclk2_m) {
-    if ((hclk_m != 48) || (pclk1_m != 48) || (pclk2_m != 0)) {
+static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m) {
+    if ((hclk_m != 48) || (pclk1_m != 48)) {
         Error_Handler(hclk_m * 5000000);
     }
     if (HSE_VALUE == 8000000) {
@@ -111,7 +155,7 @@ static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m,
     else {
         // #error not supported.
     }
-    return VerifyClocks(48000000, 48000000, 0);  // no PCLK2
+    return VerifyClocks(48000000, 48000000);
 }
 #endif
 
@@ -433,24 +477,99 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 #endif
 
 // ============================================================================
+#if defined(STM32H750xx)
+static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
+                                          uint16_t pclk2_m, uint16_t pclk3_m,
+                                          uint16_t pclk4_m) {
+    if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)
+        || (pclk3_m != 120) || (pclk4_m != 120)) {
+        Error_Handler(hclk_m * 5000000);
+    }
+    if (HSE_VALUE == 25000000) {
+        RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+        RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
+
+        HAL_PWREx_ConfigSupply(PWR_LDO_SUPPLY);
+        __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE0);
+
+        while (!__HAL_PWR_GET_FLAG(PWR_FLAG_VOSRDY)) {
+        }
+
+        RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+        RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+        RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+        RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+        RCC_OscInitStruct.PLL.PLLM = 5;
+        RCC_OscInitStruct.PLL.PLLN = 192;
+        RCC_OscInitStruct.PLL.PLLP = 2;
+        RCC_OscInitStruct.PLL.PLLQ = 2;
+        RCC_OscInitStruct.PLL.PLLR = 2;
+        RCC_OscInitStruct.PLL.PLLRGE = RCC_PLL1VCIRANGE_2;
+        RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
+        RCC_OscInitStruct.PLL.PLLFRACN = 0;
+        if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
+        }
+        /** Initializes the CPU, AHB and APB buses clocks
+         */
+        RCC_ClkInitStruct.ClockType =
+            RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1
+            | RCC_CLOCKTYPE_PCLK2 | RCC_CLOCKTYPE_D3PCLK1
+            | RCC_CLOCKTYPE_D1PCLK1;
+        RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+        RCC_ClkInitStruct.SYSCLKDivider = RCC_SYSCLK_DIV1;
+        RCC_ClkInitStruct.AHBCLKDivider = RCC_HCLK_DIV2;
+        RCC_ClkInitStruct.APB3CLKDivider = RCC_APB3_DIV2;
+        RCC_ClkInitStruct.APB1CLKDivider = RCC_APB1_DIV2;
+        RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
+        RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
+
+        if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4)
+            != HAL_OK) {
+            Error_Handler(HSE_VALUE * 5);
+        }
+    }
+    else {
+        // #error not supported.
+    }
+
+    return VerifyClocks(480000000, 120000000, 120000000, 120000000, 120000000);
+}
+#endif
+
+// ============================================================================
+// ============================================================================
+#if defined(SYSTEM_CLOCK_HAS_APB1)
+static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m) {
+#if defined(STM32F030x8)
+    InitClock_F030x8(hclk_m, pclk1_m);
+#error InitSystemClock(): to implement and verify!
+#endif
+    // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
+    // thte HAL_MspInit() initialized the SysTick to 1K Hz frequency
+    // however, our stime.config() will override it.
+    HAL_Init();
+    return HAL_OK;
+}
+#endif  // SYSTEM_CLOCK_HAS_APB1
+
+#if defined(SYSTEM_CLOCK_HAS_APB12)
 static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
                                          uint16_t pclk2_m) {
-#if defined(STM32F030x8)
-    return InitClock_F030x8(hclk_m, pclk1_m, pclk2_m);
-#elif defined(STM32F103xB)
-    return InitClock_F103xB(hclk_m, pclk1_m, pclk2_m);
+#if defined(STM32F103xB)
+    InitClock_F103xB(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F107xC)
-    return InitClock_F107xC(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F107xC(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F303xE)
-    return InitClock_F303xE(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F303xE(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F407xx)
-    return InitClock_F407xx(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F407xx(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F427xx)
-    return InitClock_F427xx(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F427xx(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F746xx)
-    return InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
 #elif defined(STM32F767xx)
-    return InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
+    InitClock_F7xxxx(hclk_m, pclk1_m, pclk2_m);
 #else
 #error InitSystemClock(): to implement and verify!
 #endif
@@ -460,6 +579,24 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
     HAL_Init();
     return HAL_OK;
 }
+#endif  // SYSTEM_CLOCK_HAS_APB12
+
+#if defined(SYSTEM_CLOCK_HAS_APB1234)
+static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
+                                         uint16_t pclk2_m, uint16_t pclk3_m,
+                                         uint16_t pclk4_m) {
+#if defined(STM32H750xx)
+    InitClock_H7xxxx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk3_m);
+#else
+#error InitSystemClock(): to implement and verify!
+#endif
+    // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
+    // thte HAL_MspInit() initialized the SysTick to 1K Hz frequency
+    // however, our stime.config() will override it.
+    HAL_Init();
+    return HAL_OK;
+}
+#endif  // SYSTEM_CLOCK_HAS_APB1234
 
 // ============================================================================
 static void InitNvicInterrupt(uint8_t group) {
