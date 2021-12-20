@@ -84,8 +84,7 @@ typedef struct {
 #elif defined(SYSTEM_CLOCK_HAS_APB12)
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
 #elif defined(SYSTEM_CLOCK_HAS_APB1234)
-    HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t, uint16_t,
-                                   uint16_t);
+    HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
 #endif
     void (*initNvic)(uint8_t group);
 } UtilsSystem;

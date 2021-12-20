@@ -92,6 +92,7 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
 #endif  // SYSTEM_CLOCK_HAS_APB12
 
 #if defined(SYSTEM_CLOCK_HAS_APB1234)
+// H750VB: CPU clock and systick clock is 480M, but HCLK is 240
 static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
                                       uint32_t pclk2) {
     uint32_t hclk_ = HAL_RCC_GetHCLKFreq();
@@ -105,7 +106,7 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
 
     // FIXME: this procedure failes!
     if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
-        // Error_Handler(hclk);
+        Error_Handler(hclk);
     }
     return HAL_OK;
 }
@@ -469,10 +470,8 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 // ============================================================================
 #if defined(STM32H750xx)
 static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
-                                          uint16_t pclk2_m, uint16_t pclk3_m,
-                                          uint16_t pclk4_m) {
-    if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)
-        || (pclk3_m != 120) || (pclk4_m != 120)) {
+                                          uint16_t pclk2_m) {
+    if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)) {
         Error_Handler(hclk_m * 1000000);
     }
     if (HSE_VALUE == 25000000) {
@@ -524,7 +523,8 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         // #error not supported.
     }
 
-    return VerifyClocks(480000000, 120000000, 120000000);
+    // HCLK is 240M, SYSCLK is 480M
+    return VerifyClocks(240000000, 120000000, 120000000);
 }
 #endif  // STM32H750xx
 
@@ -575,8 +575,7 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
 
 #if defined(SYSTEM_CLOCK_HAS_APB1234)
 static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
-                                         uint16_t pclk2_m, uint16_t pclk3_m,
-                                         uint16_t pclk4_m) {
+                                         uint16_t pclk2_m) {
 #if defined(STM32H750xx)
     // FIXME: not sure if we need to run these first, keep them here may not
     // effect anything at this point
@@ -584,7 +583,7 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
     SCB_EnableDCache();
     // h750vb requires this to be run first
     HAL_Init();
-    InitClock_H750xx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk4_m);
+    InitClock_H750xx(hclk_m, pclk1_m, pclk2_m);
 #else
 #error InitSystemClock(): to implement and verify!
 #endif
