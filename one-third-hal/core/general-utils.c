@@ -944,13 +944,7 @@ static RtosState_e getRtosState(void) {
 // ============================================================================
 // clang-format off
 UtilsApi_t utils = {
-#if defined(SYSTEM_CLOCK_HAS_APB1)
     .system.initClock  = InitSystemClock  ,
-#elif defined(SYSTEM_CLOCK_HAS_APB12)
-    .system.initClock  = InitSystemClock  ,
-#elif defined(SYSTEM_CLOCK_HAS_APB1234)
-    .system.initClock  = InitSystemClock  ,
-#endif
     .system.initNvic   = InitNvicInterrupt,
 #if defined(CAN_EXISTS)
     .clock.enableCan   = enableCanClock   ,
