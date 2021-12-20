@@ -13,7 +13,7 @@ int main(void) {
     while (1) {
         // some delay ------------
         for (int i = 0; i < 10000; i++) {
-            for (int j = 0; j < 10000; j++) {
+            for (int j = 0; j < 5000; j++) {
                 ;
             }
         }

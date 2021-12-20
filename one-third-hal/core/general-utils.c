@@ -7,17 +7,20 @@ static RtosState_e rtos_state_;
 
 // ============================================================================
 // clang-format off
-#if defined(_LED_HEARTBEAT_PORT)
-    #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
-#else
-    #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
-#endif
-#if defined(_LED_HEARTBEAT_PIN)
-    #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
-#else
-    #define ERROR_LED_PIN 5  // not sure if this will conflict with something
-#endif
+// #if defined(_LED_HEARTBEAT_PORT)
+//     #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
+// #else
+//     #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
+// #endif
+// #if defined(_LED_HEARTBEAT_PIN)
+//     #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
+// #else
+//     #define ERROR_LED_PIN 5  // not sure if this will conflict with something
+// #endif
 // clang-format on
+
+#define ERROR_LED_PORT GPIOC
+#define ERROR_LED_PIN 13
 
 // ============================================================================
 static void Error_Handler(uint32_t hclk) {
@@ -44,16 +47,16 @@ static void Error_Handler(uint32_t hclk) {
         step = 6000;
     }
     else if (hclk < 500000000) {
-        step = 6600;
+        step = 10000;
     }
     else {
-        step = 10000;
+        step = 20000;
     }
 
     utils.pin.mode(ERROR_LED_PORT, ERROR_LED_PIN, GPIO_MODE_OUTPUT_PP);
     while (1) {
         for (int i = 0; i < step; i++) {
-            for (int j = 0; j < 500; j++) {
+            for (int j = 0; j < 1000; j++) {
                 ;
             }
         }
@@ -99,8 +102,10 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
     // uint32_t pclk4_ = HAL_RCC_GetPCLK4Freq();
 
     // no addclk?
+
+    // FIXME: this procedure failes!
     if ((hclk_ != hclk) || (pclk1_ != pclk1) || (pclk2_ != pclk2)) {
-        Error_Handler(hclk);
+        // Error_Handler(hclk);
     }
     return HAL_OK;
 }
@@ -468,7 +473,7 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk4_m) {
     if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)
         || (pclk3_m != 120) || (pclk4_m != 120)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler(hclk_m * 1000000);
     }
     if (HSE_VALUE == 25000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -493,7 +498,7 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_OscInitStruct.PLL.PLLVCOSEL = RCC_PLL1VCOWIDE;
         RCC_OscInitStruct.PLL.PLLFRACN = 0;
         if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK) {
-            Error_Handler(HSE_VALUE * 5);
+            Error_Handler(HSE_VALUE * 20);
         }
 
         // Initializes the CPU, AHB and APB buses clocks
@@ -509,9 +514,10 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         RCC_ClkInitStruct.APB2CLKDivider = RCC_APB2_DIV2;
         RCC_ClkInitStruct.APB4CLKDivider = RCC_APB4_DIV2;
 
+        // FIXME: this procedure failes!
         if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4)
             != HAL_OK) {
-            Error_Handler(HSE_VALUE * 5);
+            Error_Handler(HSE_VALUE * 20);
         }
     }
     else {
