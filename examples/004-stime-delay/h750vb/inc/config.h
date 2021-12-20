@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "stm32f4xx_hal.h"
+#include "stm32h7xx_hal.h"
 
 // ============================================================================
 // one-third-core includes
