@@ -34,6 +34,14 @@
     #define GPIOI_EXISTS
 #endif
 
+#if defined(STM32H750xx)
+    #define GPIOE_EXISTS
+    #define GPIOF_EXISTS
+    #define GPIOG_EXISTS
+    #define GPIOH_EXISTS
+    #define GPIOI_EXISTS
+    #define GPIOJ_EXISTS
+#endif
 // clang-format on
 
 #endif  // __CONFIG_GPIO_H

@@ -77,6 +77,23 @@
     #define TIM14_EXISTS
 #endif
 
+#if defined(STM32H750xx)
+    #define TIM2_EXISTS
+    #define TIM3_EXISTS
+    #define TIM4_EXISTS
+    #define TIM5_EXISTS
+    #define TIM6_EXISTS
+    #define TIM7_EXISTS
+    #define TIM8_EXISTS
+    #define TIM12_EXISTS
+    #define TIM13_EXISTS
+    #define TIM14_EXISTS
+    #define TIM15_EXISTS
+    #define TIM16_EXISTS
+    #define TIM17_EXISTS
+    // it also has LPTIM1, LPTIM2, LPTIM3, LPTIM4 and LPTIM5
+#endif
+
 // clang-format on
 
 #endif  // __CONFIG_TIMER_H

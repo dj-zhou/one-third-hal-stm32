@@ -26,6 +26,8 @@ extern "C" {
 #include "../CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h"
 #elif defined(STM32F746xx) || defined(STM32F767xx)
 #include "../CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h"
+#elif defined(STM32H750xx)
+#include "../CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h"
 #endif
 
 #include <stdbool.h>
@@ -63,8 +65,27 @@ typedef struct {
     RtosState_e (*getState)(void);
 } UtilsRtos;
 #endif  // RTOS_IS_USED
+
+#if defined(STM32F030x8)
+#define SYSTEM_CLOCK_HAS_APB1
+#endif
+#if defined(STM32F103xB) || defined(STM32F107xC) || defined(STM32F303xE)    \
+    || defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
+    || defined(STM32F767xx)
+#define SYSTEM_CLOCK_HAS_APB12
+#endif
+#if defined(STM32H750xx)
+#define SYSTEM_CLOCK_HAS_APB1234
+#endif
+
 typedef struct {
+#if defined(SYSTEM_CLOCK_HAS_APB1)
+    HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t);
+#elif defined(SYSTEM_CLOCK_HAS_APB12)
     HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
+#elif defined(SYSTEM_CLOCK_HAS_APB1234)
+    HAL_StatusTypeDef (*initClock)(uint16_t, uint16_t, uint16_t);
+#endif
     void (*initNvic)(uint8_t group);
 } UtilsSystem;
 

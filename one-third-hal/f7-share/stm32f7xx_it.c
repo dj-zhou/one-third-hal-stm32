@@ -34,4 +34,4 @@ __attribute__((weak)) void SysTick_Handler(void) {
     HAL_IncTick();
 }
 
-__attribute__((weak)) void USART2_IRQHandler(void) {}
+// __attribute__((weak)) void USART2_IRQHandler(void) {}

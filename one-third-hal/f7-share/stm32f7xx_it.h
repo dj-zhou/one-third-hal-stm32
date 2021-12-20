@@ -15,7 +15,7 @@ __attribute__((weak)) void SVC_Handler(void);
 __attribute__((weak)) void DebugMon_Handler(void);
 __attribute__((weak)) void PendSV_Handler(void);
 __attribute__((weak)) void SysTick_Handler(void);
-__attribute__((weak)) void USART2_IRQHandler(void);
+// __attribute__((weak)) void USART2_IRQHandler(void);
 
 #ifdef __cplusplus
 }

@@ -58,6 +58,12 @@
     #define IIC4_EXISTS
 #endif
 
+#if defined(STM32H750xx)
+    #define IIC2_EXISTS
+    #define IIC3_EXISTS
+    #define IIC4_EXISTS
+#endif
+
 #if defined(IIC1_EXISTS) || defined(IIC2_EXISTS) || defined(IIC3_EXISTS) \
  || defined(IIC4_EXISTS)
     #define IIC_EXISTS

@@ -26,13 +26,15 @@ The library is in directory `one-third-hal`, its structure is as following:
 ├── f0-share
 ├── f0-v1.11.1
 ├── f1-share
-├── f1-v1.8.2
+├── f1-v1.8.4
 ├── f3-share
-├── f3-v1.8.2
+├── f3-v1.11.1
 ├── f4-share
 ├── f4-v1.25.2
 ├── f7-share
 ├── f7-v1.16.0
+├── h7-share
+├── h7-v1.8.0
 ├── lds
 └── startups
 ```
@@ -64,8 +66,9 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 * **f7-share** && **f7-v1.16.0**: the same as above, except that they are for F7 series.
 
-* **lds**: the linker scripts for different micro-controllers.
+* **h7-share** && **h7-v1.8.0**: the same as above, except that they are for H7 series.
 
+* **lds**: the linker scripts for different micro-controllers.
 * **startups**: the startup source code for different micro-controllers.
 
 #### core
