@@ -7,20 +7,20 @@ static RtosState_e rtos_state_;
 
 // ============================================================================
 // clang-format off
-// #if defined(_LED_HEARTBEAT_PORT)
-//     #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
-// #else
-//     #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
-// #endif
-// #if defined(_LED_HEARTBEAT_PIN)
-//     #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
-// #else
-//     #define ERROR_LED_PIN 5  // not sure if this will conflict with something
-// #endif
+#if defined(_LED_HEARTBEAT_PORT)
+    #define ERROR_LED_PORT _LED_HEARTBEAT_PORT
+#else
+    #define ERROR_LED_PORT GPIOA  // not sure if this will conflict with something
+#endif
+#if defined(_LED_HEARTBEAT_PIN)
+    #define ERROR_LED_PIN _LED_HEARTBEAT_PIN
+#else
+    #define ERROR_LED_PIN 5  // not sure if this will conflict with something
+#endif
 // clang-format on
 
-#define ERROR_LED_PORT GPIOC
-#define ERROR_LED_PIN 13
+// #define ERROR_LED_PORT GPIOC
+// #define ERROR_LED_PIN 13
 
 // ============================================================================
 static void Error_Handler(uint32_t hclk) {
@@ -517,7 +517,7 @@ static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
         // FIXME: this procedure failes!
         if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_4)
             != HAL_OK) {
-            // Error_Handler(HSE_VALUE * 20);
+            Error_Handler(HSE_VALUE * 20);
         }
     }
     else {
@@ -578,6 +578,12 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
                                          uint16_t pclk2_m, uint16_t pclk3_m,
                                          uint16_t pclk4_m) {
 #if defined(STM32H750xx)
+    // FIXME: not sure if we need to run these first, keep them here may not
+    // effect anything at this point
+    SCB_EnableICache();
+    SCB_EnableDCache();
+    // h750vb requires this to be run first
+    HAL_Init();
     InitClock_H750xx(hclk_m, pclk1_m, pclk2_m, pclk3_m, pclk4_m);
 #else
 #error InitSystemClock(): to implement and verify!
@@ -585,7 +591,6 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
     // it will call HAL_MspInit() in stm32f1xx_hal_msp.c
     // thte HAL_MspInit() initialized the SysTick to 1K Hz frequency
     // however, our stime.config() will override it.
-    HAL_Init();
     return HAL_OK;
 }
 #endif  // SYSTEM_CLOCK_HAS_APB1234
