@@ -11,12 +11,10 @@ void taskPrint(void) {
         console.printf("%02X ", *ptr++);
     }
     console.printf(", FPU type = %d\r\n", SCB_GetFPUType());
-    // console.printf("g_config_timer_used  = %b\r\n", g_config_timer_used);
 }
 
 // ============================================================================
 int main(void) {
-    // utils.pin.mode(GPIOE, 11, GPIO_MODE_OUTPUT_PP);
     utils.system.initClock(480, 120, 120);
     utils.system.initNvic(4);
     stime.config();

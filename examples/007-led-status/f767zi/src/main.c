@@ -11,7 +11,6 @@ void taskPrint(void) {
         console.printf("%02X ", *ptr++);
     }
     console.printf(", FPU type = %d\r\n", SCB_GetFPUType());
-    // console.printf("g_config_timer_used  = %b\r\n", g_config_timer_used);
 }
 
 // ============================================================================
