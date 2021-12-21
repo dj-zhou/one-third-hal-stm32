@@ -5,5 +5,7 @@ set -eu -o pipefail
 cd "$1"
 
 # build the example projects
-cd examples
-./make.sh
+pushd examples &>/dev/null
+./make.sh hal
+./make.sh all
+popd &>/dev/null
