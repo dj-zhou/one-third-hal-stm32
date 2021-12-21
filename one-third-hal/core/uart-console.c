@@ -181,6 +181,48 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 }
 #endif  // STM32F746xx || STM32F767xx
 
+#if defined(STM32H750xx)
+static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                uint32_t alter) {
+    utils.clock.enableGpio(GPIOx_T);
+    utils.clock.enableGpio(GPIOx_R);
+    GPIO_InitTypeDef GPIO_InitStructure = { 0 };
+    // TX
+    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_NOPULL;  // GPIO_NOPULL?
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStructure.Alternate = alter;
+    HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
+    // RX
+    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStructure.Pull = GPIO_PULLUP;  // GPIO_NOPULL?
+    GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOx_R, &GPIO_InitStructure);
+}
+
+// ----------------------------------------------------------------------------
+static HAL_StatusTypeDef ConsolePeriphClock(void) {
+
+    uint32_t hclk = HAL_RCC_GetHCLKFreq();
+    uint32_t pclk1 = HAL_RCC_GetPCLK1Freq();
+    uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
+
+    if ((hclk == 240000000) && (pclk1 == 120000000) && (pclk2 == 120000)) {
+        RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+        PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_USART1;
+        PeriphClkInitStruct.Usart16ClockSelection =
+            RCC_USART16CLKSOURCE_D2PCLK2;
+        if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK) {
+            return HAL_ERROR;
+        }
+    }
+    return HAL_OK;
+}
+#endif  // STM32H750xx
+
 // ----------------------------------------------------------------------------
 static void ConsoleInitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
                                     uint8_t len, char parity, uint8_t stop_b) {
@@ -228,6 +270,9 @@ static void ConsoleInitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
     hconsole_.Init.Mode = UART_MODE_TX_RX;
     hconsole_.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     hconsole_.Init.OverSampling = UART_OVERSAMPLING_16;
+#if defined(STM32H750xx)
+    hconsole_.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+#endif
 #if defined(STM32F303xE) || defined(STM32F767xx)
     hconsole_.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
     hconsole_.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
@@ -236,6 +281,11 @@ static void ConsoleInitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
 #endif
 
     HAL_UART_Init(&hconsole_);  // if != HAL_OK ??
+#if defined(STM32H750xx)
+    HAL_UARTEx_SetTxFifoThreshold(&hconsole_, UART_TXFIFO_THRESHOLD_1_8);
+    HAL_UARTEx_SetRxFifoThreshold(&hconsole_, UART_RXFIFO_THRESHOLD_1_8);
+    HAL_UARTEx_DisableFifoMode(&hconsole_);
+#endif
 }
 
 // ----------------------------------------------------------------------------
@@ -266,6 +316,9 @@ static void InitUSART1_PA9PA10(void) {
 #error no hardware to verify yet
 #elif defined(STM32F407xx)
     ConsoleInitUartPins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);  // to verify
+#elif defined(STM32H750xx)
+    ConsoleInitUartPins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);
+    ConsolePeriphClock();
 #else
 #error InitUSART1_PA9PA10(): need to implement and verify!
 #endif
@@ -291,7 +344,7 @@ static void InitUSART1_PB6PB7(void) {
 // ---------------------------------------------------------------------------
 #if defined(CONSOLE_USE_USART1) && defined(USART1_EXISTS)
 void USART1_IRQHandler(void) {
-#if defined(STM32F107xC)
+#if defined(STM32F107xC) || defined(STM32H750xx)
     ConsoleUartIRQ();
 #else
 #error USART1_IRQHandler(): need to implement and verify!
