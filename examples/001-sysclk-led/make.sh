@@ -64,6 +64,16 @@ for i in $directories; do
         pushd "$i" &>/dev/null
         ./make.sh $target
         popd &>/dev/null
+    # elif [[ -d $i ]] && [[ ! -f $i/Makefile ]]; then
+    #     pushd "$i" &>/dev/null
+    #     subdirectories="$(ls)"
+    #     for j in $subdirectories; do
+    #         if [[ -d $j ]] && [[ -f $j/Makefile ]]; then
+    #             index=$((index + 1))
+    #             _make $target $index $j
+    #         fi
+    #     done
+    #     popd &>/dev/null
     fi
 done
 popd &>/dev/null
