@@ -15,14 +15,13 @@ void taskPrint(void) {
 
 // ============================================================================
 int main(void) {
-    utils.pin.mode(GPIOE, 11, GPIO_MODE_OUTPUT_PP);
-    utils.system.initClock(216, 54, 108);
+    utils.system.initClock(480, 120, 120);
     utils.system.initNvic(4);
     stime.config();
     stime.scheduler.config();
     console.config(2000000);
     console.printf("\r\n\r\n");
-    led.config(LED_BREATH);
+    led.config(LED_DOUBLE_BLINK);
 
     // tasks -----------
     stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
