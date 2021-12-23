@@ -2,10 +2,26 @@
 set -eu -o pipefail
 
 # cd into the root directory, which is passed in from build-in-docker
-cd "$1"
+target_path="$1"
+build_dir="$2"
 
+cd "$target_path"
+echo "build_dir"
 # build the example projects
-pushd examples &>/dev/null
-./make.sh hal
-./make.sh all
-popd &>/dev/null
+pwd
+if [ "$build_dir" = "." ]; then
+    pushd examples &>/dev/null
+    echo "i am here 1"
+    ./make.sh hal
+    ./make.sh all
+    popd &>/dev/null
+elif [ -d "$build_dir" ]; then
+    pushd $build_dir &>/dev/null
+    if [ -f Makefile ]; then
+        make hal
+        make all
+    elif [ -f make.sh ]; then
+        ./make.sh hal
+        ./make.sh all
+    fi
+fi

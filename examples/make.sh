@@ -22,7 +22,7 @@ function _verify_target() {
     if [ -d "$target" ]; then
         return
     fi
-    echo -e "${RED}supported targets: all, hal, clean, hal-clean${NOC}"
+    echo -e "${RED}supported targets: all, hal, clean, hal-clean, or any subdirectory${NOC}"
     exit 1
 }
 
