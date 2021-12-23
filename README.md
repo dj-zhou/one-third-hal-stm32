@@ -138,9 +138,7 @@ The library is tested with the following micro-controllers:
 |  STM32F746ZGT6   |       216/54/108       |   8M   | 1024K/320K | NUCLEO-F746ZG                |
 |  STM32F767ZIT6   |       216/54/108       |   8M   | 2048K/512K | NUCLEO-F767ZI                |
 
-### How to use
-
-#### Setup Development Environment
+### Setup Development Environment
 
 Install dependencies:
 
@@ -153,7 +151,7 @@ sudo apt-get install -y libncurses-dev
 
 then do different things in different system.
 
-##### On Ubuntu 16.04
+#### On Ubuntu 16.04
 
 Install `gcc-arm-embedded` (yes, we remove `gcc-arm-none-eabi`):
 
@@ -164,7 +162,7 @@ sudo apt-get update
 sudo apt-get install -y gcc-arm-embedded
 ```
 
-##### On Ubuntu 18.04
+#### On Ubuntu 18.04
 
 Install `gcc-arm-embedded` (yes, we remove `gcc-arm-none-eabi`):
 
@@ -177,7 +175,7 @@ sudo apt-get update
 sudo apt-get install -y gcc-arm-embedded
 ```
 
-##### On Ubuntu 20.04
+#### On Ubuntu 20.04
 
 It turned out that ARM decided to make our life easier. So, the steps are as follows.
 
@@ -203,7 +201,7 @@ sudo ln -sf /usr/share/${file}/bin/arm-none-eabi-size    /usr/bin/arm-none-eabi-
 sudo ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
 ```
 
-##### Use `djtools`
+#### Use `djtools`
 
 If you use [djtools](https://github.com/dj-zhou/djtools), the setup steps are simplified to a single command:
 
@@ -248,20 +246,103 @@ The above setup steps are also simplified into:
 dj setup stm32-tools
 ```
 
-#### Compile in Docker Container
+#### Setup Docker
 
-You can compile the example code in docker container, no matter of your host system, just run:
+Run the command from `djtools`:
 
 ```bash
-cd path/to/one-third-hal-stm32
-./build-in-docker
+dj setup container docker
 ```
 
-TODO: add stlink into the Dockerfile and use script to download firmware to microcontrollers.
-
-#### Examples
+### Examples
 
 Examples can be found in `examples` directory.
+
+#### Native Build
+
+You can build the examples in following ways:
+
+1. Build all projects in `examples`:
+
+   ```bash
+   cd path/to/one-third-hal-stm32
+   ./examples/make.sh
+   ```
+
+   or:
+
+   ```bash
+   cd path/to/one-third-hal-stm32/examples
+   ./make.sh
+   ```
+
+   it will take a long time to build every project.
+
+   You can also add targets `hal`, `all`, `hal-clean` or `clean` to use `make.sh`.
+
+2. Build one sub directory in `examples`:
+
+   ```bash
+   cd path/to/one-third-hal-stm32
+   ./examples/make.sh examples/001-sysclk-led
+   ```
+
+   or:
+
+   ```bash
+   cd path/to/one-third-hal-stm32/examples
+   ./make.sh 001-sysclk-led
+   ```
+
+   It will takes shorter time to finish because only one directory in `examples` is built.
+
+   You CAN NOT add a target here since the directory is the target. and it will build `hal` first and then `all`.
+
+3. Build one project use its `Makefile` directory:
+
+   ```bash
+   cd path/to/one-third-hal-stm32/examples/001-sysclk-led/f407zg/
+   make
+   ```
+
+   all targets are supported, e.g., `hal`, `all`, `hal-clean` or `clean`.
+
+#### Docker Build
+
+You can compile the example code in docker container, no matter of your host system.
+
+1. Build all projects in `examples`:
+
+   ```bash
+   cd path/to/one-third-hal-stm32
+   ./build-in-docker
+   ```
+
+   it will use target `hal` first and then `all`, for all projects in `examples` directory.
+
+2. Build one sub directory in `examples`:
+
+   ```bash
+   cd path/to/one-third-hal-stm32
+   ./build-in-docker examples/001-sysclk-led
+   ```
+
+   it will use `hal` and then `all` as the target.
+
+3. Build one project using its `Makefile`:
+
+   ```bash
+cd path/to/one-third-hal-stm32
+   ./build-in-docker examples/001-sysclk-led/f407zg
+```
+
+#### Download Firmware Natively
+
+#### Download Firmware Using Docker Container
+
+TODO
+
+
 
 
 
