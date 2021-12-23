@@ -1,55 +1,6 @@
-### Examples
+### Example Projects
 
-### Build
 
-##### Build on Native System
-
-The examples are tested in Ubuntu 18.04 and Ubuntu 20.04, to build the examples, you need to install packages by using a [djtools](https://github.com/dj-zhou/djtools) command:
-
-```bash
-dj setup gcc-arm-stm32
-```
-
-For Downloading the firmware to STM32 microcontrollers, you need to install related tools, by:
-
-```bash
-dj setup stm32-tools
-```
-
-which includes `st-link` and `st32flash`.
-
-To build, you can run:
-
-```bash
-cd path/to/one-third-hal-stm32/examples
-./make.sh
-```
-
-to build the whole directory, or (example):
-
-```bash
-cd path/to/one-third-hal-stm32/examples/001-sysclk-led/f107vc/
-make
-```
-
-to build a single project.
-
-##### Build in Docker Container
-
-As long as you have Docker setup correctly, you can build it by:
-
-```bash
-cd path/to/one-third-hal-stm32
-./build-in-docker
-```
-
-If Docker is not ready, you can install it bya [djtools](https://github.com/dj-zhou/djtools) command:
-
-```bash
-dj setup container docker
-```
-
-### Projects
 
 #### `001-sysclk-led`
 
@@ -172,8 +123,6 @@ cli-suspend
     [x]: suspend the cli for x seconds
 ```
 
-
-
 #### `007-led-status`
 
 This project is based on previous example project, and add the following:
@@ -210,3 +159,11 @@ Tested on:
 
 * F407ZG
 * F107VC (failed, need to test on some other pins)
+
+#### `010-f767zi-ringbuffer`
+
+#### `011-f767zi-uart-tfmini`
+
+#### `012-can`
+
+Demos to use CAN port(s).

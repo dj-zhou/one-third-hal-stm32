@@ -6,7 +6,6 @@ pushd "$script_dir" &>/dev/null
 source "$script_dir/docker/env"
 
 build_dir="${1:-"."}"
-echo "build_dir = $build_dir"
 # stop the container if it is running ------------------------
 if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" &&
 "$(docker container inspect -f '{{.State.Running}}' ${container_name})" == "true" ]]; then

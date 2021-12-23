@@ -7,8 +7,8 @@ NOC='\033[0m'
 
 # available targets: all, hal, clean, hal-clean
 
-script_dir="$(dirname "$0")"
-pushd "$script_dir" &>/dev/null
+# script_dir="$(dirname "$0")"
+# pushd "$script_dir" &>/dev/null
 
 # if $1 does not exist, assign "all" to target
 target="${1:-"all"}"
@@ -78,4 +78,4 @@ for i in $directories; do
         popd &>/dev/null
     fi
 done
-popd &>/dev/null
+# popd &>/dev/null
