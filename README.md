@@ -332,17 +332,11 @@ You can compile the example code in docker container, no matter of your host sys
 3. Build one project using its `Makefile`:
 
    ```bash
-cd path/to/one-third-hal-stm32
+   cd path/to/one-third-hal-stm32
    ./build-in-docker examples/001-sysclk-led/f407zg
-```
 
 #### Download Firmware Natively
 
 #### Download Firmware Using Docker Container
 
 TODO
-
-
-
-
-
