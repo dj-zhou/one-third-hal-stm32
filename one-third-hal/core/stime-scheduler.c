@@ -19,6 +19,7 @@
 // ============================================================================
 #if defined(STIME_IS_USED)
 // 32-bit tick overflow at different frequency
+// _STIME_8K_TICK   2^32/8/1000 =   6.214 days (  536870.912 s)
 // _STIME_4K_TICK   2^32/4/1000 =  12.427 days ( 1073741.824 s)
 // _STIME_2K_TICK   2^32/2/1000 =  24.854 days
 // _STIME_1K_TICK   2^32/1000   =  49.708 days
@@ -36,7 +37,10 @@ volatile uint32_t cli_suspend_second_ = 0;
 // constant values used accros the file -------------
 // clang-format off
 #if defined(_STIME_USE_SYSTICK)
-    #if defined(_STIME_4K_TICK)
+    #if defined(_STIME_8K_TICK)
+        #define SYSTICK_1S_OVERFLOW     8000
+        #define SYSTICK_MS_SCALE         125
+    #elif defined(_STIME_4K_TICK)
         #define SYSTICK_1S_OVERFLOW     4000
         #define SYSTICK_MS_SCALE         250
     #elif defined(_STIME_2K_TICK)
@@ -115,20 +119,20 @@ volatile uint32_t cli_suspend_second_ = 0;
 // STM32F427 uses 180 MHz system clock: US_TICK should be 22.5, unavailable
 // STM32F427 uses 176 MHz system clock: the following is precise (not tested!)
 #elif defined(STM32F427xx)
-    #define US_TICK   22 // 22.5 is the right number ... to fix
+    #define US_TICK   22 // 22.5 is the right number for 180MHz, 22 is for 176MHz
     #if defined(_STIME_USE_SYSTICK)
         #if defined(_STIME_4K_TICK)
-            #define SYSTICK_RELOAD_VALUE   5625
+            #define SYSTICK_RELOAD_VALUE   5500
         #elif defined(_STIME_2K_TICK)
-            #define SYSTICK_RELOAD_VALUE  11250
+            #define SYSTICK_RELOAD_VALUE  11000
         #elif defined(_STIME_1K_TICK)
-            #define SYSTICK_RELOAD_VALUE  22500
+            #define SYSTICK_RELOAD_VALUE  22000
         #elif defined(_STIME_500_TICK)
-            #define SYSTICK_RELOAD_VALUE  45000
+            #define SYSTICK_RELOAD_VALUE  44000
         #elif defined(_STIME_400_TICK)
-            #define SYSTICK_RELOAD_VALUE  56250
+            #define SYSTICK_RELOAD_VALUE  55000
         #elif defined(_STIME_200_TICK)
-            #define SYSTICK_RELOAD_VALUE 112500
+            #define SYSTICK_RELOAD_VALUE 110000
         #endif
     #endif
 // STM32F746 uses 216 MHz system clock
@@ -148,6 +152,28 @@ volatile uint32_t cli_suspend_second_ = 0;
             #define SYSTICK_RELOAD_VALUE  67500
         #elif defined(_STIME_200_TICK)
             #define SYSTICK_RELOAD_VALUE 135000
+        #endif
+    #endif
+// STM32H750xx systick: 480MHz
+#elif defined(STM32H750xx)
+    #define US_TICK   60
+    #if defined(_STIME_USE_SYSTICK)
+        #if defined(_STIME_8K_TICK)
+            #define SYSTICK_RELOAD_VALUE    7500
+        #elif defined(_STIME_5K_TICK)
+            #define SYSTICK_RELOAD_VALUE   12000
+        #elif defined(_STIME_4K_TICK)
+            #define SYSTICK_RELOAD_VALUE   15000
+        #elif defined(_STIME_2K_TICK)
+            #define SYSTICK_RELOAD_VALUE   30000
+        #elif defined(_STIME_1K_TICK)
+            #define SYSTICK_RELOAD_VALUE   60000
+        #elif defined(_STIME_500_TICK)
+            #define SYSTICK_RELOAD_VALUE  120000
+        #elif defined(_STIME_400_TICK)
+            #define SYSTICK_RELOAD_VALUE  150000
+        #elif defined(_STIME_200_TICK)
+            #define SYSTICK_RELOAD_VALUE  300000
         #endif
     #endif
 // #elif ...

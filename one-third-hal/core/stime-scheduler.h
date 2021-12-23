@@ -29,9 +29,10 @@ extern "C" {
 
 // tick frequency ---------------
 // 200Hz, 400Hz, 500Hz, 1KHz, 2KHz, and 4KHz
-#if !defined(_STIME_4K_TICK) && !defined(_STIME_2K_TICK)     \
-    && !defined(_STIME_1K_TICK) && !defined(_STIME_500_TICK) \
-    && !defined(_STIME_400_TICK) && !defined(_STIME_200_TICK)
+#if !defined(_STIME_8K_TICK)  && !defined(_STIME_5K_TICK) \
+ && !defined(_STIME_4K_TICK)  && !defined(_STIME_2K_TICK)  \
+ && !defined(_STIME_1K_TICK)  && !defined(_STIME_500_TICK) \
+ && !defined(_STIME_400_TICK) && !defined(_STIME_200_TICK)
     #define _STIME_1K_TICK
 #endif
 
@@ -42,6 +43,9 @@ extern "C" {
     #endif
     #if !defined(_STIME_TASK_NAME_LEN)
         #define    _STIME_TASK_NAME_LEN        20
+    #endif
+    #if defined(_STIME_5K_TICK)
+    #error todo
     #endif
     #if defined(_STIME_4K_TICK)
         #define    _1_TICK    (UINT32_MAX - 1)
