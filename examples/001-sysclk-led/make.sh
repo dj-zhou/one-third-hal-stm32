@@ -10,7 +10,7 @@ NOC='\033[0m'
 script_dir="$(dirname "$0")"
 pushd "$script_dir" &>/dev/null
 
-# if $1 does not exit, assign "all" to target
+# if $1 does not exist, assign "all" to target
 target="${1:-"all"}"
 
 function _verify_target() {
