@@ -729,7 +729,11 @@ static void consoleConfig(uint32_t baud_rate) {
     CliAttachCmd("scheduler &cmd", ( CliHandle )CliShowScheduler);
 
 #if defined(_STIME_USE_SCHEDULER)
+#if !defined(_USE_ID)
     CliAttachCmd("cli-suspend &seconds", ( CliHandle )CliSuspend);
+#elif defined(_USE_ID)
+    CliAttachCmd("cli-suspend &seconds &id", ( CliHandle )CliSuspend);
+#endif  // _USE_ID
 #endif
 
     console.rx.enable(true);
