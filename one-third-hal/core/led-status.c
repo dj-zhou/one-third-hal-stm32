@@ -115,7 +115,7 @@ static void LedErrorOn(bool v) {
 // ============================================================================
 // this function must be called every 10ms to make the time/frequency consistent
 #if defined(_STIME_USE_SCHEDULER)
-static void blinkHeartBeat(void) {
+static void LedHeartBeat(void) {
     static uint16_t loop = 0;
     // in PWM mode ---------------------------
     if (heartbeat_mode_ == LED_BREATH) {
@@ -175,12 +175,12 @@ static void blinkHeartBeat(void) {
 // ============================================================================
 // stm32f767: TIM4_CH2: PB7, TIM3_CH3: PB0, TIM12_CH1: PB14
 // stm32f427: TIM3_CH4: PB1, TIM2_CH2: PB3, TIM2_CH4: PB11
+// those need to be moved out of the function, use macro?
 static void LedHeartBeatVerifyPwm(void) {
 #if defined(GPIOB_EXISTS)
     if (_LED_HEARTBEAT_PORT == GPIOB) {
         // PB0 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 0) {  // TIM3_CH3
-                                        // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
             PWM_TIMx_ = TIM3;
             pwm_channel_ = TIM_CHANNEL_3;
@@ -192,7 +192,6 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB1 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 1) {  // TIM3_CH4
-                                        // g_config_timer_used |= 1 << 3;
 #if defined(TIM3_EXISTS)
             PWM_TIMx_ = TIM3;
             pwm_channel_ = TIM_CHANNEL_4;
@@ -204,7 +203,6 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB3 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 3) {  // TIM2_CH2
-                                        // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
             PWM_TIMx_ = TIM2;
             pwm_channel_ = TIM_CHANNEL_2;
@@ -216,7 +214,6 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB7 -------- known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 7) {  // TIM4_CH2
-                                        // g_config_timer_used |= 1 << 4;
 #if defined(TIM4_EXISTS)
             PWM_TIMx_ = TIM4;
             pwm_channel_ = TIM_CHANNEL_2;
@@ -228,7 +225,6 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB11 -------- known boards: FireDragon
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM2_CH4
-                                         // g_config_timer_used |= 1 << 2;
 #if defined(TIM2_EXISTS)
             PWM_TIMx_ = TIM2;
             pwm_channel_ = TIM_CHANNEL_4;
@@ -240,7 +236,6 @@ static void LedHeartBeatVerifyPwm(void) {
         }
         // PB14 --------known boards: f767zi
         if (_LED_HEARTBEAT_PIN == 14) {  // TIM12_CH1
-                                         // g_config_timer_used |= 1 << 12;
 #if defined(TIM12_EXISTS)
             PWM_TIMx_ = TIM12;
             pwm_channel_ = TIM_CHANNEL_1;
@@ -257,7 +252,6 @@ static void LedHeartBeatVerifyPwm(void) {
     if (_LED_HEARTBEAT_PORT == GPIOE) {
         // PE11 --------known boards: f407zg
         if (_LED_HEARTBEAT_PIN == 11) {  // TIM1_CH2
-                                         // g_config_timer_used |= 1 << 1;
 #if defined(TIM1_EXISTS)
             PWM_TIMx_ = TIM1;
             pwm_channel_ = TIM_CHANNEL_2;
@@ -324,10 +318,11 @@ static void LedHeartBeatPwmConfig(void) {
 // ============================================================================
 // should add error mode as an argument as well
 static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
-    ( void )LedToggleError;      // to avoid compile error
-    ( void )LedToggleHeartBeat;  // to avoid compile error
-    ( void )htim_;               // to avoid compile error
-    ( void )pwm_alter_;          // to avoid compile error
+    // to avoid compile error
+    ( void )LedToggleError;
+    ( void )LedToggleHeartBeat;
+    ( void )htim_;
+    ( void )pwm_alter_;
     heartbeat_mode_ = heatbeat_mode;
     // some assert
     if ((_LED_HEARTBEAT_PIN > 15) || (_LED_ERROR_PIN > 15)) {
@@ -335,6 +330,7 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
                   __func__);
     }
     CalculateParameters(heatbeat_mode);
+    // normal blinking mode
     if (heatbeat_mode != LED_BREATH) {
         utils.pin.mode(_LED_HEARTBEAT_PORT, _LED_HEARTBEAT_PIN,
                        GPIO_MODE_OUTPUT_PP);
@@ -342,7 +338,8 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
         LedHeartBeatOn(false);
         LedErrorOn(false);
     }
-    else {                        // heatbeat_mode == LED_BREATH
+    // breath mode need to configure Timer and PWM
+    else {
         LedHeartBeatVerifyPwm();  // if pass, means the PWM pin is good
         LedHeartBeatPwmConfig();
     }
@@ -350,8 +347,8 @@ static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
 #if defined(_STIME_USE_SCHEDULER)
     // blink heartbeat task registration ---------
     // heart beat task, call it for every 10 ms or 5 ms
-    stime.scheduler.attach(_LED_HEARTBEAT_TASK_MS, 2, blinkHeartBeat,
-                           "blinkHeartBeat");
+    stime.scheduler.attach(_LED_HEARTBEAT_TASK_MS, 2, LedHeartBeat,
+                           "LedHeartBeat");
 #endif
 }
 
