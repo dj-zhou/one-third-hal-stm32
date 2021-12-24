@@ -1,21 +1,26 @@
 ## one-third-hal-stm32
 
-This is a middle layer of library for **STM32 series** of micro-controllers using the HAL library.
+`ne-third-hal-stm32` is a library for **STM32 series** of micro-controllers based on ST's HAL library.
 
-The purpose of this library is to make the code STM32 projects neat and simple.
+The purpose of this library is to make the application level code for STM32 projects neat and simple.
 
-This library is under development.
+This library is featured by:
 
 * Example projects are managed by **Makefile**
 * Use **`arm-none-eabi-gcc`** to compile the code
 * Use [**st-link**](https://github.com/stlink-org/stlink) to flash the binary into the micro-controllers
-* Tested environment: **Ubuntu 16.04/18.04/20.04
+* Tested environment: **Ubuntu 16.04/18.04/20.04**
 * The library is **extensible** to add support to different micro-controllers in STM32 series
 * The library source code is compiled with project code, because **macro** is used to select the component to compile. However, the HAL library will be compiled into a static library at some point of time, to decrease the compile time
-* use **designated initializer** (GNU C style)  to make API functions more readable
-* Project uses **`config.h`** to configure projects
+* Use **designated initializer** (GNU C style)  to make API functions more readable
+* Project uses **`config.h`** to have the highest configuration
+* Able to use Docker container to build example projects
 
-### Library Structure
+**About the Name**
+
+I believe technology consists of three parts, one is the bottom layer which manage the driver of devices, one is the middle layer which mange a system and one is the upper layer running algorithms or intelligence. Here, `one-third` is the first part, and this library is built for STM32 series of ARM (at time of writing this paragraph) micro-controllers, based on ST HAL library.
+
+### A. Library Structure
 
 The library is in directory `one-third-hal`, its structure is as following:
 
@@ -71,9 +76,9 @@ The library is in directory `one-third-hal`, its structure is as following:
 * **lds**: the linker scripts for different micro-controllers.
 * **startups**: the startup source code for different micro-controllers.
 
-#### core
+#### A. 1. core
 
-##### `general-utils`
+##### A. 1. 1. `general-utils`
 
 * `utils.system.initClock(...)`: setup the system clock. Note 1: we can only setup supported HCLK, PCLK1 and PCLK2 values, if they are set differently, ERROR LED will blink fast. This is the only way to show error before `uart-console` been setup correctly. Note 2: this function calls `HAL_Config()` to set the **interrupt group priority** to `NVIC_PRIORITYGROUP_4`.
 * `utils.system.initNvic(uint8_t group)`: setup the interrupt group priority.
@@ -92,7 +97,7 @@ If some RTOS is used as with this library, two more functions are used to deal w
 * `rtos.setState(RtosState_t stat)`: set it to `FREERTOS_NOSTART` or `FREERTOS_STARTED`, and maybe other RTOS MACROs.
 * `RtosState_t rtos.getState(void `: get the running status of a RTOS.
 
-##### `stime-scheduler`
+##### A. 1. 2. `stime-scheduler`
 
 System time of this `core` . The default timer for this system time is `SysTick`. It is used as the reference clock for other modules, for example, the task scheduler submodule of `stime`.
 
@@ -109,7 +114,7 @@ The tick frequency can be set to `4000`, `2000`, `1000`, `500`, `400` or `200` t
 * `stime.scheduler.run()`: to run the scheduler.
 * `stime.scheduler.cliSuspend()`: to suspend the CLI for a while in seconds.
 
-##### `uart-console`
+##### A. 1. 3. `uart-console`
 
 We use console to interact with the micro-controller to check its status, for example, firmware information, includes git commit hash value, branch name, tag name, etc. This module uses functions from `console-printf` and `console-cli`.
 
@@ -117,15 +122,15 @@ We use console to interact with the micro-controller to check its status, for ex
 * The `console.printf()` function uses one of the UART port, so we can use `screen`, or `putty`, etc, on the Ubuntu system, to connect to the micro-controller.
 * CLI: the code is implemented in the file `console-cli.c`. When use `screen` to connect to the micro-controller, if there is any output from the micro-controller, you can enter `log 1` to stop it, then enter `help` to start use the CLI.
 
-##### `led-status`
+##### A. 1. 4. `led-status`
 
 This module defines the action of using LEDs as heartbeat and error indicators.
 
 This module is under development.
 
-#### Supported ICs
+### B. Supported ICs
 
-The library is tested with the following micro-controllers:
+The library is tested (but not fully tested) with the following micro-controllers:
 
 | micro-controller | AHB/APB1/APB2 (MHz) |  HSE   | FLASH/RAM  | Tested Platform              |
 | :--------------: | :--------------------: | :----: | :--------: | ---------------------------- |
@@ -134,11 +139,12 @@ The library is tested with the following micro-controllers:
 |  STM32F107VCT6   |        72/36/72        |  25M   |  256K/64K  | Olimex-H107                  |
 | STM32F303RET6 | 72/36/72 | 8M | 512K/80K | NUCLEO-F303RE |
 |  STM32F407VGT6   |       168/42/84        | 8M/12M | 1024K/192K | STM32F4-DISCOVERY (modified) |
-|  STM32F427VIT6   |       180/45/90        | 8M/24M | 2048K/256K | FireDragon Hexcopter         |
+|  STM32F427VIT6   | 180/45/90<br />176/44/88 | 8M/24M | 2048K/256K | FireDragon Hexcopter         |
 |  STM32F746ZGT6   |       216/54/108       |   8M   | 1024K/320K | NUCLEO-F746ZG                |
 |  STM32F767ZIT6   |       216/54/108       |   8M   | 2048K/512K | NUCLEO-F767ZI                |
+| STM32H750VBT6 | 240/120/120<br />420 (CPU) | 25M | 128K/128K | FK750M1-VBT6 |
 
-### Setup Development Environment
+### C. Setup Development Environment
 
 Install dependencies:
 
@@ -151,7 +157,7 @@ sudo apt-get install -y libncurses-dev
 
 then do different things in different system.
 
-#### On Ubuntu 16.04
+#### C. 1. On Ubuntu 16.04
 
 Install `gcc-arm-embedded` (yes, we remove `gcc-arm-none-eabi`):
 
@@ -162,7 +168,7 @@ sudo apt-get update
 sudo apt-get install -y gcc-arm-embedded
 ```
 
-#### On Ubuntu 18.04
+#### C. 2. On Ubuntu 18.04
 
 Install `gcc-arm-embedded` (yes, we remove `gcc-arm-none-eabi`):
 
@@ -175,7 +181,7 @@ sudo apt-get update
 sudo apt-get install -y gcc-arm-embedded
 ```
 
-#### On Ubuntu 20.04
+#### C. 3. On Ubuntu 20.04
 
 It turned out that ARM decided to make our life easier. So, the steps are as follows.
 
@@ -201,7 +207,7 @@ sudo ln -sf /usr/share/${file}/bin/arm-none-eabi-size    /usr/bin/arm-none-eabi-
 sudo ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
 ```
 
-#### Use `djtools`
+#### C. 4. Use `djtools`
 
 If you use [djtools](https://github.com/dj-zhou/djtools), the setup steps are simplified to a single command:
 
@@ -211,7 +217,7 @@ dj setup gcc-arm-stm32
 
 It works for Either of the Ubuntu system above.
 
-#### Setup ST-Link V2.1
+#### C. 5. Setup ST-Link V2.1
 
 We use st-link v2.1 to download the firmware to the STM32 micro-controllers.
 
@@ -223,11 +229,11 @@ sudo apt-get install -y cu cutecom putty screen
 sudo apt-get install -y cmake
 ```
 
-Clone the `st-link` and switch to `v1.6.1` (only tested on Ubuntu 18.04/20.04):
+Clone the `st-link` and switch to `v1.7.0` (only tested on Ubuntu 18.04/20.04):
 
 ```bash
 git clone https://github.com/stlink-org/stlink
-git checkout v1.6.1
+git checkout v1.7.0
 ```
 
 Remove existing tools and install it:
@@ -246,7 +252,9 @@ The above setup steps are also simplified into:
 dj setup stm32-tools
 ```
 
-#### Setup Docker
+#### C. 6. Setup Docker
+
+Using Docker, you don't need to setup the development environment described in any of the above sections, except Section C. 5. `Setup ST-Link V2.1`.
 
 Run the command from `djtools`:
 
@@ -254,11 +262,13 @@ Run the command from `djtools`:
 dj setup container docker
 ```
 
-### Examples
+Then, in Section D. 2, you can find the instructions to use the Docker.
+
+### D. Examples
 
 Examples can be found in `examples` directory.
 
-#### Native Build
+#### D. 1. Native Build
 
 You can build the examples in following ways:
 
@@ -307,7 +317,7 @@ You can build the examples in following ways:
 
    all targets are supported, e.g., `hal`, `all`, `hal-clean` or `clean`.
 
-#### Docker Build
+#### D. 2. Docker Build
 
 You can compile the example code in docker container, no matter of your host system.
 
@@ -335,8 +345,23 @@ You can compile the example code in docker container, no matter of your host sys
    cd path/to/one-third-hal-stm32
    ./build-in-docker examples/001-sysclk-led/f407zg
 
-#### Download Firmware Natively
+#### D. 3. Natively Download 
 
-#### Download Firmware Using Docker Container
+It use ST-LINK V2 or ST-LINK V2.1 to download the firmware to the microcontroller, the command is built into `Makefile`, so, you can download the firmware by:
 
-TODO
+```bash
+make download
+```
+
+Or, you can download it using `st-flash` tool, which comes with [stlink](https://github.com/stlink-org/stlink), or `dj setup stm32-tools` command, for example
+
+```bash
+st-flash write bin/STM32H750xx-binary.bin 0x8000000
+```
+
+#### D. 4. Docker Download
+
+TODO:
+
+1. need to install `stlink` into the docker image;
+2. use the USB port from the docker image.
