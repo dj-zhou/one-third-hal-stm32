@@ -116,7 +116,6 @@ static void LedErrorOn(bool v) {
 // this function must be called every 10ms to make the time/frequency consistent
 #if defined(_STIME_USE_SCHEDULER)
 static void LedHeartBeat(void) {
-    static uint16_t loop = 0;
     // in PWM mode ---------------------------
     if (heartbeat_mode_ == LED_BREATH) {
         static float x = 0;
@@ -129,6 +128,7 @@ static void LedHeartBeat(void) {
         return;
     }
     // not in PWM mode ---------------------------
+    static uint16_t loop = 0;
     switch (heartbeat_mode_) {
     case LED_OFF:
         LedHeartBeatOn(false);
