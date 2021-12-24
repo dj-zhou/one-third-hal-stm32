@@ -57,9 +57,9 @@ function _make() { # target, index, dir
     fi
     echo -e "(above) #$index: ${GRN}$(pwd)${NOC}"
     echo "------------------------------------------------------"
-    if [[ "$target" = "all" || "$target" = "hal" ]]; then
-        sleep 1
-    fi
+    # if [[ "$target" = "all" || "$target" = "hal" ]]; then
+    #     sleep 1
+    # fi
     popd &>/dev/null
 }
 
