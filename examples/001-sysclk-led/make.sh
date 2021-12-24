@@ -15,16 +15,7 @@ target="${1:-"all"}"
 
 function _verify_target() {
     target="$1"
-    if [ "$target" = "all" ]; then
-        return
-    fi
-    if [ "$target" = "hal" ]; then
-        return
-    fi
-    if [ "$target" = "clean" ]; then
-        return
-    fi
-    if [ "$target" = "hal-clean" ]; then
+    if [[ "$target" = "all" || "$target" = "hal" || "$target" = "clean" || "$target" = "hal-clean" ]]; then
         return
     fi
     echo -e "${RED}supported targets: all, hal, clean, hal-clean${NOC}"
@@ -46,9 +37,9 @@ function _make() { # target, index, dir
     fi
     echo -e "(above) #$index: ${GRN}$(pwd)${NOC}"
     echo "------------------------------------------------------"
-    if [[ "$target" = "all" || "$target" = "hal" ]]; then
-        sleep 1
-    fi
+    # if [[ "$target" = "all" || "$target" = "hal" ]]; then
+    #     sleep 1
+    # fi
     popd &>/dev/null
 }
 
