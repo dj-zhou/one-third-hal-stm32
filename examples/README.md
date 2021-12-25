@@ -167,3 +167,7 @@ Tested on:
 #### `012-can`
 
 Demos to use CAN port(s).
+
+#### `013-use-id`
+
+Example of using the system ID defined in `one-third-hal/feature/id`.

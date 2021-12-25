@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include "console-cli.h"
 #include "math13rd.h"
 #include <stdlib.h>
@@ -326,11 +328,11 @@ void CliProcessCmd(char* str) {
             }
         }
         if (HAL_OK != ret) {
-            console.printk(0, RED "\r\ncommand execution failed!\r\n" NOC);
+            console.printk(0, RED "\r\ncommand execution failed!" NOC);
         }
     }
     else {
-        console.printk(0, RED "\r\ncommand not recognized! " NOC);
+        console.printk(0, RED "\r\ncommand not recognized!" NOC);
         CliShowCmd();
     }
 }
@@ -520,21 +522,35 @@ HAL_StatusTypeDef CliShowScheduler(int argc, char** argv) {
 #if defined(_STIME_USE_SCHEDULER)
 // this function works only when the scheduler is used
 HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
+    // FIXME: seems like my CLI does not support different number of arguments
     if (argc <= 1) {
         return HAL_ERROR;
     }
+#if defined(_USE_ID)
+    if (argc <= 2) {
+        return HAL_ERROR;
+    }
+#endif  // _USE_ID
     if (strcmp(argv[1], "help") == 0) {
         console.printk(0, "\r\n");
-        console.printk(0, "cli-suspend\r\n");
-        console.printk(0, "    [x]: suspend the cli for x seconds");
+        console.printk(0, "cli-suspend [x] [id]\r\n");
+        console.printk(0, "    [x]: suspend the cli for x seconds\r\n");
+        console.printk(0, "   [id]: exclude system ID (id)");
         return HAL_OK;
     }
-    // check argument 1, cannot contain characters rather than 0 ~ 9
-    for (int i = 0; i < strlen(argv[1]); i++) {
-        if ((argv[1][i] < 48) || (argv[1][i] > 57)) {
-            return HAL_ERROR;
-        }
+    if (strspn(argv[1], "0123456789\n") != strlen(argv[1]))
+        return HAL_ERROR;
+
+#if defined(_USE_ID)
+    // if "id" contains other characters, do not suspend
+    if (strspn(argv[2], "0123456789\n") != strlen(argv[2]))
+        return HAL_OK;
+    uint8_t id = atoi(argv[2]);
+    // exclude the ID
+    if (id == sid.get()) {
+        return HAL_OK;
     }
+#endif  // _USE_ID
     uint32_t seconds = atoi(argv[1]);
     stime.scheduler.cliSuspend(seconds);
     console.rx.setStatus(false);
