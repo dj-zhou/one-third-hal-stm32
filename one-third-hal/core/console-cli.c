@@ -5,10 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// #if defined(_USE_ID)
-// #include "id.h"
-// #endif
-
 #if defined(CONSOLE_IS_USED)
 Cli_t cli_;
 CliCmd_t cmd_[_CLI_CMD_MAX_NUM];
@@ -526,7 +522,7 @@ HAL_StatusTypeDef CliShowScheduler(int argc, char** argv) {
 #if defined(_STIME_USE_SCHEDULER)
 // this function works only when the scheduler is used
 HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
-    // FIXME: seems like my CLI does not support diffrent number of arguments
+    // FIXME: seems like my CLI does not support different number of arguments
     if (argc <= 1) {
         return HAL_ERROR;
     }
@@ -537,19 +533,22 @@ HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
 #endif  // _USE_ID
     if (strcmp(argv[1], "help") == 0) {
         console.printk(0, "\r\n");
-        console.printk(0, "cli-suspend\r\n");
-        console.printk(0, "    [x]: suspend the cli for x seconds");
+        console.printk(0, "cli-suspend [x] [id]\r\n");
+        console.printk(0, "    [x]: suspend the cli for x seconds\r\n");
+        console.printk(0, "   [id]: exclude system ID (id)");
         return HAL_OK;
     }
     if (strspn(argv[1], "0123456789\n") != strlen(argv[1]))
         return HAL_ERROR;
 
 #if defined(_USE_ID)
+    // if "id" contains other characters, do not suspend
     if (strspn(argv[2], "0123456789\n") != strlen(argv[2]))
-        return HAL_ERROR;
+        return HAL_OK;
     uint8_t id = atoi(argv[2]);
-    if (id != sid.get()) {
-        return HAL_ERROR;
+    // exclude the ID
+    if (id == sid.get()) {
+        return HAL_OK;
     }
 #endif  // _USE_ID
     uint32_t seconds = atoi(argv[1]);

@@ -20,7 +20,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _CONSOLE_USE_USART1_PA9PA10
-#define _CLI_OUT_MESSAGE "1/3"
+#define _CLI_OUT_MESSAGE "h750vb"
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
@@ -29,6 +29,10 @@ extern "C" {
 #define _LED_HEARTBEAT_TASK_MS 10
 #define _LED_LOW_DRIVE
 #include "led-status.h"
+
+// ----------------------------------------------------------------------------
+#define _USE_ID
+#include "id.h"
 
 // ============================================================================
 #ifdef __cplusplus
