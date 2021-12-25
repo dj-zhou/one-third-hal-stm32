@@ -96,7 +96,7 @@ LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 # -----------------
 all: release
 	$(SZ) $(PRJ_OUT)/$(PRJ_NAME).elf
-release: CFLAGS+= -D MAKE_TYPE=\"RELEASE\" $(PRJ_INC)
+release: CFLAGS+= -D MAKE_TYPE=\"release\" $(PRJ_INC)
 release: $(PRJ_OUT)/$(PRJ_NAME).elf
 $(PRJ_OUT)/%.o: %.c Makefile | $(PRJ_OUT)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(PRJ_OUT)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -141,7 +141,7 @@ erase:
 
 # -----------------
 debug: CFLAGS+= -D __DEBUG $(PRJ_INC)
-debug: CFLAGS+= -D MAKE_TYPE=\"DEBUG\"
+debug: CFLAGS+= -D MAKE_TYPE=\"debug\"
 debug: $(PRJ_OUT)/$(PRJ_NAME).elf
 	$(SZ) $(PRJ_OUT)/$(PRJ_NAME).elf
 
