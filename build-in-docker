@@ -39,6 +39,7 @@ docker exec ${container_name} ${target_path}/docker/build \
 
 # play some trick ------------------------
 sudo chown $(whoami):$(whoami) ./examples -R
+sudo chown $(whoami):$(whoami) ./one-third-hal/*-hal -R
 
 echo -e "${GRN}Project is built successfully.${NOC}"
 popd &>/dev/null
