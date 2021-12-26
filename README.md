@@ -33,11 +33,11 @@ The library is in directory `one-third-hal`, its structure is as following:
 ├── f1-share
 ├── f1-v1.8.4
 ├── f3-share
-├── f3-v1.11.1
+├── f3-v1.11.3
 ├── f4-share
 ├── f4-v1.25.2
 ├── f7-share
-├── f7-v1.16.0
+├── f7-v1.16.2
 ├── h7-share
 ├── h7-v1.8.0
 ├── lds
@@ -65,11 +65,11 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 * **f0-share** && **f0-v1.11.1**: the same as above, except that they are for F0 series.
 
-* **f3-share** &&**f3-v1.11.1**: the same as above, except that they are for F3 series.
+* **f3-share** &&**f3-v1.11.3**: the same as above, except that they are for F3 series.
 
 * **f4-share** && **f4-v1.25.2**: the same as above, except that they are for F4 series.
 
-* **f7-share** && **f7-v1.16.0**: the same as above, except that they are for F7 series.
+* **f7-share** && **f7-v1.16.2**: the same as above, except that they are for F7 series.
 
 * **h7-share** && **h7-v1.8.0**: the same as above, except that they are for H7 series.
 

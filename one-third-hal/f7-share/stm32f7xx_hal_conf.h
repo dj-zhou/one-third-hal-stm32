@@ -26,7 +26,6 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-
 #include "crystal.h"
 #ifdef CRYSTAL_FREQ
 #define HSE_VALUE CRYSTAL_FREQ
@@ -149,8 +148,11 @@
 /**
   * @brief This is the HAL system configuration section
   */
-#define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)0U) /*!< tick interrupt priority */
+
+// #define  VDD_VALUE                    ((uint32_t)3300U) /*!< Value of VDD in mv */
+// error: missing binary operator before token "3300U", cannot solve
+#define  VDD_VALUE                    3300U /*!< Value of VDD in mv */
+#define  TICK_INT_PRIORITY            0U /*!< tick interrupt priority */
 #define  USE_RTOS                     0U
 #define  PREFETCH_ENABLE              0U
 #define  ART_ACCLERATOR_ENABLE        0U /* To enable instruction cache and prefetch */
