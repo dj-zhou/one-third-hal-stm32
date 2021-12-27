@@ -1386,6 +1386,7 @@ HAL_StatusTypeDef HAL_RTC_SetAlarm_IT(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef 
   */
 HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alarm)
 {
+  (void)Alarm;
   uint32_t tickstart = 0U;
 
   /* Check the parameters */
@@ -1448,6 +1449,7 @@ HAL_StatusTypeDef HAL_RTC_DeactivateAlarm(RTC_HandleTypeDef *hrtc, uint32_t Alar
   */
 HAL_StatusTypeDef HAL_RTC_GetAlarm(RTC_HandleTypeDef *hrtc, RTC_AlarmTypeDef *sAlarm, uint32_t Alarm, uint32_t Format)
 {
+  (void)Alarm;
   uint32_t tmpreg = 0U, subsecondtmpreg = 0U;
 
   /* Check the parameters */
