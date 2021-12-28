@@ -82,7 +82,7 @@ extern "C" {
 // bare-metal
 #else
     #ifndef _UART_PREEMPTION_PRIORITY
-        #define _UART_PREEMPTION_PRIORITY     15
+        #define _UART_PREEMPTION_PRIORITY     10
     #endif
     #ifndef _UART_SUB_PRIORITY
         #define _UART_SUB_PRIORITY            0
