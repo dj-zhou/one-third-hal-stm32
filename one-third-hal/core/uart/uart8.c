@@ -20,10 +20,6 @@ static void InitUart8_PC10PC11(void) {
 // ----------------------------------------------------------------------------
 static void InitUart8(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 2)) {
-        console.error("%s(): UART8 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 2);
     uart8.huart.Instance = UART8;
 #if defined(_USE_UART8_PC10PC11)
     InitUart8_PC10PC11();
@@ -39,7 +35,7 @@ static void InitUart8(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(uart8.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart8.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART8_IRQn, 15);
+    InitUartNvic(UART8_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------

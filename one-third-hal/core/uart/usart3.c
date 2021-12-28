@@ -34,10 +34,6 @@ static void InitUsart3_PB10PB11(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart3(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 3)) {
-        console.error("%s(): USART3 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 3);
     usart3.huart.Instance = USART3;
 #if defined(_USE_USART3_PB10PB11)
     InitUsart3_PB10PB11();
@@ -53,7 +49,7 @@ static void InitUsart3(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(USART3_IRQn, 15);
+    InitUartNvic(USART3_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -85,7 +81,6 @@ static void Usart3RingbufferConfig(uint8_t* data, uint16_t len) {
 
 // ----------------------------------------------------------------------------
 static void InitUsart3Priority(uint16_t preempt_p) {
-    // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
     InitUartNvic(USART3_IRQn, preempt_p);
 }
 

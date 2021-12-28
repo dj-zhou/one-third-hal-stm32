@@ -20,10 +20,6 @@ static void InitUart4_PC10PC11(void) {
 // ----------------------------------------------------------------------------
 static void InitUart4(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 2)) {
-        console.error("%s(): UART4 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 2);
     uart4.huart.Instance = UART4;
 #if defined(_USE_UART4_PC10PC11)
     InitUart4_PC10PC11();
@@ -39,7 +35,7 @@ static void InitUart4(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(uart4.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart4.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART4_IRQn, 15);
+    InitUartNvic(UART4_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------

@@ -69,6 +69,27 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #if defined(UART_IS_USED)
 
+// FreeRTOS related configuration
+// clang-format off
+#ifdef RTOS_USE_FREERTOS
+    #ifndef _UART_PREEMPTION_PRIORITY
+        #define _UART_PREEMPTION_PRIORITY     6   // cannot be equal or smaller to 5
+    #endif
+    #ifndef _UART_SUB_PRIORITY
+        #define _UART_SUB_PRIORITY            0
+    #endif
+// ----------------------------------------------------------------------------
+// bare-metal
+#else
+    #ifndef _UART_PREEMPTION_PRIORITY
+        #define _UART_PREEMPTION_PRIORITY     10
+    #endif
+    #ifndef _UART_SUB_PRIORITY
+        #define _UART_SUB_PRIORITY            0
+    #endif
+#endif
+// clang-format on
+
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
 void InitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT, GPIO_TypeDef* GPIOx_R,

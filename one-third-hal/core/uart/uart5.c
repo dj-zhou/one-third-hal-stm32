@@ -20,10 +20,6 @@ static void InitUart5_PC12PD2(void) {
 // ----------------------------------------------------------------------------
 static void InitUart5(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 2)) {
-        console.error("%s(): UART5 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 2);
     uart5.huart.Instance = UART5;
 #if defined(_USE_UART5_PC12PD2)
     InitUart5_PC12PD2();
@@ -39,7 +35,7 @@ static void InitUart5(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(uart5.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart5.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART5_IRQn, 15);
+    InitUartNvic(UART5_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
