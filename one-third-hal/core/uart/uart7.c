@@ -20,10 +20,6 @@ static void InitUart7_PC10PC11(void) {
 // ----------------------------------------------------------------------------
 static void InitUart7(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 2)) {
-        console.error("%s(): UART7 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 2);
     uart7.huart.Instance = UART7;
 #if defined(_USE_UART7_PC10PC11)
     InitUart7_PC10PC11();

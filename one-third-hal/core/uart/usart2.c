@@ -34,10 +34,6 @@ static void InitUsart2_PD5PD6(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart2(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    // if (_CHECK_BIT(g_config_uart_used, 2)) {
-    //     console.error("%s(): USART2 is uses as the console\r\n");
-    // }
-    // _SET_BIT(g_config_uart_used, 2);
     usart2.huart.Instance = USART2;
 #if defined(_USE_USART2_PA2PA3)
     InitUsart2_PA2PA3();  // todo
@@ -120,7 +116,6 @@ static void Usart2RingBufferConfig(uint8_t* data, uint16_t len) {
 
 // ----------------------------------------------------------------------------
 static void InitUsart2Priority(uint16_t preempt_p) {
-    // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
     InitUartNvic(USART2_IRQn, preempt_p);
 }
 

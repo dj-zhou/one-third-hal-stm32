@@ -35,10 +35,6 @@ static void InitUsart6_PD5PD6(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart6(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    if (_CHECK_BIT(g_config_uart_used, 2)) {
-        console.error("%s(): USART6 is uses as the console\r\n");
-    }
-    _SET_BIT(g_config_uart_used, 2);
     usart6.huart.Instance = USART6;
 #if defined(_USE_USART6_PA2PA3)
     InitUsart6_PA2PA3();
@@ -86,7 +82,6 @@ static void Usart6RingbufferConfig(uint8_t* data, uint16_t len) {
 
 // ----------------------------------------------------------------------------
 static void InitUsart6Priority(uint16_t preempt_p) {
-    // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
     InitUartNvic(USART6_IRQn, preempt_p);
 }
 
