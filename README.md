@@ -29,7 +29,7 @@ The library is in directory `one-third-hal`, its structure is as following:
 ├── CMSIS
 ├── core
 ├── f0-share
-├── f0-v1.11.1
+├── f0-v1.11.3
 ├── f1-share
 ├── f1-v1.8.4
 ├── f3-share
@@ -63,7 +63,7 @@ The library is in directory `one-third-hal`, its structure is as following:
 
 * **f1-v1.8.4**: the HAL library for STM32F1 series of version v1.8.4. The files are generated from **STM32CubeMx**, with unused files removed.
 
-* **f0-share** && **f0-v1.11.1**: the same as above, except that they are for F0 series.
+* **f0-share** && **f0-v1.11.3**: the same as above, except that they are for F0 series.
 
 * **f3-share** &&**f3-v1.11.3**: the same as above, except that they are for F3 series.
 

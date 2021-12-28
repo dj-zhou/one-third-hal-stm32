@@ -26,7 +26,7 @@ ifneq (,$(findstring STM32F0,$(STM32Fx)))
     FPU        =
     FLOAT-ABI  = -mfloat-abi=soft
     LIB_SHARE  = f0-share
-    LIB_HAL    = f0-v1.11.1
+    LIB_HAL    = f0-v1.11.3
     STM32Family= STM32F0xx
 else
     $(info not a STM32F0xx family device, you need to revise the Makefile)
