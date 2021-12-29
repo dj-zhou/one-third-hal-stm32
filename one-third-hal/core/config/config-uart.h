@@ -2,6 +2,7 @@
 #define __CONFIG_UART_H
 
 #include "config.h"
+#include <stdbool.h>
 
 // uint16_t g_config_uart_used;
 
@@ -64,5 +65,12 @@
     #define UART_EXISTS
 #endif
 // clang-format on
+
+typedef struct {
+    void (*set)(USART_TypeDef* USARTx, bool value);
+    bool (*check)(USART_TypeDef* USARTx);
+} ConfigUarts_t;
+
+extern ConfigUarts_t config_uarts;
 
 #endif  // __CONFIG_UART_H
