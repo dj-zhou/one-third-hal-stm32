@@ -669,45 +669,95 @@ static void consoleConfig(uint32_t baud_rate) {
     rb.w_ptr = rb.buffer;
 
 #if defined(_CONSOLE_USE_USART1_PA9PA10)
-    // g_config_uart_used |= 1 << 1;
-    InitUSART1_PA9PA10();
-    hconsole_.Instance = USART1;
+    if (!config_uarts.check(USART1)) {
+        InitUSART1_PA9PA10();
+        hconsole_.Instance = USART1;
+        config_uarts.set(USART1, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART1_PB6PB7)
-    // g_config_uart_used |= 1 << 1;
-    InitUSART1_PB6PB7();
-    hconsole_.Instance = USART1;
+    if (!config_uarts.check(USART1)) {
+        InitUSART1_PB6PB7();
+        hconsole_.Instance = USART1;
+        config_uarts.set(USART1, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART2_PA2PA3)
-    // g_config_uart_used |= 1 << 2;
-    InitUSART2_PA2PA3();
-    hconsole_.Instance = USART2;
+    if (!config_uarts.check(USART2)) {
+        InitUSART2_PA2PA3();
+        hconsole_.Instance = USART2;
+        config_uarts.set(USART2, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART2_PD5PD6)
-    // g_config_uart_used |= 1 << 2;
-    InitUSART2_PD5PD6();
-    hconsole_.Instance = USART2;
+    if (!config_uarts.check(USART2)) {
+        InitUSART2_PD5PD6();
+        hconsole_.Instance = USART2;
+        config_uarts.set(USART2, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART3_PB10PB11)
-    // g_config_uart_used |= 1 << 3;
-    InitUSART3_PB10PB11();
-    hconsole_.Instance = USART3;
+    if (!config_uarts.check(USART3)) {
+        InitUSART3_PB10PB11();
+        hconsole_.Instance = USART3;
+        config_uarts.set(USART3, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART3_PC10PC11)
-    // g_config_uart_used |= 1 << 3;
-    InitUSART3_PC10PC11();
-    hconsole_.Instance = USART3;
+    if (!config_uarts.check(USART3)) {
+        InitUSART3_PC10PC11();
+        hconsole_.Instance = USART3;
+        config_uarts.set(USART3, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_USART3_PD8PD9)
-    // g_config_uart_used |= 1 << 3;
-    InitUSART3_PD8PD9();
-    hconsole_.Instance = USART3;
+    if (!config_uarts.check(USART3)) {
+        InitUSART3_PD8PD9();
+        hconsole_.Instance = USART3;
+        config_uarts.set(USART3, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_UART4_PC10PC11)
-    // g_config_uart_used |= 1 << 4;
-    InitUART4_PC10PC11();
-    hconsole_.Instance = UART4;
+    if (!config_uarts.check(UART4)) {
+        InitUART4_PC10PC11();
+        hconsole_.Instance = UART4;
+        config_uarts.set(UART4, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_UART5_PC12PD2)
-    // g_config_uart_used |= 1 << 5;
-    InitUART5_PC12PD2();
-    hconsole_.Instance = UART5;
+    if (!config_uarts.check(UART5)) {
+        InitUART5_PC12PD2();
+        hconsole_.Instance = UART5;
+        config_uarts.set(UART5, true);
+    }
+    else {
+        // error not supported?
+    }
 #elif defined(_CONSOLE_USE_UART7_PE8PE7)
-    // g_config_uart_used |= 1 << 7;
-    InitUART7_PE8PE7();
-    hconsole_.Instance = UART7;
+    if (!config_uarts.check(UART7)) {
+        InitUART7_PE8PE7();
+        hconsole_.Instance = UART7;
+        config_uarts.set(UART7, true);
+    }
+    else {
+        // error not supported?
+    }
 #else
 #error consoleConfig(): not implemented!
 #endif

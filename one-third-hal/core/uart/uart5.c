@@ -20,6 +20,9 @@ static void InitUart5_PC12PD2(void) {
 // ----------------------------------------------------------------------------
 static void InitUart5(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
+    if (config_uarts.check(UART5)) {
+        uart_error("UART5 is occupied\r\n");
+    }
     uart5.huart.Instance = UART5;
 #if defined(_USE_UART5_PC12PD2)
     InitUart5_PC12PD2();

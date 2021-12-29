@@ -35,6 +35,9 @@ static void InitUsart6_PD5PD6(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart6(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
+    if (config_uarts.check(USART6)) {
+        uart_error("USART6 is occupied\r\n");
+    }
     usart6.huart.Instance = USART6;
 #if defined(_USE_USART6_PA2PA3)
     InitUsart6_PA2PA3();

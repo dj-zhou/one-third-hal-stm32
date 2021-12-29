@@ -23,6 +23,7 @@ int main(void) {
     console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
+
     // tasks -----------
     stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
     stime.scheduler.show();

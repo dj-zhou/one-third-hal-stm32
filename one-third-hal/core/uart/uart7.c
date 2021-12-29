@@ -20,6 +20,9 @@ static void InitUart7_PC10PC11(void) {
 // ----------------------------------------------------------------------------
 static void InitUart7(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
+    if (config_uarts.check(UART7)) {
+        uart_error("UART7 is occupied\r\n");
+    }
     uart7.huart.Instance = UART7;
 #if defined(_USE_UART7_PC10PC11)
     InitUart7_PC10PC11();

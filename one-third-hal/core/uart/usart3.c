@@ -34,6 +34,9 @@ static void InitUsart3_PB10PB11(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart3(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
+    if (config_uarts.check(USART3)) {
+        uart_error("USART3 is occupied\r\n");
+    }
     usart3.huart.Instance = USART3;
 #if defined(_USE_USART3_PB10PB11)
     InitUsart3_PB10PB11();
