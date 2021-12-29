@@ -1,8 +1,9 @@
 # syntax=docker/dockerfile:experimental
 
-# prepare the docker   -----------------
+# prepare the docker
 FROM ubuntu:20.04 AS build
 ARG DEBIAN_FRONTEND=noninteractive
+
 # By default, ubuntu docker images include code to remove downloaded packages.
 # Use the invocation from examples to avoid this and make the apt cache effective.
 RUN rm -f /etc/apt/apt.conf.d/docker-clean \
@@ -43,15 +44,15 @@ ARG filename="${file}-x86_64-linux.tar.bz2"
 ARG url="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm"
 ARG link="${url}/10.3-2021.10/${filename}"
 
-RUN wget "$link" --no-check-certificate
-RUN tar xjf ${filename} -C /usr/share/
+RUN wget "$link" --no-check-certificate  && \
+    tar xjf ${filename} -C /usr/share/
 
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-ar /usr/bin/arm-none-eabi-ar
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-gcc /usr/bin/arm-none-eabi-gcc
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-g++ /usr/bin/arm-none-eabi-g++
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
-RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
+RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-ar /usr/bin/arm-none-eabi-ar && \
+    ln -sf /usr/share/${file}/bin/arm-none-eabi-gcc /usr/bin/arm-none-eabi-gcc  && \
+    ln -sf /usr/share/${file}/bin/arm-none-eabi-g++ /usr/bin/arm-none-eabi-g++  && \
+    ln -sf /usr/share/${file}/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb  && \
+    ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy  && \
+    ln -sf /usr/share/${file}/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
 
 WORKDIR /tmp
 
@@ -61,5 +62,3 @@ RUN wget https://codeload.github.com/fmtlib/fmt/tar.gz/refs/tags/8.0.1 -O fmt.ta
     rm -rf build && mkdir -p build && cd build && \
     cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE && \
     make -j$(nproc) && make install
-
-
