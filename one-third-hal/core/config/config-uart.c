@@ -47,21 +47,14 @@ static uint8_t get_pos(USART_TypeDef* USARTx) {
 
 static void ConfigUartsSet(USART_TypeDef* USARTx, bool value) {
     uint8_t pos = get_pos(USARTx);
-    if (value) {
-        uarts_used |= 1 << pos;
-    }
-    else {
-        uarts_used &= ~(1 << pos);
-    }
+    value ? (uarts_used |= 1 << pos) : (uarts_used &= ~(1 << pos));
 }
 
 static bool ConfigUartsCheck(USART_TypeDef* USARTx) {
-    uint8_t pos = get_pos(USARTx);
-    return _CHECK_BIT(uarts_used, pos);
+    return _CHECK_BIT(uarts_used, get_pos(USARTx));
 }
 
 ConfigUarts_t config_uarts = {
     .set = ConfigUartsSet,
     .check = ConfigUartsCheck,
 };
-// todo: timer
