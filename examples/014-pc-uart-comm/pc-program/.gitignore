@@ -1,0 +1,15 @@
+*.csv
+*.diff
+*.log
+*.stacks
+*.svg
+.cache
+.gdb_history
+.vscode
+target
+_*
+build
+node_modules
+perf.*
+tags
+gmn*

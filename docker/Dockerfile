@@ -9,14 +9,34 @@ RUN rm -f /etc/apt/apt.conf.d/docker-clean \
     && echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' \
     > /etc/apt/apt.conf.d/keep-cache
 
+# make sure the command add-apt-repository exists in the next step
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    apt-get update && apt-get --no-install-recommends install -y \
+    software-properties-common
+
 # run export DOCKER_BUILDKIT=1 to enable BuildKit
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update && apt-get --no-install-recommends install -y \
-    build-essential git flex bison libgmp3-dev libmpfr-dev \ 
-    libncurses5-dev libmpc-dev autoconf texinfo libtool \
-    libftdi-dev libusb-1.0-0-dev zlib1g zlib1g-dev python-yaml \ 
-    libncurses-dev wget
+    autoconf\
+    bison \
+    build-essential \
+    cmake \
+    flex \
+    git \
+    libncurses-dev \
+    libftdi-dev \
+    libgmp3-dev \
+    libmpfr-dev \
+    libmpc-dev \
+    libncurses5-dev \
+    libtool \
+    libusb-1.0-0-dev \
+    python-yaml \
+    texinfo \
+    zlib1g \
+    zlib1g-dev \
+    wget
 
 ARG file="gcc-arm-none-eabi-10.3-2021.10"
 ARG filename="${file}-x86_64-linux.tar.bz2"
@@ -33,7 +53,13 @@ RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-gdb /usr/bin/arm-none-eabi-gdb
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy
 RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
 
-# mount the project directory to the container
-RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-    --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=bind,source=../,target=/proj
+WORKDIR /tmp
+
+# install fmt-8.0.1 from source
+RUN wget https://codeload.github.com/fmtlib/fmt/tar.gz/refs/tags/8.0.1 -O fmt.tar.gz && \
+    tar -xvf fmt.tar.gz && cd fmt-8.0.1 && \
+    rm -rf build && mkdir -p build && cd build && \
+    cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE && \
+    make -j$(nproc) && make install
+
+
