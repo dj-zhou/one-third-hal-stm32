@@ -22,7 +22,8 @@ function _verify_target() {
     exit 1
 }
 
-function _make() { # target, index, dir
+# target, index, dir
+function _make() {
     target="$1"
     index="$2"
     dir="$3"
@@ -30,16 +31,10 @@ function _make() { # target, index, dir
     pushd "$dir" &>/dev/null
     echo -e "\n------------------------------------------------------"
     echo -e "(below) #$index: ${GRN}$(pwd)${NOC}"
-    if [ "$target" = "all" ]; then
-        make $target -j$(nproc)
-    else
-        make $target
-    fi
+    make $target -j$(nproc)
     echo -e "(above) #$index: ${GRN}$(pwd)${NOC}"
     echo "------------------------------------------------------"
-    # if [[ "$target" = "all" || "$target" = "hal" ]]; then
-    #     sleep 1
-    # fi
+
     popd &>/dev/null
 }
 
@@ -55,16 +50,6 @@ for i in $directories; do
         pushd "$i" &>/dev/null
         ./make.sh $target
         popd &>/dev/null
-    # elif [[ -d $i ]] && [[ ! -f $i/Makefile ]]; then
-    #     pushd "$i" &>/dev/null
-    #     subdirectories="$(ls)"
-    #     for j in $subdirectories; do
-    #         if [[ -d $j ]] && [[ -f $j/Makefile ]]; then
-    #             index=$((index + 1))
-    #             _make $target $index $j
-    #         fi
-    #     done
-    #     popd &>/dev/null
     fi
 done
 popd &>/dev/null
