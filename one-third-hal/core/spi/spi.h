@@ -118,6 +118,16 @@ void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
                         uint32_t alter);
 #endif  // STM32F407xx || STM32F427xx || STM32F767xx
 
+#ifdef CONSOLE_IS_USED
+#define spi_printf(...) (console.printf(__VA_ARGS__))
+#define spi_printk(...) (console.printk(__VA_ARGS__))
+#define spi_error(...) (console.error(__VA_ARGS__))
+#else
+#define spi_printf(...) ({ ; })
+#define spi_printk(...) ({ ; })
+#define spi_error(...) ({ ; })
+#endif
+
 // ----------------------------------------------------------------------------
 // clang-format off
 #if defined(SPI1_EXISTS) && defined(SPI1_IS_USED)
