@@ -33,7 +33,9 @@ echo -e "(below): ${GRN}$(pwd)${NOC}"
 
 if [[ "$target" = 'all'* ]]; then
     echo "mkdir -p build && cd build && cmake .. && make -j$(nproc)"
-    mkdir -p build && cd build && cmake .. && make -j$(nproc) && cd ..
+    # just always build, since docker build and native build may have conflict
+    rm -rf build && mkdir -p build && cd build
+    cmake .. && make -j$(nproc) && cd ..
 elif [[ "$target" = 'clean'* ]]; then
     echo "rm -rf build/"
     rm -rf build/
