@@ -121,6 +121,14 @@ typedef struct {
 
 #endif  // UART_IS_USED
 
+#ifdef CONSOLE_IS_USED
+#define uart_printf(...) (console.printf(__VA_ARGS__))
+#define uart_error(...) (console.error(__VA_ARGS__))
+#else
+#define uart_printf(...) ({ ; })
+#define uart_error(...) ({ ; })
+#endif
+
 // ----------------------------------------------------------------------------
 // clang-format off
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)

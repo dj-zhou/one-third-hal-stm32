@@ -24,6 +24,9 @@ static void InitUsart1_PB6PB7(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart1(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
+    if (config_uarts.check(USART1)) {
+        uart_error("USART1 is occupied\r\n");
+    }
     usart1.huart.Instance = USART1;
 #if defined(_USE_USART1_PA9PA10)
     InitUsart1_PA9PA10();  // todo

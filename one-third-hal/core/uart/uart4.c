@@ -20,6 +20,9 @@ static void InitUart4_PC10PC11(void) {
 // ----------------------------------------------------------------------------
 static void InitUart4(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
+    if (config_uarts.check(UART4)) {
+        uart_error("UART4 is occupied\r\n");
+    }
     uart4.huart.Instance = UART4;
 #if defined(_USE_UART4_PC10PC11)
     InitUart4_PC10PC11();
