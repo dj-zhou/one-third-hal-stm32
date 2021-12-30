@@ -12,12 +12,6 @@ PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
     $(LIB_PATH)/core \
-    $(LIB_PATH)/core/config \
-    $(LIB_PATH)/core/iic \
-    $(LIB_PATH)/core/math \
-    $(LIB_PATH)/core/spi \
-    $(LIB_PATH)/core/uart \
-    $(LIB_PATH)/device \
     ./inc
 
 # ------------------------------------------
@@ -104,7 +98,7 @@ $(PRJ_OUT)/%.o: %.c Makefile | $(PRJ_OUT)
 $(PRJ_OUT)/%.o: %.s Makefile | $(PRJ_OUT)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(PRJ_OUT)/$(PRJ_NAME).elf: $(PRJ_OBJS) 
+$(PRJ_OUT)/$(PRJ_NAME).elf: $(PRJ_OBJS)
 	$(CC) $(PRJ_OBJS) $(LDFLAGS) -o $(PRJ_OUT)/$(PRJ_NAME).elf
 	$(CP) -O ihex $(PRJ_OUT)/$(PRJ_NAME).elf $(PRJ_OUT)/$(PRJ_NAME).hex
 	$(CP) -O binary -S $(PRJ_OUT)/$(PRJ_NAME).elf $(PRJ_OUT)/$(PRJ_NAME).bin
@@ -118,7 +112,7 @@ hal: $(HAL_OUT)/lib$(STM32Fx).a
 $(HAL_OUT)/%.o: %.c Makefile | $(HAL_OUT)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(HAL_OUT)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(HAL_OUT)/lib$(STM32Fx).a: $(HAL_OBJS) 
+$(HAL_OUT)/lib$(STM32Fx).a: $(HAL_OBJS)
 	$(AR) -r $@ $(HAL_OBJS)
 
 $(HAL_OUT):

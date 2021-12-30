@@ -49,24 +49,24 @@ extern "C" {
             ( type* )(( char* )__mptr - offsetof(type, member)); \
         })
 #endif
+// clang-format on
 
 // #if !defined(_wrs_pack_align)
 //     #define _wrs_pack_align(x) __attribute__((packed, aligned(x)))
 // #endif
 
-// clang-format on
-
 // ============================================================================
 // to print with color (escaping)
-#define NOC "\033[0m"
-#define GRY "\033[0;30m"
-#define RED "\033[0;31m"
-#define GRN "\033[0;32m"
-#define YLW "\033[0;33m"
-#define BLU "\033[0;34m"
-#define PRP "\033[0;35m"
-#define CYN "\033[0;36m"
-#define WHT "\033[0;37m"
+// clang-format off
+#define NOC  "\033[0m"
+#define GRY  "\033[0;30m"
+#define RED  "\033[0;31m"
+#define GRN  "\033[0;32m"
+#define YLW  "\033[0;33m"
+#define BLU  "\033[0;34m"
+#define PRP  "\033[0;35m"
+#define CYN  "\033[0;36m"
+#define WHT  "\033[0;37m"
 #define HGRY "\033[1;30m"
 #define HRED "\033[1;31m"
 #define HGRN "\033[1;32m"
@@ -75,6 +75,7 @@ extern "C" {
 #define HPRP "\033[1;35m"
 #define HCYN "\033[1;36m"
 #define HWHT "\033[1;37m"
+// clang-format on
 
 // ============================================================================
 // general used things
@@ -90,17 +91,21 @@ extern "C" {
 #endif
 // clang-format on
 
+// ============================================================================
 // used in ring-buffer ---------------------
+
+// clang-format off
 #pragma pack(1)
 typedef struct RingBuffer_s {
     uint8_t* buffer;
-    int16_t head;
-    int16_t tail;
+    int16_t  head;
+    int16_t  tail;
     uint16_t capacity;
     uint16_t count;
-    bool initialized;
+    bool     is_initialized;
 } RingBuffer_t;
 #pragma pack()
+// clang-format on
 
 // ============================================================================
 #ifdef __cplusplus

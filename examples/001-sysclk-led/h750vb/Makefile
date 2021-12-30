@@ -2,7 +2,7 @@
 # custom settings
 STM32Hx   = STM32H750xx
 LIB_PATH  = ../../../one-third-hal
-PRJ_PATH  = . $(LIB_PATH)/core $(LIB_PATH)/device
+PRJ_PATH  = . $(LIB_PATH)/core
 LIBS      = -lc -lm -lnosys
 OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32h750xx.s
@@ -11,13 +11,7 @@ PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Hx)-binary
 
 PRJ_INCH =  \
-    $(LIB_PATH)/core \
-    $(LIB_PATH)/core/config \
-    $(LIB_PATH)/core/iic \
-    $(LIB_PATH)/core/math \
-    $(LIB_PATH)/core/spi \
-    $(LIB_PATH)/core/uart \
-    $(LIB_PATH)/device
+    $(LIB_PATH)/core
 
 # ------------------------------------------
 ifneq (,$(findstring STM32H7,$(STM32Hx)))
@@ -103,7 +97,7 @@ $(PRJ_OUT)/%.o: %.c Makefile | $(PRJ_OUT)
 $(PRJ_OUT)/%.o: %.s Makefile | $(PRJ_OUT)
 	$(AS) -c $(CFLAGS) $< -o $@
 
-$(PRJ_OUT)/$(PRJ_NAME).elf: $(PRJ_OBJS) 
+$(PRJ_OUT)/$(PRJ_NAME).elf: $(PRJ_OBJS)
 	$(CC) $(PRJ_OBJS) $(LDFLAGS) -o $(PRJ_OUT)/$(PRJ_NAME).elf
 	$(CP) -O ihex $(PRJ_OUT)/$(PRJ_NAME).elf $(PRJ_OUT)/$(PRJ_NAME).hex
 	$(CP) -O binary -S $(PRJ_OUT)/$(PRJ_NAME).elf $(PRJ_OUT)/$(PRJ_NAME).bin
@@ -117,7 +111,7 @@ hal: $(HAL_OUT)/lib$(STM32Hx).a
 $(HAL_OUT)/%.o: %.c Makefile | $(HAL_OUT)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(HAL_OUT)/$(notdir $(<:.c=.lst)) $< -o $@
 
-$(HAL_OUT)/lib$(STM32Hx).a: $(HAL_OBJS) 
+$(HAL_OUT)/lib$(STM32Hx).a: $(HAL_OBJS)
 	$(AR) -r $@ $(HAL_OBJS)
 
 $(HAL_OUT):

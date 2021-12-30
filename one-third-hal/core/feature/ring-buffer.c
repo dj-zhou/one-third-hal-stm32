@@ -33,7 +33,7 @@ static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
     rb.head = -1;
     rb.tail = 0;
     rb.count = 0;
-    rb.initialized = true;
+    rb.is_initialized = true;
     return rb;
 }
 
@@ -41,7 +41,7 @@ static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
 /// add one item into the ringbuffer at the tail position, and then move
 /// tail forward for 1 position
 static bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
-    if (!rb->initialized) {
+    if (!rb->is_initialized) {
         return false;
     }
     // if the ringbuffer is just created
@@ -64,7 +64,7 @@ static bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
 
 // ============================================================================
 static bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
-    if (!rb->initialized) {
+    if (!rb->is_initialized) {
         return false;
     }
     for (uint16_t i = 0; i < len; i++) {
@@ -209,7 +209,7 @@ static RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
 }
 // ============================================================================
 static void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
-    if (!rb->initialized) {
+    if (!rb->is_initialized) {
         rb_printk(0, "%s(): error: not initialized!\r\n", __func__);
         return;
     }

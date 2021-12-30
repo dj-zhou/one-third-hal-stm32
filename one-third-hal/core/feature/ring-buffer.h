@@ -52,6 +52,7 @@ typedef struct {
 #pragma pack()
 
 // ============================================================================
+// clang-format off
 typedef struct {
     RingBuffer_t (*config)(uint8_t* data, uint16_t size);
     bool (*push)(RingBuffer_t* rb, uint8_t data);
@@ -66,6 +67,7 @@ typedef struct {
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
     void (*insight)(RingBufferIndex_t* index);
 } RingBufferApi_t;
+// clang-format on
 extern RingBufferApi_t ringbuffer;
 
 // ============================================================================
