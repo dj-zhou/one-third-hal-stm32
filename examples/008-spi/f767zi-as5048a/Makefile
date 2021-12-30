@@ -2,7 +2,7 @@
 # custom settings
 STM32Fx   = STM32F767xx
 LIB_PATH  = ../../../one-third-hal
-PRJ_PATH  = . $(LIB_PATH)/core $(LIB_PATH)/device
+PRJ_PATH  = . $(LIB_PATH)/core
 LIBS      = -lc -lm -lnosys
 OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f767xx.s
@@ -11,13 +11,7 @@ PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
-    $(LIB_PATH)/core \
-    $(LIB_PATH)/core/config \
-    $(LIB_PATH)/core/iic \
-    $(LIB_PATH)/core/math \
-    $(LIB_PATH)/core/spi \
-    $(LIB_PATH)/core/uart \
-    $(LIB_PATH)/device
+    $(LIB_PATH)/core
 
 # ------------------------------------------
 ifneq (,$(findstring STM32F7,$(STM32Fx)))
