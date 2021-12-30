@@ -6,42 +6,30 @@ static uint8_t uarts_used = 0;
 
 static uint8_t get_pos(USART_TypeDef* USARTx) {
     uint8_t pos = 0;
-    if (USARTx == USART1) {
-        pos = 0;
-    }
-    else if (USARTx == USART2) {
-        pos = 1;
-    }
+    // clang-format off
+    switch ((intptr_t)USARTx) {
+    case (intptr_t)USART1: pos = 0; break;
+    case (intptr_t)USART2: pos = 1; break;
 #if defined(USART3_EXISTS)
-    else if (USARTx == USART3) {
-        pos = 2;
-    }
+    case (intptr_t)USART3: pos = 2; break;
 #endif
 #if defined(UART4_EXISTS)
-    else if (USARTx == UART4) {
-        pos = 3;
-    }
+    case  (intptr_t)UART4: pos = 3; break;
 #endif
 #if defined(UART5_EXISTS)
-    else if (USARTx == UART5) {
-        pos = 4;
-    }
+    case  (intptr_t)UART5: pos = 4; break;
 #endif
 #if defined(USART6_EXISTS)
-    else if (USARTx == USART6) {
-        pos = 5;
-    }
+    case (intptr_t)USART6: pos = 5; break;
 #endif
 #if defined(UART7_EXISTS)
-    else if (USARTx == UART7) {
-        pos = 6;
-    }
+    case  (intptr_t)UART7: pos = 6; break;
 #endif
 #if defined(UART8_EXISTS)
-    else if (USARTx == UART8) {
-        pos = 7;
-    }
+    case  (intptr_t)UART8: pos = 7; break;
 #endif
+    default: pos = 0; break;}
+    // clang-format on
     return pos;
 }
 
