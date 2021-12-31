@@ -11,7 +11,6 @@ PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
 # ------------------------------------------
 
-
 ifneq (,$(findstring STM32F4,$(STM32Fx)))
     CPU       = -mcpu=cortex-m4
     FPU       = -mfpu=fpv4-sp-d16
