@@ -9,8 +9,11 @@ ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f407xx.s
 LD_SCRIPT = $(LIB_PATH)/lds/STM32F407ZGTx_FLASH.ld
 PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
-# ------------------------------------------
 
+PRJ_INCH =  \
+    $(LIB_PATH)/core
+
+# ------------------------------------------
 ifneq (,$(findstring STM32F4,$(STM32Fx)))
     CPU       = -mcpu=cortex-m4
     FPU       = -mfpu=fpv4-sp-d16
@@ -57,14 +60,15 @@ PRJ_OBJS = $(addprefix $(PRJ_OUT)/,$(notdir $(PRJ_SRCS:.c=.o)))
 vpath %.c $(sort $(dir $(PRJ_SRCS)))
 PRJ_OBJS+= $(addprefix $(PRJ_OUT)/,$(notdir $(ASM_SRC:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SRC)))
-HAL_INC = \
-	-I$(LIB_PATH)/CMSIS/Include \
-	-I$(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
-	-I$(LIB_PATH)/${LIB_HAL}/inc \
-	-I$(LIB_PATH)/${LIB_SHARE} \
-	-I./inc
 
-PRJ_INCH:= $(shell find $(LIB_PATH)/core -maxdepth 10 -type d)
+HAL_INCH = \
+    $(LIB_PATH)/CMSIS/Include \
+    $(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
+    $(LIB_PATH)/${LIB_HAL}/inc \
+    $(LIB_PATH)/${LIB_SHARE} \
+    ./inc
+HAL_INC  = $(HAL_INCH:%=-I%)
+
 PRJ_INCs = $(shell find -L $(PRJ_INCH) -name '*.h' -exec dirname {} \; | uniq)
 PRJ_INC  = $(PRJ_INCs:%=-I%)
 PRJ_INC += ${HAL_INC}
