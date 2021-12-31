@@ -12,12 +12,6 @@ PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
     $(LIB_PATH)/core \
-    $(LIB_PATH)/core/config \
-    $(LIB_PATH)/core/iic \
-    $(LIB_PATH)/core/math \
-    $(LIB_PATH)/core/spi \
-    $(LIB_PATH)/core/uart \
-    $(LIB_PATH)/device \
     ./inc
 
 # ------------------------------------------
