@@ -2,6 +2,7 @@
 #define __CONFIG_SPI_H
 
 #include "config.h"
+#include <stdbool.h>
 
 // uint8_t g_config_spi_used;
 
@@ -64,5 +65,12 @@
     #define SPI_EXISTS
 #endif
 // clang-format on
+
+typedef struct {
+    void (*set)(SPI_TypeDef* SPIx, bool value);
+    bool (*check)(SPI_TypeDef* SPIx);
+} ConfigSpi_t;
+
+extern ConfigSpi_t config_spi;
 
 #endif  // __CONFIG_SPI_H

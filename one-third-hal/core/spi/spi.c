@@ -69,14 +69,14 @@ void InitSpiSettings(SPI_HandleTypeDef* hspi, uint16_t prescale,
         hspi->Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
         break;
     default:
-        console.error("%s(): wrong SPI prescale\r\n", __func__);
+        spi_error("%s(): wrong SPI prescale\r\n", __func__);
         break;
     }
     // not sure if it is on APB2, need test
     // STM32F767 is on PCLK2, tested!
     uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
-    console.printk(0, "%s(): SPI baudrate = %3.3f KHz\r\n", __func__,
-                   pclk2 / prescale / 1000.0);
+    spi_printk(0, "%s(): SPI baudrate = %3.3f KHz\r\n", __func__,
+               pclk2 / prescale / 1000.0);
     hspi->Init.FirstBit = SPI_FIRSTBIT_MSB;
     hspi->Init.TIMode = SPI_TIMODE_DISABLE;
     hspi->Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -103,7 +103,7 @@ HAL_StatusTypeDef SpiTransceive8bits(SpiApi_t* spi, uint8_t* tbuf,
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
         }
         else {
-            console.error("%s(): Soft NSS is not initialized\r\n", __func__);
+            spi_error("%s(): Soft NSS is not initialized\r\n", __func__);
         }
     }
 
@@ -134,7 +134,7 @@ HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
             utils.pin.set(spi->param.nss_GPIOx, spi->param.nss_pin, 0);
         }
         else {
-            console.error("%s(): Soft NSS is not initialized\r\n", __func__);
+            spi_error("%s(): Soft NSS is not initialized\r\n", __func__);
         }
     }
 
