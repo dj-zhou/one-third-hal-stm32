@@ -2,7 +2,6 @@
 #include "ring-buffer.h"
 #include <string.h>
 
-uint8_t rx_buffer[27];
 uint8_t tfmini_packet[9];
 
 typedef enum TFminiMeasureMode {
@@ -119,9 +118,18 @@ int main(void) {
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
     usart2.config(115200, 8, 'n', 1);
+    uint8_t rx_buffer[27];
     usart2.ring.config(rx_buffer, sizeof_array(rx_buffer));
-    // usart2.dma.config(rx_buffer, sizeof_array(rx_buffer));  // not working!
+    // for (int i = 0; i < 3; i++) {
+    //     for (int j = 0; j < 9; j++) {
+    //         console.printf("%02X ", rx_buffer[i * 9 + j]);
+    //     }
+    //     console.printf("\r\n");
+    // }
+    console.printf("\r\n");
+    console.printf("ring buffer configured\r\n");
     tfmini_set_mode(TFMINI_MODE_MM);
+
     // tasks -----------
     stime.scheduler.show();
 

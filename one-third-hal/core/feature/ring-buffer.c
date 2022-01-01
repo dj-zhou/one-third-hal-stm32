@@ -26,6 +26,9 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 }
 
 // ============================================================================
+/// the RingBufferApi_t only defines the interface of using the ring-buffer, the
+/// data block is defined outside and trasmitted into this function for
+/// configuration
 static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
     RingBuffer_t rb;
     rb.buffer = data;

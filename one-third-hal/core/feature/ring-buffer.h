@@ -11,7 +11,7 @@ extern "C" {
 
 // clang-format off
 #if !defined(_RINGBUFFER_MAX_PATTERN_FOUND)
-    #define    _RINGBUFFER_MAX_PATTERN_FOUND     5
+    #define _RINGBUFFER_MAX_PATTERN_FOUND     5
 #endif
 // clang-format on
 
@@ -20,13 +20,12 @@ extern "C" {
 //        head : index of first item (oldest data)
 //        tail : index of the next position of the last item (latest data)
 //    capacity : the total volume of the ringbuffer
-//       count : the actual amount of valid data
+//       count : the actual amount of valid data (uint8_t size)
 
 // when initialized, head == -1, tail = 0, count = 0. This is the only
 // situation that head == -1
 
-// when head == tail, means the ringbuffer is full while the head is where it is
-// pointed
+// if head == tail,  the ringbuffer is full and the head is where it is pointed
 
 // normally, the buffer and head and tail are like this:
 //    xxxx    data    data    data    data    data    data    xxxx    xxxx
