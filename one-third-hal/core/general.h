@@ -92,22 +92,6 @@ extern "C" {
 // clang-format on
 
 // ============================================================================
-// used in ring-buffer ---------------------
-
-// clang-format off
-#pragma pack(1)
-typedef struct RingBuffer_s {
-    uint8_t* buffer;
-    int16_t  head;
-    int16_t  tail;
-    uint16_t capacity;
-    uint16_t count;
-    bool     is_initialized;
-} RingBuffer_t;
-#pragma pack()
-// clang-format on
-
-// ============================================================================
 #ifdef __cplusplus
 }
 #endif

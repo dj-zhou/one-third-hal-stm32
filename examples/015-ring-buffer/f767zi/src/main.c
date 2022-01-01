@@ -1,4 +1,5 @@
 #include "config.h"
+#include "ring-buffer.h"
 #include <math.h>
 
 // ============================================================================
@@ -11,6 +12,9 @@ int main(void) {
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
 
+    uint8_t buffer[50];
+    RingBuffer_t rb = ringbuffer.config(buffer, sizeof_array(buffer));
+    ringbuffer.show(&rb, 'h', 10);
     // tasks -----------
     stime.scheduler.show();
 

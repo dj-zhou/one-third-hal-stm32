@@ -37,6 +37,10 @@ static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
     rb.tail = 0;
     rb.count = 0;
     rb.is_initialized = true;
+    // data initialization
+    for (uint16_t i = 0; i < size; i++) {
+        data[i] = 0;
+    }
     return rb;
 }
 
