@@ -23,11 +23,11 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 
 // ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
-    while (idx >= rb->capacity) {
-        idx -= rb->capacity;
+    while (idx >= rb->state.capacity) {
+        idx -= rb->state.capacity;
     }
     while (idx < 0) {
-        idx += rb->capacity;
+        idx += rb->state.capacity;
     }
     return idx;
 }
@@ -39,11 +39,11 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     RingBuffer_t rb;
     rb.data = buffer;
-    rb.capacity = size;
-    rb.head = -1;
-    rb.tail = 0;
-    rb.count = 0;
-    rb.is_initialized = RINGBUFFER_INITIALIZED;
+    rb.state.capacity = size;
+    rb.state.head = -1;
+    rb.state.tail = 0;
+    rb.state.count = 0;
+    rb.state.is_initialized = RINGBUFFER_INITIALIZED;
     // data initialization
     for (uint16_t i = 0; i < size; i++) {
         rb.data[i] = 0;
@@ -54,43 +54,43 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
 // ============================================================================
 void RingBufferReset(RingBuffer_t* rb) {
     // data reset to zero
-    for (uint16_t i = 0; i < rb->capacity; i++) {
+    for (uint16_t i = 0; i < rb->state.capacity; i++) {
         rb->data[i] = 0;
     }
-    rb->head = -1;
-    rb->tail = 0;
-    rb->count = 0;
-    rb->is_initialized = RINGBUFFER_RESETTED;
+    rb->state.head = -1;
+    rb->state.tail = 0;
+    rb->state.count = 0;
+    rb->state.is_initialized = RINGBUFFER_RESETTED;
 }
 
 // ============================================================================
 /// add one item into the ringbuffer at the tail position, and then move
 /// tail forward for 1 position
 bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
-    if (rb->is_initialized <= 0) {
+    if (rb->state.is_initialized <= 0) {
         return false;
     }
     // if the ringbuffer is just created
-    if (rb->head == -1) {
-        rb->head = 0;
+    if (rb->state.head == -1) {
+        rb->state.head = 0;
     }
 
-    rb->data[rb->tail] = data;
-    rb->tail++;
-    rb->tail = RingBufferIndex(rb, rb->tail);
+    rb->data[rb->state.tail] = data;
+    rb->state.tail++;
+    rb->state.tail = RingBufferIndex(rb, rb->state.tail);
 
-    rb->count++;
-    if (rb->count > rb->capacity) {
-        rb->count--;
-        rb->head++;
-        rb->head = RingBufferIndex(rb, rb->head);
+    rb->state.count++;
+    if (rb->state.count > rb->state.capacity) {
+        rb->state.count--;
+        rb->state.head++;
+        rb->state.head = RingBufferIndex(rb, rb->state.head);
     }
     return true;
 }
 
 // ============================================================================
 bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
-    if (rb->is_initialized <= 0) {
+    if (rb->state.is_initialized <= 0) {
         return false;
     }
     // FIXME: this is not an efficient operation
@@ -106,20 +106,20 @@ bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
 /// If count == 0, means all data is get out, then return false, the head
 /// pointer will not move forward
 bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
-    if (rb->count <= 0) {
+    if (rb->state.count <= 0) {
         return false;
     }
-    *ret = rb->data[rb->head];
+    *ret = rb->data[rb->state.head];
     // reset to zero
-    rb->data[rb->head] = 0;
-    rb->head++;
-    rb->head = RingBufferIndex(rb, rb->head);
-    rb->count--;
+    rb->data[rb->state.head] = 0;
+    rb->state.head++;
+    rb->state.head = RingBufferIndex(rb, rb->state.head);
+    rb->state.count--;
     // if it is the last byte to be popped out, move tail to a new
-    if (rb->count == 0) {
-        rb->head = -1;
-        rb->tail = 0;
-        rb->is_initialized = RINGBUFFER_EMPTIED;
+    if (rb->state.count == 0) {
+        rb->state.head = -1;
+        rb->state.tail = 0;
+        rb->state.is_initialized = RINGBUFFER_EMPTIED;
     }
     return true;
 }
@@ -131,7 +131,7 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
     // cannot get negative number of items, or try to get
     // more than count items
-    if ((len < 1) || (len > rb->count)) {
+    if ((len < 1) || (len > rb->state.count)) {
         return false;
     }
     for (uint16_t i = 0; i < len; i++) {
@@ -142,13 +142,14 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 
 // ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
-    if (rb->is_initialized <= 0) {
+    if (rb->state.is_initialized <= 0) {
         rb_printk(0, "ringbuffer | uninitialized!\r\n");
         return;
     }
-    rb_printk(0, "ringbuffer | %3d/%3d | ", rb->count, rb->capacity);
-    if (rb->head == -1) {
-        switch (rb->is_initialized) {
+    rb_printk(0, "ringbuffer | %3d/%3d | ", rb->state.count,
+              rb->state.capacity);
+    if (rb->state.head == -1) {
+        switch (rb->state.is_initialized) {
         case RINGBUFFER_INITIALIZED:
             rb_printk(0, "INITIALIZED\r\n");
             return;
@@ -162,24 +163,21 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     }
     // force to show at least 5 items in a row
     width = (width < 5) ? 5 : width;
-    // rb_printk(0, "\r\n--------------\r\nringbuffer | capacity = %d, count =
-    // %d, ",
-    //           rb->capacity, rb->count);
-    if (rb->head == rb->tail) {
+    if (rb->state.head == rb->state.tail) {
         rb_printk(0, HYLW "head & tail" NOC "\r\n");
     }
     else {
         rb_printk(0, HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
     }
     // rb_printk(0, "--------------\r\n");
-    for (int16_t i = 0; i < rb->capacity; i++) {
-        if ((rb->head == i) && (rb->tail == i)) {
+    for (int16_t i = 0; i < rb->state.capacity; i++) {
+        if ((rb->state.head == i) && (rb->state.tail == i)) {
             rb_printk(0, HYLW);
         }
-        else if (rb->head == i) {
+        else if (rb->state.head == i) {
             rb_printk(0, HGRN);
         }
-        else if (rb->tail == i) {
+        else if (rb->state.tail == i) {
             rb_printk(0, HCYN);
         }
         switch (style) {
@@ -193,7 +191,7 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
             rb_printk(0, "%02X  ", rb->data[i]);
             break;
         }
-        if ((rb->head == i) || (rb->tail == i)) {
+        if ((rb->state.head == i) || (rb->state.tail == i)) {
             rb_printk(0, NOC);
         }
         if ((i + 1) % width == 0) {
@@ -204,7 +202,7 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
 }
 
 // ============================================================================
-void RingBufferHeader(RingBuffer_t* rb, uint8_t array[], uint8_t size) {
+void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size) {
     if (size > 5) {
         rb_error("%s(): size cannot be larger than 5\r\n");
     }
@@ -222,19 +220,19 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
     if (size < 2) {
         return RINGBUFFER_ERR_SPS;  // the pattern must be larger than 1
     }
-    if (rb->count < size) {
+    if (rb->state.count < size) {
         return RINGBUFFER_ERR_SNCP;  // ringbuffer does not have enough bytes
     }
     // initialize the indices to match
     int indices[size];
     for (int i = 0; i < size; i++) {
-        indices[i] = RingBufferIndex(rb, rb->head + i);
+        indices[i] = RingBufferIndex(rb, rb->state.head + i);
     }
 
     // start to search ----------------------
     int search_count = 0;
     index->found = 0;
-    while (search_count < rb->count - size + 1) {
+    while (search_count < rb->state.count - size + 1) {
         // match test --------
         int match_count = 0;
         for (int i = 0; i < size; i++) {
@@ -280,32 +278,32 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
 /// move the head to specified position
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
     // cannot move head out of range
-    if ((pos < 0) || (pos >= rb->capacity)) {
+    if ((pos < 0) || (pos >= rb->state.capacity)) {
         return RINGBUFFER_ERR_OOR;
     }
 
-    if (rb->head < rb->tail) {
-        if ((pos >= rb->head) && (pos < rb->tail)) {
-            rb->count -= (pos - rb->head);
-            rb->head = pos;
+    if (rb->state.head < rb->state.tail) {
+        if ((pos >= rb->state.head) && (pos < rb->state.tail)) {
+            rb->state.count -= (pos - rb->state.head);
+            rb->state.head = pos;
             return RINGBUFFER_NO_ERROR;
         }
         else {
             return RINGBUFFER_ERR_OOR;
         }
     }
-    else if (rb->head == rb->tail) {
+    else if (rb->state.head == rb->state.tail) {
         return RINGBUFFER_ERR_CNM;
     }
-    else if (rb->head > rb->tail) {
-        if (pos >= rb->head) {
-            rb->count -= (pos - rb->head);
-            rb->head = pos;
+    else if (rb->state.head > rb->state.tail) {
+        if (pos >= rb->state.head) {
+            rb->state.count -= (pos - rb->state.head);
+            rb->state.head = pos;
             return RINGBUFFER_NO_ERROR;
         }
-        else if (pos < rb->tail) {
-            rb->count -= (rb->capacity - rb->head) + pos;
-            rb->head = pos;
+        else if (pos < rb->state.tail) {
+            rb->state.count -= (rb->state.capacity - rb->state.head) + pos;
+            rb->state.head = pos;
             return RINGBUFFER_NO_ERROR;
         }
         else {  // out of range

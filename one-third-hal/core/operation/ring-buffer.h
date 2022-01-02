@@ -42,6 +42,7 @@ typedef enum RingBufferError {
     RINGBUFFER_ERR_PNI  = -5,  // PNI = pop negative number of items
     RINGBUFFER_ERR_PTMI = -6,  // PTMI = pop too many items
 } RingBufferError_e;
+
 #pragma pack(1)
 typedef struct {
     uint16_t pos[_RINGBUFFER_MAX_PATTERN_FOUND];    // should be changed
@@ -53,19 +54,26 @@ typedef struct {
 
 #pragma pack(1)
 typedef struct {
-    uint8_t header[5];
-    uint8_t size;
-} RingBufferHeader_t;
-#pragma pack()
-#pragma pack(1)
-typedef struct RingBuffer_s {
-    uint8_t* data;
     int16_t  head;
     int16_t  tail;
     uint16_t capacity;
     uint16_t count;
     uint8_t  is_initialized;
-    RingBufferHeader_t  header;
+} RingBufferState_t;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct {
+    uint8_t header[5];
+    uint8_t size;
+} RingBufferHeader_t;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct RingBuffer_s {
+    uint8_t*           data;
+    RingBufferState_t  state;
+    RingBufferHeader_t header;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
@@ -78,7 +86,7 @@ bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len);
 bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
-void RingBufferHeader(RingBuffer_t* rb, uint8_t array[], uint8_t size);
+void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
 RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
                                    uint8_t len, RingBufferIndex_t* index);
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);

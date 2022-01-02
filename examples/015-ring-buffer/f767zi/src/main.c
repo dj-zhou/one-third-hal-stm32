@@ -69,6 +69,7 @@ int main(void) {
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
 
+    console.printf("size = %d\r\n", sizeof(RingBuffer_t));
     // tasks -----------
     stime.scheduler.show();
 
