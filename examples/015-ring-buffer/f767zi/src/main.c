@@ -46,12 +46,26 @@ int main(void) {
     // pop data when the buffer has no content (count = 0)
     op.ringbuffer.reset(&rb);
     op.ringbuffer.push(&rb, 45);
+    op.ringbuffer.show(&rb, 'H', 10);
     if (op.ringbuffer.pop(&rb, &ret)) {
         console.printf("pop() succeed, ret = %d\r\n", ret);
     }
     else {
         console.printf("pop() failed\r\n");
     }
+
+    // tfmini data packet
+    op.ringbuffer.push(&rb, 32);
+    op.ringbuffer.push(&rb, 24);
+    op.ringbuffer.push(&rb, 14);
+    uint8_t tfmini_data[] = { 0x59, 0x59, 0xF7, 0x07, 0xB4,
+                              0x01, 0xA8, 0x09, 0x16 };
+
+    console.printf("sizeof_array(tfmini_data) = %d\r\n",
+                   sizeof_array(tfmini_data));
+    op.ringbuffer.show(&rb, 'H', 10);
+    op.ringbuffer.pushN(&rb, tfmini_data, sizeof_array(tfmini_data));
+    op.ringbuffer.show(&rb, 'H', 10);
     // tasks -----------
     stime.scheduler.show();
 

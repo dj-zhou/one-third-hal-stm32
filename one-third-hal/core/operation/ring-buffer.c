@@ -15,7 +15,8 @@
 
 typedef enum RingBufferInit {
     RINGBUFFER_INITIALIZED = 1,
-    RINGBUFFER_RESET = 2,
+    RINGBUFFER_RESETTED = 2,
+    RINGBUFFER_EMPTIED = 3,
 } RingBufferInit_e;
 
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
@@ -59,7 +60,7 @@ void RingBufferReset(RingBuffer_t* rb) {
     rb->head = -1;
     rb->tail = 0;
     rb->count = 0;
-    rb->is_initialized = RINGBUFFER_RESET;
+    rb->is_initialized = RINGBUFFER_RESETTED;
 }
 
 // ============================================================================
@@ -114,6 +115,12 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     rb->head++;
     rb->head = RingBufferIndex(rb, rb->head);
     rb->count--;
+    // if it is the last byte to be popped out, move tail to a new
+    if (rb->count == 0) {
+        rb->head = -1;
+        rb->tail = 0;
+        rb->is_initialized = RINGBUFFER_EMPTIED;
+    }
     return true;
 }
 
@@ -136,31 +143,35 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 // ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     if (rb->is_initialized <= 0) {
-        rb_printk(0, "ringbuffer is not initialized!\r\n");
+        rb_printk(0, "ringbuffer | uninitialized!\r\n");
         return;
     }
+    rb_printk(0, "ringbuffer | %3d/%3d | ", rb->count, rb->capacity);
     if (rb->head == -1) {
         switch (rb->is_initialized) {
         case RINGBUFFER_INITIALIZED:
-            rb_printk(0, "ringbuffer is initialized (capacity = %d)\r\n",
-                      rb->capacity);
+            rb_printk(0, "INITIALIZED\r\n");
             return;
-        case RINGBUFFER_RESET:
-            rb_printk(0, "ringbuffer is resetted (capacity = %d)\r\n",
-                      rb->capacity);
+        case RINGBUFFER_RESETTED:
+            rb_printk(0, "RESETTED\r\n");
+            return;
+        case RINGBUFFER_EMPTIED:
+            rb_printk(0, "EMPTIED\r\n");
             return;
         }
     }
     // force to show at least 5 items in a row
     width = (width < 5) ? 5 : width;
-    rb_printk(0, "--------------\r\nringbuffer | capacity = %d, count = %d, ",
-              rb->capacity, rb->count);
+    // rb_printk(0, "\r\n--------------\r\nringbuffer | capacity = %d, count =
+    // %d, ",
+    //           rb->capacity, rb->count);
     if (rb->head == rb->tail) {
         rb_printk(0, HYLW "head & tail" NOC "\r\n");
     }
     else {
         rb_printk(0, HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
     }
+    // rb_printk(0, "--------------\r\n");
     for (int16_t i = 0; i < rb->capacity; i++) {
         if ((rb->head == i) && (rb->tail == i)) {
             rb_printk(0, HYLW);
@@ -174,12 +185,12 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
         switch (style) {
         case 'd':
         case 'D':
-            rb_printk(0, " %3d ", rb->data[i]);
+            rb_printk(0, "%3d  ", rb->data[i]);
             break;
         case 'h':
         case 'H':
         default:
-            rb_printk(0, " %02X ", rb->data[i]);
+            rb_printk(0, "%02X  ", rb->data[i]);
             break;
         }
         if ((rb->head == i) || (rb->tail == i)) {

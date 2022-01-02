@@ -25,7 +25,8 @@ extern "C" {
 // when initialized, head == -1, tail = 0, count = 0. This is the only
 // situation that head == -1
 
-// if head == tail,  the ringbuffer is full and the head is where it is pointed
+// if head == tail:
+// 1. the ringbuffer is full and the head is where it is pointed
 
 // normally, the buffer and head and tail are like this:
 //    xxxx    data    data    data    data    data    data    xxxx    xxxx
@@ -58,6 +59,8 @@ typedef struct RingBuffer_s {
     uint16_t capacity;
     uint16_t count;
     uint8_t  is_initialized;
+    uint8_t* pattern;
+    uint8_t  pattern_size;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
