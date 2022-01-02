@@ -206,22 +206,27 @@ void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size) {
     if (size > 5) {
         rb_error("%s(): size cannot be larger than 5\r\n");
     }
+    uint8_t* ptr = rb->header.data;
     for (uint8_t i = 0; i < size; i++) {
-        rb->header.header[i] = array[i];
+        *ptr++ = array[i];
     }
+    if (size < 5) {
+        for (uint8_t i = 0; i < 5 - size; i++) {
+            *ptr++ = 0;
+        }
+    }
+    rb->header.size = size;
 }
 
 // ============================================================================
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
 WARN_UNUSED_RESULT RingBufferError_e
-RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
-                 RingBufferIndex_t* index) {
-    if (size < 2) {
-        return RINGBUFFER_ERR_SPS;  // the pattern must be larger than 1
-    }
+RingBufferSearch(RingBuffer_t* rb, RingBufferIndex_t* index) {
+    uint8_t size = rb->header.size;
+    // ringbuffer does not have enough bytes
     if (rb->state.count < size) {
-        return RINGBUFFER_ERR_SNCP;  // ringbuffer does not have enough bytes
+        return RINGBUFFER_ERR_SNCP;
     }
     // initialize the indices to match
     int indices[size];
@@ -236,7 +241,7 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
         // match test --------
         int match_count = 0;
         for (int i = 0; i < size; i++) {
-            if (rb->data[indices[i]] != pattern[i]) {
+            if (rb->data[indices[i]] != rb->header.data[i]) {
                 break;  // break the for loop
             }
             else {
@@ -244,13 +249,14 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
             }
         }
 
-        // record the position of found pattern -----------
+        // record the position of found header -----------
         if (match_count == size) {
-            index->count[index->found] = 0;
+            index->dist[index->found] = 0;
             index->pos[index->found++] = indices[0];
-            if (index->found >= _RINGBUFFER_MAX_PATTERN_FOUND) {
-                rb_printf(HYLW "waring: too heavy communication!\r\n" NOC);
-                // debug purpose:
+            if (index->found >= _RINGBUFFER_MAX_PACKETS_FOUND) {
+                rb_printf(HYLW
+                          "waring: communication too heavy, need to expand the "
+                          "ringbuffer or process it timely!\r\n" NOC);
                 RingBufferShow(rb, 'h', 9);
                 while (1)
                     ;
@@ -258,7 +264,7 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
         }
         // counts the effective number of bytes in a (potential) packet -----
         if (index->found > 0) {
-            index->count[index->found - 1]++;
+            index->dist[index->found - 1]++;
         }
 
         // increase the check indices -----------
@@ -270,7 +276,7 @@ RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
         search_count++;
     }
     // the last one needs to add 1 -----------
-    index->count[index->found - 1]++;
+    index->dist[index->found - 1]++;
     return RINGBUFFER_NO_ERROR;
 }
 
@@ -315,9 +321,9 @@ RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
 
 // ============================================================================
 void RingBufferInsight(RingBufferIndex_t* index) {
-    rb_printk(0, "--------\r\n found %d pattern(s):\r\n", index->found);
-    for (int i = 0; i < index->found; i++) {
-        rb_printf("%3d (%3d)\r\n", index->pos[i], index->count[i]);
+    rb_printk(0, "--------\r\nfound %d header(s):\r\n", index->found);
+    for (uint8_t i = 0; i < index->found; i++) {
+        rb_printf("%3d (%3d)\r\n", index->pos[i], index->dist[i]);
     }
     ( void )index;
 }

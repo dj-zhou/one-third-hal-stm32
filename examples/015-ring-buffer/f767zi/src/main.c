@@ -55,21 +55,30 @@ int main(void) {
     }
 
     // tfmini data packet
+    console.printf("----------\r\n, push three items to the ringbuffer\r\n");
     op.ringbuffer.push(&rb, 32);
     op.ringbuffer.push(&rb, 24);
     op.ringbuffer.push(&rb, 14);
-    uint8_t tfmini_data[] = { 0x59, 0x59, 0xF7, 0x07, 0xB4,
-                              0x01, 0xA8, 0x09, 0x16 };
-
-    console.printf("sizeof_array(tfmini_data) = %d\r\n",
-                   sizeof_array(tfmini_data));
     op.ringbuffer.show(&rb, 'H', 10);
-    op.ringbuffer.pushN(&rb, tfmini_data, sizeof_array(tfmini_data));
+
+    uint8_t tfmini_data1[] = { 0x59, 0x59, 0xF7, 0x07, 0xB4,
+                               0x01, 0xA8, 0x09, 0x16 };
+    op.ringbuffer.pushN(&rb, tfmini_data1, sizeof_array(tfmini_data1));
+    op.ringbuffer.show(&rb, 'H', 10);
+    op.ringbuffer.push(&rb, 24);
+    op.ringbuffer.push(&rb, 11);
+    uint8_t tfmini_data2[] = { 0x59, 0x59, 0xF4, 0x07, 0xAD,
+                               0x01, 0xA8, 0x09, 0x0C };
+    op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
+    op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
     op.ringbuffer.show(&rb, 'H', 10);
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
-
-    console.printf("size = %d\r\n", sizeof(RingBuffer_t));
+    RingBufferIndex_t indices;
+    if (op.ringbuffer.search(&rb, &indices) != RINGBUFFER_NO_ERROR) {
+        console.printf("ringbuffer searh error\r\n");
+    }
+    op.ringbuffer.insight(&indices);
     // tasks -----------
     stime.scheduler.show();
 

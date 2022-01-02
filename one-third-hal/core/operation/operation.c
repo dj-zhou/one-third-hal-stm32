@@ -12,6 +12,8 @@ OperationApt_t op = {
         .popN   = RingBufferPopN   ,
         .show   = RingBufferShow   ,
         .header = RingBufferHeader ,
+        .search = RingBufferSearch ,
+        .insight = RingBufferInsight,
     },
 };
 // clang-format on
