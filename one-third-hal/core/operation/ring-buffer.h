@@ -73,6 +73,7 @@ typedef struct RingBuffer_s {
     uint8_t*           data;
     RingBufferState_t  state;
     RingBufferHeader_t header;
+    RingBufferIndex_t  index;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
@@ -86,9 +87,9 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
-RingBufferError_e RingBufferSearch(RingBuffer_t* rb, RingBufferIndex_t* index);
+RingBufferError_e RingBufferSearch(RingBuffer_t* rb);
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
-void RingBufferInsight(RingBufferIndex_t* index);
+void RingBufferInsight(RingBuffer_t* rb);
 
 // ============================================================================
 typedef struct {
@@ -101,10 +102,9 @@ typedef struct {
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
     void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
     // search the ringbuffer for some pattern, and record the locations to index
-    WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb,
-                                                   RingBufferIndex_t* index);
+    WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb);
     RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
-    void (*insight)(RingBufferIndex_t* index);
+    void (*insight)(RingBuffer_t* rb);
 } RingBufferOpApi_t;
 
 // ============================================================================

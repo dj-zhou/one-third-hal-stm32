@@ -74,11 +74,11 @@ int main(void) {
     op.ringbuffer.show(&rb, 'H', 10);
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
-    RingBufferIndex_t indices;
-    if (op.ringbuffer.search(&rb, &indices) != RINGBUFFER_NO_ERROR) {
+    if (op.ringbuffer.search(&rb) != RINGBUFFER_NO_ERROR) {
         console.printf("ringbuffer searh error\r\n");
     }
-    op.ringbuffer.insight(&indices);
+    op.ringbuffer.insight(&rb);
+    console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
     // tasks -----------
     stime.scheduler.show();
 
