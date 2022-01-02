@@ -31,43 +31,67 @@ extern "C" {
 //    xxxx    data    data    data    data    data    data    xxxx    xxxx
 //            head                                            tail
 
+// clang-format off
 typedef enum RingBufferError {
-    RINGBUFFER_NO_ERROR = 0,
-    RINGBUFFER_ERR_OOR = -1,   // OOR = out of range
-    RINGBUFFER_ERR_CNM = -2,   // CNM = can not move
-    RINGBUFFER_ERR_SPS = -3,   // SPS = search pattern small
+    RINGBUFFER_NO_ERROR =  0,
+    RINGBUFFER_ERR_OOR  = -1,  // OOR = out of range
+    RINGBUFFER_ERR_CNM  = -2,  // CNM = can not move
+    RINGBUFFER_ERR_SPS  = -3,  // SPS = search pattern small
     RINGBUFFER_ERR_SNCP = -4,  // SNCP = search no complete packet
-    RINGBUFFER_ERR_PNI = -5,   // PNI = pop negative number of items
+    RINGBUFFER_ERR_PNI  = -5,  // PNI = pop negative number of items
     RINGBUFFER_ERR_PTMI = -6,  // PTMI = pop too many items
 } RingBufferError_e;
-
 #pragma pack(1)
 typedef struct {
     uint16_t pos[_RINGBUFFER_MAX_PATTERN_FOUND];    // should be changed
     uint16_t count[_RINGBUFFER_MAX_PATTERN_FOUND];  // how many bytes to the
                                                     // next pattern
-    uint8_t found;
+    uint8_t  found;
 } RingBufferIndex_t;
 #pragma pack()
 
+#pragma pack(1)
+typedef struct RingBuffer_s {
+    uint8_t* data;
+    int16_t  head;
+    int16_t  tail;
+    uint16_t capacity;
+    uint16_t count;
+    uint8_t  is_initialized;
+} RingBuffer_t;
+#pragma pack()
+// clang-format on
+
 // ============================================================================
-// clang-format off
+WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size);
+void RingBufferReset(RingBuffer_t* rb);
+bool RingBufferPush(RingBuffer_t* rb, uint8_t data);
+bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len);
+bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
+bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
+void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
+RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
+                                   uint8_t len, RingBufferIndex_t* index);
+
+RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
+void RingBufferInsight(RingBufferIndex_t* index);
+
+// ============================================================================
 typedef struct {
-    RingBuffer_t (*config)(uint8_t* data, uint16_t size);
+    WARN_UNUSED_RESULT RingBuffer_t (*init)(uint8_t* buffer, uint16_t size);
+    void (*reset)(RingBuffer_t* rb);
     bool (*push)(RingBuffer_t* rb, uint8_t data);
     bool (*pushN)(RingBuffer_t* rb, uint8_t* data, uint16_t len);
     bool (*pop)(RingBuffer_t* rb, uint8_t* ret);
     bool (*popN)(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
+    void (*show)(RingBuffer_t* rb, char style, uint16_t width);
 
-    // search the ringbuffer of pattern, and record the locations to index
+    // search the ringbuffer for some pattern, and record the locations to index
     RingBufferError_e (*search)(RingBuffer_t* rb, uint8_t* pattern, uint8_t len,
                                 RingBufferIndex_t* index);
     RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
-    void (*show)(RingBuffer_t* rb, char style, uint16_t width);
     void (*insight)(RingBufferIndex_t* index);
-} RingBufferApi_t;
-// clang-format on
-extern RingBufferApi_t ringbuffer;
+} RingBufferOpApi_t;
 
 // ============================================================================
 #ifdef __cplusplus

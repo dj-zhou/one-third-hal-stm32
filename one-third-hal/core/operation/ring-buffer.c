@@ -1,5 +1,6 @@
 #include "ring-buffer.h"
 #include <stdint.h>
+#include <string.h>
 
 // ============================================================================
 #ifdef CONSOLE_IS_USED
@@ -12,7 +13,12 @@
 #define rb_error(...) ({ ; })
 #endif
 
-static void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
+typedef enum RingBufferInit {
+    RINGBUFFER_INITIALIZED = 1,
+    RINGBUFFER_RESET = 2,
+} RingBufferInit_e;
+
+void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 
 // ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
@@ -29,26 +35,38 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 /// the RingBufferApi_t only defines the interface of using the ring-buffer, the
 /// data block is defined outside and trasmitted into this function for
 /// configuration
-static RingBuffer_t RingBufferConfig(uint8_t* data, uint16_t size) {
+WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     RingBuffer_t rb;
-    rb.buffer = data;
+    rb.data = buffer;
     rb.capacity = size;
     rb.head = -1;
     rb.tail = 0;
     rb.count = 0;
-    rb.is_initialized = true;
+    rb.is_initialized = RINGBUFFER_INITIALIZED;
     // data initialization
     for (uint16_t i = 0; i < size; i++) {
-        data[i] = 0;
+        rb.data[i] = 0;
     }
     return rb;
 }
 
 // ============================================================================
+void RingBufferReset(RingBuffer_t* rb) {
+    // data reset to zero
+    for (uint16_t i = 0; i < rb->capacity; i++) {
+        rb->data[i] = 0;
+    }
+    rb->head = -1;
+    rb->tail = 0;
+    rb->count = 0;
+    rb->is_initialized = RINGBUFFER_RESET;
+}
+
+// ============================================================================
 /// add one item into the ringbuffer at the tail position, and then move
 /// tail forward for 1 position
-static bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
-    if (!rb->is_initialized) {
+bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
+    if (rb->is_initialized <= 0) {
         return false;
     }
     // if the ringbuffer is just created
@@ -56,7 +74,7 @@ static bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
         rb->head = 0;
     }
 
-    rb->buffer[rb->tail] = data;
+    rb->data[rb->tail] = data;
     rb->tail++;
     rb->tail = RingBufferIndex(rb, rb->tail);
 
@@ -70,13 +88,15 @@ static bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
 }
 
 // ============================================================================
-static bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
-    if (!rb->is_initialized) {
+bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
+    if (rb->is_initialized <= 0) {
         return false;
     }
+    // FIXME: this is not an efficient operation
     for (uint16_t i = 0; i < len; i++) {
         RingBufferPush(rb, data[i]);
     }
+
     return true;
 }
 
@@ -84,13 +104,13 @@ static bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
 /// Pop one item from the head, and move the head forward for one position.
 /// If count == 0, means all data is get out, then return false, the head
 /// pointer will not move forward
-static bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
-    if (rb->count < 0) {
+bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
+    if (rb->count <= 0) {
         return false;
     }
-    *ret = rb->buffer[rb->head];
+    *ret = rb->data[rb->head];
     // reset to zero
-    rb->buffer[rb->head] = 0;
+    rb->data[rb->head] = 0;
     rb->head++;
     rb->head = RingBufferIndex(rb, rb->head);
     rb->count--;
@@ -101,7 +121,7 @@ static bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
 /// Pop N items out from the ringbuffer, starting from the head position. It
 /// calls the RingBufferPop() function. However, if you want to get more items
 /// than count items from the ringbuffer, it will return error
-static bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
+bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
     // cannot get negative number of items, or try to get
     // more than count items
     if ((len < 1) || (len > rb->count)) {
@@ -114,11 +134,68 @@ static bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 }
 
 // ============================================================================
+void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
+    if (rb->is_initialized <= 0) {
+        rb_printk(0, "ringbuffer is not initialized!\r\n");
+        return;
+    }
+    if (rb->head == -1) {
+        switch (rb->is_initialized) {
+        case RINGBUFFER_INITIALIZED:
+            rb_printk(0, "ringbuffer is initialized (capacity = %d)\r\n",
+                      rb->capacity);
+            return;
+        case RINGBUFFER_RESET:
+            rb_printk(0, "ringbuffer is resetted (capacity = %d)\r\n",
+                      rb->capacity);
+            return;
+        }
+    }
+    // force to show at least 5 items in a row
+    width = (width < 5) ? 5 : width;
+    rb_printk(0, "--------------\r\nringbuffer | capacity = %d, count = %d, ",
+              rb->capacity, rb->count);
+    if (rb->head == rb->tail) {
+        rb_printk(0, HYLW "head & tail" NOC "\r\n");
+    }
+    else {
+        rb_printk(0, HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
+    }
+    for (int16_t i = 0; i < rb->capacity; i++) {
+        if ((rb->head == i) && (rb->tail == i)) {
+            rb_printk(0, HYLW);
+        }
+        else if (rb->head == i) {
+            rb_printk(0, HGRN);
+        }
+        else if (rb->tail == i) {
+            rb_printk(0, HCYN);
+        }
+        switch (style) {
+        case 'h':
+        case 'H':
+            rb_printk(0, " %02X ", rb->data[i]);
+            break;
+        case 'd':
+        case 'D':
+            rb_printk(0, " %3d ", rb->data[i]);
+            break;
+        }
+        if ((rb->head == i) || (rb->tail == i)) {
+            rb_printk(0, NOC);
+        }
+        if ((i + 1) % width == 0) {
+            rb_printk(0, "\r\n");
+        }
+    }
+    rb_printk(0, "\r\n");
+}
+
+// ============================================================================
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
-static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
-                                          uint8_t len,
-                                          RingBufferIndex_t* index) {
+RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
+                                   uint8_t len, RingBufferIndex_t* index) {
     if (len < 2) {
         return RINGBUFFER_ERR_SPS;  // the pattern must be larger than 1
     }
@@ -138,7 +215,7 @@ static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
         // match test --------
         int match_count = 0;
         for (int i = 0; i < len; i++) {
-            if (rb->buffer[indices[i]] != pattern[i]) {
+            if (rb->data[indices[i]] != pattern[i]) {
                 break;  // break the for loop
             }
             else {
@@ -178,7 +255,7 @@ static RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
 
 // ============================================================================
 /// move the head to specified position
-static RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
+RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
     // cannot move head out of range
     if ((pos < 0) || (pos >= rb->capacity)) {
         return RINGBUFFER_ERR_OOR;
@@ -214,68 +291,12 @@ static RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
     }
     return RINGBUFFER_NO_ERROR;
 }
-// ============================================================================
-static void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
-    if (!rb->is_initialized) {
-        rb_printk(0, "%s(): error: not initialized!\r\n", __func__);
-        return;
-    }
-    width = (width < 5) ? 5 : width;  // force to show at least 5 items in a row
-    rb_printk(0,
-              "--------------\r\nringbuffer (capacity = %d, count = %d, " HGRN
-              "head" NOC ", " HCYN "tail" NOC ", " HYLW "head & tail" NOC
-              ")\r\n",
-              rb->capacity, rb->count);
-    for (int16_t i = 0; i < rb->capacity; i++) {
-        if ((rb->head == i) && (rb->tail == i)) {
-            rb_printk(0, HYLW);
-        }
-        else if (rb->head == i) {
-            rb_printk(0, HGRN);
-        }
-        else if (rb->tail == i) {
-            rb_printk(0, HCYN);
-        }
-        switch (style) {
-        case 'h':
-        case 'H':
-            rb_printk(0, " %3X ", rb->buffer[i]);
-            break;
-        case 'd':
-        case 'D':
-            rb_printk(0, " %3d ", rb->buffer[i]);
-            break;
-        }
-        if ((rb->head == i) || (rb->tail == i)) {
-            rb_printk(0, NOC);
-        }
-        if ((i + 1) % width == 0) {
-            rb_printk(0, "\r\n");
-        }
-    }
-    rb_printk(0, "\r\n");
-}
 
 // ============================================================================
-static void RingBufferInsight(RingBufferIndex_t* index) {
+void RingBufferInsight(RingBufferIndex_t* index) {
     rb_printk(0, "--------\r\n found %d pattern(s):\r\n", index->found);
     for (int i = 0; i < index->found; i++) {
         rb_printf("%3d (%3d)\r\n", index->pos[i], index->count[i]);
     }
     ( void )index;
 }
-
-// ============================================================================
-// clang-format off
-RingBufferApi_t ringbuffer = {
-    .config  = RingBufferConfig  ,
-    .push    = RingBufferPush    ,
-    .pushN   = RingBufferPushN   ,
-    .pop     = RingBufferPop     ,
-    .popN    = RingBufferPopN    ,
-    .search  = RingBufferSearch  ,
-    .move    = RingBufferMoveHead,
-    .show    = RingBufferShow    ,
-    .insight = RingBufferInsight ,
-};
-// clang-format on

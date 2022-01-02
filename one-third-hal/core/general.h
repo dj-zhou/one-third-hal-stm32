@@ -49,6 +49,8 @@ extern "C" {
             ( type* )(( char* )__mptr - offsetof(type, member)); \
         })
 #endif
+
+#define WARN_UNUSED_RESULT __attribute__((__warn_unused_result__))
 // clang-format on
 
 // #if !defined(_wrs_pack_align)

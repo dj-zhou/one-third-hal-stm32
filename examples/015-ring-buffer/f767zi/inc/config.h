@@ -20,7 +20,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _CONSOLE_USE_USART3_PD8PD9
-#define _CLI_OUT_MESSAGE "ringbuffer"
+#define _CLI_OUT_MESSAGE "ringbuffer-f767zi"
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
