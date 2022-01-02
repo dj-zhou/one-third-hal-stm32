@@ -194,27 +194,28 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
 // ============================================================================
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
-RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
-                                   uint8_t len, RingBufferIndex_t* index) {
-    if (len < 2) {
+WARN_UNUSED_RESULT RingBufferError_e
+RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern, uint8_t size,
+                 RingBufferIndex_t* index) {
+    if (size < 2) {
         return RINGBUFFER_ERR_SPS;  // the pattern must be larger than 1
     }
-    if (rb->count < len) {
+    if (rb->count < size) {
         return RINGBUFFER_ERR_SNCP;  // ringbuffer does not have enough bytes
     }
     // initialize the indices to match
-    int indices[len];
-    for (int i = 0; i < len; i++) {
+    int indices[size];
+    for (int i = 0; i < size; i++) {
         indices[i] = RingBufferIndex(rb, rb->head + i);
     }
 
     // start to search ----------------------
     int search_count = 0;
     index->found = 0;
-    while (search_count < rb->count - len + 1) {
+    while (search_count < rb->count - size + 1) {
         // match test --------
         int match_count = 0;
-        for (int i = 0; i < len; i++) {
+        for (int i = 0; i < size; i++) {
             if (rb->data[indices[i]] != pattern[i]) {
                 break;  // break the for loop
             }
@@ -224,11 +225,11 @@ RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
         }
 
         // record the position of found pattern -----------
-        if (match_count == len) {
+        if (match_count == size) {
             index->count[index->found] = 0;
             index->pos[index->found++] = indices[0];
             if (index->found >= _RINGBUFFER_MAX_PATTERN_FOUND) {
-                rb_printf("waring: communication too heavy!\r\n");
+                rb_printf(HYLW "waring: too heavy communication!\r\n" NOC);
                 // debug purpose:
                 RingBufferShow(rb, 'h', 9);
                 while (1)
@@ -241,10 +242,10 @@ RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
         }
 
         // increase the check indices -----------
-        for (int i = 0; i < len - 1; i++) {
+        for (int i = 0; i < size - 1; i++) {
             indices[i] = indices[i + 1];
         }
-        indices[len - 1] = RingBufferIndex(rb, indices[len - 1] + 1);
+        indices[size - 1] = RingBufferIndex(rb, indices[size - 1] + 1);
 
         search_count++;
     }
