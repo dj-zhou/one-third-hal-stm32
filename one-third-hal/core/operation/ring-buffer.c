@@ -235,7 +235,7 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
 
     // start to search ----------------------
     int search_count = 0;
-    rb->index.found = 0;
+    rb->index.count = 0;
     while (search_count < rb->state.count - size + 1) {
         // match test --------
         int match_count = 0;
@@ -250,9 +250,9 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
 
         // record the position of found header -----------
         if (match_count == size) {
-            rb->index.dist[rb->index.found] = 0;
-            rb->index.pos[rb->index.found++] = indices[0];
-            if (rb->index.found >= _RINGBUFFER_MAX_PACKETS_FOUND) {
+            rb->index.dist[rb->index.count] = 0;
+            rb->index.pos[rb->index.count++] = indices[0];
+            if (rb->index.count >= _RINGBUFFER_MAX_PACKETS_FOUND) {
                 rb_printf(HYLW
                           "waring: communication too heavy, need to expand the "
                           "ringbuffer or process it timely!\r\n" NOC);
@@ -262,8 +262,8 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
             }
         }
         // counts the effective number of bytes in a (potential) packet -----
-        if (rb->index.found > 0) {
-            rb->index.dist[rb->index.found - 1]++;
+        if (rb->index.count > 0) {
+            rb->index.dist[rb->index.count - 1]++;
         }
 
         // increase the check indices -----------
@@ -275,7 +275,7 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
         search_count++;
     }
     // the last one needs to add 1 -----------
-    rb->index.dist[rb->index.found - 1]++;
+    rb->index.dist[rb->index.count - 1]++;
     return RINGBUFFER_NO_ERROR;
 }
 
@@ -320,8 +320,8 @@ RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
 
 // ============================================================================
 void RingBufferInsight(RingBuffer_t* rb) {
-    rb_printk(0, "--------\r\nfound %d header(s):\r\n", rb->index.found);
-    for (uint8_t i = 0; i < rb->index.found; i++) {
+    rb_printk(0, "--------\r\nfound %d header(s):\r\n", rb->index.count);
+    for (uint8_t i = 0; i < rb->index.count; i++) {
         rb_printf("%3d (%3d)\r\n", rb->index.pos[i], rb->index.dist[i]);
     }
 }

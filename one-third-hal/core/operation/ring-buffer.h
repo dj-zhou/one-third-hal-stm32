@@ -47,7 +47,7 @@ typedef struct {
     uint16_t pos[_RINGBUFFER_MAX_PACKETS_FOUND];    // should be changed
     uint16_t dist[_RINGBUFFER_MAX_PACKETS_FOUND];  // how many bytes to the
                                                     // next header
-    uint8_t  found;
+    uint8_t  count;
 } RingBufferIndex_t;
 #pragma pack()
 
