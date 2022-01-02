@@ -204,6 +204,16 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
 }
 
 // ============================================================================
+void RingBufferHeader(RingBuffer_t* rb, uint8_t array[], uint8_t size) {
+    if (size > 5) {
+        rb_error("%s(): size cannot be larger than 5\r\n");
+    }
+    for (uint8_t i = 0; i < size; i++) {
+        rb->header.header[i] = array[i];
+    }
+}
+
+// ============================================================================
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
 WARN_UNUSED_RESULT RingBufferError_e

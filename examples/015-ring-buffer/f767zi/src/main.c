@@ -66,6 +66,9 @@ int main(void) {
     op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.pushN(&rb, tfmini_data, sizeof_array(tfmini_data));
     op.ringbuffer.show(&rb, 'H', 10);
+    uint8_t tfmini_header[] = { 0x59, 0x59 };
+    op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
+
     // tasks -----------
     stime.scheduler.show();
 

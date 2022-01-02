@@ -52,6 +52,12 @@ typedef struct {
 #pragma pack()
 
 #pragma pack(1)
+typedef struct {
+    uint8_t header[5];
+    uint8_t size;
+} RingBufferHeader_t;
+#pragma pack()
+#pragma pack(1)
 typedef struct RingBuffer_s {
     uint8_t* data;
     int16_t  head;
@@ -59,8 +65,7 @@ typedef struct RingBuffer_s {
     uint16_t capacity;
     uint16_t count;
     uint8_t  is_initialized;
-    uint8_t* pattern;
-    uint8_t  pattern_size;
+    RingBufferHeader_t  header;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
@@ -73,6 +78,7 @@ bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len);
 bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
+void RingBufferHeader(RingBuffer_t* rb, uint8_t array[], uint8_t size);
 RingBufferError_e RingBufferSearch(RingBuffer_t* rb, uint8_t* pattern,
                                    uint8_t len, RingBufferIndex_t* index);
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
@@ -87,7 +93,7 @@ typedef struct {
     bool (*pop)(RingBuffer_t* rb, uint8_t* ret);
     bool (*popN)(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
-
+    void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
     // search the ringbuffer for some pattern, and record the locations to index
     WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb,
                                                    uint8_t* pattern,
