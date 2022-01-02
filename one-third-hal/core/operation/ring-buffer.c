@@ -172,13 +172,14 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
             rb_printk(0, HCYN);
         }
         switch (style) {
-        case 'h':
-        case 'H':
-            rb_printk(0, " %02X ", rb->data[i]);
-            break;
         case 'd':
         case 'D':
             rb_printk(0, " %3d ", rb->data[i]);
+            break;
+        case 'h':
+        case 'H':
+        default:
+            rb_printk(0, " %02X ", rb->data[i]);
             break;
         }
         if ((rb->head == i) || (rb->tail == i)) {
