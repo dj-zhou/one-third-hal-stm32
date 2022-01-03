@@ -13,14 +13,6 @@
 #define rb_error(...) ({ ; })
 #endif
 
-typedef enum RingBufferInit {
-    RINGBUFFER_INITIALIZED = 1,
-    RINGBUFFER_RESETTED = 2,
-    RINGBUFFER_EMPTIED = 3,
-} RingBufferInit_e;
-
-void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
-
 // ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
     while (idx >= rb->state.capacity) {
@@ -46,7 +38,7 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     rb.state.head = -1;
     rb.state.tail = 0;
     rb.state.count = 0;
-    rb.state.is_initialized = RINGBUFFER_INITIALIZED;
+    rb.state.state = RINGBUFFER_INITIALIZED;
 
     // header initialization
     bzero(rb.header.data, _RINGBUFFER_HEADER_MAX_LEN);
@@ -71,17 +63,17 @@ void RingBufferReset(RingBuffer_t* rb) {
     rb->state.head = -1;
     rb->state.tail = 0;
     rb->state.count = 0;
-    rb->state.is_initialized = RINGBUFFER_RESETTED;
+    rb->state.state = RINGBUFFER_RESETTED;
 }
 
 // ============================================================================
 /// add one item into the ringbuffer at the tail position, and then move
 /// tail forward for 1 position
 bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
-    if (rb->state.is_initialized <= 0) {
+    if (rb->state.state <= 0) {
         return false;
     }
-    // if the ringbuffer is just created
+    // if the ringbuffer is just initialized or resetted
     if (rb->state.head == -1) {
         rb->state.head = 0;
     }
@@ -101,7 +93,7 @@ bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
 
 // ============================================================================
 bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len) {
-    if (rb->state.is_initialized <= 0) {
+    if (rb->state.state <= 0) {
         return false;
     }
     // FIXME: this is not an efficient operation
@@ -130,7 +122,7 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     if (rb->state.count == 0) {
         rb->state.head = -1;
         rb->state.tail = 0;
-        rb->state.is_initialized = RINGBUFFER_EMPTIED;
+        rb->state.state = RINGBUFFER_EMPTIED;
     }
     return true;
 }
@@ -153,14 +145,14 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 
 // ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
-    if (rb->state.is_initialized <= 0) {
+    if (rb->state.state <= 0) {
         rb_printk(0, "ringbuffer | uninitialized!\r\n");
         return;
     }
     rb_printk(0, "ringbuffer | %3d/%3d | ", rb->state.count,
               rb->state.capacity);
     if (rb->state.head == -1) {
-        switch (rb->state.is_initialized) {
+        switch (rb->state.state) {
         case RINGBUFFER_INITIALIZED:
             rb_printk(0, "INITIALIZED\r\n");
             return;
@@ -283,7 +275,6 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
             indices[i] = indices[i + 1];
         }
         indices[size - 1] = RingBufferIndex(rb, indices[size - 1] + 1);
-
         search_count++;
     }
     // the last one needs to add 1 -----------
