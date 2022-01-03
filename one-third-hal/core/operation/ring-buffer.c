@@ -25,6 +25,13 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 }
 
 // ============================================================================
+static void no_process(uint8_t* data, uint16_t len) {
+    ( void )data;
+    ( void )len;
+    rb_error("ringbuffer: use op.ringbuffer.attach() to attach a process "
+             "function.\r\n");
+}
+// ============================================================================
 /// the RingBufferApi_t only defines the interface of using the ring-buffer, the
 /// data block is defined outside and trasmitted into this function for
 /// configuration
@@ -50,7 +57,7 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     rb.index.count = 0;
 
     // process function initialization
-    rb.process = NULL;
+    rb.process = no_process;
     return rb;
 }
 

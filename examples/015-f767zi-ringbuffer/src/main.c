@@ -113,8 +113,7 @@ int main(void) {
     console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
     // attach a process function
     op.ringbuffer.attach(&rb, tfmini_parse);
-    // if no process be attached, the process() will fail because it is a NULL
-    // pointer (how to fix?)
+    // TODO: uses the index information got from search() to process data
     rb.process(tfmini_data2, sizeof_array(tfmini_data2));
     // tasks -----------
     stime.scheduler.show();
