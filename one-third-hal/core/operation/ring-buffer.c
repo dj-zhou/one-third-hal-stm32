@@ -282,6 +282,9 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
     return RINGBUFFER_NO_ERROR;
 }
 
+void RingbufferAttach(RingBuffer_t* rb, ringbuffer_hook hook) {
+    rb->process = hook;
+}
 // ============================================================================
 /// move the head to specified position
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {

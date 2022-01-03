@@ -4,6 +4,38 @@
 #include <math.h>
 
 // ============================================================================
+static void tfmini_parse(uint8_t* data, uint16_t len) {
+    // calculate the checksum ----------
+    if (len != 9) {
+        console.printf("maybe it is not a tfmini packet?\r\n");
+        return;
+    }
+    uint16_t check_sum = 0;
+    for (int i = 0; i < 9 - 1; i++) {
+        check_sum += data[i];
+    }
+    check_sum &= 0xFF;
+    // check the checksum ----------
+    int8_t error = data[9 - 1] - check_sum;
+    if (error != 0) {
+        console.printf("checksum error\r\n");
+        return;
+    }
+    uint16_t dist_mm;
+    uint16_t strength;
+    float temp_c;
+    // mode cm:
+    // dist_mm = 10 * (data[3] << 8 | data[2]);  // scaled to mm
+    // mode mm:
+    dist_mm = data[3] << 8 | data[2];
+    strength = data[5] << 8 | data[4];
+    temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
+    console.printf("dist = %d mm, ", dist_mm);
+    console.printf("strength = %d, ", strength);
+    console.printf("temperature = %3.1f C\r\n", temp_c);
+}
+
+// ============================================================================
 int main(void) {
     utils.system.initClock(216, 54, 108);
     utils.system.initNvic(4);
@@ -79,6 +111,11 @@ int main(void) {
     }
     op.ringbuffer.insight(&rb);
     console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
+    // attach a process function
+    op.ringbuffer.attach(&rb, tfmini_parse);
+    // if no process be attached, the process() will fail because it is a NULL
+    // pointer (how to fix?)
+    rb.process(tfmini_data2, sizeof_array(tfmini_data2));
     // tasks -----------
     stime.scheduler.show();
 
