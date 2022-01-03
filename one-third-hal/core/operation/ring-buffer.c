@@ -38,16 +38,27 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 /// configuration
 WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     RingBuffer_t rb;
+    // data initialization
     rb.data = buffer;
+    bzero(rb.data, size);
+    // state initialization
     rb.state.capacity = size;
     rb.state.head = -1;
     rb.state.tail = 0;
     rb.state.count = 0;
     rb.state.is_initialized = RINGBUFFER_INITIALIZED;
-    // data initialization
-    for (uint16_t i = 0; i < size; i++) {
-        rb.data[i] = 0;
-    }
+
+    // header initialization
+    bzero(rb.header.data, _RINGBUFFER_HEADER_MAX_LEN);
+    rb.header.size = 0;
+
+    // search indices initialization
+    bzero(rb.index.pos, _RINGBUFFER_PACKETS_MAX_FOUND);
+    bzero(rb.index.dist, _RINGBUFFER_PACKETS_MAX_FOUND);
+    rb.index.count = 0;
+
+    // process function initialization
+    rb.process = NULL;
     return rb;
 }
 
@@ -222,6 +233,10 @@ void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size) {
 /// always search from the head to the tail of a ringbuffer
 // other cases: two bytes pattern, but three bytes shows two patterns
 WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
+    if (rb->header.size == 0) {
+        rb_error("ringbuffer header need to be assigned by "
+                 "op.ringbuffer.header()\r\n");
+    }
     uint8_t size = rb->header.size;
     // ringbuffer does not have enough bytes
     if (rb->state.count < size) {
@@ -252,13 +267,10 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
         if (match_count == size) {
             rb->index.dist[rb->index.count] = 0;
             rb->index.pos[rb->index.count++] = indices[0];
-            if (rb->index.count >= _RINGBUFFER_MAX_PACKETS_FOUND) {
-                rb_printf(HYLW
-                          "waring: communication too heavy, need to expand the "
-                          "ringbuffer or process it timely!\r\n" NOC);
-                RingBufferShow(rb, 'h', 9);
-                while (1)
-                    ;
+            if (rb->index.count >= _RINGBUFFER_PACKETS_MAX_FOUND) {
+                rb_printf(HYLW "communication too heavy, need to expand the "
+                               "ringbuffer or process it timely!\r\n" NOC);
+                // do not block here
             }
         }
         // counts the effective number of bytes in a (potential) packet -----
@@ -282,7 +294,6 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
 // ============================================================================
 /// move the head to specified position
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
-    // cannot move head out of range
     if ((pos < 0) || (pos >= rb->state.capacity)) {
         return RINGBUFFER_ERR_OOR;
     }
@@ -311,7 +322,7 @@ RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
             rb->state.head = pos;
             return RINGBUFFER_NO_ERROR;
         }
-        else {  // out of range
+        else {
             return RINGBUFFER_ERR_OOR;
         }
     }

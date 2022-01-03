@@ -1,7 +1,7 @@
 # =============================================================================
 # custom settings
 STM32Fx   = STM32F767xx
-LIB_PATH  = ../../../one-third-hal
+LIB_PATH  = ../../one-third-hal
 PRJ_PATH  = . $(LIB_PATH)/core
 LIBS      = -lc -lm -lnosys
 OPT       = -Og

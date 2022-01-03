@@ -10,8 +10,11 @@ extern "C" {
 #include <stdint.h>
 
 // clang-format off
-#if !defined(_RINGBUFFER_MAX_PACKETS_FOUND)
-    #define _RINGBUFFER_MAX_PACKETS_FOUND     5
+#if !defined(_RINGBUFFER_HEADER_MAX_LEN)
+    #define _RINGBUFFER_HEADER_MAX_LEN     5
+#endif
+#if !defined(_RINGBUFFER_PACKETS_MAX_FOUND)
+    #define _RINGBUFFER_PACKETS_MAX_FOUND     5
 #endif
 // clang-format on
 
@@ -42,14 +45,7 @@ typedef enum RingBufferError {
     RINGBUFFER_ERR_PTMI = -5,  // PTMI = pop too many items
 } RingBufferError_e;
 
-#pragma pack(1)
-typedef struct {
-    uint16_t pos[_RINGBUFFER_MAX_PACKETS_FOUND];    // should be changed
-    uint16_t dist[_RINGBUFFER_MAX_PACKETS_FOUND];  // how many bytes to the
-                                                    // next header
-    uint8_t  count;
-} RingBufferIndex_t;
-#pragma pack()
+
 
 #pragma pack(1)
 typedef struct {
@@ -63,11 +59,19 @@ typedef struct {
 
 #pragma pack(1)
 typedef struct {
-    uint8_t data[5];
+    uint8_t data[_RINGBUFFER_HEADER_MAX_LEN];
     uint8_t size;
 } RingBufferHeader_t;
 #pragma pack()
 
+#pragma pack(1)
+typedef struct {
+    uint16_t pos[_RINGBUFFER_PACKETS_MAX_FOUND];    // should be changed
+    uint16_t dist[_RINGBUFFER_PACKETS_MAX_FOUND];  // how many bytes to the
+                                                    // next header
+    uint8_t  count;
+} RingBufferIndex_t;
+#pragma pack()
 
 typedef void (*ringbuffer_hook)(void*);
 #pragma pack(1)
@@ -106,8 +110,8 @@ typedef struct {
     void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
     // search the ringbuffer for some pattern, and record the locations to index
     WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb);
-    RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
     void (*insight)(RingBuffer_t* rb);
+    RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
 } RingBufferOpApi_t;
 
 // ============================================================================
