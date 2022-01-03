@@ -68,12 +68,15 @@ typedef struct {
 } RingBufferHeader_t;
 #pragma pack()
 
+
+typedef void (*ringbuffer_hook)(void*);
 #pragma pack(1)
 typedef struct RingBuffer_s {
     uint8_t*           data;
     RingBufferState_t  state;
     RingBufferHeader_t header;
     RingBufferIndex_t  index;
+    ringbuffer_hook    process;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
