@@ -25,13 +25,6 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
 }
 
 // ============================================================================
-static void no_process(uint8_t* data, uint16_t len) {
-    ( void )data;
-    ( void )len;
-    rb_error("ringbuffer: use op.ringbuffer.attach() to attach a process "
-             "function.\r\n");
-}
-// ============================================================================
 /// the RingBufferApi_t only defines the interface of using the ring-buffer, the
 /// data block is defined outside and trasmitted into this function for
 /// configuration
@@ -56,8 +49,6 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     bzero(rb.index.dist, _RINGBUFFER_PACKETS_MAX_FOUND);
     rb.index.count = 0;
 
-    // process function initialization
-    rb.process = no_process;
     return rb;
 }
 
@@ -289,9 +280,14 @@ WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb) {
     return RINGBUFFER_NO_ERROR;
 }
 
-void RingbufferAttach(RingBuffer_t* rb, ringbuffer_hook hook) {
-    rb->process = hook;
+// ============================================================================
+void RingBufferInsight(RingBuffer_t* rb) {
+    rb_printk(0, "--------\r\nfound %d header(s):\r\n", rb->index.count);
+    for (uint8_t i = 0; i < rb->index.count; i++) {
+        rb_printf("%3d (%3d)\r\n", rb->index.pos[i], rb->index.dist[i]);
+    }
 }
+
 // ============================================================================
 /// move the head to specified position
 RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
@@ -331,9 +327,27 @@ RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos) {
 }
 
 // ============================================================================
-void RingBufferInsight(RingBuffer_t* rb) {
-    rb_printk(0, "--------\r\nfound %d header(s):\r\n", rb->index.count);
-    for (uint8_t i = 0; i < rb->index.count; i++) {
-        rb_printf("%3d (%3d)\r\n", rb->index.pos[i], rb->index.dist[i]);
+WARN_UNUSED_RESULT uint8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
+                                           uint16_t size) {
+    if (rb->index.count == 0) {
+        return -1;
     }
+    bzero(array, size);
+    if (size < rb->index.dist[0]) {
+        rb_printf("%s() argument 3: size is too small\r\n", __func__);
+        return -2;
+    }
+    if (rb->state.head != rb->index.pos[0]) {
+        console.printf("rb->state.head = %d, index.pos[0] = %d\r\n",
+                       rb->state.head, rb->index.pos[0]);
+        RingBufferMoveHead(rb, rb->index.pos[0]);
+        RingBufferShow(rb,'h',10);
+    }
+    RingBufferPopN(rb, array, rb->index.dist[0]);
+    rb->index.count--;
+    for (int i = 0; i < 4; i++) {
+        rb->index.pos[i] = rb->index.pos[i + 1];
+        rb->index.dist[i] = rb->index.dist[i + 1];
+    }
+    return rb->index.count;
 }

@@ -87,7 +87,7 @@ int main(void) {
     }
 
     // tfmini data packet
-    console.printf("----------\r\n, push three items to the ringbuffer\r\n");
+    console.printf("----------\r\npush three items to the ringbuffer\r\n");
     op.ringbuffer.push(&rb, 32);
     op.ringbuffer.push(&rb, 24);
     op.ringbuffer.push(&rb, 14);
@@ -111,10 +111,20 @@ int main(void) {
     }
     op.ringbuffer.insight(&rb);
     console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
-    // attach a process function
-    op.ringbuffer.attach(&rb, tfmini_parse);
-    // TODO: uses the index information got from search() to process data
-    rb.process(tfmini_data2, sizeof_array(tfmini_data2));
+
+    uint8_t array[30];
+    while ((ret = op.ringbuffer.fetch(&rb, array, sizeof_array(array))) > 0) {
+        for (int i = 0; i < sizeof_array(array); i++) {
+            console.printf("%02X ", array[i]);
+        }
+        console.printf("\r\n");
+        op.ringbuffer.show(&rb, 'H', 10);
+        op.ringbuffer.insight(&rb);
+    }
+
+    op.ringbuffer.insight(&rb);
+
+    tfmini_parse(tfmini_data2, sizeof_array(tfmini_data2));
     // tasks -----------
     stime.scheduler.show();
 

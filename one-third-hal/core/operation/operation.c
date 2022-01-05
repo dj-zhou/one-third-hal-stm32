@@ -18,8 +18,7 @@ OperationApt_t op = {
         .header  = RingBufferHeader ,
         .search  = RingBufferSearch ,
         .insight = RingBufferInsight,
-        // attach a process function (defined outside)
-        .attach  = RingbufferAttach,
+        .fetch   = RingBufferFetch  ,
     },
 };
 // clang-format on

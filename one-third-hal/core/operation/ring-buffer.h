@@ -78,14 +78,12 @@ typedef struct {
 } RingBufferIndex_t;
 #pragma pack()
 
-typedef void (*ringbuffer_hook)(uint8_t * data, uint16_t len);
 #pragma pack(1)
 typedef struct RingBuffer_s {
     uint8_t*           data;
     RingBufferState_t  state;
     RingBufferHeader_t header;
     RingBufferIndex_t  index;
-    ringbuffer_hook    process;
 } RingBuffer_t;
 #pragma pack()
 // clang-format on
@@ -100,9 +98,10 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
 WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb);
-void RingbufferAttach(RingBuffer_t* rb, ringbuffer_hook hook);
-RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
 void RingBufferInsight(RingBuffer_t* rb);
+WARN_UNUSED_RESULT uint8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
+                                           uint16_t size);
+RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
 
 // ============================================================================
 typedef struct {
@@ -116,7 +115,8 @@ typedef struct {
     void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
     WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb);
     void (*insight)(RingBuffer_t* rb);
-    void (*attach)(RingBuffer_t* rb, ringbuffer_hook hook);
+    WARN_UNUSED_RESULT uint8_t (*fetch)(RingBuffer_t* rb, uint8_t* array,
+                                        uint16_t size);
     RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
 } RingBufferOpApi_t;
 
