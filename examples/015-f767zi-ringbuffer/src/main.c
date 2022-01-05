@@ -99,8 +99,9 @@ int main(void) {
     op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.push(&rb, 24);
     op.ringbuffer.push(&rb, 11);
-    uint8_t tfmini_data2[] = { 0x59, 0x59, 0xF4, 0x07, 0xAD,
-                               0x01, 0xA8, 0x09, 0x0C };
+    // error data set
+    uint8_t tfmini_data2[] = { 0x59, 0x59, 0x41, 0x12, 0x1D,
+                               0x31, 0x85, 0x11, 0x68 };
     op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
     op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
     op.ringbuffer.show(&rb, 'H', 10);
@@ -124,7 +125,7 @@ int main(void) {
 
     op.ringbuffer.insight(&rb);
 
-    tfmini_parse(tfmini_data2, sizeof_array(tfmini_data2));
+    tfmini_parse(tfmini_data1, sizeof_array(tfmini_data1));
     // tasks -----------
     stime.scheduler.show();
 
