@@ -66,4 +66,3 @@
     #define IIC_EXISTS
 #endif
 // clang-format on
-

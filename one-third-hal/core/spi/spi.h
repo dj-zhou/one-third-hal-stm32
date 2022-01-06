@@ -151,4 +151,3 @@ void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
 // clang-format on
 
 #endif  // SPI_IS_USED
-
