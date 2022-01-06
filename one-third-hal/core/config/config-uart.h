@@ -68,6 +68,6 @@
 typedef struct {
     void (*set)(USART_TypeDef* USARTx, bool value);
     bool (*check)(USART_TypeDef* USARTx);
-} ConfigUarts_t;
+} ConfigUart_t;
 
-extern ConfigUarts_t config_uarts;
+extern ConfigUart_t config_uart;

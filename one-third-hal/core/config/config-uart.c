@@ -31,17 +31,17 @@ static uint8_t get_pos(USART_TypeDef* USARTx) {
     return pos;
 }
 
-static void ConfigUartsSet(USART_TypeDef* USARTx, bool value) {
+static void ConfigUartet(USART_TypeDef* USARTx, bool value) {
     uint8_t pos = get_pos(USARTx);
     value ? (uarts_used |= ( uint8_t )(1 << pos))
           : (uarts_used &= ( uint8_t )(~(1 << pos)));
 }
 
-static bool ConfigUartsCheck(USART_TypeDef* USARTx) {
+static bool ConfigUartCheck(USART_TypeDef* USARTx) {
     return _CHECK_BIT(uarts_used, get_pos(USARTx));
 }
 
-ConfigUarts_t config_uarts = {
-    .set = ConfigUartsSet,
-    .check = ConfigUartsCheck,
+ConfigUart_t config_uart = {
+    .set = ConfigUartet,
+    .check = ConfigUartCheck,
 };

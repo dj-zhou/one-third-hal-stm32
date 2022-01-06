@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(UART4_EXISTS) && defined(UART4_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -11,24 +12,33 @@ uint16_t uart4_uh_mask_;
 #endif
 
 // ----------------------------------------------------------------------------
+#if defined(_USE_UART4_PA0PA1)
+static void InitUart4_PA0PA1(void) {
+#error InitUart4_PA0PA1(): todo
+}
+#endif  // _USE_UART4_PA0PA1
+
+// ----------------------------------------------------------------------------
 #if defined(_USE_UART4_PC10PC11)
 static void InitUart4_PC10PC11(void) {
-    // todo
+#error InitUart4_PC10PC11(): todo
 }
 #endif  // _USE_UART4_PC10PC11
 
 // ----------------------------------------------------------------------------
 static void InitUart4(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (config_uarts.check(UART4)) {
+    if (config_uart.check(UART4)) {
         uart_error("UART4 is occupied\r\n");
     }
     uart4.huart.Instance = UART4;
-#if defined(_USE_UART4_PC10PC11)
+#if defined(_USE_UART4_PA0PA1)
+    InitUart4_PA0PA1();
+#elif defined(_USE_UART4_PC10PC11)
     InitUart4_PC10PC11();
 #endif
     utils.clock.enableUart(uart4.huart.Instance);
-    InitUartSettings(&(uart4.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(uart4.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(uart4.huart));
     uart4_uh_mask_ = uart4.huart.Mask;
@@ -38,7 +48,7 @@ static void InitUart4(uint32_t baud, uint8_t data_size, char parity,
     __HAL_UART_ENABLE_IT(&(uart4.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart4.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART4_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(UART4_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +69,7 @@ static void Uart4DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_uart4_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
@@ -71,11 +81,11 @@ static void Uart4RingbufferConfig(uint8_t* data, uint16_t len) {
 // ----------------------------------------------------------------------------
 static void InitUart4Priority(uint16_t preempt_p) {
     // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
-    InitUartNvic(UART4_IRQn, preempt_p);
+    init_uart_nvic(UART4_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Uart4Transmit(uint8_t* data, uint16_t size) {
+static void Uart4Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(uart4.huart), data, size, 1000);
 }
 
@@ -115,7 +125,7 @@ UartApi_t uart4 = {
     .config      = InitUart4             ,
     .dma.config  = Uart4DmaConfig        ,
     .priority    = InitUart4Priority     ,
-    .transmit    = Uart4Transmit         ,
+    .send        = Uart4Send             ,
     .ring.config = Uart4RingbufferConfig ,
 };
 // clang-format on

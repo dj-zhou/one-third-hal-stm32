@@ -58,7 +58,7 @@ static void ConsoleUartIRQ(void) {
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F030x8)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
@@ -82,7 +82,7 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F103xB) || defined(STM32F107xC)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR) {
 
     utils.clock.enableGpio(GPIOx_T);
@@ -103,7 +103,7 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F303xE)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
@@ -135,7 +135,7 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F407xx) || defined(STM32F427xx)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
@@ -159,7 +159,7 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
@@ -182,7 +182,7 @@ static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 #endif  // STM32F746xx || STM32F767xx
 
 #if defined(STM32H750xx)
-static void ConsoleInitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                                 GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
                                 uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
@@ -224,7 +224,7 @@ static HAL_StatusTypeDef ConsolePeriphClock(void) {
 #endif  // STM32H750xx
 
 // ----------------------------------------------------------------------------
-static void ConsoleInitUartSettings(USART_TypeDef* USARTx, uint32_t baud_rate,
+static void Consoleinit_uart_settings(USART_TypeDef* USARTx, uint32_t baud_rate,
                                     uint8_t len, char parity, uint8_t stop_b) {
 
     hconsole_.Instance = USARTx;
@@ -311,14 +311,14 @@ static void consoleWriteStr(char* ptr) {
 #if defined(_CONSOLE_USE_USART1_PA9PA10) && defined(USART1_EXISTS)
 static void InitUSART1_PA9PA10(void) {
 #if defined(STM32F103xB)
-    ConsoleInitUartPins(GPIOA, 9, GPIOA, 10, 0);
+    Consoleinit_uart_pins(GPIOA, 9, GPIOA, 10, 0);
 #elif defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOA, 9, GPIOA, 10);
+    Consoleinit_uart_pins(GPIOA, 9, GPIOA, 10);
 #error no hardware to verify yet
 #elif defined(STM32F407xx)
-    ConsoleInitUartPins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);  // to verify
+    Consoleinit_uart_pins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);  // to verify
 #elif defined(STM32H750xx)
-    ConsoleInitUartPins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);
+    Consoleinit_uart_pins(GPIOA, 9, GPIOA, 10, GPIO_AF7_USART1);
     ConsolePeriphClock();
 #else
 #error InitUSART1_PA9PA10(): need to implement and verify!
@@ -332,7 +332,7 @@ static void InitUSART1_PA9PA10(void) {
 #if defined(_CONSOLE_USE_USART1_PB6PB7) && defined(USART1_EXISTS)
 static void InitUSART1_PB6PB7(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOB, 6, GPIOB, 7);
+    Consoleinit_uart_pins(GPIOB, 6, GPIOB, 7);
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART1_ENABLE();
 #else
@@ -357,13 +357,13 @@ void USART1_IRQHandler(void) {
 #if defined(_CONSOLE_USE_USART2_PA2PA3) && defined(USART2_EXISTS)
 static void InitUSART2_PA2PA3(void) {
 #if defined(STM32F030x8)
-    ConsoleInitUartPins(GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2);  // verified
+    Consoleinit_uart_pins(GPIOA, 2, GPIOA, 3, GPIO_AF1_USART2);  // verified
 #elif defined(STM32F103xB)
-    ConsoleInitUartPins(GPIOA, 2, GPIOA, 3);                   // verified
+    Consoleinit_uart_pins(GPIOA, 2, GPIOA, 3);                   // verified
 #elif defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOA, 2, GPIOA, 3);                    // verified
+    Consoleinit_uart_pins(GPIOA, 2, GPIOA, 3);                    // verified
 #elif defined(STM32F303xE) || defined(STM32F407xx) || defined(STM32F767xx)
-    ConsoleInitUartPins(GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2);  // verified
+    Consoleinit_uart_pins(GPIOA, 2, GPIOA, 3, GPIO_AF7_USART2);  // verified
 #else
 #error InitUSART2_PA2PA3(): need to implement and verify!
 #endif
@@ -378,7 +378,7 @@ static void InitUSART2_PA2PA3(void) {
 // STM32F107VCT6 does not have USART2 on these pins
 static void InitUSART2_PD5PD6(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOD, 5, GPIOD, 6);  // verified
+    Consoleinit_uart_pins(GPIOD, 5, GPIOD, 6);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART2_ENABLE();
 #else
@@ -411,7 +411,7 @@ void USART2_IRQHandler(void) {
 #if defined(_CONSOLE_USE_USART3_PB10PB11) && defined(USART3_EXISTS)
 static void InitUSART3_PB10PB11(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOB, 10, GPIOB, 11);  // verified
+    Consoleinit_uart_pins(GPIOB, 10, GPIOB, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
 #error InitUSART3_PB10PB11(): need to implement and verify!
@@ -426,7 +426,7 @@ static void InitUSART3_PB10PB11(void) {
 #if defined(_CONSOLE_USE_USART3_PC10PC11) && defined(USART3_EXISTS)
 static void InitUSART3_PC10PC11(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOC, 10, GPIOC, 11);  // verified
+    Consoleinit_uart_pins(GPIOC, 10, GPIOC, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART3_PARTIAL();
 #else
@@ -442,11 +442,11 @@ static void InitUSART3_PC10PC11(void) {
 static void InitUSART3_PD8PD9(void) {
 
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOD, 8, GPIOD, 9);  // verified
+    Consoleinit_uart_pins(GPIOD, 8, GPIOD, 9);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART3_ENABLE();
 #elif defined(STM32F746xx) || defined(STM32F767xx)
-    ConsoleInitUartPins(GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3);  // verified
+    Consoleinit_uart_pins(GPIOD, 8, GPIOD, 9, GPIO_AF7_USART3);  // verified
 #else
 #error InitUSART3_PD8PD9(): need to implement and verify!
 #endif
@@ -474,7 +474,7 @@ void USART3_IRQHandler(void) {
 #if defined(CONSOLE_USE_UART4) && defined(UART4_EXISTS)
 static void InitUART4_PC10PC11(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOC, 10, GPIOC, 11);  // verified
+    Consoleinit_uart_pins(GPIOC, 10, GPIOC, 11);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
 #else
 #error InitUART4_PC10PC11(): need to implement and verify!
@@ -500,7 +500,7 @@ void UART4_IRQHandler(void) {
 // supported baud rate: 115200, 230400, 460800, 576000, 921600
 static void InitUART5_PC12PD2(void) {
 #if defined(STM32F107xC)
-    ConsoleInitUartPins(GPIOC, 12, GPIOD, 2);  // verified
+    Consoleinit_uart_pins(GPIOC, 12, GPIOD, 2);  // verified
 #else
 #error InitUART5_PC12PD2(): need to implement and verify!
 #endif
@@ -522,7 +522,7 @@ void UART5_IRQHandler(void) {
 #if defined(CONSOLE_USE_UART7) && defined(UART7_EXISTS)
 static void InitUART7_PE8PE7(void) {
 #if defined(STM32F427xx)
-    ConsoleInitUartPins(GPIOE, 8, GPIOE, 7, GPIO_AF8_UART7);  // verified
+    Consoleinit_uart_pins(GPIOE, 8, GPIOE, 7, GPIO_AF8_UART7);  // verified
 #else
 #error InitUART7_PE8PE7(): need to implement and verify!
 #endif
@@ -672,91 +672,91 @@ static void consoleConfig(uint32_t baud_rate) {
     rb.w_ptr = rb.buffer;
 
 #if defined(_CONSOLE_USE_USART1_PA9PA10)
-    if (!config_uarts.check(USART1)) {
+    if (!config_uart.check(USART1)) {
         InitUSART1_PA9PA10();
         hconsole_.Instance = USART1;
-        config_uarts.set(USART1, true);
+        config_uart.set(USART1, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART1_PB6PB7)
-    if (!config_uarts.check(USART1)) {
+    if (!config_uart.check(USART1)) {
         InitUSART1_PB6PB7();
         hconsole_.Instance = USART1;
-        config_uarts.set(USART1, true);
+        config_uart.set(USART1, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART2_PA2PA3)
-    if (!config_uarts.check(USART2)) {
+    if (!config_uart.check(USART2)) {
         InitUSART2_PA2PA3();
         hconsole_.Instance = USART2;
-        config_uarts.set(USART2, true);
+        config_uart.set(USART2, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART2_PD5PD6)
-    if (!config_uarts.check(USART2)) {
+    if (!config_uart.check(USART2)) {
         InitUSART2_PD5PD6();
         hconsole_.Instance = USART2;
-        config_uarts.set(USART2, true);
+        config_uart.set(USART2, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART3_PB10PB11)
-    if (!config_uarts.check(USART3)) {
+    if (!config_uart.check(USART3)) {
         InitUSART3_PB10PB11();
         hconsole_.Instance = USART3;
-        config_uarts.set(USART3, true);
+        config_uart.set(USART3, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART3_PC10PC11)
-    if (!config_uarts.check(USART3)) {
+    if (!config_uart.check(USART3)) {
         InitUSART3_PC10PC11();
         hconsole_.Instance = USART3;
-        config_uarts.set(USART3, true);
+        config_uart.set(USART3, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_USART3_PD8PD9)
-    if (!config_uarts.check(USART3)) {
+    if (!config_uart.check(USART3)) {
         InitUSART3_PD8PD9();
         hconsole_.Instance = USART3;
-        config_uarts.set(USART3, true);
+        config_uart.set(USART3, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_UART4_PC10PC11)
-    if (!config_uarts.check(UART4)) {
+    if (!config_uart.check(UART4)) {
         InitUART4_PC10PC11();
         hconsole_.Instance = UART4;
-        config_uarts.set(UART4, true);
+        config_uart.set(UART4, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_UART5_PC12PD2)
-    if (!config_uarts.check(UART5)) {
+    if (!config_uart.check(UART5)) {
         InitUART5_PC12PD2();
         hconsole_.Instance = UART5;
-        config_uarts.set(UART5, true);
+        config_uart.set(UART5, true);
     }
     else {
         // error not supported?
     }
 #elif defined(_CONSOLE_USE_UART7_PE8PE7)
-    if (!config_uarts.check(UART7)) {
+    if (!config_uart.check(UART7)) {
         InitUART7_PE8PE7();
         hconsole_.Instance = UART7;
-        config_uarts.set(UART7, true);
+        config_uart.set(UART7, true);
     }
     else {
         // error not supported?
@@ -766,7 +766,7 @@ static void consoleConfig(uint32_t baud_rate) {
 #endif
     // usart setting -------------
     utils.clock.enableUart(hconsole_.Instance);
-    ConsoleInitUartSettings(hconsole_.Instance, baud_rate, 8, 'n', 1);
+    Consoleinit_uart_settings(hconsole_.Instance, baud_rate, 8, 'n', 1);
     __HAL_UART_ENABLE(&hconsole_);
 
     // command line interface -------------

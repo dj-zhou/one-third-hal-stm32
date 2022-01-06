@@ -29,7 +29,7 @@
 #endif
 
 #if defined(UART4_EXISTS)
-    #if defined(_USE_UART4_PC10PC11)
+    #if defined(_USE_UART4_PA0PA1) || defined(_USE_UART4_PC10PC11)
         #define UART4_IS_USED
     #endif
 #endif
@@ -41,16 +41,22 @@
 #endif
 
 #if defined(USART6_EXISTS)
-    // todo
+    #if defined(_USE_USART6_PC6PC7) || defined(_USE_USART6_PG14PG9)
+        #define USART6_IS_USED
+    #endif
 #endif
 
 
 #if defined(UART7_EXISTS)
-    // todo
+    #if defined(_USE_UART7_PA15PA8) || defined(_USE_UART7_PB4PB3)
+        #define UART7_IS_USED
+    #endif
 #endif
 
 #if defined(UART8_EXISTS)
-    // todo
+    #if defined(_USE_UART8_PE1PE0) || defined(_USE_UART8_PJ8PJ9)
+        #define UART8_IS_USED
+    #endif
 #endif
 
 #if defined(USART1_IS_USED) || defined(USART2_IS_USED) || defined(USART3_IS_USED) \
@@ -87,12 +93,12 @@
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
-void InitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT, GPIO_TypeDef* GPIOx_R,
-                  uint8_t pin_nR, uint32_t alter);
+void init_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                    GPIO_TypeDef* GPIOx_R, uint8_t pin_nR, uint32_t alter);
 #endif  // STM32F746xx || STM32F767xx
-void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
-                      uint8_t len, char parity, uint8_t stop_b);
-void InitUartNvic(IRQn_Type ch, uint16_t p);
+void init_uart_settings(UART_HandleTypeDef* huart, uint32_t baud_rate,
+                        uint8_t len, char parity, uint8_t stop_b);
+void init_uart_nvic(IRQn_Type ch, uint16_t p);
 
 // ----------------------------------------------------------------------------
 typedef struct {
@@ -103,17 +109,17 @@ typedef struct {
     UART_HandleTypeDef huart;
     void (*config)(uint32_t, uint8_t, char, uint8_t);
     void (*priority)(uint16_t);
-    void (*transmit)(uint8_t*, uint16_t);
+    void (*send)(uint8_t*, uint16_t);
     UartDma_t dma;
 } UartApi_t;
 
-#endif  // UART_IS_USED
-
 #ifdef CONSOLE_IS_USED
 #define uart_printf(...) (console.printf(__VA_ARGS__))
+#define uart_printk(...) (console.printk(__VA_ARGS__))
 #define uart_error(...) (console.error(__VA_ARGS__))
 #else
 #define uart_printf(...) ({ ; })
+#define uart_printk(...) ({ ; })
 #define uart_error(...) ({ ; })
 #endif
 

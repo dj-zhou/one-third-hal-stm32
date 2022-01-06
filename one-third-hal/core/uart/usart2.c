@@ -1,16 +1,17 @@
 #include "uart.h"
 
 #if defined(USART2_EXISTS) && defined(USART2_IS_USED)
+// ============================================================================
 
 // ============================================================================
 #if defined(STM32F303xE) || defined(STM32F767xx)
-uint16_t usart2_uh_mask_;
+uint16_t usart2_uh_mask_;  // is this used?
 #endif
 
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART2_PA2PA3)
 static void InitUsart2_PA2PA3(void) {
-    // todo
+#error InitUsart2_PA2PA3(): todo
 }
 #endif  // _USE_USART2_PA2PA3
 
@@ -18,11 +19,11 @@ static void InitUsart2_PA2PA3(void) {
 #if defined(_USE_USART2_PD5PD6)
 static void InitUsart2_PD5PD6(void) {
 #if defined(STM32F107xC)
-    InitUartPins(GPIOD, 5, GPIOD, 6);  // verified
+    init_uart_pins(GPIOD, 5, GPIOD, 6);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
     __HAL_AFIO_REMAP_USART2_ENABLE();
 #elif defined(STM32F767xx)
-    InitUartPins(GPIOD, 5, GPIOD, 6, GPIO_AF7_USART2);  // verifing
+    init_uart_pins(GPIOD, 5, GPIOD, 6, GPIO_AF7_USART2);  // verifing
 #else
 #error InitUSART2_PD5PD6(): need to implement and verify!
 #endif
@@ -32,27 +33,27 @@ static void InitUsart2_PD5PD6(void) {
 // ----------------------------------------------------------------------------
 static void InitUsart2(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    if (config_uarts.check(USART2)) {
+    if (config_uart.check(USART2)) {
         uart_error("USART2 is occupied\r\n");
     }
     usart2.huart.Instance = USART2;
 #if defined(_USE_USART2_PA2PA3)
-    InitUsart2_PA2PA3();  // todo
+    InitUsart2_PA2PA3();
 #elif defined(_USE_USART2_PD5PD6)
     InitUsart2_PD5PD6();
 #endif
     utils.clock.enableUart(usart2.huart.Instance);
-    InitUartSettings(&(usart2.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(usart2.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(usart2.huart));
     usart2_uh_mask_ = usart2.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(usart2.huart));
 
+    __HAL_UART_ENABLE(&(usart2.huart));
     __HAL_UART_ENABLE_IT(&(usart2.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(usart2.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(USART2_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(USART2_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -112,11 +113,11 @@ static void Usart2DmaConfig(uint8_t* buffer, uint32_t len) {
 
 // ----------------------------------------------------------------------------
 static void InitUsart2Priority(uint16_t preempt_p) {
-    InitUartNvic(USART2_IRQn, preempt_p);
+    init_uart_nvic(USART2_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart2Transmit(uint8_t* data, uint16_t size) {
+static void Usart2Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(usart2.huart), data, size, 1000);
 }
 
@@ -154,7 +155,7 @@ UartApi_t usart2 = {
     .config      = InitUsart2             ,
     .dma.config  = Usart2DmaConfig        ,
     .priority    = InitUsart2Priority     ,
-    .transmit    = Usart2Transmit         ,
+    .send        = Usart2Send             ,
 };
 // clang-format on
 
