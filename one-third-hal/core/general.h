@@ -50,7 +50,9 @@ extern "C" {
         })
 #endif
 
-#define WARN_UNUSED_RESULT __attribute__((__warn_unused_result__))
+#if !defined(WARN_UNUSED_RESULT)
+    #define WARN_UNUSED_RESULT __attribute__((__warn_unused_result__))
+#endif
 // clang-format on
 
 // ============================================================================

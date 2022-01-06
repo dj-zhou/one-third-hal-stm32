@@ -29,6 +29,10 @@ extern "C" {
 #define _LED_HEARTBEAT_TASK_MS 5
 #include "led-status.h"
 
+// ----------------------------------------------------------------------------
+#define _RINGBUFFER_HEADER_MAX_LEN 2
+#include "operation.h"
+
 // ============================================================================
 #ifdef __cplusplus
 }

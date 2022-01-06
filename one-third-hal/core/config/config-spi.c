@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include "config-spi.h"
 
 static uint8_t spi_used = 0;

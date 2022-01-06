@@ -1,12 +1,8 @@
-#ifndef __CONFIG_TIMER_H
-#define __CONFIG_TIMER_H
+#pragma once
 
 #include "config.h"
 
-// uint32_t g_config_timer_used;
-
 // clang-format off
-
 // commonly existed ones -------------
 #define TIM1_EXISTS
 // special ones ---------------
@@ -96,4 +92,3 @@
 
 // clang-format on
 
-#endif  // __CONFIG_TIMER_H

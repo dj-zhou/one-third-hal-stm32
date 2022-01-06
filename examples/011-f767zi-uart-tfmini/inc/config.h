@@ -13,6 +13,10 @@ extern "C" {
 #include "general-utils.h"
 
 // ----------------------------------------------------------------------------
+#define _RINGBUFFER_HEADER_MAX_LEN 2
+#include "operation.h"
+
+// ----------------------------------------------------------------------------
 #define _STIME_USE_SYSTICK
 #define _STIME_4K_TICK
 #define _STIME_USE_SCHEDULER
@@ -32,10 +36,6 @@ extern "C" {
 // ----------------------------------------------------------------------------
 #define _USE_USART2_PD5PD6
 #include "uart.h"
-
-// ----------------------------------------------------------------------------
-#define _RINGBUFFER_HEADER_MAX_LEN 2
-#include "ring-buffer.h"
 
 // ============================================================================
 #ifdef __cplusplus

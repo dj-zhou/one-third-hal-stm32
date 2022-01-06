@@ -1,9 +1,4 @@
-#ifndef __SPI_H
-#define __SPI_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 // ============================================================================
 #include "config.h"
@@ -157,9 +152,3 @@ void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
 
 #endif  // SPI_IS_USED
 
-// ============================================================================
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __SPI_H

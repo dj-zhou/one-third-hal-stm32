@@ -1,5 +1,4 @@
-#ifndef __CONFIG_UART_H
-#define __CONFIG_UART_H
+#pragma once
 
 #include "config.h"
 #include <stdbool.h>
@@ -72,5 +71,3 @@ typedef struct {
 } ConfigUarts_t;
 
 extern ConfigUarts_t config_uarts;
-
-#endif  // __CONFIG_UART_H

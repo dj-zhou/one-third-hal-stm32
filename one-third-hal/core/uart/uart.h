@@ -1,15 +1,10 @@
-#ifndef __UART_H
-#define __UART_H
+#pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 // ============================================================================
 #include "config.h"
 
 #include "config-uart.h"
 #include "general.h"
-#include "ring-buffer.h"
 
 // ============================================================================
 // clang-format off
@@ -100,11 +95,6 @@ void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
 void InitUartNvic(IRQn_Type ch, uint16_t p);
 
 // ----------------------------------------------------------------------------
-
-typedef struct {
-    void (*config)(uint8_t* data, uint16_t len);
-} UartRingBuffer_t;
-
 typedef struct {
     void (*config)(uint8_t* data, uint32_t len);
 } UartDma_t;
@@ -114,9 +104,7 @@ typedef struct {
     void (*config)(uint32_t, uint8_t, char, uint8_t);
     void (*priority)(uint16_t);
     void (*transmit)(uint8_t*, uint16_t);
-    RingBuffer_t rb;
     UartDma_t dma;
-    UartRingBuffer_t ring;
 } UartApi_t;
 
 #endif  // UART_IS_USED
@@ -163,10 +151,3 @@ typedef struct {
     extern UartApi_t uart8;
 #endif
 // clang-format on
-
-// ============================================================================
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __UART_H

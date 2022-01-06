@@ -2,8 +2,6 @@
 
 #if defined(USART2_EXISTS) && defined(USART2_IS_USED)
 
-// static
-
 // ============================================================================
 #if defined(STM32F303xE) || defined(STM32F767xx)
 uint16_t usart2_uh_mask_;
@@ -113,11 +111,6 @@ static void Usart2DmaConfig(uint8_t* buffer, uint32_t len) {
 }
 
 // ----------------------------------------------------------------------------
-static void Usart2RingBufferConfig(uint8_t* data, uint16_t len) {
-    usart2.rb = ringbuffer.config(data, len);
-}
-
-// ----------------------------------------------------------------------------
 static void InitUsart2Priority(uint16_t preempt_p) {
     InitUartNvic(USART2_IRQn, preempt_p);
 }
@@ -130,7 +123,7 @@ static void Usart2Transmit(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function should be redefined in projects
 __attribute__((weak)) void Usart2IdleIrqCallback(void) {
-    ringbuffer.show(&(usart2.rb), 'H', 9);
+    // todo
 }
 
 // ============================================================================
@@ -143,7 +136,7 @@ void USART2_IRQHandler(void) {
     if (flag != RESET && source != RESET) {
         uint8_t recv;
         HAL_UART_Receive(&(usart2.huart), &recv, 1, 1000);
-        ringbuffer.push(&(usart2.rb), recv);
+        // op.ringbuffer.push(&(usart2.rb), recv);
     }
     // IDLE interrupt -----------------
     flag = __HAL_UART_GET_FLAG(&(usart2.huart), UART_FLAG_IDLE);
@@ -162,7 +155,6 @@ UartApi_t usart2 = {
     .dma.config  = Usart2DmaConfig        ,
     .priority    = InitUsart2Priority     ,
     .transmit    = Usart2Transmit         ,
-    .ring.config = Usart2RingBufferConfig ,
 };
 // clang-format on
 

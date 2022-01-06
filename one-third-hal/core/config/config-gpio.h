@@ -1,10 +1,8 @@
-#ifndef __CONFIG_GPIO_H
-#define __CONFIG_GPIO_H
+#pragma once
 
 #include "config.h"
 
 // clang-format off
-
 // commonly existed ones -------------
 #define GPIOA_EXISTS
 #define GPIOB_EXISTS
@@ -42,6 +40,5 @@
     #define GPIOI_EXISTS
     #define GPIOJ_EXISTS
 #endif
-// clang-format on
 
-#endif  // __CONFIG_GPIO_H
+// clang-format on

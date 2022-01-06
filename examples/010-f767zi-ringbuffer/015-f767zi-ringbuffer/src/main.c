@@ -1,7 +1,4 @@
 #include "config.h"
-#include "operation.h"
-#include "ring-buffer.h"
-#include <math.h>
 
 // ============================================================================
 static void tfmini_parse(uint8_t* data, uint16_t len) {
@@ -53,6 +50,7 @@ int main(void) {
     // show the ringbuffer after it is initizized
     op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.show(&rb, 'd', 10);
+
     // push data into the ringbuffer
     op.ringbuffer.push(&rb, 0x45);
     op.ringbuffer.show(&rb, 'H', 10);
@@ -111,9 +109,10 @@ int main(void) {
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
     console.printf("fetch the packets out from the ringbuffer\r\n");
-    uint8_t packets_count = op.ringbuffer.search(&rb);
+    int8_t packets_count = op.ringbuffer.search(&rb);
     op.ringbuffer.insight(&rb);
     while (packets_count > 0) {
+        console.printf("packets_count = %d\r\n", packets_count);
         uint8_t array[30] = { 0 };
         packets_count = op.ringbuffer.fetch(&rb, array, sizeof_array(array));
         for (int i = 0; i < sizeof_array(array); i++) {
