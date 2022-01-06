@@ -1,9 +1,4 @@
-#ifndef __RING_BUFFER_H
-#define __RING_BUFFER_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 #include "config.h"
 #include <stdbool.h>
@@ -72,6 +67,7 @@ typedef struct {
 
 #pragma pack(1)
 typedef struct {
+    bool searched;
     uint16_t pos[_RINGBUFFER_PACKETS_MAX_FOUND];  // index of the header
     uint16_t dist[_RINGBUFFER_PACKETS_MAX_FOUND]; // distance to next header
     uint8_t  count;
@@ -97,11 +93,10 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
-WARN_UNUSED_RESULT RingBufferError_e RingBufferSearch(RingBuffer_t* rb);
+WARN_UNUSED_RESULT uint8_t RingBufferSearch(RingBuffer_t* rb);
 void RingBufferInsight(RingBuffer_t* rb);
 WARN_UNUSED_RESULT uint8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
                                            uint16_t size);
-RingBufferError_e RingBufferMoveHead(RingBuffer_t* rb, int16_t pos);
 
 // ============================================================================
 typedef struct {
@@ -113,16 +108,8 @@ typedef struct {
     bool (*popN)(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
     void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
-    WARN_UNUSED_RESULT RingBufferError_e (*search)(RingBuffer_t* rb);
+    WARN_UNUSED_RESULT uint8_t (*search)(RingBuffer_t* rb);
     void (*insight)(RingBuffer_t* rb);
     WARN_UNUSED_RESULT uint8_t (*fetch)(RingBuffer_t* rb, uint8_t* array,
                                         uint16_t size);
-    RingBufferError_e (*move)(RingBuffer_t* rb, int16_t pos);
-} RingBufferOpApi_t;
-
-// ============================================================================
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __RING_BUFFER_H
+} OpRingBufferApi_t;

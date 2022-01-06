@@ -13,7 +13,7 @@
 // ============================================================================
 // clang-format off
 typedef struct {
-    RingBufferOpApi_t ringbuffer;
+    OpRingBufferApi_t ringbuffer;
 } OperationApt_t;
 
 extern OperationApt_t op;

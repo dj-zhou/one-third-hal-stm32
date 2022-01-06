@@ -5,8 +5,9 @@
 
 // ============================================================================
 static void tfmini_parse(uint8_t* data, uint16_t len) {
+    console.printf("%s(): ", __func__);
     // calculate the checksum ----------
-    if (len != 9) {
+    if (len < 9) {
         console.printf("maybe it is not a tfmini packet?\r\n");
         return;
     }
@@ -103,29 +104,28 @@ int main(void) {
     uint8_t tfmini_data2[] = { 0x59, 0x59, 0x41, 0x12, 0x1D,
                                0x31, 0x85, 0x11, 0x68 };
     op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
-    op.ringbuffer.pushN(&rb, tfmini_data2, sizeof_array(tfmini_data2));
+    uint8_t tfmini_data3[] = { 0x59, 0x59, 0xF8, 0x07, 0xAD,
+                               0x01, 0xA8, 0x09, 0x10 };
+    op.ringbuffer.pushN(&rb, tfmini_data3, sizeof_array(tfmini_data3));
     op.ringbuffer.show(&rb, 'H', 10);
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
-    if (op.ringbuffer.search(&rb) != RINGBUFFER_NO_ERROR) {
-        console.printf("ringbuffer searh error\r\n");
-    }
+    console.printf("fetch the packets out from the ringbuffer\r\n");
+    uint8_t packets_count = op.ringbuffer.search(&rb);
     op.ringbuffer.insight(&rb);
-    console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
-
-    uint8_t array[30];
-    while ((ret = op.ringbuffer.fetch(&rb, array, sizeof_array(array))) > 0) {
+    while (packets_count > 0) {
+        uint8_t array[30] = { 0 };
+        packets_count = op.ringbuffer.fetch(&rb, array, sizeof_array(array));
         for (int i = 0; i < sizeof_array(array); i++) {
             console.printf("%02X ", array[i]);
         }
         console.printf("\r\n");
-        op.ringbuffer.show(&rb, 'H', 10);
-        op.ringbuffer.insight(&rb);
+        tfmini_parse(array, sizeof_array(array));
     }
 
+    op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.insight(&rb);
-
-    tfmini_parse(tfmini_data1, sizeof_array(tfmini_data1));
+    console.printf("size of RingBuffer_t = %d\r\n", sizeof(RingBuffer_t));
     // tasks -----------
     stime.scheduler.show();
 

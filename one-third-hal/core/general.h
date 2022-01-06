@@ -53,10 +53,6 @@ extern "C" {
 #define WARN_UNUSED_RESULT __attribute__((__warn_unused_result__))
 // clang-format on
 
-// #if !defined(_wrs_pack_align)
-//     #define _wrs_pack_align(x) __attribute__((packed, aligned(x)))
-// #endif
-
 // ============================================================================
 // to print with color (escaping)
 // clang-format off

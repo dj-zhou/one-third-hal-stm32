@@ -1,4 +1,5 @@
 #include "config.h"
+#include "operation.h"
 #include "ring-buffer.h"
 #include <string.h>
 
@@ -39,8 +40,13 @@ void tfmini_set_mode(TFminiMeasureMode_e mode) {
 }
 
 // ============================================================================
-static void tfmini_parse(uint8_t* data, int8_t* error_flag) {
+static void tfmini_parse(uint8_t* data, uint16_t len) {
+    console.printf("%s(): ", __func__);
     // calculate the checksum ----------
+    if (len < 9) {
+        console.printf("maybe it is not a tfmini packet?\r\n");
+        return;
+    }
     uint16_t check_sum = 0;
     for (int i = 0; i < 9 - 1; i++) {
         check_sum += data[i];
@@ -48,63 +54,37 @@ static void tfmini_parse(uint8_t* data, int8_t* error_flag) {
     check_sum &= 0xFF;
     // check the checksum ----------
     int8_t error = data[9 - 1] - check_sum;
-    if (error == 0) {
-        *error_flag = 0;
-    }
-    else if (error == 3) {  // this was seen on Linux SoM
-        *error_flag = -7;
-    }
-    else if (error == -3) {  // this was seen on Linux SoM
-        *error_flag = -8;
-    }
-    else {
-        *error_flag = -9;
-        dist_mm = 0;
-        strength = 0;
-        temp_c = 0;
+    if (error != 0) {
+        console.printf("checksum error\r\n");
         return;
     }
-    //  calculate the data ----------
-    switch (measure_mode) {
-    case TFMINI_MODE_CM:
-        dist_mm = 10 * (data[3] << 8 | data[2]);  // scaled to mm
-        strength = data[5] << 8 | data[4];
-        temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
-        break;
-    case TFMINI_MODE_PIXHAWK:
-        // not implemented
-        break;
-    case TFMINI_MODE_MM:
-        dist_mm = data[3] << 8 | data[2];
-        strength = data[5] << 8 | data[4];
-        temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
-        break;
-    }
-    return;
+    uint16_t dist_mm;
+    uint16_t strength;
+    float temp_c;
+    // mode cm:
+    // dist_mm = 10 * (data[3] << 8 | data[2]);  // scaled to mm
+    // mode mm:
+    dist_mm = data[3] << 8 | data[2];
+    strength = data[5] << 8 | data[4];
+    temp_c = ( float )(data[7] << 8 | data[6]) / 8.0 - 256;
+    console.printf("dist = %d mm, ", dist_mm);
+    console.printf("strength = %d, ", strength);
+    console.printf("temperature = %3.1f C\r\n", temp_c);
 }
 
 // ============================================================================
 void Usart2IdleIrqCallback(void) {
-    // ringbuffer.show(&(usart2.rb), 'H', 9);
-    RingBufferIndex_t index;
     uint8_t pattern[2];
     pattern[0] = 0x59;
     pattern[1] = 0x59;
-    ringbuffer.search(&(usart2.rb), pattern, sizeof_array(pattern), &index);
-    // ringbuffer.insight(&index);
-    int8_t error_flag;
-    if ((index.found > 0) && (index.count[index.found - 1] >= 9)) {
-        // move head to the last packet, and then pop a packet
-        ringbuffer.move(&(usart2.rb), index.pos[index.found - 1]);
-        ringbuffer.popN(&(usart2.rb), tfmini_packet,
-                        sizeof_array(tfmini_packet));
-        tfmini_parse(tfmini_packet, &error_flag);
-        console.printf(" %5d, %5d, %4.2f, %d\r\n", dist_mm, strength, temp_c,
-                       error_flag);
-    }
-    else {
-        error_flag = -12;
-        console.printf(" %5d, %5d, %4.2f, %d\r\n", 0, 0, 0, error_flag);
+    op.ringbuffer.header(&(usart2.rb), pattern, sizeof_array(pattern));
+    uint8_t packets_count = op.ringbuffer.search(&(usart2.rb));
+
+    while (packets_count > 0) {
+        uint8_t tfmini_packet[30] = { 0 };
+        packets_count = op.ringbuffer.fetch(&(usart2.rb), tfmini_packet,
+                                            sizeof_array(tfmini_packet));
+        tfmini_parse(tfmini_packet, sizeof_array(tfmini_packet));
     }
 }
 
@@ -120,12 +100,6 @@ int main(void) {
     usart2.config(115200, 8, 'n', 1);
     uint8_t rx_buffer[27];
     usart2.ring.config(rx_buffer, sizeof_array(rx_buffer));
-    // for (int i = 0; i < 3; i++) {
-    //     for (int j = 0; j < 9; j++) {
-    //         console.printf("%02X ", rx_buffer[i * 9 + j]);
-    //     }
-    //     console.printf("\r\n");
-    // }
     console.printf("\r\n");
     console.printf("ring buffer configured\r\n");
     tfmini_set_mode(TFMINI_MODE_MM);
