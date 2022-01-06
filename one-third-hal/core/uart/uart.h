@@ -157,3 +157,5 @@ typedef struct {
     extern UartApi_t uart8;
 #endif
 // clang-format on
+
+#endif  // UART_IS_USED
