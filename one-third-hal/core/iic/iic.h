@@ -1,9 +1,4 @@
-#ifndef __IIC_H
-#define __IIC_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 // ============================================================================
 #include "config.h"
@@ -81,10 +76,3 @@ typedef struct {
     extern IicApi_t iic4;
 #endif
 // clang-format on
-
-// ============================================================================
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __IIC_H

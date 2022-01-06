@@ -1,13 +1,9 @@
-#ifndef __CONFIG_CAN_H
-#define __CONFIG_CAN_H
+#pragma once
 
 #include "config.h"
 
-// uint8_t g_config_can_used;
 // clang-format off
-
 // commonly existed ones -------------
-
 
 // special ones ---------------
 #if defined(STM32F030x8)
@@ -72,5 +68,3 @@
 #endif
 
 // clang-format on
-
-#endif  // __CONFIG_CAN_H

@@ -1,11 +1,8 @@
-#ifndef __CONFIG_IIC_H
-#define __CONFIG_IIC_H
+#pragma once
 
 #include "config.h"
 
-// uint8_t g_config_iic_used;
 // clang-format off
-
 // commonly existed ones -------------
 #define IIC1_EXISTS
 // todo
@@ -69,5 +66,3 @@
     #define IIC_EXISTS
 #endif
 // clang-format on
-
-#endif  // __CONFIG_IIC_H

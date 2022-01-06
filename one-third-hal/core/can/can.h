@@ -1,9 +1,4 @@
-#ifndef __CAN_H
-#define __CAN_H
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+#pragma once
 
 // ============================================================================
 #include "config.h"
@@ -141,10 +136,3 @@ typedef struct {
     extern CanApi_t can3;
 #endif
 // clang-format on
-
-// ============================================================================
-#ifdef __cplusplus
-}
-#endif
-
-#endif  // __CAN_H

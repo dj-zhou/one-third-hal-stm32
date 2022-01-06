@@ -49,11 +49,11 @@ extern "C" {
             ( type* )(( char* )__mptr - offsetof(type, member)); \
         })
 #endif
-// clang-format on
 
-// #if !defined(_wrs_pack_align)
-//     #define _wrs_pack_align(x) __attribute__((packed, aligned(x)))
-// #endif
+#if !defined(WARN_UNUSED_RESULT)
+    #define WARN_UNUSED_RESULT __attribute__((__warn_unused_result__))
+#endif
+// clang-format on
 
 // ============================================================================
 // to print with color (escaping)
@@ -89,22 +89,6 @@ extern "C" {
 #else
 #error to implement and verify!
 #endif
-// clang-format on
-
-// ============================================================================
-// used in ring-buffer ---------------------
-
-// clang-format off
-#pragma pack(1)
-typedef struct RingBuffer_s {
-    uint8_t* buffer;
-    int16_t  head;
-    int16_t  tail;
-    uint16_t capacity;
-    uint16_t count;
-    bool     is_initialized;
-} RingBuffer_t;
-#pragma pack()
 // clang-format on
 
 // ============================================================================

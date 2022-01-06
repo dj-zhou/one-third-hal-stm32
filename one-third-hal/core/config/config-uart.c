@@ -1,5 +1,3 @@
-#include "config.h"
-
 #include "config-uart.h"
 
 static uint8_t uarts_used = 0;

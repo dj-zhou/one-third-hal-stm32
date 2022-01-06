@@ -1,13 +1,9 @@
-#ifndef __CONFIG_SPI_H
-#define __CONFIG_SPI_H
+#pragma once
 
 #include "config.h"
 #include <stdbool.h>
 
-// uint8_t g_config_spi_used;
-
 // clang-format off
-
 // commonly existed ones -------------
 #define SPI1_EXISTS
 #define SPI2_EXISTS
@@ -72,5 +68,3 @@ typedef struct {
 } ConfigSpi_t;
 
 extern ConfigSpi_t config_spi;
-
-#endif  // __CONFIG_SPI_H
