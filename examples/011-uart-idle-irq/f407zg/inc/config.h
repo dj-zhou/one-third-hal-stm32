@@ -19,11 +19,7 @@ extern "C" {
 #include "stime-scheduler.h"
 
 // ----------------------------------------------------------------------------
-// #define _CONSOLE_USE_USART1_PA9PA10
 #define _CONSOLE_USE_USART2_PA2PA3
-// #define _CONSOLE_USE_USART3_PC10PC11
-// #define _CONSOLE_USE_USART1_PB6PB7
-// #define _CONSOLE_USE_UART5_PC12PD2
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
@@ -31,6 +27,10 @@ extern "C" {
 #define _LED_HEARTBEAT_PIN 11
 #define _LED_HEARTBEAT_TASK_MS 5
 #include "led-status.h"
+
+// ----------------------------------------------------------------------------
+#define _USE_USART1_PA9PA10
+#include "uart/uart.h"
 
 // ============================================================================
 #ifdef __cplusplus
