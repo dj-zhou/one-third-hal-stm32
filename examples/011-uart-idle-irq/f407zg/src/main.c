@@ -1,17 +1,14 @@
 #include "config.h"
 #include <math.h>
 
+uint8_t usart1_dma_buffer[30];
 // =============================================================================
-// void taskPrint(void) {
-//     static int32_t loop = 220;
-//     float data = -sin(( double )loop / 180.0 * 3.1415926);
-//     char* ptr = ( char* )&data;
-//     console.printf("data = %f, ", data);
-//     for (int i = 0; i < 4; i++) {
-//         console.printf("%X ", *ptr++);
-//     }
-//     console.printf("\r\n");
-// }
+void taskPrint(void) {
+    for (int i = 0; i < sizeof_array(usart1_dma_buffer); i++) {
+        console.printf("%02X ", usart1_dma_buffer[i]);
+    }
+    console.printf("\r\n");
+}
 
 // ============================================================================
 int main(void) {
@@ -23,11 +20,10 @@ int main(void) {
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
     usart1.config(2000000, 8, 'n', 1);
-    uint8_t usart1_dma_buffer[100];
     usart1.dma.config(usart1_dma_buffer, sizeof_array(usart1_dma_buffer));
 
     // tasks -----------
-    // stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
+    stime.scheduler.attach(2000, 2, taskPrint, "taskPrint");
     stime.scheduler.show();
 
     // system start to run -----------

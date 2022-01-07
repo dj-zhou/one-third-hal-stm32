@@ -81,6 +81,9 @@ static void Usart1DmaConfig(uint8_t* buffer, uint32_t len) {
     __HAL_LINKDMA(&(usart1.huart), hdmarx, hdma_usart1_rx);
     HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
+
+    HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->DR),
+                  ( uint32_t )buffer, len);
 }
 // ----------------------------------------------------------------------------
 // static void Usart1RingBufferConfig(uint8_t* data, uint16_t len) {
