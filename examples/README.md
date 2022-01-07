@@ -162,7 +162,9 @@ Tested on:
 
 #### `010-f767zi-ringbuffer`
 
-#### `011-f767zi-uart-tfmini`
+#### `011-uart-idle-irq`
+
+* `f407zg`
 
 #### `012-can`
 
