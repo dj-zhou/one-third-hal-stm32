@@ -12,28 +12,28 @@ static uint16_t straight_16(uint16_t value) {
 }
 
 // ============================================================================
-static uint16_t reverse_16(uint16_t value) {
+static uint16_t reverse_16(uint16_t data) {
     uint16_t reversed = 0;
-    for (int i = 0; i < 16; ++i) {
+    for (uint16_t i = 0; i < 16; ++i) {
         reversed <<= 1;
-        reversed |= value & 0x1;
-        value >>= 1;
+        reversed = ( uint16_t )(reversed | (data & 0x1));
+        data >>= 1;
     }
     return reversed;
 }
 
 // ============================================================================
-static uint8_t straight_8(uint8_t value) {
-    return value;
+static uint8_t straight_8(uint8_t data) {
+    return data;
 }
 
 // ============================================================================
-static uint8_t reverse_8(uint8_t value) {
+static uint8_t reverse_8(uint8_t data) {
     uint8_t reversed = 0;
-    for (int i = 0; i < 8; ++i) {
+    for (uint8_t i = 0; i < 8; ++i) {
         reversed <<= 1;
-        reversed |= value & 0x1;
-        value >>= 1;
+        reversed = ( uint8_t )(reversed | (data & 0x1));
+        data >>= 1;
     }
     return reversed;
 }
@@ -43,10 +43,10 @@ static uint16_t CRC16(uint8_t const* data, int len, bit_order_8 data_order,
                       bit_order_16 remainder_order, uint16_t remainder,
                       uint16_t polynomial) {
     for (int byte = 0; byte < len; ++byte) {
-        remainder ^= (data_order(data[byte]) << 8);
+        remainder ^= ( uint16_t )(data_order(data[byte]) << 8);
         for (uint8_t bit = 8; bit > 0; --bit) {
             if (remainder & 0x8000) {
-                remainder = (remainder << 1) ^ polynomial;
+                remainder = (( uint16_t )(remainder << 1)) ^ polynomial;
             }
             else {
                 remainder = (remainder << 1);
@@ -67,7 +67,7 @@ static uint16_t CRC16_CCITT_XMODEM(uint8_t const* data, int len) {
 
 static uint16_t CRC16_CCITT_KERMIT(uint8_t const* data, int len) {
     uint16_t swap = CRC16(data, len, reverse_8, reverse_16, 0x0000, 0x1021);
-    return swap << 8 | swap >> 8;
+    return ( uint16_t )(swap << 8 | swap >> 8);
 }
 
 static uint16_t CRC16_CCITT_1D0F(uint8_t const* data, int len) {

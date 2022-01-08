@@ -58,25 +58,25 @@ static void CalculateParameters(LedHeartBeat_e mode) {
     if (_LED_HEARTBEAT_TASK_MS == 40) {
         tick_toggle_ /= 4;
         tick_period_ /= 4;
-        pwm_step_size_ = 0.12;
+        pwm_step_size_ = ( float )0.12;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 30) {
         tick_toggle_ /= 3;
         tick_period_ /= 3;
-        pwm_step_size_ = 0.09;
+        pwm_step_size_ = ( float )0.09;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 20) {
         tick_toggle_ /= 2;
         tick_period_ /= 2;
-        pwm_step_size_ = 0.06;
+        pwm_step_size_ = ( float )0.06;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 10) {
-        pwm_step_size_ = 0.03;
+        pwm_step_size_ = ( float )0.03;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 5) {
         tick_toggle_ *= 2;
         tick_period_ *= 2;
-        pwm_step_size_ = 0.015;
+        pwm_step_size_ = ( float )0.015;
     }
     else {
         led_error("%s(): _LED_HEARTBEAT_TASK_MS cannot be %d\r\n",
