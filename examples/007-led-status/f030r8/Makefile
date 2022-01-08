@@ -85,12 +85,13 @@ LDFLAGS  = $(MCU) -specs=nano.specs -T$(LD_SCRIPT) $(LIBS)
 LDFLAGS += -Wl,-Map=$(PRJ_OUT)/$(PRJ_NAME).map,--cref -Wl,--gc-sections
 LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
+CFLAGS_PROJ  = -Werror=conversion
 # =============================================================================
 .PHONY:
 # -----------------
 all: release
 	$(SZ) $(PRJ_OUT)/$(PRJ_NAME).elf
-release: CFLAGS+= -D MAKE_TYPE=\"release\" $(PRJ_INC)
+release: CFLAGS+= $(CFLAGS_PROJ) -D MAKE_TYPE=\"release\" $(PRJ_INC)
 release: $(PRJ_OUT)/$(PRJ_NAME).elf
 $(PRJ_OUT)/%.o: %.c Makefile | $(PRJ_OUT)
 	$(CC) -c $(CFLAGS) -Wa,-a,-ad,-alms=$(PRJ_OUT)/$(notdir $(<:.c=.lst)) $< -o $@
@@ -134,7 +135,7 @@ erase:
 	st-flash erase
 
 # -----------------
-debug: CFLAGS+= -D __DEBUG $(PRJ_INC)
+debug: CFLAGS+= $(CFLAGS_PROJ) -D __DEBUG $(PRJ_INC)
 debug: CFLAGS+= -D MAKE_TYPE=\"debug\"
 debug: $(PRJ_OUT)/$(PRJ_NAME).elf
 	$(SZ) $(PRJ_OUT)/$(PRJ_NAME).elf

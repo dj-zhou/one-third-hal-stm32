@@ -9,8 +9,8 @@ void taskPrint(void) {
     if (_CHECK_BIT(data, 9)) {
         console.printf("is one\r\n");
     }
-    _SET_BIT(data, 11);
-    _RESET_BIT(data, 9);
+    set_bit_16(data, 11);
+    reset_bit_16(data, 9);
     console.printf("data = %b\r\n", data);
 }
 
