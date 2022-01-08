@@ -10,7 +10,7 @@
 #pragma pack(1)
 typedef struct EepromNode_s {
     uint16_t key;
-    uint32_t addr;
+    uint16_t addr; // should we use uint32_t here?
     uint16_t size;
 } EepromNode_t;
 #pragma pack()
@@ -56,7 +56,7 @@ static HAL_StatusTypeDef EepromIicWrite(uint16_t block_addr,
 // ============================================================================
 static uint16_t GetBlockAddr(uint16_t addr) {
     uint16_t block_addr =
-        EEPROM_FIRST_BLOCK_ADDR + ((addr / EEPROM_BLOCK_SIZE) << 1);
+        EEPROM_FIRST_BLOCK_ADDR + ( uint16_t )((addr / EEPROM_BLOCK_SIZE) << 1);
     return block_addr;
 }
 
@@ -135,9 +135,9 @@ static void EepromReadNbytes(uint16_t addr, uint8_t* buf_read, uint16_t size) {
             EepromIicRead(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                           remain_bytes_addr,
                           EEPROM_PAGE_SIZE - offset_page_addr, 10000);
-            size -= (EEPROM_PAGE_SIZE - offset_page_addr);
+            size -= ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
             remain_bytes_addr += (EEPROM_PAGE_SIZE - offset_page_addr);
-            addr += (EEPROM_PAGE_SIZE - offset_page_addr);
+            addr += ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
         }
         stime.delay.ms(1);  // if FreeRTOS is used, use RTOS delay
     }
@@ -168,9 +168,9 @@ static void EepromWriteNbytes(uint16_t addr, uint8_t* buf_write,
             EepromIicWrite(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                            remain_bytes_addr,
                            EEPROM_PAGE_SIZE - offset_page_addr, 10000);
-            size -= (EEPROM_PAGE_SIZE - offset_page_addr);
+            size -= ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
             remain_bytes_addr += (EEPROM_PAGE_SIZE - offset_page_addr);
-            addr += (EEPROM_PAGE_SIZE - offset_page_addr);
+            addr += ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
         }
         stime.delay.ms(10);  // if FreeRTOS is used, use RTOS delay
     }
@@ -181,7 +181,8 @@ static uint16_t EepromGetKeyfromNode(uint8_t* ram_addr, uint16_t size) {
     if (size < 2) {
         console.error("\r\n%s(): not a node!\r\n", __func__);
     }
-    uint16_t key = ( uint8_t )(ram_addr[1]) << 8 | ( uint8_t )(ram_addr[0]);
+    uint16_t key = ( uint16_t )(( uint16_t )((ram_addr[1]) << 8)
+                                | ( uint16_t )(ram_addr[0]));
     if (!IS_EEPROM_KEY(key)) {
         console.error("\r\n%s(): not a valid key!\r\n", __func__);
     }

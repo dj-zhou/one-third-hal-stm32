@@ -1,6 +1,10 @@
 #ifndef __IIC_EEPROM_H
 #define __IIC_EEPROM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "config.h"
 
 #include "iic.h"
@@ -56,17 +60,20 @@
 // EEPROM_AT24C256        32768
 
 // ============================================================================
-// clang-format off
 
 // ----------------------------------------------------------------------------
 // chip specific macros
+// clang-format off
+// #pragma GCC diagnostic ignored "-Wconversion"
 #if defined(_EEPROM_USE_AT24C08)
     #define EEPROM_TOTAL_BYTE_NUM   1024
     #define EEPROM_BLOCK_SIZE        256
     #define EEPROM_PAGE_SIZE          16
-    #define EEPROM_FIRST_BLOCK_ADDR  (0xA0 | (0x01 << 3))
+    #define EEPROM_FIRST_BLOCK_ADDR  168
+    // 168 = (0xA0 | (0x01 << 3)))
     #define EEPROM_BLOCK_ADDR_DIFF  0x02  // not used??
 #endif
+// #pragma GCC diagnostic pop
 // clang-format on
 
 // ============================================================================
@@ -197,5 +204,9 @@ extern EepromApi_t eeprom;
 // ============================================================================
 
 #endif  // EEPROM_IS_USED
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // __IIC_EEPROM_H

@@ -24,9 +24,9 @@ int main(void) {
     uint8_t data_to_read[1024];
     uint8_t data_to_compare[1024];
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = i + 10;
+        data_to_write[i] = ( uint8_t )(i + 10);
     }
-    uint32_t total_bytes_to_write = 200;
+    uint16_t total_bytes_to_write = 200;
 
     // test 1: write to eeprom byte by byte --------------
     console.printf("--------------------------------\r\n%s: write to eeprom "
@@ -57,7 +57,7 @@ int main(void) {
                    "%d bytes, no need to wait:\r\n",
                    __TIME__, total_bytes_to_write);
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = i + 15;
+        data_to_write[i] = ( uint8_t )(i + 15);
     }
     eeprom.write.bytes(0, data_to_write, total_bytes_to_write);
     eeprom.read.bytes(0, data_to_read, total_bytes_to_write);
