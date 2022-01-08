@@ -144,12 +144,12 @@ void can_irq_show_registration(const char* str, CanIrqNode_t* node,
 bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
                     can_irq_hook hook, const char* str) {
     uint8_t len;
-    uint8_t str_len = strlen(str);
+    size_t str_len = strlen(str);
     if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
-        len = _CAN_IRQ_DESCR_SIZE - 1;
+        len = ( uint8_t )(_CAN_IRQ_DESCR_SIZE - 1);
     }
     else {
-        len = str_len;
+        len = ( uint8_t )str_len;
     }
     // you cannot attach two callback functions to one ID
     if (num > 0) {

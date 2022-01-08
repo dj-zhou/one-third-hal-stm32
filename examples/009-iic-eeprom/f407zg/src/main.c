@@ -30,7 +30,7 @@ static void initParameters(void) {
     param2.b[1] = 2222;
     param2.b[2] = 4444;
     param2.b[3] = 5555;
-    param2.c = 111.24;
+    param2.c = ( float )111.24;
     param2.d = -5555.32;
 }
 
@@ -47,7 +47,7 @@ static void printParameter(Parameters_t param) {
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 220;
-    float data = -sin(( double )loop / 180.0 * 3.1415926);
+    double data = -sin(( double )loop / 180.0 * 3.1415926);
     char* ptr = ( char* )&data;
     console.printf("data = %f, ", data);
     for (int i = 0; i < 4; i++) {
@@ -75,9 +75,9 @@ int main(void) {
     uint8_t data_to_read[1024];
     uint8_t data_to_compare[1024];
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = i + 10;
+        data_to_write[i] = ( uint8_t )(i + 10);
     }
-    uint32_t total_bytes_to_write = 20;
+    uint16_t total_bytes_to_write = 20;
 
     // test 1: write to eeprom byte by byte --------------
     console.printf("\r\n\r\n===============================\r\n");
@@ -108,7 +108,7 @@ int main(void) {
     console.printf("write to eeprom %d bytes, no need to wait:\r\n",
                    total_bytes_to_write);
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = i + 15;
+        data_to_write[i] = ( uint8_t )(i + 15);
     }
     eeprom.write.bytes(0, data_to_write, total_bytes_to_write);
     eeprom.read.bytes(0, data_to_read, total_bytes_to_write);

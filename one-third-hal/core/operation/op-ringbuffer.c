@@ -4,7 +4,7 @@
 #include <string.h>
 
 // ============================================================================
-static uint16_t RingBufferIndex(RingBuffer_t* rb, int idx) {
+static uint16_t RingBufferIndex(RingBuffer_t* rb, uint16_t idx) {
     while (idx >= rb->state.capacity) {
         idx -= rb->state.capacity;
     }
@@ -87,7 +87,8 @@ bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
     if (rb->state.count > rb->state.capacity) {
         rb->state.count--;
         rb->state.head++;
-        rb->state.head = RingBufferIndex(rb, rb->state.head);
+        rb->state.head =
+            ( int16_t )RingBufferIndex(rb, ( uint16_t )rb->state.head);
     }
 
     return true;
@@ -118,7 +119,7 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     // reset to zero
     rb->data[rb->state.head] = 0;
     rb->state.head++;
-    rb->state.head = RingBufferIndex(rb, rb->state.head);
+    rb->state.head = ( int16_t )RingBufferIndex(rb, ( uint16_t )rb->state.head);
     rb->state.count--;
     // if it is the last byte to be popped out, move tail to a new
     if (rb->state.count == 0) {
@@ -238,13 +239,13 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb) {
         return 0;
     }
     // initialize the indices to match
-    int indices[size];
-    for (int i = 0; i < size; i++) {
-        indices[i] = RingBufferIndex(rb, rb->state.head + i);
+    uint16_t indices[size];
+    for (uint16_t i = 0; i < ( uint16_t )size; i++) {
+        indices[i] = RingBufferIndex(rb, ( uint16_t )rb->state.head + i);
     }
 
     // start to search
-    int search_count = 0;
+    uint8_t search_count = 0;
     rb->index.count = 0;
     while (search_count < rb->state.count - size + 1) {
         // match test

@@ -3,8 +3,8 @@
 // =============================================================================
 static void taskCan1Test1(void) {
     uint8_t data[8];
-    for (int i = 0; i < 8; i++) {
-        data[i] = (i + 1) * 16 + (i + 1);
+    for (uint8_t i = 0; i < 8; i++) {
+        data[i] = ( uint8_t )((i + 1) * 16 + (i + 1));
     }
 
     uint16_t id = 0x666;
@@ -27,8 +27,8 @@ static void taskCan1Test1(void) {
 // =============================================================================
 static void taskCan1Test2(void) {
     uint8_t data[8];
-    for (int i = 0; i < 8; i++) {
-        data[i] = (i + 1) * 8 + (i + 1);
+    for (uint8_t i = 0; i < 8; i++) {
+        data[i] = ( uint8_t )((i + 1) * 8 + (i + 1));
     }
 
     uint16_t id = 0x555;

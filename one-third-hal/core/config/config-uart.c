@@ -33,7 +33,8 @@ static uint8_t get_pos(USART_TypeDef* USARTx) {
 
 static void ConfigUartsSet(USART_TypeDef* USARTx, bool value) {
     uint8_t pos = get_pos(USARTx);
-    value ? (uarts_used |= 1 << pos) : (uarts_used &= ~(1 << pos));
+    value ? (uarts_used |= ( uint8_t )(1 << pos))
+          : (uarts_used &= ( uint8_t )(~(1 << pos)));
 }
 
 static bool ConfigUartsCheck(USART_TypeDef* USARTx) {

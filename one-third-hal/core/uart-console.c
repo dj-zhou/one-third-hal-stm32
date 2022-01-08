@@ -302,7 +302,8 @@ static void consoleWriteByte(char data) {
 
 // ============================================================================
 static void consoleWriteStr(char* ptr) {
-    HAL_UART_Transmit(&hconsole_, ( uint8_t* )ptr, strlen(ptr), 10);
+    HAL_UART_Transmit(&hconsole_, ( uint8_t* )ptr, ( uint16_t )(strlen(ptr)),
+                      10);
 }
 
 // ============================================================================
@@ -622,7 +623,9 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len) {
                     rb.w_ptr, ( char* )buf,
                     ( uint16_t )((rb.buffer + _CONSOLE_BUFF_LEN) - rb.w_ptr));
                 buf = buf + (rb.buffer + _CONSOLE_BUFF_LEN - rb.w_ptr);
-                len = len - (rb.buffer + _CONSOLE_BUFF_LEN - rb.w_ptr);
+                len = ( uint32_t )(len
+                                   - ( uint32_t )(rb.buffer + _CONSOLE_BUFF_LEN
+                                                  - rb.w_ptr));
                 rb.w_ptr = rb.buffer;
             }
         }

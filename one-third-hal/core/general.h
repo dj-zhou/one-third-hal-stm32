@@ -26,12 +26,24 @@ extern "C" {
     #define _CHECK_BIT(var, pos) (!!((var) & (1 << (pos))))
 #endif
 
-#if !defined(_SET_BIT)
-    #define _SET_BIT(var, pos) ((var) |= (1 << (pos)))
+#if !defined(set_bit_8)
+    #define set_bit_8(var, pos) ((var) = (uint8_t)((var) | (1 << (pos))))
+#endif
+#if !defined(set_bit_16)
+    #define set_bit_16(var, pos) ((var) = (uint16_t)((var) | (1 << (pos))))
+#endif
+#if !defined(set_bit_32)
+    #define set_bit_32(var, pos) ((var) = (uint32_t)((var) | (1 << (pos))))
 #endif
 
-#if !defined(_RESET_BIT)
-    #define _RESET_BIT(var, pos) ((var) &= (~(1 << (pos))))
+#if !defined(reset_bit_8)
+    #define reset_bit_8(var, pos) ((var) = (uint8_t)((var) & (~(1 << (pos)))))
+#endif
+#if !defined(reset_bit_16)
+    #define reset_bit_16(var, pos) ((var) = (uint16_t)((var) & (~(1 << (pos)))))
+#endif
+#if !defined(reset_bit_32)
+    #define reset_bit_32(var, pos) ((var) = (uint32_t)((var) & (~(1 << (pos)))))
 #endif
 
 #if !defined(sizeof_array)

@@ -73,7 +73,7 @@ typedef enum RingBufferInitState {
 #pragma pack(1)
 typedef struct {
     int16_t  head;
-    int16_t  tail;
+    uint16_t tail;
     uint16_t capacity;
     uint16_t count;
     RingBufferInitState_e  state;
@@ -92,7 +92,7 @@ typedef struct {
     bool searched;
     uint16_t pos[_RINGBUFFER_PACKETS_MAX_FOUND];  // index of the header
     uint16_t dist[_RINGBUFFER_PACKETS_MAX_FOUND]; // distance to next header
-    uint8_t  count;
+    int8_t   count;
 } RingBufferIndex_t;
 #pragma pack()
 

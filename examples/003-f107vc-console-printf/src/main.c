@@ -23,7 +23,7 @@ int main(void) {
         console.printf(YLW "%s\r\n " NOC, FIRMWARE);
         console.printf("%5d = %b\r\n", loop_count, loop_count);
         loop_count++;
-        float pi = 3.1415926;
+        double pi = 3.1415926;
         console.printf(GRN "pi = %f\r\n" NOC, pi);
         const char str[] = "this is a one-third demo program";
         console.printf(" %s\r\n", str);
