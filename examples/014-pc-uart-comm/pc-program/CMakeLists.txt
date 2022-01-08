@@ -12,6 +12,7 @@ add_compile_options(
   -Wshadow
   -Wconversion
   -Wlogical-not-parentheses
+  -Werror=conversion
 )
 
 include_directories(./serial/)
