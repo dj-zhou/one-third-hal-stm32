@@ -27,7 +27,7 @@ void printf_b(char* sign_data, unsigned int data) {
             sign_data[i] = ' ';
         }
         else {
-            sign_data[i] = (data & 0x01) | 0x30;
+            sign_data[i] = ( char )((data & 0x01) | 0x30);
             data = data >> 1;
         }
     }
@@ -64,7 +64,8 @@ void printf_f(char* sign_data, double data) {
     }
     snprintf(fmt, 9, "%%0%du", accuracy);
     index +=
-        snprintf(&buff[index], _CONSOLE_SIGN_DATA_SIZE - 1 - index, fmt, temp);
+        snprintf(&buff[index], ( size_t )(_CONSOLE_SIGN_DATA_SIZE - 1 - index),
+                 fmt, temp);
     if (index >= width) {
         console.write.str(buff);
     }

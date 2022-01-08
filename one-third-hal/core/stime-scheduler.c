@@ -213,7 +213,7 @@ static void stimeTic(void) {
 // ----------------------------------------------------------------------------
 static void stimeToc(char* mu, char* message) {
     toc_ = GetSysTickTime();
-    long time;
+    long unsigned time;
     if (strcmp(mu, "ms") == 0) {
         time = (toc_.s - tic_.s) * 1000 + (toc_.us - tic_.us) / 1000;
         stime_printf("%s consumes %ld ms.\r\n", message, time);

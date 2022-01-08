@@ -69,7 +69,8 @@ static void CliFormatCmd(char* strtop, char** parameter) {
         }
         else {
             if (strncmp(strtop, "-all", 4)) {
-                strncpy(cli_.argv[cli_.argc], strtop, strend - strtop);
+                strncpy(cli_.argv[cli_.argc], strtop,
+                        ( size_t )(strend - strtop));
                 *(cli_.argv[cli_.argc++] + (strend - strtop)) = '\0';
                 cli_.argv[cli_.argc] =
                     cli_.argv[cli_.argc - 1] + (strend - strtop) + 1;
@@ -116,11 +117,11 @@ static void CliReadCmdHistory(uint8_t way) {
     }
 
     if (cli_.history.buff[cli_.history.index][0] != 0) {
-        for (int i = strlen(cli_.cmd_buff_cursor); i > 0; i--) {
+        for (size_t i = strlen(cli_.cmd_buff_cursor); i > 0; i--) {
             console.write.byte(' ');
         }
 
-        for (int i = strlen(cli_.cmd_buff); i > 0; i--) {
+        for (size_t i = strlen(cli_.cmd_buff); i > 0; i--) {
             console.write.str("\b \b");
         }
 
@@ -151,7 +152,7 @@ void CliInput(char read_char) {
         *cli_.cmd_buff_cursor = read_char;
         console.write.byte(read_char);
         console.write.str(str);
-        for (uint16_t i = strlen(str); i > 0; i--) {
+        for (size_t i = strlen(str); i > 0; i--) {
             console.write.byte('\b');
         }
         cli_.cmd_buff_cursor++;
@@ -185,7 +186,7 @@ void CliBackspace(void) {
             console.write.str(str);
             console.write.str(" \b");
 
-            for (uint16_t i = strlen(str); i > 0; i--) {
+            for (size_t i = strlen(str); i > 0; i--) {
                 console.write.byte('\b');
             }
         } while ((cli_.cmd_buff_cursor == cli_.cmd_buff)
@@ -266,7 +267,7 @@ static char* CliMatchChar(char* src, char* dst) {
     ptr = strchr(src, ' ');
 
     if (((ptr == NULL) && (!strcmp(src, dst)))
-        || (((((ptr != NULL) && (!strncmp(src, dst, ptr - src))))
+        || (((((ptr != NULL) && (!strncmp(src, dst, ( size_t )(ptr - src)))))
              && ((*(dst + (ptr - src)) == ' ')
                  || (*(dst + (ptr - src)) == '\0'))))
         || ((ptr == NULL) && strchr(dst, '-')
