@@ -345,9 +345,9 @@ static void SchedulerAttachTask(uint32_t interval_ms, uint32_t time_init,
                     __func__);
     }
     uint32_t ticks = IntervalToTicks(interval_ms);
-    uint8_t len = strlen(task_name) < _STIME_TASK_NAME_LEN
-                      ? strlen(task_name)
-                      : _STIME_TASK_NAME_LEN;
+    size_t len = strlen(task_name) < _STIME_TASK_NAME_LEN
+                     ? strlen(task_name)
+                     : _STIME_TASK_NAME_LEN;
     if (task_num_ == 0) {
         node_[0]._this.run = 0;
         node_[0]._this.time = time_init;

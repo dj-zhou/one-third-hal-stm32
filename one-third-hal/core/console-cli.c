@@ -546,13 +546,13 @@ HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
     // if "id" contains other characters, do not suspend
     if (strspn(argv[2], "0123456789\n") != strlen(argv[2]))
         return HAL_OK;
-    uint8_t id = atoi(argv[2]);
+    uint32_t id = ( uint32_t )atoi(argv[2]);
     // exclude the ID
     if (id == sid.get()) {
         return HAL_OK;
     }
 #endif  // _USE_ID
-    uint32_t seconds = atoi(argv[1]);
+    uint32_t seconds = ( uint32_t )atoi(argv[1]);
     stime.scheduler.cliSuspend(seconds);
     console.rx.setStatus(false);
     return HAL_OK;
