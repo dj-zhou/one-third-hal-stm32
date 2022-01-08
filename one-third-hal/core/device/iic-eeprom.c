@@ -10,7 +10,7 @@
 #pragma pack(1)
 typedef struct EepromNode_s {
     uint16_t key;
-    uint16_t addr; // should we use uint32_t here?
+    uint16_t addr;  // should we use uint32_t here?
     uint16_t size;
 } EepromNode_t;
 #pragma pack()
