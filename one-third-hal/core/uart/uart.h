@@ -5,6 +5,7 @@
 
 #include "config-uart.h"
 #include "general.h"
+#include "operation.h"
 
 // ============================================================================
 // clang-format off
@@ -102,8 +103,12 @@ void init_uart_nvic(IRQn_Type ch, uint16_t p);
 
 // ----------------------------------------------------------------------------
 typedef struct {
-    void (*config)(uint8_t* data, uint32_t len);
+    void (*config)(uint8_t* data, uint16_t len);
 } UartDma_t;
+
+typedef struct {
+    void (*config)(uint8_t* data, uint16_t len);
+} UartRingBuffer_t;
 
 typedef struct {
     UART_HandleTypeDef huart;
@@ -111,6 +116,8 @@ typedef struct {
     void (*priority)(uint16_t);
     void (*send)(uint8_t*, uint16_t);
     UartDma_t dma;
+    RingBuffer_t rb;
+    UartRingBuffer_t ring;
 } UartApi_t;
 
 #ifdef CONSOLE_IS_USED

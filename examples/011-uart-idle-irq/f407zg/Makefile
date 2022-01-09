@@ -11,7 +11,8 @@ PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
-    $(LIB_PATH)/core
+    $(LIB_PATH)/core \
+    $(LIB_PATH)/core/operation
 
 # ------------------------------------------
 ifneq (,$(findstring STM32F4,$(STM32Fx)))

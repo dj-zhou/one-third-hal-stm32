@@ -4,6 +4,17 @@
 #include <string.h>
 
 // ============================================================================
+#if defined(CONSOLE_IS_USED)
+#define ringbuffer_printf(...) (console.printf(__VA_ARGS__))
+#define ringbuffer_printk(...) (console.printk(__VA_ARGS__))
+#define ringbuffer_error(...) (console.error(__VA_ARGS__))
+#else
+#define ringbuffer_printf(...) ({ ; })
+#define ringbuffer_printk(...) ({ ; })
+#define ringbuffer_error(...) ({ ; })
+#endif
+
+// ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, uint16_t idx) {
     while (idx >= rb->state.capacity) {
         idx -= rb->state.capacity;
@@ -32,12 +43,12 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
     rb.state.state = RINGBUFFER_INITIALIZED;
 
     // header initialization
-    bzero(rb.header.data, _RINGBUFFER_HEADER_MAX_LEN);
+    bzero(rb.header.data, RINGBUFFER_HEADER_MAX_LEN);
     rb.header.size = 0;
 
     // search indices initialization
-    bzero(rb.index.pos, _RINGBUFFER_PACKETS_MAX_FOUND);
-    bzero(rb.index.dist, _RINGBUFFER_PACKETS_MAX_FOUND);
+    bzero(rb.index.pos, RINGBUFFER_PACKETS_MAX_FOUND);
+    bzero(rb.index.dist, RINGBUFFER_PACKETS_MAX_FOUND);
     rb.index.count = 0;
     rb.index.searched = false;
 
@@ -57,12 +68,12 @@ void RingBufferReset(RingBuffer_t* rb) {
     rb->state.state = RINGBUFFER_RESETTED;
 
     // header reset
-    bzero(rb->header.data, _RINGBUFFER_HEADER_MAX_LEN);
+    bzero(rb->header.data, RINGBUFFER_HEADER_MAX_LEN);
     rb->header.size = 0;
 
     // search indices reset
-    bzero(rb->index.pos, _RINGBUFFER_PACKETS_MAX_FOUND);
-    bzero(rb->index.dist, _RINGBUFFER_PACKETS_MAX_FOUND);
+    bzero(rb->index.pos, RINGBUFFER_PACKETS_MAX_FOUND);
+    bzero(rb->index.dist, RINGBUFFER_PACKETS_MAX_FOUND);
     rb->index.count = 0;
     rb->index.searched = false;
 }
@@ -263,7 +274,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb) {
         if (match_count == size) {
             rb->index.dist[rb->index.count] = 0;
             rb->index.pos[rb->index.count++] = indices[0];
-            if (rb->index.count >= _RINGBUFFER_PACKETS_MAX_FOUND) {
+            if (rb->index.count >= RINGBUFFER_PACKETS_MAX_FOUND) {
                 ringbuffer_printf(HYLW
                                   "communication too heavy, need to expand the "
                                   "ringbuffer or process it timely!\r\n" NOC);
@@ -323,7 +334,7 @@ WARN_UNUSED_RESULT int8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
     }
     RingBufferPopN(rb, array, rb->index.dist[0]);
     rb->index.count--;
-    for (int i = 0; i < _RINGBUFFER_PACKETS_MAX_FOUND - 1; i++) {
+    for (int i = 0; i < RINGBUFFER_PACKETS_MAX_FOUND - 1; i++) {
         rb->index.pos[i] = rb->index.pos[i + 1];
         rb->index.dist[i] = rb->index.dist[i + 1];
     }
