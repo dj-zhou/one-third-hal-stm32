@@ -29,9 +29,9 @@ int main(void) {
 
     // setup usart1 and its ringbuffer
     usart1.config(2000000, 8, 'n', 1);
-    op.ringbuffer.show(&usart1.rb, 'h', 10);
+    usart1.ring.show('h', 10);
     usart1.ring.config(usart1_rx_buffer, sizeof_array(usart1_rx_buffer));
-    op.ringbuffer.show(&usart1.rb, 'h', 10);
+    usart1.ring.show('h', 10);
     usart1.dma.config(usart1_dma_buffer, sizeof_array(usart1_dma_buffer));
 
     // tasks -----------

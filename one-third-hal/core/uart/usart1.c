@@ -144,13 +144,22 @@ static void Usart1RingConfig(uint8_t* data, uint16_t len) {
 }
 
 // ============================================================================
+static void Usart1RingShow(char style, uint16_t width) {
+    op.ringbuffer.show(&usart1.rb, style, width);
+}
+
+// ============================================================================
 // clang-format off
 UartApi_t usart1 = {
     .config      = Usart1Config     ,
     .priority    = Usart1Priority   ,
     .send        = Usart1Send       ,
     .dma.config  = Usart1DmaConfig  ,
-    .ring.config = Usart1RingConfig ,
+    .ring = {
+        .config = Usart1RingConfig ,
+        .show   = Usart1RingShow   ,
+    }
+
 };
 // clang-format on
 

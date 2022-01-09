@@ -109,6 +109,7 @@ typedef struct {
 
 typedef struct {
     void (*config)(uint8_t* data, uint16_t len);
+    void (*show)(char style, uint16_t width);
 } UartRingBuffer_t;
 
 typedef struct {
