@@ -56,6 +56,7 @@ static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
     init_uart_nvic(USART1_IRQn, _UART_PREEMPTION_PRIORITY);
 
     usart1.rb.data = NULL;
+    usart1.dma.is_used = false;
 }
 
 // ----------------------------------------------------------------------------
@@ -88,6 +89,8 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
                   ( uint32_t )buffer, len);
 
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
+
+    usart1.dma.is_used = true;
 }
 
 // ----------------------------------------------------------------------------
@@ -103,7 +106,13 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function should be redefined in projects
 __attribute__((weak)) void Usart1IdleIrqCallback(void) {
-    // todo
+    if (usart1.dma.is_used) {
+        console.printf("remaining bytes: %d\r\n",
+                       __HAL_DMA_GET_COUNTER(usart1.huart.hdmarx));
+    }
+    else {
+        // todo
+    }
 }
 
 // ============================================================================

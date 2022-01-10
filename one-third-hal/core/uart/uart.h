@@ -103,6 +103,7 @@ void init_uart_nvic(IRQn_Type ch, uint16_t p);
 
 // ----------------------------------------------------------------------------
 typedef struct {
+    bool is_used;
     void (*config)(uint8_t* data, uint16_t len);
 } UartDma_t;
 
