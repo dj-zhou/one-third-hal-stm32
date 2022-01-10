@@ -12,6 +12,8 @@ OperationApt_t op = {
         .pushN = RingBufferPushN,
         .pop   = RingBufferPop  ,
         .popN  = RingBufferPopN ,
+        .tail  = RingBufferTail ,
+        .added = RingBufferAdded,
         // visualization
         .show = RingBufferShow,
         // search and see result

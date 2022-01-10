@@ -20,6 +20,8 @@ bool RingBufferPush(RingBuffer_t* rb, uint8_t data);
 bool RingBufferPushN(RingBuffer_t* rb, uint8_t* data, uint16_t len);
 bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret);
 bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
+bool RingBufferTail(RingBuffer_t* rb, uint16_t pos);
+bool RingBufferAdded(RingBuffer_t* rb, uint16_t count);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
 void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
 WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb);
@@ -36,6 +38,8 @@ typedef struct {
     bool (*pushN)(RingBuffer_t* rb, uint8_t* data, uint16_t len);
     bool (*pop)(RingBuffer_t* rb, uint8_t* ret);
     bool (*popN)(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
+    bool (*tail)(RingBuffer_t* rb, uint16_t pos);
+    bool (*added)(RingBuffer_t* rb, uint16_t count);
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
     void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
     WARN_UNUSED_RESULT int8_t (*search)(RingBuffer_t* rb);

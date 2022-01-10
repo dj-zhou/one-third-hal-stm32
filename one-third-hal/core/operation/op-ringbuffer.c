@@ -158,6 +158,82 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len) {
 }
 
 // ============================================================================
+/// set tail to a desired location, could only increase the count
+/// will delete this function, do not use
+bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
+    if (pos >= rb->state.capacity) {
+        return false;
+    }
+    else if ((rb->state.head == rb->state.tail)
+             && (rb->state.capacity == rb->state.count)) {
+        rb->state.tail = pos;
+        rb->state.head = ( int16_t )pos;
+    }
+    else if (rb->state.head < rb->state.tail) {
+        if (pos < rb->state.head) {
+            rb->state.tail = pos;
+            rb->state.count =
+                ( uint16_t )(rb->state.capacity - rb->state.head + pos);
+        }
+        else if (pos == rb->state.head) {
+            rb->state.tail = pos;
+            rb->state.count = rb->state.capacity;
+        }
+        else if ((pos > rb->state.head) && (pos < rb->state.tail)) {
+            // should not make the count less
+            return false;
+        }
+        else if (pos == rb->state.tail) {
+            // no change?
+        }
+        else if (pos > rb->state.tail) {
+            rb->state.count += ( uint16_t )(pos - rb->state.tail);
+            rb->state.tail = pos;
+        }
+    }
+    else if (rb->state.head > rb->state.tail) {
+        if (pos < rb->state.tail) {
+            // cannot decrease the count
+            return false;
+        }
+        else if (pos == rb->state.tail) {
+            // no change?
+        }
+        else if ((pos > rb->state.tail) && (pos < rb->state.head)) {
+            rb->state.count += ( uint16_t )(pos - rb->state.tail);
+            rb->state.tail = pos;
+        }
+        else if (pos == rb->state.head) {
+            rb->state.tail = pos;
+            rb->state.count = rb->state.capacity;
+        }
+        else if (pos > rb->state.head) {
+            // cannot decrease the count
+            return false;
+        }
+    }
+    return true;
+}
+
+// ============================================================================
+// UART DMA added a few bytes into the ringbuffer, so we just need to move tail
+// ahead
+bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
+    rb->state.tail = RingBufferIndex(rb, rb->state.tail + count);
+    if (rb->state.head == rb->state.tail) {
+        rb->state.head = ( int16_t )rb->state.tail;
+    }
+    else if (count + rb->state.count >= rb->state.capacity) {
+        rb->state.count = rb->state.capacity;
+        rb->state.head = ( int16_t )rb->state.tail;
+    }
+    else {
+        rb->state.count += count;
+    }
+    return true;
+}
+
+// ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     if (rb->state.state <= 0) {
         ringbuffer_printk(0, "ringbuffer | uninitialized!\r\n");

@@ -3,7 +3,9 @@
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
 // ============================================================================
 
-DMA_HandleTypeDef hdma_usart1_rx;
+static DMA_HandleTypeDef hdma_usart1_rx;
+static bool usart1_dma_is_used = false;
+
 // ============================================================================
 #if defined(STM32F303xE) || defined(STM32F767xx)
 uint16_t usart1_uh_mask_;  // is this used?
@@ -56,7 +58,14 @@ static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
     init_uart_nvic(USART1_IRQn, _UART_PREEMPTION_PRIORITY);
 
     usart1.rb.data = NULL;
-    usart1.dma.is_used = false;
+    usart1_dma_is_used = false;
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1RingConfig(uint8_t* data, uint16_t len) {
+    usart1.rb = op.ringbuffer.init(data, len);
+    // set head to 1, because we are not going to use push()
+    // usart1.rb.state.head = 1;
 }
 
 // ----------------------------------------------------------------------------
@@ -90,7 +99,8 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
 
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
 
-    usart1.dma.is_used = true;
+    usart1_dma_is_used = true;
+    Usart1RingConfig(buffer, len);
 }
 
 // ----------------------------------------------------------------------------
@@ -106,12 +116,41 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function should be redefined in projects
 __attribute__((weak)) void Usart1IdleIrqCallback(void) {
-    if (usart1.dma.is_used) {
-        console.printf("remaining bytes: %d\r\n",
-                       __HAL_DMA_GET_COUNTER(usart1.huart.hdmarx));
+    if (usart1_dma_is_used) {
+        // to calculate how many bytes are received
+        // PROBLEM: it cannot tell if more than the capacity bytes of data is
+        // received
+        static uint16_t remaining[2] = { 0, 0 };
+        uint16_t receive_count = 0;
+        remaining[0] = remaining[1];
+        remaining[1] = ( uint16_t )(__HAL_DMA_GET_COUNTER(usart1.huart.hdmarx));
+        static bool dma_first_packet = true;
+        if (dma_first_packet) {
+            receive_count = usart1.rb.state.capacity - remaining[1];
+            dma_first_packet = false;
+            op.ringbuffer.pushN(&(usart1.rb), usart1.rb.data, receive_count);
+        }
+        else {
+            if (remaining[0] > remaining[1]) {
+                receive_count = remaining[0] - remaining[1];
+            }
+            else {
+                receive_count = ( uint16_t )(usart1.rb.state.capacity
+                                             + remaining[0] - remaining[1]);
+            }
+            op.ringbuffer.added(&(usart1.rb), receive_count);
+        }
+        // debug use, do not delete
+        // console.printf("remaining = %d,%d\r\n", remaining[0], remaining[1]);
+        // console.printf("receive_count = %d\r\n", receive_count);
+        // usart1.ring.show('h', 10);
+        // console.printf("usart1.rb.state.count = %d\r\n",
+        // usart1.rb.state.count); console.printf("usart1.rb.state.head =
+        // %d\r\n", usart1.rb.state.head); console.printf("usart1.rb.state.tail
+        // = %d\r\n", usart1.rb.state.tail);
     }
     else {
-        // todo
+        // todo: usart1 does not use DMA
     }
 }
 
@@ -139,11 +178,6 @@ __attribute__((weak)) void USART1_IRQHandler(void) {
 }
 
 // ============================================================================
-static void Usart1RingConfig(uint8_t* data, uint16_t len) {
-    usart1.rb = op.ringbuffer.init(data, len);
-}
-
-// ============================================================================
 static void Usart1RingShow(char style, uint16_t width) {
     op.ringbuffer.show(&usart1.rb, style, width);
 }
@@ -151,14 +185,14 @@ static void Usart1RingShow(char style, uint16_t width) {
 // ============================================================================
 // clang-format off
 UartApi_t usart1 = {
-    .config      = Usart1Config     ,
-    .priority    = Usart1Priority   ,
-    .send        = Usart1Send       ,
-    .dma.config  = Usart1DmaConfig  ,
+    .config     = Usart1Config   ,
+    .priority   = Usart1Priority ,
+    .send       = Usart1Send     ,
+    .dma.config = Usart1DmaConfig,
     .ring = {
-        .config = Usart1RingConfig ,
-        .show   = Usart1RingShow   ,
-    }
+        .config = Usart1RingConfig,
+        .show   = Usart1RingShow  ,
+    },
 
 };
 // clang-format on
