@@ -138,6 +138,7 @@ __attribute__((weak)) void Usart1IdleIrqCallback(void) {
                 receive_count = ( uint16_t )(usart1.rb.state.capacity
                                              + remaining[0] - remaining[1]);
             }
+            // DMA has already pushed data into the ringbuffer
             op.ringbuffer.added(&(usart1.rb), receive_count);
         }
         // debug use, do not delete
@@ -152,6 +153,8 @@ __attribute__((weak)) void Usart1IdleIrqCallback(void) {
     else {
         // todo: usart1 does not use DMA
     }
+    // in either case, we need to notify the system to parse data from the
+    // ringbuffer
 }
 
 // ============================================================================
