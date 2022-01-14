@@ -328,6 +328,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb) {
     // initialize the indices to match
     uint16_t indices[size];
     for (uint16_t i = 0; i < ( uint16_t )size; i++) {
+        // bug: after initialization, state.head = -1 == 65536
         indices[i] = RingBufferIndex(rb, ( uint16_t )rb->state.head + i);
     }
 

@@ -124,6 +124,12 @@ static void Usart2Send(uint8_t* data, uint16_t size) {
 
 // ============================================================================
 // this function can be redefined in projects
+__attribute__((weak)) void Usart2IdleIrq(void) {
+    uart_printf(
+        "you should define \"void Usart2IdleIrq(void){}\" and use it\r\n");
+}
+
+// ----------------------------------------------------------------------------
 __attribute__((weak)) void Usart2IdleIrqCallback(void) {
     if (usart2_dma_is_used) {
         // to calculate how many bytes are received
@@ -164,6 +170,7 @@ __attribute__((weak)) void Usart2IdleIrqCallback(void) {
     }
     // in either case, we need to notify the system to parse data from the
     // ringbuffer
+    Usart2IdleIrq();
 }
 
 // ============================================================================

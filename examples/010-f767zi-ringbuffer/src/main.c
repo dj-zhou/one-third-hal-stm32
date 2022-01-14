@@ -47,7 +47,7 @@ int main(void) {
     uint8_t buffer[30];
     RingBuffer_t rb = op.ringbuffer.init(buffer, sizeof_array(buffer));
 
-    // show the ringbuffer after it is initizized
+    // show the ringbuffer after it is initialized
     op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.show(&rb, 'd', 10);
 
