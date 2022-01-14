@@ -64,12 +64,9 @@ static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
 // ----------------------------------------------------------------------------
 static void Usart1RingConfig(uint8_t* data, uint16_t len) {
     usart1.rb = op.ringbuffer.init(data, len);
-    // set head to 1, because we are not going to use push()
-    // usart1.rb.state.head = 1;
 }
 
 // ----------------------------------------------------------------------------
-// placeholder, copied from usart1.c
 static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     ( void )buffer;
     ( void )len;
@@ -94,8 +91,11 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
+    // only use verified code
+#if defined(STM32F407xx)
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->DR),
                   ( uint32_t )buffer, len);
+#endif
 
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
 
@@ -114,7 +114,7 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 }
 
 // ============================================================================
-// this function should be redefined in projects
+// this function can be redefined in projects
 __attribute__((weak)) void Usart1IdleIrqCallback(void) {
     if (usart1_dma_is_used) {
         // to calculate how many bytes are received
@@ -196,7 +196,6 @@ UartApi_t usart1 = {
         .config = Usart1RingConfig,
         .show   = Usart1RingShow  ,
     },
-
 };
 // clang-format on
 

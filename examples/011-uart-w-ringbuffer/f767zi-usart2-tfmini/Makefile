@@ -1,29 +1,29 @@
 # =============================================================================
 # custom settings
-STM32Fx   = STM32F407xx
+STM32Fx   = STM32F767xx
 LIB_PATH  = ../../../one-third-hal
 PRJ_PATH  = . $(LIB_PATH)/core
 LIBS      = -lc -lm -lnosys
 OPT       = -Og
-ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f407xx.s
-LD_SCRIPT = $(LIB_PATH)/lds/STM32F407ZGTx_FLASH.ld
+ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f767xx.s
+LD_SCRIPT = $(LIB_PATH)/lds/STM32F767ZITx_FLASH.ld
 PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
-    $(LIB_PATH)/core \
-    $(LIB_PATH)/core/operation
+    $(LIB_PATH)/core
 
 # ------------------------------------------
-ifneq (,$(findstring STM32F4,$(STM32Fx)))
-    CPU       = -mcpu=cortex-m4
-    FPU       = -mfpu=fpv4-sp-d16
-    FLOAT-ABI = -mfloat-abi=hard
-    LIB_SHARE  = f4-share
-    LIB_HAL    = f4-v1.25.2
-    STM32Family= STM32F4xx
+ifneq (,$(findstring STM32F7,$(STM32Fx)))
+    CPU        = -mcpu=cortex-m7
+    FPU        = -mfpu=fpv5-sp-d16
+    FLOAT-ABI  = -mfloat-abi=hard
+    LIB_SHARE  = f7-share
+    LIB_HAL    = f7-v1.16.2
+    STM32Family= STM32F7xx
+	HAL_INCH   = $(LIB_PATH)/${LIB_HAL}/inc/Legacy
 else
-    $(info not a STM32F4xx family device, you need to revise the Makefile)
+    $(info not a STM32F7xx family device, you need to revise the Makefile)
 endif
 
 # =============================================================================
@@ -62,7 +62,7 @@ vpath %.c $(sort $(dir $(PRJ_SRCS)))
 PRJ_OBJS+= $(addprefix $(PRJ_OUT)/,$(notdir $(ASM_SRC:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SRC)))
 
-HAL_INCH = \
+HAL_INCH += \
     $(LIB_PATH)/CMSIS/Include \
     $(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
     $(LIB_PATH)/${LIB_HAL}/inc \
