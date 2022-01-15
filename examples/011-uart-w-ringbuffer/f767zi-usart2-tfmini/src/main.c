@@ -41,44 +41,44 @@ void tfmini_set_mode(TFminiMeasureMode_e mode) {
 }
 
 // ============================================================================
-// static void tfmini_parse(uint8_t* data, uint16_t len) {
-//     console.printf("%s(): ", __func__);
-//     // calculate the checksum ----------
-//     if (len < 9) {
-//         console.printf("maybe it is not a tfmini packet?\r\n");
-//         return;
-//     }
-//     uint16_t check_sum = 0;
-//     for (int i = 0; i < 9 - 1; i++) {
-//         check_sum += data[i];
-//     }
-//     check_sum &= 0xFF;
-//     // check the checksum ----------
-//     uint8_t error = ( uint8_t )(data[9 - 1] - check_sum);
-//     if (error != 0) {
-//         console.printf("checksum error\r\n");
-//         return;
-//     }
-//     uint16_t dist_mm = 0;
-//     uint16_t strength = 0;
-//     double temp_c = 0;
-//     switch (measure_mode) {
-//     case TFMINI_MODE_CM:
-//         // scaled to mm
-//         dist_mm = ( uint16_t )10 * ( uint16_t )(data[3] << 8 | data[2]);
-//         break;
-//     case TFMINI_MODE_MM:
-//         dist_mm = ( uint16_t )(data[3] << 8 | data[2]);
-//         break;
-//     default:
-//         break;
-//     }
-//     strength = ( uint16_t )(data[5] << 8 | data[4]);
-//     temp_c = ( double )(data[7] << 8 | data[6]) / 8.0 - 256;
-//     console.printf("dist = %d mm, ", dist_mm);
-//     console.printf("strength = %d, ", strength);
-//     console.printf("temperature = %3.1f C\r\n", temp_c);
-// }
+static void tfmini_parse(uint8_t* data, uint16_t len) {
+    console.printf("%s(): ", __func__);
+    // calculate the checksum ----------
+    if (len < 9) {
+        console.printf("maybe it is not a tfmini packet?\r\n");
+        return;
+    }
+    uint16_t check_sum = 0;
+    for (int i = 0; i < 9 - 1; i++) {
+        check_sum += data[i];
+    }
+    check_sum &= 0xFF;
+    // check the checksum ----------
+    uint8_t error = ( uint8_t )(data[9 - 1] - check_sum);
+    if (error != 0) {
+        console.printf("checksum error\r\n");
+        return;
+    }
+    uint16_t dist_mm = 0;
+    uint16_t strength = 0;
+    double temp_c = 0;
+    switch (measure_mode) {
+    case TFMINI_MODE_CM:
+        // scaled to mm
+        dist_mm = ( uint16_t )10 * ( uint16_t )(data[3] << 8 | data[2]);
+        break;
+    case TFMINI_MODE_MM:
+        dist_mm = ( uint16_t )(data[3] << 8 | data[2]);
+        break;
+    default:
+        break;
+    }
+    strength = ( uint16_t )(data[5] << 8 | data[4]);
+    temp_c = ( double )(data[7] << 8 | data[6]) / 8.0 - 256;
+    console.printf("dist = %d mm, ", dist_mm);
+    console.printf("strength = %d, ", strength);
+    console.printf("temperature = %3.1f C\r\n", temp_c);
+}
 
 // =============================================================================
 void taskPrint(void) {
@@ -88,30 +88,35 @@ void taskPrint(void) {
         console.printf("%02X ", tfmini_buffer[i]);
     }
     console.printf("\r\n");
-    int8_t packets_count = op.ringbuffer.search(&usart2.rb);
-    console.printf("packets_count = %d\r\n", packets_count);
 }
 
 // =============================================================================
 void Usart2IdleIrq(void) {
     console.printf("usart2.rb.header.size  = %d\r\n", usart2.rb.header.size);
     op.ringbuffer.show(&usart2.rb, 'h', 10);
-    op.ringbuffer.insight(&usart2.rb);
-    // int8_t packets_count = op.ringbuffer.search(&usart2.rb);
-    // ( void )packets_count;
-    // console.printf("packets_count = %d\r\n", packets_count);
-    // op.ringbuffer.insight(&usart2.rb);
-    // while (packets_count > 0) {
-    //     console.printf("packets_count = %d\r\n", packets_count);
-    //     uint8_t array[30] = { 0 };
-    //     packets_count =
-    //         op.ringbuffer.fetch(&usart2.rb, array, sizeof_array(array));
-    //     for (int i = 0; i < sizeof_array(array); i++) {
-    //         console.printf("%02X ", array[i]);
-    //     }
-    //     console.printf("\r\n");
-    //     // tfmini_parse(array, sizeof_array(array));
-    // }
+    int8_t search_ret = op.ringbuffer.search(&usart2.rb);
+    while (search_ret > 0) {
+        console.printf("find %d packets\r\n", search_ret);
+        uint8_t array[30] = { 0 };
+        search_ret =
+            op.ringbuffer.fetch(&usart2.rb, array, sizeof_array(array));
+        tfmini_parse(array, sizeof_array(array));
+    }
+    if (search_ret < 0) {
+        switch (search_ret) {
+        case RINGBUFFER_HEADER_NOT_ASSIGNED:
+            console.printf("header not assigned\r\n");
+            break;
+        case RINGBUFFER_JUST_INITIALIZED:
+            console.printf("just initialized\r\n");
+            break;
+        case RINGBUFFER_FEW_COUNT:
+            console.printf("few count\r\n");
+            break;
+        default:
+            break;
+        }
+    }
 }
 
 // ============================================================================

@@ -311,19 +311,23 @@ void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size) {
 }
 
 // ============================================================================
-/// always search from the head to the tail of a ringbuffer
-/// other cases to fix: two bytes pattern, but three bytes shows two patterns
+/// always search from the head to the tail in a ringbuffer
 WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb) {
+    // header is not assigned
     if (rb->header.size == 0) {
-        ringbuffer_error("ringbuffer header need to be assigned by "
-                         "op.ringbuffer.header()\r\n");
+        return ( int8_t )RINGBUFFER_HEADER_NOT_ASSIGNED;
+    }
+    // ringbuffer is just initialized/resetted, or emptied
+    if (rb->state.head == -1) {
+        return ( int8_t )RINGBUFFER_JUST_INITIALIZED;
     }
     uint8_t size = rb->header.size;
     // mark it as searched
     rb->index.searched = true;
+
     // ringbuffer does not have enough bytes
     if (rb->state.count < size) {
-        return 0;
+        return ( int8_t )RINGBUFFER_FEW_COUNT;
     }
     // initialize the indices to match
     uint16_t indices[size];
@@ -352,9 +356,10 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb) {
             rb->index.dist[rb->index.count] = 0;
             rb->index.pos[rb->index.count++] = indices[0];
             if (rb->index.count >= RINGBUFFER_PACKETS_MAX_FOUND) {
-                ringbuffer_printf(HYLW
-                                  "communication too heavy, need to expand the "
-                                  "ringbuffer or process it timely!\r\n" NOC);
+                ringbuffer_printf(
+                    HYLW "%s(): communication too heavy, need to expand the "
+                         "ringbuffer or process it timely!\r\n" NOC,
+                    __func__);
                 // do not block here
             }
         }

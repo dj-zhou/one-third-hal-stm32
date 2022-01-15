@@ -140,11 +140,9 @@ extern "C" {
 // clang-format off
 typedef enum RingBufferError {
     RINGBUFFER_NO_ERROR =  0,
-    RINGBUFFER_ERR_OOR  = -1,  // OOR = out of range
-    RINGBUFFER_ERR_CNM  = -2,  // CNM = can not move
-    RINGBUFFER_ERR_SNCP = -3,  // SNCP = search no complete packet
-    RINGBUFFER_ERR_PNI  = -4,  // PNI = pop negative number of items
-    RINGBUFFER_ERR_PTMI = -5,  // PTMI = pop too many items
+    RINGBUFFER_HEADER_NOT_ASSIGNED = -1,
+    RINGBUFFER_JUST_INITIALIZED = -2,
+    RINGBUFFER_FEW_COUNT = -3,
 } RingBufferError_e;
 
 typedef enum RingBufferInitState {
