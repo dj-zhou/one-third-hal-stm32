@@ -201,6 +201,21 @@ static void Usart2RingShow(char style, uint16_t width) {
     op.ringbuffer.show(&usart2.rb, style, width);
 }
 
+// ----------------------------------------------------------------------------
+static void Usart2Header(uint8_t* array, uint8_t size) {
+    op.ringbuffer.header(&usart2.rb, array, size);
+}
+
+// ----------------------------------------------------------------------------
+WARN_UNUSED_RESULT int8_t Usart2Search(void) {
+    return op.ringbuffer.search(&usart2.rb);
+}
+
+// ----------------------------------------------------------------------------
+WARN_UNUSED_RESULT int8_t Usart2Fetch(uint8_t* array, uint16_t size) {
+    return op.ringbuffer.fetch(&usart2.rb, array, size);
+}
+
 // ============================================================================
 // clang-format off
 UartApi_t usart2 = {
@@ -211,6 +226,9 @@ UartApi_t usart2 = {
     .ring = {
         .config = Usart2RingConfig,
         .show   = Usart2RingShow  ,
+        .header = Usart2Header    ,
+        .search = Usart2Search    ,
+        .fetch  = Usart2Fetch     ,
     },
 };
 // clang-format on

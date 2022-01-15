@@ -93,13 +93,12 @@ void taskPrint(void) {
 // =============================================================================
 void Usart2IdleIrq(void) {
     console.printf("usart2.rb.header.size  = %d\r\n", usart2.rb.header.size);
-    op.ringbuffer.show(&usart2.rb, 'h', 10);
-    int8_t search_ret = op.ringbuffer.search(&usart2.rb);
+    usart2.ring.show('h', 10);
+    int8_t search_ret = usart2.ring.search();
     while (search_ret > 0) {
         console.printf("find %d packets\r\n", search_ret);
         uint8_t array[30] = { 0 };
-        search_ret =
-            op.ringbuffer.fetch(&usart2.rb, array, sizeof_array(array));
+        search_ret = usart2.ring.fetch(array, sizeof_array(array));
         tfmini_parse(array, sizeof_array(array));
     }
     if (search_ret < 0) {
@@ -135,12 +134,11 @@ int main(void) {
     usart2.ring.show('h', 10);
 
     uint8_t tfmini_header[] = { 0x59, 0x59 };
-    op.ringbuffer.header(&usart2.rb, tfmini_header,
-                         sizeof_array(tfmini_header));
+    usart2.ring.header(tfmini_header, sizeof_array(tfmini_header));
 
     console.printf("usart2.rb.header.size  = %d\r\n", usart2.rb.header.size);
-    int8_t packets_count = op.ringbuffer.search(&usart2.rb);
-    console.printf("packets_count = %d\r\n", packets_count);
+    int8_t search_ret = usart2.ring.search();
+    console.printf("search_ret = %d\r\n", search_ret);
     tfmini_set_mode(TFMINI_MODE_MM);
 
     // tasks -----------
