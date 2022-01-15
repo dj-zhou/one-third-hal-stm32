@@ -383,7 +383,7 @@ static void SchedulerProcess(void) {
 static void SchedulerShowTasks(void) {
 
     CONSOLE_PRINTF_SEG;
-    stime_printk(0, " Stime Task Scheduler (");
+    stime_printk(0, "Stime Task Scheduler (");
 #if defined(_STIME_4K_TICK)
     stime_printk(0, "4K Hz tick)");
 #elif defined(_STIME_2K_TICK)

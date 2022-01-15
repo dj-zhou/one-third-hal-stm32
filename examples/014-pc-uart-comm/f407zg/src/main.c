@@ -1,21 +1,15 @@
 #include "config.h"
 #include <math.h>
 
-// =============================================================================
-void taskPrint(void) {
-    static int32_t loop = 220;
-    double data = -sin(( double )loop / 180.0 * 3.1415926);
-    char* ptr = ( char* )&data;
-    console.printf("data = %f, ", data);
-    for (int i = 0; i < 4; i++) {
-        console.printf("%X ", *ptr++);
-    }
-    console.printf("\r\n");
+uint8_t usart1_rx[100];
+
+// ============================================================================
+void Usart1IdleIrq(void) {
+    usart1.ring.show('h', 10);
 }
 
 // ============================================================================
 int main(void) {
-    utils.pin.mode(GPIOE, 11, GPIO_MODE_OUTPUT_PP);
     utils.system.initClock(168, 42, 84);
     utils.system.initNvic(4);
     stime.config();
@@ -24,13 +18,14 @@ int main(void) {
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
     usart1.config(2000000, 8, 'n', 1);
+    usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
     // tasks -----------
-    stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
     stime.scheduler.show();
 
     // system start to run -----------
     stime.scheduler.run();
 
+    // it should never reach here -----------
     console.printf("main ends.\r\n");
     return 0;
 }

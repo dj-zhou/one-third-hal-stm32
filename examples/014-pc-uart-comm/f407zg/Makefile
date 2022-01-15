@@ -75,7 +75,6 @@ PRJ_INC += ${HAL_INC}
 
 # =============================================================================
 CFLAGS   = $(MCU) $(C_DEFS) $(OPT)
-CFLAGS  += -Werror=unused-parameter
 CFLAGS  += -Werror=unused-variable
 CFLAGS  += -Werror=unused-function
 CFLAGS  += -Wall -fdata-sections -ffunction-sections
@@ -85,6 +84,8 @@ LDFLAGS += -Wl,-Map=$(PRJ_OUT)/$(PRJ_NAME).map,--cref -Wl,--gc-sections
 LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
 CFLAGS_PROJ  = -Werror=conversion
+CFLAGS_PROJ += -Werror=unused-parameter
+
 # =============================================================================
 .PHONY:
 # -----------------

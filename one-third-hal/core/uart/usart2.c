@@ -126,8 +126,8 @@ static void Usart2Send(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function can be redefined in projects
 __attribute__((weak)) void Usart2IdleIrq(void) {
-    uart_printf(
-        "you should define \"void Usart2IdleIrq(void){}\" and use it\r\n");
+    uart_printf("Usart2 IDLE IRQ: you need todefine \"void "
+                "Usart2IdleIrq(void){}\" in your project.\r\n");
 }
 
 // ----------------------------------------------------------------------------

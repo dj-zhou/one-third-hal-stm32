@@ -1,7 +1,5 @@
 ### Example Projects
 
-
-
 #### `001-sysclk-led`
 
 Basic project to setup the system clock (not the SysTick) and Toggle a LED in a while loop.
@@ -177,5 +175,9 @@ Demos to use CAN port(s).
 #### `013-use-id`
 
 Example of using the system ID defined in `one-third-hal/feature/id`.
+#### `014-pc-uart-comm`
+
+Example of communication between a PC and F407ZG board via uart (USART1) port.
+
 #### `015-crc-calculate`
 Use CRC soft and CRC hard on `f407zg` and `f767zi`. Hardware CRC is very fast.
