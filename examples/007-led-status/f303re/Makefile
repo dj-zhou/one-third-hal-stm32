@@ -85,6 +85,7 @@ LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
 CFLAGS_PROJ  = -Werror=conversion
 CFLAGS_PROJ += -Werror=unused-parameter
+
 # =============================================================================
 .PHONY:
 # -----------------
