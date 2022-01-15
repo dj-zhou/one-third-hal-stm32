@@ -15,9 +15,9 @@ OperationApt_t op = {
         .tail  = RingBufferTail ,
         .added = RingBufferAdded,
         // visualization
-        .show = RingBufferShow,
+        .show = RingBufferShow  ,
+        .error = RingBufferError,
         // search and see result
-        .header  = RingBufferHeader ,
         .search  = RingBufferSearch ,
         .insight = RingBufferInsight,
         .fetch   = RingBufferFetch  ,

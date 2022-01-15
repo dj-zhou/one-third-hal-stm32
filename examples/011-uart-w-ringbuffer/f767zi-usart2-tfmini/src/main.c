@@ -16,6 +16,7 @@ uint16_t strength;
 float temp_c;
 
 uint8_t tfmini_buffer[50];
+uint8_t tfmini_header[] = { 0x59, 0x59 };
 
 // ============================================================================
 void tfmini_set_mode(TFminiMeasureMode_e mode) {
@@ -92,29 +93,22 @@ void taskPrint(void) {
 
 // =============================================================================
 void Usart2IdleIrq(void) {
-    console.printf("usart2.rb.header.size  = %d\r\n", usart2.rb.header.size);
     usart2.ring.show('h', 10);
-    int8_t search_ret = usart2.ring.search();
+    int8_t search_ret =
+        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header));
     while (search_ret > 0) {
+        op.ringbuffer.insight(&usart2.rb);
         console.printf("find %d packets\r\n", search_ret);
         uint8_t array[30] = { 0 };
         search_ret = usart2.ring.fetch(array, sizeof_array(array));
+        for (int i = 0; i < 30; i++) {
+            console.printf("%02X ", array[i]);
+        }
+        console.printf("\r\n");
         tfmini_parse(array, sizeof_array(array));
     }
     if (search_ret < 0) {
-        switch (search_ret) {
-        case RINGBUFFER_HEADER_NOT_ASSIGNED:
-            console.printf("header not assigned\r\n");
-            break;
-        case RINGBUFFER_JUST_INITIALIZED:
-            console.printf("just initialized\r\n");
-            break;
-        case RINGBUFFER_FEW_COUNT:
-            console.printf("few count\r\n");
-            break;
-        default:
-            break;
-        }
+        op.ringbuffer.error(search_ret);
     }
 }
 
@@ -133,11 +127,8 @@ int main(void) {
     usart2.ring.config(tfmini_buffer, sizeof_array(tfmini_buffer));
     usart2.ring.show('h', 10);
 
-    uint8_t tfmini_header[] = { 0x59, 0x59 };
-    usart2.ring.header(tfmini_header, sizeof_array(tfmini_header));
-
-    console.printf("usart2.rb.header.size  = %d\r\n", usart2.rb.header.size);
-    int8_t search_ret = usart2.ring.search();
+    int8_t search_ret =
+        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header));
     console.printf("search_ret = %d\r\n", search_ret);
     tfmini_set_mode(TFMINI_MODE_MM);
 

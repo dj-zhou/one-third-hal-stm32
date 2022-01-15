@@ -140,9 +140,12 @@ extern "C" {
 // clang-format off
 typedef enum RingBufferError {
     RINGBUFFER_NO_ERROR =  0,
-    RINGBUFFER_HEADER_NOT_ASSIGNED = -1,
-    RINGBUFFER_JUST_INITIALIZED = -2,
-    RINGBUFFER_FEW_COUNT = -3,
+    RINGBUFFER_HEADER_TOO_SMALL = -1,
+    RINGBUFFER_HEADER_TOO_LARGE = -2,
+    RINGBUFFER_JUST_INITIALIZED = -3,
+    RINGBUFFER_FEW_COUNT        = -4,
+    RINGBUFFER_FIND_NO_HEADER   = -5,
+    RINGBUFFER_FETCH_DES_SMALL  = -6,
 } RingBufferError_e;
 
 typedef enum RingBufferInitState {
@@ -163,13 +166,6 @@ typedef struct {
 
 #pragma pack(1)
 typedef struct {
-    uint8_t data[RINGBUFFER_HEADER_MAX_LEN];
-    uint8_t size;
-} RingBufferHeader_t;
-#pragma pack()
-
-#pragma pack(1)
-typedef struct {
     bool searched;
     uint16_t pos[RINGBUFFER_PACKETS_MAX_FOUND];  // index of the header
     uint16_t dist[RINGBUFFER_PACKETS_MAX_FOUND]; // distance to next header
@@ -181,7 +177,6 @@ typedef struct {
 typedef struct RingBuffer_s {
     uint8_t*           data;
     RingBufferState_t  state;
-    RingBufferHeader_t header;
     RingBufferIndex_t  index;
 } RingBuffer_t;
 #pragma pack()

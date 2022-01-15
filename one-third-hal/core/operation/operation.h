@@ -23,8 +23,9 @@ bool RingBufferPopN(RingBuffer_t* rb, uint8_t* ret, uint16_t len);
 bool RingBufferTail(RingBuffer_t* rb, uint16_t pos);
 bool RingBufferAdded(RingBuffer_t* rb, uint16_t count);
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width);
-void RingBufferHeader(RingBuffer_t* rb, uint8_t* array, uint8_t size);
-WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb);
+void RingBufferError(RingBufferError_e e);
+WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
+                                           uint8_t header_size);
 void RingBufferInsight(RingBuffer_t* rb);
 WARN_UNUSED_RESULT int8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
                                           uint16_t size);
@@ -41,8 +42,9 @@ typedef struct {
     bool (*tail)(RingBuffer_t* rb, uint16_t pos);
     bool (*added)(RingBuffer_t* rb, uint16_t count);
     void (*show)(RingBuffer_t* rb, char style, uint16_t width);
-    void (*header)(RingBuffer_t* rb, uint8_t array[], uint8_t size);
-    WARN_UNUSED_RESULT int8_t (*search)(RingBuffer_t* rb);
+    void (*error)(RingBufferError_e e);
+    WARN_UNUSED_RESULT int8_t (*search)(RingBuffer_t* rb, uint8_t* header,
+                                        uint8_t header_size);
     void (*insight)(RingBuffer_t* rb);
     WARN_UNUSED_RESULT int8_t (*fetch)(RingBuffer_t* rb, uint8_t* array,
                                        uint16_t size);

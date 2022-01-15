@@ -186,13 +186,8 @@ static void Usart1RingShow(char style, uint16_t width) {
 }
 
 // ----------------------------------------------------------------------------
-static void Usart1Header(uint8_t* array, uint8_t size) {
-    op.ringbuffer.header(&usart1.rb, array, size);
-}
-
-// ----------------------------------------------------------------------------
-WARN_UNUSED_RESULT int8_t Usart1Search(void) {
-    return op.ringbuffer.search(&usart1.rb);
+WARN_UNUSED_RESULT int8_t Usart1Search(uint8_t* header, uint8_t header_size) {
+    return op.ringbuffer.search(&usart1.rb, header, header_size);
 }
 
 // ----------------------------------------------------------------------------
@@ -210,7 +205,6 @@ UartApi_t usart1 = {
     .ring = {
         .config = Usart1RingConfig,
         .show   = Usart1RingShow  ,
-        .header = Usart1Header    ,
         .search = Usart1Search    ,
         .fetch  = Usart1Fetch     ,
     },
