@@ -59,8 +59,8 @@ static void ConsoleUartIRQ(void) {
 // ----------------------------------------------------------------------------
 #if defined(STM32F030x8)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                                uint32_t alter) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                  uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -83,7 +83,7 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 // ----------------------------------------------------------------------------
 #if defined(STM32F103xB) || defined(STM32F107xC)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR) {
 
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
@@ -104,8 +104,8 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 // ----------------------------------------------------------------------------
 #if defined(STM32F303xE)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                                uint32_t alter) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                  uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -136,8 +136,8 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 // ----------------------------------------------------------------------------
 #if defined(STM32F407xx) || defined(STM32F427xx)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                                uint32_t alter) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                  uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -160,8 +160,8 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                                uint32_t alter) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                  uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -183,8 +183,8 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
 
 #if defined(STM32H750xx)
 static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
-                                GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
-                                uint32_t alter) {
+                                  GPIO_TypeDef* GPIOx_R, uint8_t pin_nR,
+                                  uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -225,7 +225,8 @@ static HAL_StatusTypeDef ConsolePeriphClock(void) {
 
 // ----------------------------------------------------------------------------
 static void Consoleinit_uart_settings(USART_TypeDef* USARTx, uint32_t baud_rate,
-                                    uint8_t len, char parity, uint8_t stop_b) {
+                                      uint8_t len, char parity,
+                                      uint8_t stop_b) {
 
     hconsole_.Instance = USARTx;
     hconsole_.Init.BaudRate = baud_rate;
