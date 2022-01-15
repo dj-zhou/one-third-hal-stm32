@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(USART3_EXISTS) && defined(USART3_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -13,46 +14,50 @@ uint16_t usart3_uh_mask_;
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART3_PB10PB11)
 static void InitUsart3_PB10PB11(void) {
-    // todo
+#error InitUsart3_PB10PB11(): todo
 }
 #endif  // _USE_USART3_PB10PB11
 
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART3_PC10PC11)
-static void InitUsart3_PB10PB11(void) {
-    // todo
+static void InitUsart3_PC10PC11(void) {
+#error InitUsart3_PC10PC11(): todo
 }
 #endif  // _USE_USART3_PC10PC11
 
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART3_PD8PD9)
-static void InitUsart3_PB10PB11(void) {
-    // todo
+static void InitUsart3_PD8PD9(void) {
+#error InitUsart3_PD8PD9(): todo
 }
 #endif  // _USE_USART3_PD8PD9
 
 // ----------------------------------------------------------------------------
 static void InitUsart3(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    if (config_uarts.check(USART3)) {
+    if (config_uart.check(USART3)) {
         uart_error("USART3 is occupied\r\n");
     }
     usart3.huart.Instance = USART3;
 #if defined(_USE_USART3_PB10PB11)
     InitUsart3_PB10PB11();
+#elif defined(_USE_USART3_PC10PC11)
+    InitUsart3_PC10PC11();
+#elif defined(_USE_USART3_PD8PD9)
+    InitUsart3_PD8PD9();
 #endif
     utils.clock.enableUart(usart3.huart.Instance);
-    InitUartSettings(&(usart3.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(usart3.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(usart3.huart));
     usart3_uh_mask_ = usart3.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(usart3.huart));
 
+    __HAL_UART_ENABLE(&(usart3.huart));
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(usart3.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(USART3_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(USART3_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -73,22 +78,21 @@ static void Usart3DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_usart3_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
 static void Usart3RingbufferConfig(uint8_t* data, uint16_t len) {
-    ring_ = RingBufferConfig(data, len);
-    ring_initialized_ = true;
+    usart3.rb = ringbuffer.config(data, len);
 }
 
 // ----------------------------------------------------------------------------
 static void InitUsart3Priority(uint16_t preempt_p) {
-    InitUartNvic(USART3_IRQn, preempt_p);
+    init_uart_nvic(USART3_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart3Transmit(uint8_t* data, uint16_t size) {
+static void Usart3Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(usart3.huart), data, size, 1000);
 }
 
@@ -128,7 +132,7 @@ UartApi_t usart3 = {
     .config      = InitUsart3             ,
     .dma.config  = Usart3DmaConfig        ,
     .priority    = InitUsart3Priority     ,
-    .transmit    = Usart3Transmit         ,
+    .send        = Usart3Send             ,
     .ring.config = Usart3RingbufferConfig ,
 };
 // clang-format on

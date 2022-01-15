@@ -47,7 +47,7 @@ int main(void) {
     uint8_t buffer[30];
     RingBuffer_t rb = op.ringbuffer.init(buffer, sizeof_array(buffer));
 
-    // show the ringbuffer after it is initizized
+    // show the ringbuffer after it is initialized
     op.ringbuffer.show(&rb, 'H', 10);
     op.ringbuffer.show(&rb, 'd', 10);
 
@@ -107,9 +107,9 @@ int main(void) {
     op.ringbuffer.pushN(&rb, tfmini_data3, sizeof_array(tfmini_data3));
     op.ringbuffer.show(&rb, 'H', 10);
     uint8_t tfmini_header[] = { 0x59, 0x59 };
-    op.ringbuffer.header(&rb, tfmini_header, sizeof_array(tfmini_header));
     console.printf("fetch the packets out from the ringbuffer\r\n");
-    int8_t packets_count = op.ringbuffer.search(&rb);
+    int8_t packets_count =
+        op.ringbuffer.search(&rb, tfmini_header, sizeof_array(tfmini_header));
     op.ringbuffer.insight(&rb);
     while (packets_count > 0) {
         console.printf("packets_count = %d\r\n", packets_count);

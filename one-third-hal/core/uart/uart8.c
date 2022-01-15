@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(UART8_EXISTS) && defined(UART8_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -11,34 +12,43 @@ uint16_t uart8_uh_mask_;
 #endif
 
 // ----------------------------------------------------------------------------
-#if defined(_USE_UART8_PC10PC11)  // this is wrong, todo
-static void InitUart8_PC10PC11(void) {
-    // todo
+#if defined(_USE_UART8_PE1PE0)
+static void InitUart8_PE1PE0(void) {
+#error InitUart8_PE1PE0(): todo
 }
-#endif  // _USE_UART8_PC10PC11
+#endif  // _USE_UART8_PE1PE0
+
+// ----------------------------------------------------------------------------
+#if defined(_USE_UART8_PJ8PJ9)
+static void InitUart8_PJ8PJ9(void) {
+#error InitUart8_PJ8PJ9(): todo
+}
+#endif  // _USE_UART8_PJ8PJ9
 
 // ----------------------------------------------------------------------------
 static void InitUart8(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (config_uarts.check(UART8)) {
+    if (config_uart.check(UART8)) {
         uart_error("UART8 is occupied\r\n");
     }
     uart8.huart.Instance = UART8;
 #if defined(_USE_UART8_PC10PC11)
     InitUart8_PC10PC11();
+#elif defined(_USE_UART8_PJ8PJ9)
+    InitUart8_PJ8PJ9();
 #endif
     utils.clock.enableUart(uart8.huart.Instance);
-    InitUartSettings(&(uart8.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(uart8.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(uart8.huart));
     uart8_uh_mask_ = uart8.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(uart8.huart));
 
+    __HAL_UART_ENABLE(&(uart8.huart));
     __HAL_UART_ENABLE_IT(&(uart8.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart8.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART8_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(UART8_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +69,7 @@ static void Uart8DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_uart8_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
@@ -71,11 +81,11 @@ static void Uart8RingbufferConfig(uint8_t* data, uint16_t len) {
 // ----------------------------------------------------------------------------
 static void InitUart8Priority(uint16_t preempt_p) {
     // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
-    InitUartNvic(UART8_IRQn, preempt_p);
+    init_uart_nvic(UART8_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Uart8Transmit(uint8_t* data, uint16_t size) {
+static void Uart8Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(uart8.huart), data, size, 1000);
 }
 
@@ -115,7 +125,7 @@ UartApi_t uart8 = {
     .config      = InitUart8             ,
     .dma.config  = Uart8DmaConfig        ,
     .priority    = InitUart8Priority     ,
-    .transmit    = Uart8Transmit         ,
+    .send        = Uart8Send             ,
     .ring.config = Uart8RingbufferConfig ,
 };
 // clang-format on

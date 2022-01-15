@@ -5,10 +5,9 @@
 extern "C" {
 #endif
 
-#include "stm32f7xx_hal.h"
+#include "stm32f4xx_hal.h"
 
 // ============================================================================
-
 // one-third-core includes
 // ----------------------------------------------------------------------------
 #include "general-utils.h"
@@ -20,18 +19,18 @@ extern "C" {
 #include "stime-scheduler.h"
 
 // ----------------------------------------------------------------------------
-#define _CONSOLE_USE_USART3_PD8PD9
-#define _CLI_OUT_MESSAGE "ringbuffer-f767zi"
+#define _CONSOLE_USE_USART2_PA2PA3
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
-#define _LED_HEARTBEAT_PORT GPIOB
-#define _LED_HEARTBEAT_PIN 0
+#define _LED_HEARTBEAT_PORT GPIOE
+#define _LED_HEARTBEAT_PIN 11
 #define _LED_HEARTBEAT_TASK_MS 5
 #include "led-status.h"
 
 // ----------------------------------------------------------------------------
-#include "operation.h"
+#define _USE_USART1_PA9PA10
+#include "uart/uart.h"
 
 // ============================================================================
 #ifdef __cplusplus

@@ -12,10 +12,12 @@ OperationApt_t op = {
         .pushN = RingBufferPushN,
         .pop   = RingBufferPop  ,
         .popN  = RingBufferPopN ,
+        .tail  = RingBufferTail ,
+        .added = RingBufferAdded,
         // visualization
-        .show = RingBufferShow,
+        .show = RingBufferShow  ,
+        .error = RingBufferError,
         // search and see result
-        .header  = RingBufferHeader ,
         .search  = RingBufferSearch ,
         .insight = RingBufferInsight,
         .fetch   = RingBufferFetch  ,

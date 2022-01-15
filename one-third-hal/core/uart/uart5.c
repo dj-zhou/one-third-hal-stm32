@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(UART5_EXISTS) && defined(UART5_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -13,14 +14,14 @@ uint16_t uart5_uh_mask_;
 // ----------------------------------------------------------------------------
 #if defined(_USE_UART5_PC12PD2)
 static void InitUart5_PC12PD2(void) {
-    // todo
+#error InitUart5_PC12PD2(): todo
 }
 #endif  // _USE_UART5_PC12PD2
 
 // ----------------------------------------------------------------------------
 static void InitUart5(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (config_uarts.check(UART5)) {
+    if (config_uart.check(UART5)) {
         uart_error("UART5 is occupied\r\n");
     }
     uart5.huart.Instance = UART5;
@@ -28,17 +29,17 @@ static void InitUart5(uint32_t baud, uint8_t data_size, char parity,
     InitUart5_PC12PD2();
 #endif
     utils.clock.enableUart(uart5.huart.Instance);
-    InitUartSettings(&(uart5.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(uart5.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(uart5.huart));
     uart5_uh_mask_ = uart5.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(uart5.huart));
 
+    __HAL_UART_ENABLE(&(uart5.huart));
     __HAL_UART_ENABLE_IT(&(uart5.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart5.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART5_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(UART5_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +60,7 @@ static void Uart5DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_uart5_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
@@ -71,11 +72,11 @@ static void Uart5RingbufferConfig(uint8_t* data, uint16_t len) {
 // ----------------------------------------------------------------------------
 static void InitUart5Priority(uint16_t preempt_p) {
     // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
-    InitUartNvic(UART5_IRQn, preempt_p);
+    init_uart_nvic(UART5_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Uart5Transmit(uint8_t* data, uint16_t size) {
+static void Uart5Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(uart5.huart), data, size, 1000);
 }
 
@@ -115,7 +116,7 @@ UartApi_t uart5 = {
     .config      = InitUart5             ,
     .dma.config  = Uart5DmaConfig        ,
     .priority    = InitUart5Priority     ,
-    .transmit    = Uart5Transmit         ,
+    .send        = Uart5Send             ,
     .ring.config = Uart5RingbufferConfig ,
 };
 // clang-format on

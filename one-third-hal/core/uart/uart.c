@@ -4,8 +4,8 @@
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
-void InitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT, GPIO_TypeDef* GPIOx_R,
-                  uint8_t pin_nR, uint32_t alter) {
+void init_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
+                    GPIO_TypeDef* GPIOx_R, uint8_t pin_nR, uint32_t alter) {
     utils.clock.enableGpio(GPIOx_T);
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
@@ -26,8 +26,8 @@ void InitUartPins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT, GPIO_TypeDef* GPIOx_R,
 #endif  // STM32F746xx || STM32F767xx
 
 // ----------------------------------------------------------------------------
-void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
-                      uint8_t len, char parity, uint8_t stop_b) {
+void init_uart_settings(UART_HandleTypeDef* huart, uint32_t baud_rate,
+                        uint8_t len, char parity, uint8_t stop_b) {
 
     huart->Init.BaudRate = baud_rate;
     switch (len) {
@@ -52,18 +52,18 @@ void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
     }
 
     switch (parity) {
-    case 'O':
     case 'o':
+    case 'O':
         // todo: this may need extra attention
         huart->Init.Parity = UART_PARITY_ODD;
         break;
-    case 'E':
     case 'e':
+    case 'E':
         // todo: this may need extra attention
         huart->Init.Parity = UART_PARITY_EVEN;
         break;
-    case 'N':
     case 'n':
+    case 'N':
     default:
         huart->Init.Parity = UART_PARITY_NONE;
         break;
@@ -80,7 +80,7 @@ void InitUartSettings(UART_HandleTypeDef* huart, uint32_t baud_rate,
 }
 
 // ----------------------------------------------------------------------------
-void InitUartNvic(IRQn_Type ch, uint16_t p) {
+void init_uart_nvic(IRQn_Type ch, uint16_t p) {
     HAL_NVIC_SetPriority(ch, p, 0);
     HAL_NVIC_EnableIRQ(ch);
 }

@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(USART6_EXISTS) && defined(USART6_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -11,49 +12,43 @@ uint16_t usart6_uh_mask_;
 #endif
 
 // ----------------------------------------------------------------------------
-#if defined(_USE_USART6_PA2PA3)  // this is wrong, todo
-static void InitUsart6_PA2PA3(void) {
-    // todo
+#if defined(_USE_USART6_PC6PC7)
+static void InitUsart6_PC6PC7(void) {
+#error InitUsart6_PC6PC7(): todo
 }
-#endif  // _USE_USART6_PA2PA3
+#endif  // _USE_USART6_PC6PC7
 
 // ----------------------------------------------------------------------------
-#if defined(_USE_USART6_PD5PD6)
-static void InitUsart6_PD5PD6(void) {
-#if defined(STM32F107xC)
-    InitUartPins(GPIOD, 5, GPIOD, 6);  // verified
-    __HAL_RCC_AFIO_CLK_ENABLE();
-    __HAL_AFIO_REMAP_USART6_ENABLE();
-#elif defined(STM32F767xx)
-    InitUartPins(GPIOD, 5, GPIOD, 6, GPIO_AF7_USART6);  // verifing
-#else
-#error InitUSART6_PD5PD6(): need to implement and verify!
-#endif
+#if defined(_USE_USART6_PG14PG9)
+static void InitUsart6_PG14PG9(void) {
+#error InitUsart6_PG14PG9(): todo
 }
-#endif  // _USE_USART6_PD5PD6
+#endif  // _USE_USART6_PG14PG9
 
 // ----------------------------------------------------------------------------
 static void InitUsart6(uint32_t baud, uint8_t data_size, char parity,
                        uint8_t stop) {
-    if (config_uarts.check(USART6)) {
+    if (config_uart.check(USART6)) {
         uart_error("USART6 is occupied\r\n");
     }
     usart6.huart.Instance = USART6;
-#if defined(_USE_USART6_PA2PA3)
-    InitUsart6_PA2PA3();
+#if defined(_USE_USART6_PC6PC7)
+    InitUsart6_PC6PC7();
+#elif defined(_USE_USART6_PG14PG9)
+    InitUsart6_PG14PG9();
 #endif
     utils.clock.enableUart(usart6.huart.Instance);
-    InitUartSettings(&(usart6.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(usart6.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(usart6.huart));
     usart6_uh_mask_ = usart6.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(usart6.huart));
 
+    __HAL_UART_ENABLE(&(usart6.huart));
     __HAL_UART_ENABLE_IT(&(usart6.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(usart6.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(USART6_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(USART6_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -74,22 +69,21 @@ static void Usart6DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_usart6_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
 static void Usart6RingbufferConfig(uint8_t* data, uint16_t len) {
-    ring_ = RingBufferConfig(data, len);
-    ring_initialized_ = true;
+    usart6.rb = ringbuffer.config(data, len);
 }
 
 // ----------------------------------------------------------------------------
 static void InitUsart6Priority(uint16_t preempt_p) {
-    InitUartNvic(USART6_IRQn, preempt_p);
+    init_uart_nvic(USART6_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart6Transmit(uint8_t* data, uint16_t size) {
+static void Usart6Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(usart6.huart), data, size, 1000);
 }
 
@@ -129,7 +123,7 @@ UartApi_t usart6 = {
     .config      = InitUsart6             ,
     .dma.config  = Usart6DmaConfig        ,
     .priority    = InitUsart6Priority     ,
-    .transmit    = Usart6Transmit         ,
+    .send        = Usart6Send             ,
     .ring.config = Usart6RingbufferConfig ,
 };
 // clang-format on

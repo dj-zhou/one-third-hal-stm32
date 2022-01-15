@@ -1,6 +1,7 @@
 #include "uart.h"
 
 #if defined(UART7_EXISTS) && defined(UART7_IS_USED)
+// ============================================================================
 
 static RingBuffer_t ring_;
 static bool ring_initialized_ = false;
@@ -11,34 +12,43 @@ uint16_t uart7_uh_mask_;
 #endif
 
 // ----------------------------------------------------------------------------
-#if defined(_USE_UART7_PC10PC11)  // this is wrong, todo
-static void InitUart7_PC10PC11(void) {
-    // todo
+#if defined(_USE_UART7_PA15PA8)
+static void InitUart7_PA15PA8(void) {
+#error InitUart7_PA15PA8(): todo
 }
-#endif  // _USE_UART7_PC10PC11
+#endif  // _USE_UART7_PA15PA8
+
+// ----------------------------------------------------------------------------
+#if defined(_USE_UART7_PB4PB3)
+static void InitUart7_PB4PB3(void) {
+#error InitUart7_PB4PB3(): todo
+}
+#endif  // _USE_UART7_PB4PB3
 
 // ----------------------------------------------------------------------------
 static void InitUart7(uint32_t baud, uint8_t data_size, char parity,
                       uint8_t stop) {
-    if (config_uarts.check(UART7)) {
+    if (config_uart.check(UART7)) {
         uart_error("UART7 is occupied\r\n");
     }
     uart7.huart.Instance = UART7;
-#if defined(_USE_UART7_PC10PC11)
-    InitUart7_PC10PC11();
+#if defined(_USE_UART7_PA15PA8)
+    InitUart7_PA15PA8();
+#elif defined(_USE_UART7_PB4PB3)
+    InitUart7_PB4PB3();
 #endif
     utils.clock.enableUart(uart7.huart.Instance);
-    InitUartSettings(&(uart7.huart), baud, data_size, parity, stop);
+    init_uart_settings(&(uart7.huart), baud, data_size, parity, stop);
 #if defined(STM32F303xE) || defined(STM32F767xx)
     UART_MASK_COMPUTATION(&(uart7.huart));
     uart7_uh_mask_ = uart7.huart.Mask;
 #endif
-    __HAL_UART_ENABLE(&(uart7.huart));
 
+    __HAL_UART_ENABLE(&(uart7.huart));
     __HAL_UART_ENABLE_IT(&(uart7.huart), UART_IT_RXNE);
     __HAL_UART_ENABLE_IT(&(uart7.huart), UART_IT_IDLE);
     // default priority
-    InitUartNvic(UART7_IRQn, _UART_PREEMPTION_PRIORITY);
+    init_uart_nvic(UART7_IRQn, _UART_PREEMPTION_PRIORITY);
 }
 
 // ----------------------------------------------------------------------------
@@ -59,7 +69,7 @@ static void Uart7DmaConfig(void) {
     if (HAL_DMA_Init(&hdma_uart7_rx) != HAL_OK) {
         //   Error_Handler();
     }
-    console.error("%s(): not verified!\r\n", __func__);
+    uart_error("%s(): not verified!\r\n", __func__);
 }
 
 // ----------------------------------------------------------------------------
@@ -71,11 +81,11 @@ static void Uart7RingbufferConfig(uint8_t* data, uint16_t len) {
 // ----------------------------------------------------------------------------
 static void InitUart7Priority(uint16_t preempt_p) {
     // if using freeRTOS, the priority cannot be smaller (higher) than 5, todo
-    InitUartNvic(UART7_IRQn, preempt_p);
+    init_uart_nvic(UART7_IRQn, preempt_p);
 }
 
 // ----------------------------------------------------------------------------
-static void Uart7Transmit(uint8_t* data, uint16_t size) {
+static void Uart7Send(uint8_t* data, uint16_t size) {
     HAL_UART_Transmit(&(uart7.huart), data, size, 1000);
 }
 
@@ -115,7 +125,7 @@ UartApi_t uart7 = {
     .config      = InitUart7             ,
     .dma.config  = Uart7DmaConfig        ,
     .priority    = InitUart7Priority     ,
-    .transmit    = Uart7Transmit         ,
+    .send        = Uart7Send             ,
     .ring.config = Uart7RingbufferConfig ,
 };
 // clang-format on
