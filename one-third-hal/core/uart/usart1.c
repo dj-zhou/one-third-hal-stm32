@@ -95,10 +95,12 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
 #if defined(STM32F407xx)
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->DR),
                   ( uint32_t )buffer, len);
+#elif defined(STM32F767xx)
+    // HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->RDR),
+    //               ( uint32_t )buffer, len);
 #endif
 
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
-
     usart1_dma_is_used = true;
     Usart1RingConfig(buffer, len);
 }
@@ -115,7 +117,13 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 
 // ============================================================================
 // this function can be redefined in projects
-__attribute__((weak)) void Usart1IdleIrqCallback(void) {
+__attribute__((weak)) void Usart1IdleIrq(void) {
+    uart_printf(
+        "you should define \"void Usart1IdleIrq(void){}\" and use it\r\n");
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1IdleIrqCallback(void) {
     if (usart1_dma_is_used) {
         // to calculate how many bytes are received
         // PROBLEM: it cannot tell if more than the capacity bytes of data is
@@ -155,6 +163,7 @@ __attribute__((weak)) void Usart1IdleIrqCallback(void) {
     }
     // in either case, we need to notify the system to parse data from the
     // ringbuffer
+    Usart1IdleIrq();
 }
 
 // ============================================================================

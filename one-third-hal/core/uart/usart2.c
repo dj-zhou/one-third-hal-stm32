@@ -98,16 +98,17 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     __HAL_LINKDMA(&(usart2.huart), hdmarx, hdma_usart2_rx);
     HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+
     // only use verified code
-#if defined(STM32F767xx)
-    HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->RDR),
-                  ( uint32_t )buffer, len);
-#elif defined(STM32F407xx)
+#if defined(STM32F407xx)
     HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->DR),
                   ( uint32_t )buffer, len);
+#elif defined(STM32F767xx)
+    HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->RDR),
+                  ( uint32_t )buffer, len);
 #endif
-    HAL_UART_Receive_DMA(&(usart2.huart), buffer, len);
 
+    HAL_UART_Receive_DMA(&(usart2.huart), buffer, len);
     usart2_dma_is_used = true;
     Usart2RingConfig(buffer, len);
 }
@@ -130,7 +131,7 @@ __attribute__((weak)) void Usart2IdleIrq(void) {
 }
 
 // ----------------------------------------------------------------------------
-__attribute__((weak)) void Usart2IdleIrqCallback(void) {
+static void Usart2IdleIrqCallback(void) {
     if (usart2_dma_is_used) {
         // to calculate how many bytes are received
         // PROBLEM: it cannot tell if more than the capacity bytes of data is

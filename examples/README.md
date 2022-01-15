@@ -162,9 +162,13 @@ Tested on:
 
 #### `010-f767zi-ringbuffer`
 
-#### `011-uart-idle-irq`
+Show how to use the `ringbuffer` APIs.
 
-* `f407zg`
+#### `011-uart-w-ringbuffer`
+
+* `f407zg-usart1-rx-irq`: push each byte of data received from UART to its ringbuffer.
+* `f407zg-usart1-rx-idle-dma`: using DMA to move data directly to the UART ringbuffer, and revise the ringbuffer parameter.
+* `f767zi-usart2-tfmini`: run a TF-MINI-S sensor and show its data.
 
 #### `012-can`
 
