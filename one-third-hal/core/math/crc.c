@@ -3,6 +3,17 @@
 #include <stdio.h>
 
 // ============================================================================
+#if defined(CONSOLE_IS_USED)
+#define crc_printf(...) (console.printf(__VA_ARGS__))
+#define crc_printk(...) (console.printk(__VA_ARGS__))
+#define crc_error(...) (console.error(__VA_ARGS__))
+#else
+#define crc_printf(...) ({ ; })
+#define crc_printk(...) ({ ; })
+#define crc_error(...) ({ ; })
+#endif
+
+// ============================================================================
 typedef uint16_t bit_order_16(uint16_t value);
 typedef uint8_t bit_order_8(uint8_t value);
 
@@ -187,10 +198,10 @@ static void CrcHardConfig(void) {
 // ----------------------------------------------------------------------------
 static void CrcHardError(void) {
     if (!crc_hard_configured) {
-        console.printf(
-            "needs to run \"crc.hard.config()\" before using it.\r\n");
+        crc_printf("needs to run \"crc.hard.config()\" before using it.\r\n");
     }
 }
+
 // ----------------------------------------------------------------------------
 static uint32_t CrcHard32bitFrom8bit(uint8_t* buf, uint32_t len) {
     CrcHardError();
