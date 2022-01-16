@@ -420,11 +420,8 @@ WARN_UNUSED_RESULT int8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
         return ( int8_t )RINGBUFFER_FETCH_DES_SMALL;
     }
     uint8_t popout;
-    if (rb->state.head != rb->index.pos[0]) {
-        uint16_t pop_count = ( uint16_t )(rb->index.pos[0] - rb->state.head);
-        for (uint16_t i = 0; i < pop_count; i++) {
-            RingBufferPop(rb, &popout);
-        }
+    while (rb->state.head != rb->index.pos[0]) {
+        RingBufferPop(rb, &popout);
     }
     RingBufferPopN(rb, array, rb->index.dist[0]);
     rb->index.count--;
