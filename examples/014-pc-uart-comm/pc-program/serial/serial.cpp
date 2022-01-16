@@ -174,7 +174,7 @@ int Serial::quit() {
     return ret;
 }
 
-bool Serial::send(char* str, size_t len) {
+bool Serial::send(const char* str, size_t len) {
     size_t offs = 0;
     while (offs < len) {
         ssize_t r = write(fd_, str + offs, len - offs);
@@ -186,7 +186,7 @@ bool Serial::send(char* str, size_t len) {
     return false;
 }
 
-bool Serial::send(char* str, size_t len, uint32_t exec_time_us) {
+bool Serial::send(const char* str, size_t len, uint32_t exec_time_us) {
     bool ret = send(str, len);
     control_clock::time_point time_ready =
         control_clock::now() + std::chrono::microseconds(exec_time_us);

@@ -1,7 +1,6 @@
 #include "serial-comm.h"
 #include "comm-protocol.h"
 #include <iostream>
-#include <stdlib.h>
 
 PcComm::PcComm(Serial* serial) {
     if (serial->fd() != -1) {
@@ -18,16 +17,14 @@ void PcComm::send(const char* str, size_t len) {
 
 void PcComm::send(const CommVelCmd_t cmd) {
     size_t size = sizeof(cmd);
-    char* str = ( char* )malloc(size + 10);
-    comm_serialize(( const char* )&cmd, size, str);
-    serial_->send(str, size + 10);
-    free(str);
+    size_t packet_size = size + 9;
+    comm_serialize(( const char* )&cmd, size, packet_);
+    serial_->send(( const char* )packet_, packet_size, 1000);
 }
 
 void PcComm::send(const CommSwitchMode_t mode) {
     size_t size = sizeof(mode);
-    char* str = ( char* )malloc(size + 10);
-    comm_serialize(( const char* )&mode, size, str);
-    serial_->send(str, size + 10);
-    free(str);
+    size_t packet_size = size + 9;
+    comm_serialize(( const char* )&mode, size, packet_);
+    serial_->send(( const char* )packet_, packet_size, 1000);
 }

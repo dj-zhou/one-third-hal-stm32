@@ -14,4 +14,5 @@ public:
 
 private:
     Serial* serial_;
+    uint8_t packet_[1024];  // FIXME: is 1024 enough?
 };
