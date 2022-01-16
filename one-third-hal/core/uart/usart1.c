@@ -96,7 +96,7 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->DR),
                   (uint32_t)buffer, len);
 #elif defined(STM32F767xx)
-    // HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->RDR),
+    // HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
     //               ( uint32_t )buffer, len);
 #endif
 
@@ -118,7 +118,7 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function can be redefined in projects
 __attribute__((weak)) void Usart1IdleIrq(void) {
-    uart_printf("Usart1 IDLE IRQ: you need todefine \"void "
+    uart_printf("Usart1 IDLE IRQ: you need to define \"void "
                 "Usart1IdleIrq(void){}\" in your project.\r\n");
 }
 
