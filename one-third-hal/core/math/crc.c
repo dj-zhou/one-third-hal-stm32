@@ -50,7 +50,7 @@ static uint8_t reverse_8(uint8_t data) {
 }
 
 // ----------------------------------------------------------------------------
-static uint16_t CRC16(uint8_t const* data, int len, bit_order_8 data_order,
+static uint16_t CRC16(uint8_t const* data, uint32_t len, bit_order_8 data_order,
                       bit_order_16 remainder_order, uint16_t remainder,
                       uint16_t polynomial) {
     for (int byte = 0; byte < len; ++byte) {
@@ -68,29 +68,29 @@ static uint16_t CRC16(uint8_t const* data, int len, bit_order_8 data_order,
 }
 
 // ----------------------------------------------------------------------------
-static uint16_t CRC16_CCITT(uint8_t const* data, int len) {
+static uint16_t CRC16_CCITT(uint8_t const* data, uint32_t len) {
     return CRC16(data, len, straight_8, straight_16, 0xffff, 0x1021);
 }
 
-static uint16_t CRC16_CCITT_XMODEM(uint8_t const* data, int len) {
+static uint16_t CRC16_CCITT_XMODEM(uint8_t const* data, uint32_t len) {
     return CRC16(data, len, straight_8, straight_16, 0x0000, 0x1021);
 }
 
-static uint16_t CRC16_CCITT_KERMIT(uint8_t const* data, int len) {
+static uint16_t CRC16_CCITT_KERMIT(uint8_t const* data, uint32_t len) {
     uint16_t swap = CRC16(data, len, reverse_8, reverse_16, 0x0000, 0x1021);
     return ( uint16_t )(swap << 8 | swap >> 8);
 }
 
-static uint16_t CRC16_CCITT_1D0F(uint8_t const* data, int len) {
+static uint16_t CRC16_CCITT_1D0F(uint8_t const* data, uint32_t len) {
     return CRC16(data, len, straight_8, straight_16, 0x1d0f, 0x1021);
 }
 
-static uint16_t CRC16_IBM(uint8_t const* data, int len) {
+static uint16_t CRC16_IBM(uint8_t const* data, uint32_t len) {
     return CRC16(data, len, reverse_8, reverse_16, 0x0000, 0x8005);
 }
 
 // ----------------------------------------------------------------------------
-uint16_t CrcSoft16bitFrom8bit(uint8_t* data, uint16_t len, uint8_t method) {
+uint16_t CrcSoft16bitFrom8bit(uint8_t* data, uint32_t len, uint8_t method) {
     uint16_t ret = 0;
     switch (method) {
     case 1:
@@ -158,10 +158,10 @@ static uint32_t crc32_table[256] = {
 };
 
 // ----------------------------------------------------------------------------
-static uint32_t CrcSoft32bitFrom32bit(uint8_t* data, uint16_t len) {
+static uint32_t CrcSoft32bitFrom8bit(uint8_t* data, uint32_t len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
-    for (uint16_t n = 0; n < len; n++) {
+    for (uint32_t n = 0; n < len; n++) {
         ret ^= ( uint32_t )data[n];
         for (uint16_t i = 0; i < 4; i++) {
             temp = crc32_table[( uint8_t )((ret >> 24) & 0xff)];
@@ -225,12 +225,12 @@ static uint32_t CrcHard32bitFrom32bit(uint32_t* buf, uint32_t len) {
 // ============================================================================
 CrcApi_t crc = {
     .soft = {
-        ._16bit8  = CrcSoft16bitFrom8bit ,
-        ._32bit8  = CrcSoft32bitFrom32bit ,
+        ._16bit8 = CrcSoft16bitFrom8bit,
+        ._32bit8 = CrcSoft32bitFrom8bit,
     },
     .hard = {
-        .config = CrcHardConfig,
-        ._32bit8 = CrcHard32bitFrom8bit ,
+        .config   = CrcHardConfig        ,
+        ._32bit8  = CrcHard32bitFrom8bit ,
         ._32bit32 = CrcHard32bitFrom32bit,
     },
 };

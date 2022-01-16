@@ -177,3 +177,5 @@ Demos to use CAN port(s).
 #### `013-use-id`
 
 Example of using the system ID defined in `one-third-hal/feature/id`.
+#### `015-crc-calculate`
+Use CRC soft and CRC hard on `f407zg` and `f767zi`. Hardware CRC is very fast.
