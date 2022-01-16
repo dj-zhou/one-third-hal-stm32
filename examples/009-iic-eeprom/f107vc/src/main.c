@@ -1,10 +1,4 @@
-
 #include "config.h"
-// =============================================================================
-void taskPrint(void) {
-    static int32_t loop = 0;
-    console.printf("%5d: hello %s\r\n", loop++, FIRMWARE);
-}
 
 // ============================================================================
 int main(void) {
@@ -16,9 +10,6 @@ int main(void) {
     led.config(LED_DOUBLE_BLINK);
     iic1.config(100000);
     eeprom.config();
-    // tasks -----------
-    stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
-    stime.scheduler.show();
 
     uint8_t data_to_write[1024];
     uint8_t data_to_read[1024];
@@ -70,9 +61,9 @@ int main(void) {
     if (sum == 0) {
         console.printf("writing and reading are successful!\r\n");
     }
-    while (1)
-        ;
 
+    // tasks -----------
+    stime.scheduler.show();
     // system start to run -----------
     stime.scheduler.run();
 

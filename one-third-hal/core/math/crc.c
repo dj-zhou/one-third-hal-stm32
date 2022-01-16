@@ -163,7 +163,7 @@ static uint32_t CrcSoft32bitFrom32bit(uint8_t* data, uint16_t len) {
 
 // ============================================================================
 // hardware CRC32 calculation, only verified on F407ZG board
-#if defined(STM32F407xx)
+#if defined(STM32F107xC) || defined(STM32F407xx)
 // nothing to do
 #else
 #error "crc.c: hardware CRC not verified"

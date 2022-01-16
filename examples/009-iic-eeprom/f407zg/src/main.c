@@ -44,18 +44,6 @@ static void printParameter(Parameters_t param) {
     console.printf("   d = %3.1f\r\n", param.d);
 }
 
-// =============================================================================
-void taskPrint(void) {
-    static int32_t loop = 220;
-    double data = -sin(( double )loop / 180.0 * 3.1415926);
-    char* ptr = ( char* )&data;
-    console.printf("data = %f, ", data);
-    for (int i = 0; i < 4; i++) {
-        console.printf("%X ", *ptr++);
-    }
-    console.printf("\r\n");
-}
-
 // ============================================================================
 int main(void) {
     utils.system.initClock(168, 42, 84);
@@ -67,9 +55,6 @@ int main(void) {
     led.config(LED_BREATH);
     iic1.config(400000);
     eeprom.config();
-    // tasks -----------
-    stime.scheduler.attach(500, 2, taskPrint, "taskPrint");
-    stime.scheduler.show();
 
     uint8_t data_to_write[1024];
     uint8_t data_to_read[1024];
@@ -135,8 +120,9 @@ int main(void) {
     param_read.key = param1.key;  // revise this to see what happens
     eeprom.node.read(( uint8_t* )(&param_read), sizeof(param_read));
     printParameter(param_read);
-    // while (1)
-    //     ;
+
+    // tasks -----------
+    stime.scheduler.show();
     // system start to run -----------
     stime.scheduler.run();
 
