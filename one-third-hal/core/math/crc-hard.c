@@ -11,7 +11,7 @@ static void CrcHardConfig(void) {
     if (HAL_CRC_Init(&crc_hard.hcrc) != HAL_OK) {
         // Error_Handler();
     }
-    HAL_RCC_CRC_CLK_ENABLE();
+    __HAL_RCC_CRC_CLK_ENABLE();
     CrcResetValue();
 }
 
