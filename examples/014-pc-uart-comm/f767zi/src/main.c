@@ -38,7 +38,7 @@ int main(void) {
 
     // usart2 is used for communication
     usart2.config(2000000, 8, 'n', 1);
-    usart2.dma.config(usart2_rx, sizeof_array(usart2_rx));
+    usart2.ring.config(usart2_rx, sizeof_array(usart2_rx));
     // tasks -----------
     stime.scheduler.show();
 
