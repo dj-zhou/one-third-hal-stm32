@@ -1,6 +1,4 @@
-
-#ifndef __CRC_SOFT_H
-#define __CRC_SOFT_H
+#pragma once
 
 #include "config.h"
 
@@ -15,5 +13,3 @@ typedef struct {
 extern CrcSoftApi_t crc_soft;
 
 // ============================================================================
-
-#endif  // __CRC_SOFT_H
