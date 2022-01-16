@@ -177,7 +177,7 @@ static uint32_t CrcSoft32bitFrom32bit(uint8_t* data, uint16_t len) {
 #if defined(STM32F107xC) || defined(STM32F407xx) || defined(STM32F767xx)
 // nothing to do
 #else
-#error "crc.c: hardware CRC not verified"
+#warning "crc.c: hardware CRC not verified"
 #endif
 static bool crc_hard_configured = false;
 static void CrcResetValue(void) {
