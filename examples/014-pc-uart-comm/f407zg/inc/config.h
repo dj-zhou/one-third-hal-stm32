@@ -19,6 +19,7 @@ extern "C" {
 
 // ----------------------------------------------------------------------------
 #define _CONSOLE_USE_USART2_PA2PA3
+#define _CLI_OUT_MESSAGE "comm"
 #include "uart-console.h"
 
 // ----------------------------------------------------------------------------
@@ -33,4 +34,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-

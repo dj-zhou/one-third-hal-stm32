@@ -7,9 +7,11 @@
 using namespace std;
 
 int main(int argc, char* argv[]) {
-    ( void )argc;
-    ( void )argv;
-    Serial serial("/dev/ttyUSB0", 2000000, 'n');
+    if (argc < 2) {
+        printf("usage\n:\t $ %s [serial port]\n", argv[0]);
+        return -1;
+    }
+    Serial serial(argv[1], 2000000, 'n');
 
     printf("sizeof(CommVelCmd_t) = %ld\n", sizeof(CommVelCmd_t));
     printf("sizeof(CommSwitchMode_t) = %ld\n", sizeof(CommSwitchMode_t));
