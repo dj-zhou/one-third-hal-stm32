@@ -1,4 +1,4 @@
-#include "crc-soft.h"
+#include "crc.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -6,12 +6,12 @@
 typedef uint16_t bit_order_16(uint16_t value);
 typedef uint8_t bit_order_8(uint8_t value);
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint16_t straight_16(uint16_t value) {
     return value;
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint16_t reverse_16(uint16_t data) {
     uint16_t reversed = 0;
     for (uint16_t i = 0; i < 16; ++i) {
@@ -22,12 +22,12 @@ static uint16_t reverse_16(uint16_t data) {
     return reversed;
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint8_t straight_8(uint8_t data) {
     return data;
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint8_t reverse_8(uint8_t data) {
     uint8_t reversed = 0;
     for (uint8_t i = 0; i < 8; ++i) {
@@ -38,7 +38,7 @@ static uint8_t reverse_8(uint8_t data) {
     return reversed;
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint16_t CRC16(uint8_t const* data, int len, bit_order_8 data_order,
                       bit_order_16 remainder_order, uint16_t remainder,
                       uint16_t polynomial) {
@@ -56,7 +56,7 @@ static uint16_t CRC16(uint8_t const* data, int len, bit_order_8 data_order,
     return remainder_order(remainder);
 }
 
-// ============================================================================
+// ----------------------------------------------------------------------------
 static uint16_t CRC16_CCITT(uint8_t const* data, int len) {
     return CRC16(data, len, straight_8, straight_16, 0xffff, 0x1021);
 }
@@ -78,8 +78,8 @@ static uint16_t CRC16_IBM(uint8_t const* data, int len) {
     return CRC16(data, len, reverse_8, reverse_16, 0x0000, 0x8005);
 }
 
-// ============================================================================
-uint16_t Calculate_CRC16(uint8_t* data, uint16_t len, uint8_t method) {
+// ----------------------------------------------------------------------------
+uint16_t CrcSoft16bitFrom8bit(uint8_t* data, uint16_t len, uint8_t method) {
     uint16_t ret = 0;
     switch (method) {
     case 1:
@@ -99,8 +99,8 @@ uint16_t Calculate_CRC16(uint8_t* data, uint16_t len, uint8_t method) {
     return ret;
 }
 
-// ============================================================================
-static uint32_t crc_table[256] = {
+// ----------------------------------------------------------------------------
+static uint32_t crc32_table[256] = {
     0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
     0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
     0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD, 0x4C11DB70, 0x48D0C6C7,
@@ -146,14 +146,14 @@ static uint32_t crc_table[256] = {
     0xBCB4666D, 0xB8757BDA, 0xB5365D03, 0xB1F740B4
 };
 
-// ============================================================================
-static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
+// ----------------------------------------------------------------------------
+static uint32_t CrcSoft32bitFrom32bit(uint8_t* data, uint16_t len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
     for (uint16_t n = 0; n < len; n++) {
         ret ^= ( uint32_t )data[n];
         for (uint16_t i = 0; i < 4; i++) {
-            temp = crc_table[( uint8_t )((ret >> 24) & 0xff)];
+            temp = crc32_table[( uint8_t )((ret >> 24) & 0xff)];
             ret <<= 8;
             ret ^= temp;
         }
@@ -162,10 +162,64 @@ static uint32_t Calculate_CRC32(uint8_t* data, uint16_t len) {
 }
 
 // ============================================================================
-// clang-format off
-CrcSoftApi_t crc_soft = {
-    .calculate8bitCrc16  = Calculate_CRC16 ,
-    .calculate8bitCrc32  = Calculate_CRC32 ,
-    .calculate32bitCrc32 = NULL            ,
+// hardware CRC32 calculation, only verified on F407ZG board
+#if defined(STM32F407xx)
+// nothing to do
+#else
+#error "crc.c: hardware CRC not verified"
+#endif
+static bool crc_hard_configured = false;
+static void CrcResetValue(void) {
+    CRC->CR = 1;
+}
+
+// ----------------------------------------------------------------------------
+static void CrcHardConfig(void) {
+    crc.hard.hcrc.Instance = CRC;
+    if (HAL_CRC_Init(&crc.hard.hcrc) != HAL_OK) {
+        // Error_Handler();
+    }
+    __HAL_RCC_CRC_CLK_ENABLE();
+    CrcResetValue();
+    crc_hard_configured = true;
+}
+
+// ----------------------------------------------------------------------------
+static void CrcHardError(void) {
+    if (!crc_hard_configured) {
+        console.printf(
+            "needs to run \"crc.hard.config()\" before using it.\r\n");
+    }
+}
+// ----------------------------------------------------------------------------
+static uint32_t CrcHard32bitFrom8bit(uint8_t* buf, uint32_t len) {
+    CrcHardError();
+    CrcResetValue();
+    for (uint32_t i = 0; i < len; i++) {
+        CRC->DR = ( uint32_t )buf[i];
+    }
+    return (CRC->DR);
+}
+
+// ----------------------------------------------------------------------------
+static uint32_t CrcHard32bitFrom32bit(uint32_t* buf, uint32_t len) {
+    CrcHardError();
+    CrcResetValue();
+    for (uint32_t i = 0; i < len; i++) {
+        CRC->DR = buf[i];
+    }
+    return (CRC->DR);
+}
+
+// ============================================================================
+CrcApi_t crc = {
+    .soft = {
+        ._16bit8  = CrcSoft16bitFrom8bit ,
+        ._32bit8  = CrcSoft32bitFrom32bit ,
+    },
+    .hard = {
+        .config = CrcHardConfig,
+        ._32bit8 = CrcHard32bitFrom8bit ,
+        ._32bit32 = CrcHard32bitFrom32bit,
+    },
 };
-// clang-format on

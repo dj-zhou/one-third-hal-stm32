@@ -1,7 +1,7 @@
 
 #include "config.h"
 
-#include "crc-soft.h"
+#include "crc.h"
 #include "iic-eeprom.h"
 #include "iic.h"
 #include "uart-console.h"
