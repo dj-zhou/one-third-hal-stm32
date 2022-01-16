@@ -1,7 +1,7 @@
 
 #include "config.h"
 
-#include "crc-soft.h"
+#include "crc.h"
 #include "iic-eeprom.h"
 #include "iic.h"
 #include "uart-console.h"
@@ -232,7 +232,7 @@ static void EepromReadNode(uint8_t* ram_addr, uint16_t size) {
         while ((!read_done) && (read_cout < _EEPROM_NODE_MAX_READ_TIME)) {
             EepromReadNbytes(node_[i].addr, ram_addr, size);
             EepromReadNbytes(node_[i].addr + size, ( uint8_t* )&crc16_read, 2);
-            if (crc16_read == crc_soft.calculate8bitCrc16(ram_addr, size, 1)) {
+            if (crc16_read == crc.soft._16bit8(ram_addr, size, 1)) {
                 read_done = true;
                 return;
             }
@@ -246,7 +246,7 @@ static void EepromReadNode(uint8_t* ram_addr, uint16_t size) {
 // ============================================================================
 static void EepromWriteNode(uint8_t* ram_addr, uint16_t size) {
     uint16_t eeprom_key = EepromGetKeyfromNode(ram_addr, size);
-    uint16_t crc16_calc = crc_soft.calculate8bitCrc16(ram_addr, size, 1);
+    uint16_t crc16_calc = crc.soft._16bit8(ram_addr, size, 1);
     for (uint8_t i = 0; i < attached_node_num_; i++) {
         if (node_[i].key != eeprom_key) {
             continue;
