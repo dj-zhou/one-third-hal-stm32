@@ -2,7 +2,7 @@
 # custom settings
 STM32Fx   = STM32F407xx
 LIB_PATH  = ../../../one-third-hal
-PRJ_PATH  = . $(LIB_PATH)/core
+PRJ_PATH  = . $(LIB_PATH)/core ../comm-protocol
 LIBS      = -lc -lm -lnosys
 OPT       = -Og
 ASM_SRC   = $(LIB_PATH)/startups/startup_stm32f407xx.s
@@ -11,7 +11,8 @@ PRJ_OUT   = bin
 PRJ_NAME  = $(STM32Fx)-binary
 
 PRJ_INCH =  \
-    $(LIB_PATH)/core
+    $(LIB_PATH)/core \
+    ../comm-protocol
 
 # ------------------------------------------
 ifneq (,$(findstring STM32F4,$(STM32Fx)))

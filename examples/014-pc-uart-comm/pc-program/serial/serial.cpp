@@ -193,3 +193,7 @@ bool Serial::send(char* str, size_t len, uint32_t exec_time_us) {
     std::this_thread::sleep_until(time_ready);
     return ret;
 }
+
+int Serial::fd() {
+    return fd_;
+}

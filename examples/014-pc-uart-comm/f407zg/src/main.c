@@ -1,7 +1,16 @@
 #include "config.h"
+
+#include "comm-protocol.h"
 #include <math.h>
 
 uint8_t usart1_rx[100];
+
+CommBatteryInfo_t battery_info = {
+    .type = CommBatteryInfo,
+    .voltage = ( float )11.2,
+    .current = ( float )0.3,
+    .soc = ( float )0.78,
+};
 
 // ============================================================================
 void Usart1IdleIrq(void) {
@@ -17,6 +26,17 @@ int main(void) {
     console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
+
+    console.printf("sizeof(CommVelCmd_t) = %ld\r\n", sizeof(CommVelCmd_t));
+    console.printf("sizeof(CommSwitchMode_t) = %ld\r\n",
+                   sizeof(CommSwitchMode_t));
+    console.printf("sizeof(CommPoseInfo_t) = %ld\r\n", sizeof(CommPoseInfo_t));
+    console.printf("sizeof(CommBatteryInfo_t) = %ld\r\n",
+                   sizeof(CommBatteryInfo_t));
+    console.printf("sizeof(CommFirmwareInfo_t) = %ld\r\n",
+                   sizeof(CommFirmwareInfo_t));
+
+    // usart1 is used for communication
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
     // tasks -----------
