@@ -12,14 +12,15 @@ pushd "$script_dir" &>/dev/null
 
 # =====================================================
 # build stm32 project
-pushd f407zg &>/dev/null
-echo -e "\n------------------------------------------------------"
-echo -e "(below): ${GRN}$(pwd)${NOC}"
-make $target -j$(nproc)
-echo -e "(above): ${GRN}$(pwd)${NOC}"
-echo "------------------------------------------------------"
-popd &>/dev/null
-
+for dir in "f407zg" "f767zi" ; do
+    pushd $dir &>/dev/null
+    echo -e "\n------------------------------------------------------"
+    echo -e "(below): ${GRN}$(pwd)${NOC}"
+    make $target -j$(nproc)
+    echo -e "(above): ${GRN}$(pwd)${NOC}"
+    echo "------------------------------------------------------"
+    popd &>/dev/null
+done
 # =====================================================
 # build PC project
 # this script is specific for this directory
