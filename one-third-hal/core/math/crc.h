@@ -11,6 +11,7 @@ typedef struct {
 typedef struct {
     CRC_HandleTypeDef hcrc;
     void (*config)(void);
+    bool (*configured)(void);
     uint32_t (*_32bit8)(uint8_t* buf, uint32_t len);
     uint32_t (*_32bit32)(uint32_t* buf, uint32_t len);
 } CrcHardApi_t;

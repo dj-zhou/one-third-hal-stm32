@@ -1,6 +1,6 @@
 #include "config.h"
 
-#include "comm-protocol.h"
+#include "protocol.h"
 #include <math.h>
 
 uint8_t usart1_rx[100];

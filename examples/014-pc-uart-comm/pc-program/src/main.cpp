@@ -1,5 +1,5 @@
-#include "comm-protocol.h"
-#include "serial-comm.h"
+#include "protocol.h"
+#include "comm.h"
 #include "serial.h"
 #include <iostream>
 #include <unistd.h>

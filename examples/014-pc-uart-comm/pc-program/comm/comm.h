@@ -1,6 +1,6 @@
 #pragma once
 
-#include "comm-protocol.h"
+#include "protocol.h"
 #include "serial.h"
 #include <stdint.h>
 

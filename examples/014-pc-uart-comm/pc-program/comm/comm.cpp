@@ -1,5 +1,4 @@
-#include "serial-comm.h"
-#include "comm-protocol.h"
+#include "comm.h"
 #include <iostream>
 
 PcComm::PcComm(Serial* serial) {

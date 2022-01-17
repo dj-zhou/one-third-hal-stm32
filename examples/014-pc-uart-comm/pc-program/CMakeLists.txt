@@ -15,9 +15,9 @@ add_compile_options(
   -Werror=conversion
 )
 
-include_directories(./serial-comm/)
+include_directories(./comm/)
 include_directories(./serial/)
-include_directories(../comm-protocol/)
+include_directories(../protocol/)
 
 find_package(fmt)
 
@@ -26,8 +26,8 @@ add_executable(
   "pc-program"
   "src/main.cpp"
   "serial/serial.cpp"
-  "../comm-protocol/comm-protocol.c"
-  "./serial-comm/serial-comm.cpp"
+  "../protocol/protocol.c"
+  "./comm/comm.cpp"
 )
 target_link_libraries(
   "pc-program"
