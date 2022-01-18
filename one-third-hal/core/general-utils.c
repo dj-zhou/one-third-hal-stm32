@@ -116,7 +116,7 @@ static HAL_StatusTypeDef VerifyClocks(uint32_t hclk, uint32_t pclk1,
 #if defined(STM32F030x8)
 static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m) {
     if ((hclk_m != 48) || (pclk1_m != 48)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -155,7 +155,7 @@ static HAL_StatusTypeDef InitClock_F030x8(uint16_t hclk_m, uint16_t pclk1_m) {
 static HAL_StatusTypeDef InitClock_F103xB(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -197,7 +197,7 @@ static HAL_StatusTypeDef InitClock_F103xB(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     if (HSE_VALUE == 25000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -246,7 +246,7 @@ static HAL_StatusTypeDef InitClock_F107xC(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 72) || (pclk1_m != 36) || (pclk2_m != 72)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -288,7 +288,7 @@ static HAL_StatusTypeDef InitClock_F303xE(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitClock_F407xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 168) || (pclk1_m != 42) || (pclk2_m != 84)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
     RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
@@ -421,7 +421,7 @@ static HAL_StatusTypeDef InitClock_F427xx(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 216) || (pclk1_m != 54) || (pclk2_m != 108)) {
-        Error_Handler(hclk_m * 5000000);
+        Error_Handler((uint32_t)(hclk_m * 5000000));
     }
     if (HSE_VALUE == 8000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -472,7 +472,7 @@ static HAL_StatusTypeDef InitClock_F7xxxx(uint16_t hclk_m, uint16_t pclk1_m,
 static HAL_StatusTypeDef InitClock_H750xx(uint16_t hclk_m, uint16_t pclk1_m,
                                           uint16_t pclk2_m) {
     if ((hclk_m != 480) || (pclk1_m != 120) || (pclk2_m != 120)) {
-        Error_Handler(hclk_m * 1000000);
+        Error_Handler((uint32_t)(hclk_m * 1000000));
     }
     if (HSE_VALUE == 25000000) {
         RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
@@ -840,7 +840,7 @@ static void enableSpiClock(SPI_TypeDef* SPIx) {
 // good for GPIO_MODE_INPUT (not GPIO_Mode_IPU??), GPIO_MODE_OUTPUT_PP
 static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
     assert_param(IS_GPIO_MODE(mode));
-    uint32_t GPIO_PIN_x = 1 << pin_n;
+    uint16_t GPIO_PIN_x = (uint16_t)(1 << pin_n);
 
 // #if defined(STM32F107xC )  // || ( defined STM32F10Xxxxx)
 // PB3/PB4 and PA15 is used as JTDO/TRACESWO after reset,
@@ -876,7 +876,7 @@ static void setPinMode(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t mode) {
 #if defined(STM32F407xx) || defined(STM32F427xx) || defined(STM32F746xx) \
     || defined(STM32F767xx)
 static void setPinAlter(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint8_t alt) {
-    uint16_t GPIO_PIN_x = 1 << pin_n;
+    uint16_t GPIO_PIN_x = (uint16_t)(1 << pin_n);
 
     enableGpioClock(GPIOx);
 
@@ -900,7 +900,7 @@ static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
     enableGpioClock(GPIOx);
 
     GPIO_InitTypeDef GPIO_InitStructure;
-    GPIO_InitStructure.Pin = 1 << pin_n;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_n);
     GPIO_InitStructure.Speed = GPIO_13RD_SPEED_HIGH;
     GPIO_InitStructure.Pull = p;
     HAL_GPIO_Init(GPIOx, &GPIO_InitStructure);
@@ -908,7 +908,7 @@ static void setPinPull(GPIO_TypeDef* GPIOx, uint8_t pin_n, uint32_t p) {
 
 // ============================================================================
 static void setPin(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v) {
-    uint16_t GPIO_Pin_x = 1 << pin_n;
+    uint16_t GPIO_Pin_x = (uint16_t)(1 << pin_n);
     if (v) {
         HAL_GPIO_WritePin(GPIOx, GPIO_Pin_x, GPIO_PIN_SET);
     }
@@ -919,12 +919,12 @@ static void setPin(GPIO_TypeDef* GPIOx, uint8_t pin_n, bool v) {
 
 // ============================================================================
 static void togglePin(GPIO_TypeDef* GPIOx, uint8_t pin_n) {
-    GPIOx->ODR ^= 1 << pin_n;
+    GPIOx->ODR = (GPIOx->ODR) ^ (uint32_t)(1 << pin_n);
 }
 
 // ============================================================================
 static bool readPin(GPIO_TypeDef* GPIOx, uint8_t pin_n) {
-    return HAL_GPIO_ReadPin(GPIOx, 1 << pin_n);
+    return HAL_GPIO_ReadPin(GPIOx, (uint16_t)(1 << pin_n));
 }
 
 // ============================================================================

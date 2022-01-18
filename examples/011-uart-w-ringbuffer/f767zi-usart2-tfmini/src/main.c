@@ -51,11 +51,11 @@ static void tfmini_parse(uint8_t* data, uint16_t len) {
     }
     uint16_t check_sum = 0;
     for (int i = 0; i < 9 - 1; i++) {
-        check_sum += data[i];
+        check_sum = (uint16_t)(check_sum + data[i]);
     }
     check_sum &= 0xFF;
     // check the checksum ----------
-    uint8_t error = ( uint8_t )(data[9 - 1] - check_sum);
+    uint8_t error = (uint8_t)(data[9 - 1] - check_sum);
     if (error != 0) {
         console.printf("checksum error\r\n");
         return;
@@ -66,15 +66,15 @@ static void tfmini_parse(uint8_t* data, uint16_t len) {
     switch (measure_mode) {
     case TFMINI_MODE_CM:
         // scaled to mm
-        dist_mm = ( uint16_t )10 * ( uint16_t )(data[3] << 8 | data[2]);
+        dist_mm = (uint16_t)(10 * (uint16_t)(data[3] << 8 | data[2]));
         break;
     case TFMINI_MODE_MM:
-        dist_mm = ( uint16_t )(data[3] << 8 | data[2]);
+        dist_mm = (uint16_t)(data[3] << 8 | data[2]);
         break;
     default:
         break;
     }
-    strength = ( uint16_t )(data[5] << 8 | data[4]);
+    strength = (uint16_t)(data[5] << 8 | data[4]);
     temp_c = ( double )(data[7] << 8 | data[6]) / 8.0 - 256;
     console.printf("dist = %d mm, ", dist_mm);
     console.printf("strength = %d, ", strength);

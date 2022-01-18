@@ -131,20 +131,20 @@ static void Usart1IdleIrqCallback(void) {
         static uint16_t remaining[2] = { 0, 0 };
         uint16_t receive_count = 0;
         remaining[0] = remaining[1];
-        remaining[1] = ( uint16_t )(__HAL_DMA_GET_COUNTER(usart1.huart.hdmarx));
+        remaining[1] = (uint16_t)(__HAL_DMA_GET_COUNTER(usart1.huart.hdmarx));
         static bool dma_first_packet = true;
         if (dma_first_packet) {
-            receive_count = usart1.rb.state.capacity - remaining[1];
+            receive_count = (uint16_t)(usart1.rb.state.capacity - remaining[1]);
             dma_first_packet = false;
             op.ringbuffer.pushN(&(usart1.rb), usart1.rb.data, receive_count);
         }
         else {
             if (remaining[0] > remaining[1]) {
-                receive_count = remaining[0] - remaining[1];
+                receive_count = (uint16_t)(remaining[0] - remaining[1]);
             }
             else {
-                receive_count = ( uint16_t )(usart1.rb.state.capacity
-                                             + remaining[0] - remaining[1]);
+                receive_count = (uint16_t)(usart1.rb.state.capacity
+                                           + remaining[0] - remaining[1]);
             }
             // DMA has already pushed data into the ringbuffer
             op.ringbuffer.added(&(usart1.rb), receive_count);

@@ -74,8 +74,8 @@ static void CalculateParameters(LedHeartBeat_e mode) {
         pwm_step_size_ = ( float )0.03;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 5) {
-        tick_toggle_ *= 2;
-        tick_period_ *= 2;
+        tick_toggle_ = (uint16_t)(tick_toggle_ * 2);
+        tick_period_ = (uint16_t)(tick_period_ * 2);
         pwm_step_size_ = ( float )0.015;
     }
     else {
@@ -123,7 +123,7 @@ static void LedHeartBeat(void) {
         if (x > 3.1415926 * 2) {
             x = 0;
         }
-        uint16_t pwm_value = ( uint16_t )((sin(x) + 1) / 2 * 2000);
+        uint16_t pwm_value = (uint16_t)((sin(x) + 1) / 2 * 2000);
         __HAL_TIM_SET_COMPARE(&htim_, pwm_channel_, pwm_value);
         return;
     }

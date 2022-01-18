@@ -60,7 +60,7 @@ int main(void) {
     uint8_t data_to_read[1024];
     uint8_t data_to_compare[1024];
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = ( uint8_t )(i + 10);
+        data_to_write[i] = (uint8_t)(i + 10);
     }
     uint16_t total_bytes_to_write = 20;
 
@@ -79,7 +79,7 @@ int main(void) {
     }
     uint32_t sum = 0;
     for (uint16_t i = 0; i < total_bytes_to_write; i++) {
-        data_to_compare[i] = data_to_read[i] - data_to_write[i];
+        data_to_compare[i] = (uint8_t)(data_to_read[i] - data_to_write[i]);
         sum += data_to_compare[i];
     }
     console.printf("compare sum = %d\r\n", sum);
@@ -93,13 +93,13 @@ int main(void) {
     console.printf("write to eeprom %d bytes, no need to wait:\r\n",
                    total_bytes_to_write);
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = ( uint8_t )(i + 15);
+        data_to_write[i] = (uint8_t)(i + 15);
     }
     eeprom.write.bytes(0, data_to_write, total_bytes_to_write);
     eeprom.read.bytes(0, data_to_read, total_bytes_to_write);
     sum = 0;
     for (uint16_t i = 0; i < total_bytes_to_write; i++) {
-        data_to_compare[i] = data_to_read[i] - data_to_write[i];
+        data_to_compare[i] = (uint8_t)(data_to_read[i] - data_to_write[i]);
         sum += data_to_compare[i];
     }
     console.printf("compare sum = %d\r\n", sum);

@@ -55,8 +55,8 @@ static HAL_StatusTypeDef EepromIicWrite(uint16_t block_addr,
 
 // ============================================================================
 static uint16_t GetBlockAddr(uint16_t addr) {
-    uint16_t block_addr =
-        EEPROM_FIRST_BLOCK_ADDR + ( uint16_t )((addr / EEPROM_BLOCK_SIZE) << 1);
+    uint16_t block_addr = (uint16_t)(
+        EEPROM_FIRST_BLOCK_ADDR + (uint16_t)((addr / EEPROM_BLOCK_SIZE) << 1));
     return block_addr;
 }
 
@@ -134,10 +134,13 @@ static void EepromReadNbytes(uint16_t addr, uint8_t* buf_read, uint16_t size) {
         else {
             EepromIicRead(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                           remain_bytes_addr,
-                          EEPROM_PAGE_SIZE - offset_page_addr, 10000);
-            size -= ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
+                          (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr),
+                          10000);
+            size = (uint16_t)(
+                size - (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr));
             remain_bytes_addr += (EEPROM_PAGE_SIZE - offset_page_addr);
-            addr += ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
+            addr = (uint16_t)(
+                addr + (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr));
         }
         stime.delay.ms(1);  // if FreeRTOS is used, use RTOS delay
     }
@@ -167,10 +170,13 @@ static void EepromWriteNbytes(uint16_t addr, uint8_t* buf_write,
         else {
             EepromIicWrite(block_addr, offset_block_addr, I2C_MEMADD_SIZE_8BIT,
                            remain_bytes_addr,
-                           EEPROM_PAGE_SIZE - offset_page_addr, 10000);
-            size -= ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
+                           (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr),
+                           10000);
+            size = (uint16_t)(
+                size - (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr));
             remain_bytes_addr += (EEPROM_PAGE_SIZE - offset_page_addr);
-            addr += ( uint16_t )(EEPROM_PAGE_SIZE - offset_page_addr);
+            addr = (uint16_t)(
+                addr + (uint16_t)(EEPROM_PAGE_SIZE - offset_page_addr));
         }
         stime.delay.ms(10);  // if FreeRTOS is used, use RTOS delay
     }
@@ -181,8 +187,7 @@ static uint16_t EepromGetKeyfromNode(uint8_t* ram_addr, uint16_t size) {
     if (size < 2) {
         console.error("\r\n%s(): not a node!\r\n", __func__);
     }
-    uint16_t key = ( uint16_t )(( uint16_t )((ram_addr[1]) << 8)
-                                | ( uint16_t )(ram_addr[0]));
+    uint16_t key = (uint16_t)((ram_addr[1] << 8) | (uint16_t)(ram_addr[0]));
     if (!IS_EEPROM_KEY(key)) {
         console.error("\r\n%s(): not a valid key!\r\n", __func__);
     }
@@ -196,7 +201,8 @@ static void EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
     if (attached_node_num_ == 0) {
         node_[0].key = eeprom_key;
         node_[0].addr = _EEPROM_NODE_START_ADDR;
-        node_[0].size = size + 2;  // two bytes for crc16 checksum: todo
+        // TODO: two bytes for crc16 checksum
+        node_[0].size = (uint16_t)(size + 2);
     }
     else {
         for (uint8_t i = 0; i < attached_node_num_; i++) {
@@ -204,10 +210,11 @@ static void EepromAttachNode(uint8_t* ram_addr, uint16_t size) {
                 console.error("\r\n%s(): node key already attached!\r\n",
                               __func__);
             }
-            node_[attached_node_num_].addr = node_[i].addr + node_[i].size;
+            node_[attached_node_num_].addr =
+                (uint16_t)(node_[i].addr + node_[i].size);
         }
         node_[attached_node_num_].key = eeprom_key;
-        node_[attached_node_num_].size = size + 2;
+        node_[attached_node_num_].size = (uint16_t)(size + 2);
     }
     attached_node_num_++;
 }
@@ -231,7 +238,8 @@ static void EepromReadNode(uint8_t* ram_addr, uint16_t size) {
         }
         while ((!read_done) && (read_cout < _EEPROM_NODE_MAX_READ_TIME)) {
             EepromReadNbytes(node_[i].addr, ram_addr, size);
-            EepromReadNbytes(node_[i].addr + size, ( uint8_t* )&crc16_read, 2);
+            EepromReadNbytes((uint16_t)(node_[i].addr + size),
+                             ( uint8_t* )&crc16_read, 2);
             if (crc16_read == crc.soft._16bit8(ram_addr, size, 1)) {
                 read_done = true;
                 return;
@@ -252,7 +260,8 @@ static void EepromWriteNode(uint8_t* ram_addr, uint16_t size) {
             continue;
         }
         EepromWriteNbytes(node_[i].addr, ram_addr, size);
-        EepromWriteNbytes(node_[i].addr + size, ( uint8_t* )&crc16_calc, 2);
+        EepromWriteNbytes((uint16_t)(node_[i].addr + size),
+                          ( uint8_t* )&crc16_calc, 2);
         return;
     }
     console.printf("%s(): node not attached!\r\n", __func__);

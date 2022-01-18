@@ -17,10 +17,10 @@
 // ============================================================================
 static uint16_t RingBufferIndex(RingBuffer_t* rb, uint16_t idx) {
     while (idx >= rb->state.capacity) {
-        idx -= rb->state.capacity;
+        idx = (uint16_t)(idx - rb->state.capacity);
     }
     while (idx < 0) {
-        idx += rb->state.capacity;
+        idx = (uint16_t)(idx + rb->state.capacity);
     }
     return idx;
 }
@@ -166,7 +166,7 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
         if (pos < rb->state.head) {
             rb->state.tail = pos;
             rb->state.count =
-                ( uint16_t )(rb->state.capacity - rb->state.head + pos);
+                (uint16_t)(rb->state.capacity - rb->state.head + pos);
         }
         else if (pos == rb->state.head) {
             rb->state.tail = pos;
@@ -180,7 +180,8 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
             // no change?
         }
         else if (pos > rb->state.tail) {
-            rb->state.count += ( uint16_t )(pos - rb->state.tail);
+            rb->state.count =
+                (uint16_t)(rb->state.count + pos - rb->state.tail);
             rb->state.tail = pos;
         }
     }
@@ -193,7 +194,8 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
             // no change?
         }
         else if ((pos > rb->state.tail) && (pos < rb->state.head)) {
-            rb->state.count += ( uint16_t )(pos - rb->state.tail);
+            rb->state.count =
+                (uint16_t)(rb->state.count + pos - rb->state.tail);
             rb->state.tail = pos;
         }
         else if (pos == rb->state.head) {
@@ -212,7 +214,7 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
 // UART DMA added a few bytes into the ringbuffer, so we just need to move tail
 // ahead
 bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
-    rb->state.tail = RingBufferIndex(rb, rb->state.tail + count);
+    rb->state.tail = RingBufferIndex(rb, (uint16_t)(rb->state.tail + count));
     if (rb->state.head == rb->state.tail) {
         rb->state.head = ( int16_t )rb->state.tail;
     }
@@ -221,7 +223,7 @@ bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
         rb->state.head = ( int16_t )rb->state.tail;
     }
     else {
-        rb->state.count += count;
+        rb->state.count = (uint16_t)(rb->state.count + count);
     }
     return true;
 }
@@ -342,7 +344,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
     uint16_t indices[header_size];
     for (uint16_t i = 0; i < ( uint16_t )header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
-        indices[i] = RingBufferIndex(rb, ( uint16_t )rb->state.head + i);
+        indices[i] = RingBufferIndex(rb, (uint16_t)(rb->state.head + i));
     }
 
     // start to search
@@ -382,7 +384,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
             indices[i] = indices[i + 1];
         }
         indices[header_size - 1] =
-            RingBufferIndex(rb, indices[header_size - 1] + 1);
+            RingBufferIndex(rb, (uint16_t)(indices[header_size - 1] + 1));
         search_count++;
     }
     // the last one needs to add 1
