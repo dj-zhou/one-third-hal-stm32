@@ -141,8 +141,8 @@ HAL_StatusTypeDef SpiTransceive16bits(SpiApi_t* spi, uint16_t* tbuf,
     stime.delay.us(_SPI_START_TIME_DELAY_US);  // to test
     uint16_t d_send;
     uint16_t d_recv;
-    uint8_t* d_send_p = ( uint8_t* )&d_send;
-    uint8_t* d_recv_p = ( uint8_t* )&d_recv;
+    uint8_t* d_send_p = (uint8_t*)&d_send;
+    uint8_t* d_recv_p = (uint8_t*)&d_recv;
 
     for (int i = 0; i < len; i++) {
         d_send = tbuf[i];
