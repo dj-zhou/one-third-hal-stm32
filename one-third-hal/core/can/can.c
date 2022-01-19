@@ -78,7 +78,7 @@ static void CAN_Bit_Rate_Process(uint16_t b_rate_k, CAN_InitTypeDef* can_init) {
 // ============================================================================
 bool can_check_bit_rate(uint16_t b_rate_k) {
     for (uint8_t i = 0; i < CAN_BIT_RATE_NUM; i++) {
-        if (( uint32_t )b_rate_k == bit_rate_table[i][0]) {
+        if ((uint32_t)b_rate_k == bit_rate_table[i][0]) {
             return true;
         }
     }
@@ -146,10 +146,10 @@ bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
     uint8_t len;
     size_t str_len = strlen(str);
     if (str_len >= _CAN_IRQ_DESCR_SIZE - 1) {
-        len = ( uint8_t )(_CAN_IRQ_DESCR_SIZE - 1);
+        len = (uint8_t)(_CAN_IRQ_DESCR_SIZE - 1);
     }
     else {
-        len = ( uint8_t )str_len;
+        len = (uint8_t)str_len;
     }
     // you cannot attach two callback functions to one ID
     if (num > 0) {

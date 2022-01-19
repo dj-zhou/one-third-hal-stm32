@@ -70,7 +70,7 @@ static void CliFormatCmd(char* strtop, char** parameter) {
         else {
             if (strncmp(strtop, "-all", 4)) {
                 strncpy(cli_.argv[cli_.argc], strtop,
-                        ( size_t )(strend - strtop));
+                        (size_t)(strend - strtop));
                 *(cli_.argv[cli_.argc++] + (strend - strtop)) = '\0';
                 cli_.argv[cli_.argc] =
                     cli_.argv[cli_.argc - 1] + (strend - strtop) + 1;
@@ -162,7 +162,7 @@ void CliInput(char read_char) {
 
 // ============================================================================
 void CliTabCompletion(char read_char) {
-    ( void )read_char;
+    (void)read_char;
     console.write.str(cli_.out_message);
     console.printk(0, "%s(): todo\r\n", __func__);
 }
@@ -267,7 +267,7 @@ static char* CliMatchChar(char* src, char* dst) {
     ptr = strchr(src, ' ');
 
     if (((ptr == NULL) && (!strcmp(src, dst)))
-        || (((((ptr != NULL) && (!strncmp(src, dst, ( size_t )(ptr - src)))))
+        || (((((ptr != NULL) && (!strncmp(src, dst, (size_t)(ptr - src)))))
              && ((*(dst + (ptr - src)) == ' ')
                  || (*(dst + (ptr - src)) == '\0'))))
         || ((ptr == NULL) && strchr(dst, '-')
@@ -315,7 +315,7 @@ void CliProcessCmd(char* str) {
 
     CliWriteCmdHistory(str);
     // CliShowAllCmdHistory();
-    ( void )CliShowAllCmdHistory;
+    (void)CliShowAllCmdHistory;
     CliFormatCmd(str, ptr);
     cmd = CliSeekCmd(str);
     if (cmd != NULL) {
@@ -410,7 +410,7 @@ HAL_StatusTypeDef CliShowFirmware(void) {
     console.write.str("\r\n");
     CONSOLE_PRINTF_SEG;
     char* ptr;
-    ( void )ptr;
+    (void)ptr;
     // --------------------------------
 #if defined(FIRMWARE)
     console.printk(0, "    firmware:" WHT " %s\r\n" NOC, FIRMWARE);
@@ -418,7 +418,7 @@ HAL_StatusTypeDef CliShowFirmware(void) {
 
     // --------------------------------
 #if defined(PRJ_GIT_VER) && defined(PRJ_GIT_CMT)
-    ptr = ( char* )&PRJ_GIT_VER + strlen(PRJ_GIT_VER) - 5;
+    ptr = (char*)&PRJ_GIT_VER + strlen(PRJ_GIT_VER) - 5;
     if (strcmp(ptr, "dirty") == 0) {
         console.printk(0, "     version:" RED " %s" NOC " (%s)\r\n",
                        PRJ_GIT_VER, PRJ_GIT_CMT);
@@ -436,7 +436,7 @@ HAL_StatusTypeDef CliShowFirmware(void) {
 
     // --------------------------------
 #if defined(LIB_GIT_VER) && defined(LIB_GIT_CMT)
-    ptr = ( char* )&LIB_GIT_VER + strlen(LIB_GIT_VER) - 5;
+    ptr = (char*)&LIB_GIT_VER + strlen(LIB_GIT_VER) - 5;
     if (strcmp(ptr, "dirty") == 0) {
         console.printk(0, " lib version:" RED " %s" NOC " (%s)\r\n",
                        LIB_GIT_VER, LIB_GIT_CMT);
@@ -546,13 +546,13 @@ HAL_StatusTypeDef CliSuspend(int argc, char** argv) {
     // if "id" contains other characters, do not suspend
     if (strspn(argv[2], "0123456789\n") != strlen(argv[2]))
         return HAL_OK;
-    uint32_t id = ( uint32_t )atoi(argv[2]);
+    uint32_t id = (uint32_t)atoi(argv[2]);
     // exclude the ID
     if (id == sid.get()) {
         return HAL_OK;
     }
 #endif  // _USE_ID
-    uint32_t seconds = ( uint32_t )atoi(argv[1]);
+    uint32_t seconds = (uint32_t)atoi(argv[1]);
     stime.scheduler.cliSuspend(seconds);
     console.rx.setStatus(false);
     return HAL_OK;

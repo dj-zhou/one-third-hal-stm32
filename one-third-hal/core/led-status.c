@@ -58,25 +58,25 @@ static void CalculateParameters(LedHeartBeat_e mode) {
     if (_LED_HEARTBEAT_TASK_MS == 40) {
         tick_toggle_ /= 4;
         tick_period_ /= 4;
-        pwm_step_size_ = ( float )0.12;
+        pwm_step_size_ = (float)0.12;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 30) {
         tick_toggle_ /= 3;
         tick_period_ /= 3;
-        pwm_step_size_ = ( float )0.09;
+        pwm_step_size_ = (float)0.09;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 20) {
         tick_toggle_ /= 2;
         tick_period_ /= 2;
-        pwm_step_size_ = ( float )0.06;
+        pwm_step_size_ = (float)0.06;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 10) {
-        pwm_step_size_ = ( float )0.03;
+        pwm_step_size_ = (float)0.03;
     }
     else if (_LED_HEARTBEAT_TASK_MS == 5) {
-        tick_toggle_ *= 2;
-        tick_period_ *= 2;
-        pwm_step_size_ = ( float )0.015;
+        tick_toggle_ = (uint16_t)(tick_toggle_ * 2);
+        tick_period_ = (uint16_t)(tick_period_ * 2);
+        pwm_step_size_ = (float)0.015;
     }
     else {
         led_error("%s(): _LED_HEARTBEAT_TASK_MS cannot be %d\r\n",
@@ -123,7 +123,7 @@ static void LedHeartBeat(void) {
         if (x > 3.1415926 * 2) {
             x = 0;
         }
-        uint16_t pwm_value = ( uint16_t )((sin(x) + 1) / 2 * 2000);
+        uint16_t pwm_value = (uint16_t)((sin(x) + 1) / 2 * 2000);
         __HAL_TIM_SET_COMPARE(&htim_, pwm_channel_, pwm_value);
         return;
     }
@@ -319,10 +319,10 @@ static void LedHeartBeatPwmConfig(void) {
 // should add error mode as an argument as well
 static void LedGpioConfig(LedHeartBeat_e heatbeat_mode) {
     // to avoid compile error
-    ( void )LedToggleError;
-    ( void )LedToggleHeartBeat;
-    ( void )htim_;
-    ( void )pwm_alter_;
+    (void)LedToggleError;
+    (void)LedToggleHeartBeat;
+    (void)htim_;
+    (void)pwm_alter_;
     heartbeat_mode_ = heatbeat_mode;
     // some assert
     if ((_LED_HEARTBEAT_PIN > 15) || (_LED_ERROR_PIN > 15)) {

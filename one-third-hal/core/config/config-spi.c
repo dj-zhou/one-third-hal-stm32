@@ -28,8 +28,8 @@ static uint8_t get_pos(SPI_TypeDef* SPIx) {
 
 static void ConfigSpiSet(SPI_TypeDef* SPIx, bool value) {
     uint8_t pos = get_pos(SPIx);
-    value ? (spi_used |= ( uint8_t )(1 << pos))
-          : (spi_used &= ( uint8_t )(~(1 << pos)));
+    value ? (spi_used |= (uint8_t)(1 << pos))
+          : (spi_used &= (uint8_t)(~(1 << pos)));
 }
 
 static bool ConfigUSpiCheck(SPI_TypeDef* SPIx) {

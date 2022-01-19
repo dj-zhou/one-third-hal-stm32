@@ -30,7 +30,7 @@ static void initParameters(void) {
     param2.b[1] = 2222;
     param2.b[2] = 4444;
     param2.b[3] = 5555;
-    param2.c = ( float )111.24;
+    param2.c = (float)111.24;
     param2.d = -5555.32;
 }
 
@@ -60,7 +60,7 @@ int main(void) {
     uint8_t data_to_read[1024];
     uint8_t data_to_compare[1024];
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = ( uint8_t )(i + 10);
+        data_to_write[i] = (uint8_t)(i + 10);
     }
     uint16_t total_bytes_to_write = 20;
 
@@ -79,7 +79,7 @@ int main(void) {
     }
     uint32_t sum = 0;
     for (uint16_t i = 0; i < total_bytes_to_write; i++) {
-        data_to_compare[i] = data_to_read[i] - data_to_write[i];
+        data_to_compare[i] = (uint8_t)(data_to_read[i] - data_to_write[i]);
         sum += data_to_compare[i];
     }
     console.printf("compare sum = %d\r\n", sum);
@@ -93,13 +93,13 @@ int main(void) {
     console.printf("write to eeprom %d bytes, no need to wait:\r\n",
                    total_bytes_to_write);
     for (uint16_t i = 0; i < 1024; i++) {
-        data_to_write[i] = ( uint8_t )(i + 15);
+        data_to_write[i] = (uint8_t)(i + 15);
     }
     eeprom.write.bytes(0, data_to_write, total_bytes_to_write);
     eeprom.read.bytes(0, data_to_read, total_bytes_to_write);
     sum = 0;
     for (uint16_t i = 0; i < total_bytes_to_write; i++) {
-        data_to_compare[i] = data_to_read[i] - data_to_write[i];
+        data_to_compare[i] = (uint8_t)(data_to_read[i] - data_to_write[i]);
         sum += data_to_compare[i];
     }
     console.printf("compare sum = %d\r\n", sum);
@@ -111,14 +111,14 @@ int main(void) {
     console.printf("\r\n\r\n===============================\r\n");
     console.printf("sizeof(Parameters_t) = %d\r\n", sizeof(Parameters_t));
     initParameters();
-    eeprom.node.attach(( uint8_t* )(&param1), sizeof(param1));
-    eeprom.node.attach(( uint8_t* )(&param2), sizeof(param2));
+    eeprom.node.attach((uint8_t*)(&param1), sizeof(param1));
+    eeprom.node.attach((uint8_t*)(&param2), sizeof(param2));
     eeprom.node.show();
-    eeprom.node.write(( uint8_t* )(&param1), sizeof(param1));
-    eeprom.node.write(( uint8_t* )(&param2), sizeof(param2));
+    eeprom.node.write((uint8_t*)(&param1), sizeof(param1));
+    eeprom.node.write((uint8_t*)(&param2), sizeof(param2));
     Parameters_t param_read;
     param_read.key = param1.key;  // revise this to see what happens
-    eeprom.node.read(( uint8_t* )(&param_read), sizeof(param_read));
+    eeprom.node.read((uint8_t*)(&param_read), sizeof(param_read));
     printParameter(param_read);
 
     // tasks -----------

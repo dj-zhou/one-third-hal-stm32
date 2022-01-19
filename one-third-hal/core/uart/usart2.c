@@ -76,8 +76,8 @@ static void Usart2RingConfig(uint8_t* data, uint16_t len) {
 }
 // ----------------------------------------------------------------------------
 static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
-    ( void )buffer;
-    ( void )len;
+    (void)buffer;
+    (void)len;
     // if we use DMA for receiving, we don't want UART_IT_RXNE
     __HAL_UART_DISABLE_IT(&(usart2.huart), UART_IT_RXNE);
     __HAL_RCC_DMA1_CLK_ENABLE();
@@ -102,10 +102,10 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     // only use verified code
 #if defined(STM32F407xx)
     HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->DR),
-                  ( uint32_t )buffer, len);
+                  (uint32_t)buffer, len);
 #elif defined(STM32F767xx)
     HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->RDR),
-                  ( uint32_t )buffer, len);
+                  (uint32_t)buffer, len);
 #endif
 
     HAL_UART_Receive_DMA(&(usart2.huart), buffer, len);
@@ -139,20 +139,20 @@ static void Usart2IdleIrqCallback(void) {
         static uint16_t remaining[2] = { 0, 0 };
         uint16_t receive_count = 0;
         remaining[0] = remaining[1];
-        remaining[1] = ( uint16_t )(__HAL_DMA_GET_COUNTER(usart2.huart.hdmarx));
+        remaining[1] = (uint16_t)(__HAL_DMA_GET_COUNTER(usart2.huart.hdmarx));
         static bool dma_first_packet = true;
         if (dma_first_packet) {
-            receive_count = usart2.rb.state.capacity - remaining[1];
+            receive_count = (uint16_t)(usart2.rb.state.capacity - remaining[1]);
             dma_first_packet = false;
             op.ringbuffer.pushN(&(usart2.rb), usart2.rb.data, receive_count);
         }
         else {
             if (remaining[0] > remaining[1]) {
-                receive_count = remaining[0] - remaining[1];
+                receive_count = (uint16_t)(remaining[0] - remaining[1]);
             }
             else {
-                receive_count = ( uint16_t )(usart2.rb.state.capacity
-                                             + remaining[0] - remaining[1]);
+                receive_count = (uint16_t)(usart2.rb.state.capacity
+                                           + remaining[0] - remaining[1]);
             }
             // DMA has already pushed data into the ringbuffer
             op.ringbuffer.added(&(usart2.rb), receive_count);

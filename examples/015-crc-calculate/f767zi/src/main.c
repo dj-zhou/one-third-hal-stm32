@@ -15,7 +15,7 @@ int main(void) {
 
     uint8_t data[100];
     for (uint8_t i = 0; i < sizeof_array(data); i++) {
-        data[i] = ( uint8_t )(i * 3);
+        data[i] = (uint8_t)(i * 3);
     }
     crc.hard.config();
     Stime_t time1 = stime.getTime();

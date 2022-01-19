@@ -27,7 +27,7 @@ void printf_b(char* sign_data, unsigned int data) {
             sign_data[i] = ' ';
         }
         else {
-            sign_data[i] = ( char )((data & 0x01) | 0x30);
+            sign_data[i] = (char)((data & 0x01) | 0x30);
             data = data >> 1;
         }
     }
@@ -41,7 +41,7 @@ void printf_b(char* sign_data, unsigned int data) {
 // ============================================================================
 void printf_f(char* sign_data, double data) {
     char buff[_CONSOLE_SIGN_DATA_SIZE];
-    int accuracy = 5, width = 0, index = 0, temp = ( int )data;
+    int accuracy = 5, width = 0, index = 0, temp = (int)data;
     char* str;
     char fmt[10];
     // temporary solution ------------------
@@ -58,14 +58,13 @@ void printf_f(char* sign_data, double data) {
         }
     }
     index = snprintf(&buff[0], _CONSOLE_SIGN_DATA_SIZE - 1, "%d.", temp);
-    temp = (( int )((( double )data - ( double )temp) * (pow(10, accuracy))));
+    temp = ((int)(((double)data - (double)temp) * (pow(10, accuracy))));
     if (temp < 0) {
         temp = -temp;
     }
     snprintf(fmt, 9, "%%0%du", accuracy);
-    index +=
-        snprintf(&buff[index], ( size_t )(_CONSOLE_SIGN_DATA_SIZE - 1 - index),
-                 fmt, temp);
+    index += snprintf(&buff[index],
+                      (size_t)(_CONSOLE_SIGN_DATA_SIZE - 1 - index), fmt, temp);
     if (index >= width) {
         console.write.str(buff);
     }
@@ -171,7 +170,7 @@ void printf_g(char* sign_data, double data) {
 
 // ============================================================================
 void printf_s(char* sign_data, char* data) {
-    ( void )sign_data;
+    (void)sign_data;
     console.write.str(data);
 }
 

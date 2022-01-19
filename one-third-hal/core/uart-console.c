@@ -39,7 +39,7 @@ static void ConsoleUartIRQ(void) {
     // new way, need more test -----------
     if (__HAL_UART_GET_FLAG(&hconsole_, UART_FLAG_RXNE) != RESET) {
 #if defined(STM32F303xE) || defined(STM32F767xx)
-        recv = ( uint8_t )(hconsole_.Instance->RDR & ( uint8_t )uh_mask_);
+        recv = (uint8_t)(hconsole_.Instance->RDR & (uint8_t)uh_mask_);
 #else
         // this HAL API is very un-efficient, need to revise
         HAL_UART_Receive(&hconsole_, &recv, 1, 1000);
@@ -65,14 +65,14 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;  // this is not GPIO_MODE_INPUT
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -89,12 +89,12 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_INPUT;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOx_R, &GPIO_InitStructure);
@@ -110,14 +110,14 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // or GPIO_PULLUP
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // or GPIO_PULLUP
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -142,14 +142,14 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // or GPIO_PULLUP
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // or GPIO_PULLUP
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -166,14 +166,14 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;  // GPIO_NOPULL?
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;  // GPIO_NOPULL?
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -189,14 +189,14 @@ static void Consoleinit_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_NOPULL;  // GPIO_NOPULL?
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;  // GPIO_NOPULL?
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -298,13 +298,12 @@ static void consoleInitUartNvic(uint8_t ch) {
 
 // ============================================================================
 static void consoleWriteByte(char data) {
-    HAL_UART_Transmit(&hconsole_, ( uint8_t* )&data, 1, 10);
+    HAL_UART_Transmit(&hconsole_, (uint8_t*)&data, 1, 10);
 }
 
 // ============================================================================
 static void consoleWriteStr(char* ptr) {
-    HAL_UART_Transmit(&hconsole_, ( uint8_t* )ptr, ( uint16_t )(strlen(ptr)),
-                      10);
+    HAL_UART_Transmit(&hconsole_, (uint8_t*)ptr, (uint16_t)(strlen(ptr)), 10);
 }
 
 // ============================================================================
@@ -611,7 +610,7 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len) {
     do {
         if (rb.w_ptr >= rb.r_ptr) {
             if (rb.w_ptr + len <= (rb.buffer + _CONSOLE_BUFF_LEN)) {
-                strncpy(rb.w_ptr, ( char* )buf, ( uint16_t )len);
+                strncpy(rb.w_ptr, (char*)buf, (uint16_t)len);
                 rb.w_ptr = rb.w_ptr + len;
                 buf = buf + len;
                 len = 0;
@@ -620,26 +619,25 @@ static void ConsoleSetChar(uint8_t* buf, uint32_t len) {
                 }
             }
             else {
-                strncpy(
-                    rb.w_ptr, ( char* )buf,
-                    ( uint16_t )((rb.buffer + _CONSOLE_BUFF_LEN) - rb.w_ptr));
+                strncpy(rb.w_ptr, (char*)buf,
+                        (uint16_t)((rb.buffer + _CONSOLE_BUFF_LEN) - rb.w_ptr));
                 buf = buf + (rb.buffer + _CONSOLE_BUFF_LEN - rb.w_ptr);
-                len = ( uint32_t )(len
-                                   - ( uint32_t )(rb.buffer + _CONSOLE_BUFF_LEN
-                                                  - rb.w_ptr));
+                len = (uint32_t)(len
+                                 - (uint32_t)(rb.buffer + _CONSOLE_BUFF_LEN
+                                              - rb.w_ptr));
                 rb.w_ptr = rb.buffer;
             }
         }
         else {
             if (((rb.r_ptr - 1) - rb.w_ptr) >= len) {
-                strncpy(rb.w_ptr, ( char* )buf, ( uint16_t )len);
+                strncpy(rb.w_ptr, (char*)buf, (uint16_t)len);
                 buf = buf + len;
                 rb.w_ptr = rb.w_ptr + len;
                 len = 0;
             }
             else {
-                strncpy(rb.w_ptr, ( char* )buf,
-                        ( uint16_t )((rb.r_ptr - 1) - rb.w_ptr));
+                strncpy(rb.w_ptr, (char*)buf,
+                        (uint16_t)((rb.r_ptr - 1) - rb.w_ptr));
                 buf = buf + ((rb.r_ptr - 1) - rb.w_ptr);
                 len = 0;
                 rb.w_ptr = rb.r_ptr - 1;
@@ -777,16 +775,16 @@ static void consoleConfig(uint32_t baud_rate) {
     CliDeInit();
 
     // register some default commands -------------
-    CliAttachCmd("help", ( CliHandle )CliShowCmd);
-    CliAttachCmd("system &cmd", ( CliHandle )CliSystem);
-    CliAttachCmd("log &level", ( CliHandle )CliLogSetLevel);
-    CliAttachCmd("scheduler &cmd", ( CliHandle )CliShowScheduler);
+    CliAttachCmd("help", (CliHandle)CliShowCmd);
+    CliAttachCmd("system &cmd", (CliHandle)CliSystem);
+    CliAttachCmd("log &level", (CliHandle)CliLogSetLevel);
+    CliAttachCmd("scheduler &cmd", (CliHandle)CliShowScheduler);
 
 #if defined(_STIME_USE_SCHEDULER)
 #if !defined(_USE_ID)
-    CliAttachCmd("cli-suspend &seconds", ( CliHandle )CliSuspend);
+    CliAttachCmd("cli-suspend &seconds", (CliHandle)CliSuspend);
 #elif defined(_USE_ID)
-    CliAttachCmd("cli-suspend &seconds &id", ( CliHandle )CliSuspend);
+    CliAttachCmd("cli-suspend &seconds &id", (CliHandle)CliSuspend);
 #endif  // _USE_ID
 #endif
 
