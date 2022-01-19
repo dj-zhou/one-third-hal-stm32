@@ -30,7 +30,7 @@ static void initParameters(void) {
     param2.b[1] = 2222;
     param2.b[2] = 4444;
     param2.b[3] = 5555;
-    param2.c = ( float )111.24;
+    param2.c = (float)111.24;
     param2.d = -5555.32;
 }
 
@@ -111,14 +111,14 @@ int main(void) {
     console.printf("\r\n\r\n===============================\r\n");
     console.printf("sizeof(Parameters_t) = %d\r\n", sizeof(Parameters_t));
     initParameters();
-    eeprom.node.attach(( uint8_t* )(&param1), sizeof(param1));
-    eeprom.node.attach(( uint8_t* )(&param2), sizeof(param2));
+    eeprom.node.attach((uint8_t*)(&param1), sizeof(param1));
+    eeprom.node.attach((uint8_t*)(&param2), sizeof(param2));
     eeprom.node.show();
-    eeprom.node.write(( uint8_t* )(&param1), sizeof(param1));
-    eeprom.node.write(( uint8_t* )(&param2), sizeof(param2));
+    eeprom.node.write((uint8_t*)(&param1), sizeof(param1));
+    eeprom.node.write((uint8_t*)(&param2), sizeof(param2));
     Parameters_t param_read;
     param_read.key = param1.key;  // revise this to see what happens
-    eeprom.node.read(( uint8_t* )(&param_read), sizeof(param_read));
+    eeprom.node.read((uint8_t*)(&param_read), sizeof(param_read));
     printParameter(param_read);
 
     // tasks -----------
