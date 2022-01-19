@@ -90,8 +90,7 @@ bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
     if (rb->state.count > rb->state.capacity) {
         rb->state.count--;
         rb->state.head++;
-        rb->state.head =
-            ( int16_t )RingBufferIndex(rb, ( uint16_t )rb->state.head);
+        rb->state.head = (int16_t)RingBufferIndex(rb, (uint16_t)rb->state.head);
     }
 
     return true;
@@ -122,7 +121,7 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     // reset to zero
     rb->data[rb->state.head] = 0;
     rb->state.head++;
-    rb->state.head = ( int16_t )RingBufferIndex(rb, ( uint16_t )rb->state.head);
+    rb->state.head = (int16_t)RingBufferIndex(rb, (uint16_t)rb->state.head);
     rb->state.count--;
     // if the last byte is popped out, start from fresh
     if (rb->state.count == 0) {
@@ -160,7 +159,7 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
     else if ((rb->state.head == rb->state.tail)
              && (rb->state.capacity == rb->state.count)) {
         rb->state.tail = pos;
-        rb->state.head = ( int16_t )pos;
+        rb->state.head = (int16_t)pos;
     }
     else if (rb->state.head < rb->state.tail) {
         if (pos < rb->state.head) {
@@ -216,11 +215,11 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
 bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
     rb->state.tail = RingBufferIndex(rb, (uint16_t)(rb->state.tail + count));
     if (rb->state.head == rb->state.tail) {
-        rb->state.head = ( int16_t )rb->state.tail;
+        rb->state.head = (int16_t)rb->state.tail;
     }
     else if (count + rb->state.count >= rb->state.capacity) {
         rb->state.count = rb->state.capacity;
-        rb->state.head = ( int16_t )rb->state.tail;
+        rb->state.head = (int16_t)rb->state.tail;
     }
     else {
         rb->state.count = (uint16_t)(rb->state.count + count);
@@ -324,25 +323,25 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
                                            uint8_t header_size) {
     // header is not assigned
     if (header_size < 0) {
-        return ( int8_t )RINGBUFFER_HEADER_TOO_SMALL;
+        return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
-        return ( int8_t )RINGBUFFER_HEADER_TOO_LARGE;
+        return (int8_t)RINGBUFFER_HEADER_TOO_LARGE;
     }
     // ringbuffer is just initialized/resetted, or emptied
     if (rb->state.head == -1) {
-        return ( int8_t )RINGBUFFER_JUST_INITIALIZED;
+        return (int8_t)RINGBUFFER_JUST_INITIALIZED;
     }
     // mark it as searched
     rb->index.searched = true;
 
     // ringbuffer does not have enough bytes
     if (rb->state.count < header_size) {
-        return ( int8_t )RINGBUFFER_FEW_COUNT;
+        return (int8_t)RINGBUFFER_FEW_COUNT;
     }
     // initialize the indices to match
     uint16_t indices[header_size];
-    for (uint16_t i = 0; i < ( uint16_t )header_size; i++) {
+    for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
         indices[i] = RingBufferIndex(rb, (uint16_t)(rb->state.head + i));
     }
@@ -414,12 +413,12 @@ WARN_UNUSED_RESULT int8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
                                           uint16_t size) {
     // not searched, or not found
     if (rb->index.count == 0) {
-        return ( int8_t )RINGBUFFER_FIND_NO_HEADER;
+        return (int8_t)RINGBUFFER_FIND_NO_HEADER;
     }
     bzero(array, size);
     if (size < rb->index.dist[0]) {
         ringbuffer_printf("%s() argument \"size\" too small\r\n", __func__);
-        return ( int8_t )RINGBUFFER_FETCH_DES_SMALL;
+        return (int8_t)RINGBUFFER_FETCH_DES_SMALL;
     }
     uint8_t popout;
     while (rb->state.head != rb->index.pos[0]) {

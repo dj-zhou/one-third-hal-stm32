@@ -4,8 +4,8 @@
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 220;
-    double data = -sin(( double )loop / 180.0 * 3.1415926);
-    char* ptr = ( char* )&data;
+    double data = -sin((double)loop / 180.0 * 3.1415926);
+    char* ptr = (char*)&data;
     static uint32_t loop_count = 0;
     console.printf("-------------------\r\n");
     console.printf("%5d,data = %f, ", loop_count++, data);
@@ -13,14 +13,14 @@ void taskPrint(void) {
         console.printf("%X ", *ptr++);
     }
     console.printf("\r\n");
-    uint32_t addr1 = ( uint32_t )&spi1;
-    uint32_t addr2 = ( uint32_t )&spi1.transceive8bits;
+    uint32_t addr1 = (uint32_t)&spi1;
+    uint32_t addr2 = (uint32_t)&spi1.transceive8bits;
     console.printf("address of spi1 = %08d\r\n", addr1);
     console.printf("address of spi1.transceive8bits = %08d\r\n", addr2);
     console.printf("address diff = %d\r\n", addr2 - addr1);
     SpiApi_t* spi =
         container_of(&(spi1.transceive8bits), SpiApi_t, transceive8bits);
-    console.printf("address of spi = %08d\r\n", ( uint32_t )spi);
+    console.printf("address of spi = %08d\r\n", (uint32_t)spi);
 }
 
 // ============================================================================

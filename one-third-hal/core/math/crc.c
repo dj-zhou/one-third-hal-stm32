@@ -162,7 +162,7 @@ static uint32_t CrcSoft32bitFrom8bit(uint8_t* data, uint32_t len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
     for (uint32_t n = 0; n < len; n++) {
-        ret ^= ( uint32_t )data[n];
+        ret ^= (uint32_t)data[n];
         for (uint16_t i = 0; i < 4; i++) {
             temp = crc32_table[(uint8_t)((ret >> 24) & 0xff)];
             ret <<= 8;
@@ -207,7 +207,7 @@ static uint32_t CrcHard32bitFrom8bit(uint8_t* buf, uint32_t len) {
     CrcHardError();
     CrcResetValue();
     for (uint32_t i = 0; i < len; i++) {
-        CRC->DR = ( uint32_t )buf[i];
+        CRC->DR = (uint32_t)buf[i];
     }
     return (CRC->DR);
 }
