@@ -224,8 +224,8 @@ static void stimeToc(char* mu, char* message) {
         stime_printf("%s consumes %ld us.\r\n", message, time);
         return;
     }
-    ( void )message;
-    ( void )time;
+    (void)message;
+    (void)time;
 }
 
 // ----------------------------------------------------------------------------
@@ -235,13 +235,13 @@ static void DelayUs(uint32_t us) {
         return;
     }
     volatile Stime_t cur_time = GetSysTickTime();
-    uint32_t cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
-    uint32_t final_us = cur_us + ( uint32_t )us;
+    uint32_t cur_us = cur_time.s * 1000000 + (uint32_t)cur_time.us;
+    uint32_t final_us = cur_us + (uint32_t)us;
     do {
         cur_time.s = second_;
         cur_time.us = tick_ * SYSTICK_MS_SCALE
                       + (SYSTICK_RELOAD_VALUE - SysTick->VAL) / US_TICK;
-        cur_us = cur_time.s * 1000000 + ( uint32_t )cur_time.us;
+        cur_us = cur_time.s * 1000000 + (uint32_t)cur_time.us;
 
         for (uint8_t i = 0; i < 2; i++) {
             __asm("MOV R0,R0");  // make sure it is not optimized
@@ -324,7 +324,7 @@ static uint32_t IntervalToTicks(uint32_t interval_ms) {
 #endif
 
 #if defined(_STIME_400_TICK)
-    ticks = ( uint32_t )(interval_ms / 2.5);
+    ticks = (uint32_t)(interval_ms / 2.5);
 #endif
 
 #if defined(_STIME_200_TICK)

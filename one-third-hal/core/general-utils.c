@@ -598,7 +598,7 @@ static HAL_StatusTypeDef InitSystemClock(uint16_t hclk_m, uint16_t pclk1_m,
 static void InitNvicInterrupt(uint8_t group) {
 #if defined(STM32F030x8)
     // seems no grouping for Cortex M0
-    ( void )group;
+    (void)group;
     return;
 #else
     switch (group) {
@@ -636,7 +636,7 @@ static void enableCanClock(CAN_TypeDef* CANx) {
     if (CANx == CAN3) { __HAL_RCC_CAN3_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )CANx;
+    (void)CANx;
 }
 #endif  // CAN_EXISTS
 
@@ -677,7 +677,7 @@ static void enableGpioClock(GPIO_TypeDef* GPIOx) {
     if (GPIOx == GPIOK) { __HAL_RCC_GPIOK_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )GPIOx;
+    (void)GPIOx;
 }
 
 // ============================================================================
@@ -697,7 +697,7 @@ static void enableIicClock(I2C_TypeDef* IICx) {
     if (IICx == I2C4) { __HAL_RCC_I2C4_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )IICx;
+    (void)IICx;
 }
 #endif  // IIC_EXISTS
 
@@ -756,7 +756,7 @@ static void enableTimerClock(TIM_TypeDef* TIMx) {
     if (TIMx == TIM17) { __HAL_RCC_TIM17_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )TIMx;
+    (void)TIMx;
 }
 
 // ============================================================================
@@ -805,7 +805,7 @@ static void enableUartClock(USART_TypeDef* USARTx) {
     if (USARTx == UART8) { __HAL_RCC_UART8_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )USARTx;
+    (void)USARTx;
 }
 #endif  // UART_EXISTS
 
@@ -832,7 +832,7 @@ static void enableSpiClock(SPI_TypeDef* SPIx) {
     if (SPIx == SPI6) { __HAL_RCC_SPI6_CLK_ENABLE(); return; }
 #endif
     // clang-format on
-    ( void )SPIx;
+    (void)SPIx;
 }
 #endif  // SPI_EXISTS
 
