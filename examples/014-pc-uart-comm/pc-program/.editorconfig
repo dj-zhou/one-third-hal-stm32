@@ -1,0 +1,31 @@
+root = true
+
+[*]
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+charset = utf-8
+
+[*.{c,h,cc,hh,cpp,cxx,hpp}]
+indent_size = 4
+indent_style = space
+
+[{CMakeLists.txt,meson.build}]
+indent_size = 2
+indent_style = space
+
+[*.{yml,yaml}]
+indent_size = 2
+indent_style = space
+
+[*.diff]
+insert_final_newline = false
+trim_trailing_whitespace = false
+
+[*.proto]
+indent_size = 2
+indent_style = space
+
+[Dockerfile*]
+indent_size = 4
+indent_style = space

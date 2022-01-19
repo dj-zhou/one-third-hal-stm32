@@ -196,6 +196,10 @@ static void CrcHardConfig(void) {
 }
 
 // ----------------------------------------------------------------------------
+static bool CrcHardConfigured(void) {
+    return crc_hard_configured;
+}
+// ----------------------------------------------------------------------------
 static void CrcHardError(void) {
     if (!crc_hard_configured) {
         crc_printf("needs to run \"crc.hard.config()\" before using it.\r\n");
@@ -229,8 +233,9 @@ CrcApi_t crc = {
         ._32bit8 = CrcSoft32bitFrom8bit,
     },
     .hard = {
-        .config   = CrcHardConfig        ,
-        ._32bit8  = CrcHard32bitFrom8bit ,
-        ._32bit32 = CrcHard32bitFrom32bit,
+        .config     = CrcHardConfig        ,
+        .configured = CrcHardConfigured    ,
+        ._32bit8    = CrcHard32bitFrom8bit ,
+        ._32bit32   = CrcHard32bitFrom32bit,
     },
 };

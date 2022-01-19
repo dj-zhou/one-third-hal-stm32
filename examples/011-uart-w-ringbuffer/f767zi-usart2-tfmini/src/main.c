@@ -125,6 +125,8 @@ int main(void) {
     usart2.config(115200, 8, 'n', 1);
     usart2.ring.show('h', 10);
     usart2.ring.config(tfmini_buffer, sizeof_array(tfmini_buffer));
+    // try to use dma? failed!
+    // usart2.dma.config(tfmini_buffer, sizeof_array(tfmini_buffer));
     usart2.ring.show('h', 10);
 
     int8_t search_ret =

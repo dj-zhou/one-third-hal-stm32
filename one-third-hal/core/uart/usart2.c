@@ -13,14 +13,14 @@ uint16_t usart2_uh_mask_;  // is this used?
 
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART2_PA2PA3)
-// static void InitUsart2_PA2PA3(void) {
+// static void Usart2Config_PA2PA3(void) {
 //     __HAL_RCC_GPIOA_CLK_ENABLE();
 //     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 //     GPIO_InitStruct.Pin = GPIO_PIN_9 | GPIO_PIN_10;
 //     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 //     GPIO_InitStruct.Pull = GPIO_NOPULL;
 //     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-//     GPIO_InitStruct.Alternate = GPIO_AF7_usart2;
+//     GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
 //     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 // }
 }
@@ -28,7 +28,7 @@ uint16_t usart2_uh_mask_;  // is this used?
 
 // ----------------------------------------------------------------------------
 #if defined(_USE_USART2_PD5PD6)
-static void InitUsart2_PD5PD6(void) {
+static void Usart2Config_PD5PD6(void) {
 #if defined(STM32F107xC)
     init_uart_pins(GPIOD, 5, GPIOD, 6);  // verified
     __HAL_RCC_AFIO_CLK_ENABLE();
@@ -36,7 +36,7 @@ static void InitUsart2_PD5PD6(void) {
 #elif defined(STM32F767xx)
     init_uart_pins(GPIOD, 5, GPIOD, 6, GPIO_AF7_USART2);  // verified
 #else
-#error InitUSART2_PD5PD6(): need to implement and verify!
+#error Usart2Config_PD5PD6(): need to implement and verify!
 #endif
 }
 #endif  // _USE_USART2_PD5PD6
@@ -49,9 +49,9 @@ static void Usart2Config(uint32_t baud, uint8_t data_size, char parity,
     }
     usart2.huart.Instance = USART2;
 #if defined(_USE_USART2_PA2PA3)
-    InitUsart2_PA2PA3();
+    Usart2Config_PA2PA3();
 #elif defined(_USE_USART2_PD5PD6)
-    InitUsart2_PD5PD6();
+    Usart2Config_PD5PD6();
 #endif
     utils.clock.enableUart(usart2.huart.Instance);
     init_uart_settings(&(usart2.huart), baud, data_size, parity, stop);
@@ -99,6 +99,9 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
+    // for F767ZI DMA-USART-RX to work, this line must be on the top then
+    // HAL_DMA_Start(), for F407ZG, it does not matter
+    HAL_UART_Receive_DMA(&(usart2.huart), buffer, len);
     // only use verified code
 #if defined(STM32F407xx)
     HAL_DMA_Start(&hdma_usart2_rx, (uint32_t) & (usart2.huart.Instance->DR),
@@ -108,7 +111,6 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
                   (uint32_t)buffer, len);
 #endif
 
-    HAL_UART_Receive_DMA(&(usart2.huart), buffer, len);
     usart2_dma_is_used = true;
     Usart2RingConfig(buffer, len);
 }
@@ -126,8 +128,8 @@ static void Usart2Send(uint8_t* data, uint16_t size) {
 // ============================================================================
 // this function can be redefined in projects
 __attribute__((weak)) void Usart2IdleIrq(void) {
-    uart_printf(
-        "you should define \"void Usart2IdleIrq(void){}\" and use it\r\n");
+    uart_printf("Usart2 IDLE IRQ: you need to define \"void "
+                "Usart2IdleIrq(void){}\" in your project.\r\n");
 }
 
 // ----------------------------------------------------------------------------
