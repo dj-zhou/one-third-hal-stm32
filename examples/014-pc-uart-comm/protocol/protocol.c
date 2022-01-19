@@ -63,9 +63,9 @@ uint32_t crc32_soft_32bit_from_8bit(uint8_t* data, size_t len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
     for (size_t n = 0; n < len; n++) {
-        ret ^= ( uint32_t )data[n];
+        ret ^= (uint32_t)data[n];
         for (uint16_t i = 0; i < 4; i++) {
-            temp = crc32_table[( uint8_t )((ret >> 24) & 0xff)];
+            temp = crc32_table[(uint8_t)((ret >> 24) & 0xff)];
             ret <<= 8;
             ret ^= temp;
         }
@@ -84,10 +84,10 @@ void comm_serialize(const char* data, size_t data_size, uint8_t* packet) {
     *ptr++ = COMM_HEADER_2;
     *ptr++ = COMM_HEADER_3;
     // length
-    *ptr++ = ( uint8_t )(len & 0x00FF);
-    *ptr++ = ( uint8_t )((len & 0xFF00) >> 8);
+    *ptr++ = (uint8_t)(len & 0x00FF);
+    *ptr++ = (uint8_t)((len & 0xFF00) >> 8);
     // payload
-    uint8_t* ptr_data = ( uint8_t* )data;
+    uint8_t* ptr_data = (uint8_t*)data;
     for (size_t i = 0; i < data_size; i++) {
         *ptr++ = *ptr_data++;
     }
@@ -100,7 +100,7 @@ void comm_serialize(const char* data, size_t data_size, uint8_t* packet) {
 #else
     uint32_t crc32 = crc32_soft_32bit_from_8bit(packet, len + 1);
 #endif
-    uint8_t* ptr_crc32 = ( uint8_t* )&crc32;
+    uint8_t* ptr_crc32 = (uint8_t*)&crc32;
     for (int i = 0; i < 4; i++) {
         *ptr++ = *ptr_crc32++;
     }

@@ -1,5 +1,5 @@
-#include "protocol.h"
 #include "comm.h"
+#include "protocol.h"
 #include "serial.h"
 #include <iostream>
 #include <unistd.h>
@@ -21,11 +21,10 @@ int main(int argc, char* argv[]) {
 
     CommVelCmd_t vel_cmd = {
         .type = CommVelCmd,
-        .x_vel = ( float )0.8,
-        .y_vel = ( float )0.4,
-        .yaw_vel = ( float )0.2,
+        .x_vel = (float)0.8,
+        .y_vel = (float)0.4,
+        .yaw_vel = (float)0.2,
     };
-    ( void )vel_cmd;
     CommSwitchMode_t switch_mode = {
         .type = CommSwitchMode,
         .mode = 1,

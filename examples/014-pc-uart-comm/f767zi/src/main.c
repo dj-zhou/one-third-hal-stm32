@@ -7,9 +7,9 @@ uint8_t usart2_rx[100];
 
 CommBatteryInfo_t battery_info = {
     .type = CommBatteryInfo,
-    .voltage = ( float )11.2,
-    .current = ( float )0.3,
-    .soc = ( float )0.78,
+    .voltage = (float)11.2,
+    .current = (float)0.3,
+    .soc = (float)0.78,
 };
 
 // ============================================================================

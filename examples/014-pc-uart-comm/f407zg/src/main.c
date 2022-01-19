@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include "comm.h"
 #include "protocol.h"
 #include <math.h>
 
@@ -7,11 +8,17 @@ uint8_t usart1_rx[100];
 
 CommBatteryInfo_t battery_info = {
     .type = CommBatteryInfo,
-    .voltage = ( float )11.2,
-    .current = ( float )0.3,
-    .soc = ( float )0.78,
+    .voltage = (float)11.2,
+    .current = (float)0.3,
+    .soc = (float)0.78,
 };
 
+CommVelCmd_t vel_cmd = {
+    .type = CommVelCmd,
+    .x_vel = (float)0.8,
+    .y_vel = (float)0.4,
+    .yaw_vel = (float)0.2,
+};
 // ============================================================================
 void Usart1IdleIrq(void) {
     usart1.ring.show('h', 10);
@@ -39,6 +46,14 @@ int main(void) {
     // usart1 is used for communication
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
+
+    // ----------------
+    send_packet((void*)&battery_info, sizeof(battery_info));
+    stime.delay.ms(100);
+    // (test only) ----------------
+    send_packet((void*)&vel_cmd, sizeof(vel_cmd));
+    stime.delay.ms(100);
+
     // tasks -----------
     stime.scheduler.show();
 
