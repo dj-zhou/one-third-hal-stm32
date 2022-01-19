@@ -56,8 +56,8 @@ extern "C" {
 #if defined(RTOS_IS_USED)
 // this allows for adding other RTOS
 typedef enum {
-    FREERTOS_NOSTART = (( uint8_t )1),
-    FREERTOS_STARTED = (( uint8_t )2),
+    FREERTOS_NOSTART = ((uint8_t)1),
+    FREERTOS_STARTED = ((uint8_t)2),
 } RtosState_e;
 
 typedef struct {
