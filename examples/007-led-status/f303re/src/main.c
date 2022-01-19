@@ -4,8 +4,8 @@
 // =============================================================================
 void taskPrint(void) {
     static int32_t loop = 220;
-    double data = -sin(( double )loop / 180.0 * 3.1415926);
-    char* ptr = ( char* )&data;
+    double data = -sin((double)loop / 180.0 * 3.1415926);
+    char* ptr = (char*)&data;
     console.printf("data = %f, ", data);
     for (int i = 0; i < 4; i++) {
         console.printf("%X ", *ptr++);
