@@ -1,5 +1,6 @@
 #include "comm.h"
 #include <iostream>
+#include <pthread.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -12,6 +13,13 @@ PcComm::PcComm(Serial* serial) {
     }
     thread_send_ = std::thread(&PcComm::thread_send, this);
     thread_recv_ = std::thread(&PcComm::thread_recv, this);
+
+    // set thread priority
+    sched_param sch_params;
+    sch_params.sched_priority = 10;
+    pthread_setschedparam(thread_send_.native_handle(), SCHED_RR, &sch_params);
+    sch_params.sched_priority = 15;
+    pthread_setschedparam(thread_recv_.native_handle(), SCHED_RR, &sch_params);
 }
 
 void PcComm::send(const char* str, size_t len) {
@@ -53,6 +61,7 @@ void PcComm::send(const CommSwitchMode_t mode) {
 }
 
 void PcComm::thread_send() {
+    pthread_setname_np(pthread_self(), "pc-comm-send");
     CommSendPacket_t packet;
     for (;;) {
         if (!send_queue_.empty()) {
@@ -67,6 +76,7 @@ void PcComm::thread_send() {
 }
 
 void PcComm::thread_recv() {
+    pthread_setname_np(pthread_self(), "pc-comm-recv");
     for (;;) {
         usleep(500);  // 0.5ms
     }
