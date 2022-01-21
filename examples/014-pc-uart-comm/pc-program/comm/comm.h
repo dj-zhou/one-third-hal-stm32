@@ -2,7 +2,15 @@
 
 #include "protocol.h"
 #include "serial.h"
+#include <queue>
 #include <stdint.h>
+#include <thread>
+
+typedef struct {
+    uint8_t* data;
+    size_t size;
+    // bool _free;
+} CommSendPacket_t;
 
 class PcComm {
 public:
@@ -15,4 +23,11 @@ public:
 private:
     Serial* serial_;
     uint8_t packet_[1024];  // FIXME: is 1024 enough?
+    std::queue<CommSendPacket_t> send_queue_;
+    std::thread thread_send_;
+    std::thread thread_recv_;
+
+protected:
+    void thread_send();
+    void thread_recv();
 };

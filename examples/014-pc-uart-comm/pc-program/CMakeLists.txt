@@ -31,5 +31,6 @@ add_executable(
 )
 target_link_libraries(
   "pc-program"
+  pthread
   fmt::fmt
 )
