@@ -28,6 +28,7 @@ add_executable(
   "serial/serial.cpp"
   "../protocol/protocol.c"
   "./comm/comm.cpp"
+  "./comm/ringbuffer.cpp"
 )
 target_link_libraries(
   "pc-program"

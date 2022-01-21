@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         .mode = 1,
     };
 
-    PcComm pc_comm(&serial);
+    PcComm pc_comm(&serial, 500, 5);
     uint32_t loop_count = 0;
     for (;;) {
         vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100));

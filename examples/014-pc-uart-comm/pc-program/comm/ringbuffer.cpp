@@ -9,14 +9,40 @@ uint16_t RingBuffer::index(uint16_t idx) {
     while (idx >= state_.capacity) {
         idx = (uint16_t)(idx - state_.capacity);
     }
-    while (idx < 0) {
-        idx = (uint16_t)(idx + state_.capacity);
-    }
+    // comparison is always false due to limited range of data type
+    // [-Werror=type-limits], do not delete
+    // while (idx < 0) {
+    //     idx = (uint16_t)(idx + state_.capacity);
+    // }
     return idx;
 }
 
 // ============================================================================
+RingBuffer::RingBuffer() {
+    // state initialization
+    state_.capacity = 0;
+    state_.head = -1;
+    state_.tail = 0;
+    state_.count = 0;
+    state_.state = RINGBUFFER_INITIALIZED;
+    index_.count = 0;
+    index_.searched = false;
+}
+
+// ============================================================================
 RingBuffer::RingBuffer(uint16_t size, uint8_t max_header_found) {
+    init(size, max_header_found);
+}
+
+// ============================================================================
+RingBuffer::~RingBuffer() {
+    free(buffer_);
+    free(index_.pos);
+    free(index_.dist);
+}
+
+// ============================================================================
+void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
     buffer_ = (uint8_t*)malloc(size);
     bzero(buffer_, size);
 
@@ -35,13 +61,6 @@ RingBuffer::RingBuffer(uint16_t size, uint8_t max_header_found) {
     bzero(index_.dist, size);
     index_.count = 0;
     index_.searched = false;
-}
-
-// ============================================================================
-RingBuffer::~RingBuffer() {
-    free(buffer_);
-    free(index_.pos);
-    free(index_.dist);
 }
 
 // ============================================================================
@@ -309,7 +328,7 @@ void RingBuffer::error(RingBufferError_e e) {
 /// always search from the head to the tail in a ringbuffer
 int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
     // header is not assigned
-    if (header_size < 0) {
+    if (header_size <= 1) {
         return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
@@ -327,7 +346,8 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
         return (int8_t)RINGBUFFER_FEW_COUNT;
     }
     // initialize the indices to match
-    uint16_t indices[header_size];
+    // not a good way to initialize
+    uint16_t indices[RINGBUFFER_HEADER_MAX_LEN];
     for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
         indices[i] = index((uint16_t)(state_.head + i));

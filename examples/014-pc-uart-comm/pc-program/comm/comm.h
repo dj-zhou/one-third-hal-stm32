@@ -1,6 +1,7 @@
 #pragma once
 
 #include "protocol.h"
+#include "ringbuffer.h"
 #include "serial.h"
 #include <queue>
 #include <stdint.h>
@@ -14,7 +15,7 @@ typedef struct {
 
 class PcComm {
 public:
-    PcComm(Serial* serial);
+    PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found);
     ~PcComm(){};
     void send(const char* str, size_t len);
     void send(const CommVelCmd_t cmd);
@@ -23,6 +24,7 @@ public:
 private:
     Serial* serial_;
     uint8_t packet_[1024];  // FIXME: is 1024 enough?
+    RingBuffer ring_;
     std::queue<CommSendPacket_t> send_queue_;
     std::thread thread_send_;
     std::thread thread_recv_;

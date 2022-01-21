@@ -4,13 +4,14 @@
 #include <string.h>
 #include <unistd.h>
 
-PcComm::PcComm(Serial* serial) {
+PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found) {
     if (serial->fd() != -1) {
         serial_ = serial;
     }
     else {
         throw std::runtime_error("PcComm(): serial is not initialized");
     }
+    ring_.init(buffer_size, max_header_found);
     thread_send_ = std::thread(&PcComm::thread_send, this);
     thread_recv_ = std::thread(&PcComm::thread_recv, this);
 

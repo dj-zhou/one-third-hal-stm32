@@ -40,8 +40,11 @@ typedef struct {
 
 class RingBuffer {
 public:
+    RingBuffer();
     RingBuffer(uint16_t size, uint8_t max_header_found);
     ~RingBuffer();
+
+    void init(uint16_t size, uint8_t max_header_found);
     void reset();
     bool push(uint8_t data);
     bool push(uint8_t* data, uint16_t len);

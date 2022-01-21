@@ -19,9 +19,11 @@ static uint16_t RingBufferIndex(RingBuffer_t* rb, uint16_t idx) {
     while (idx >= rb->state.capacity) {
         idx = (uint16_t)(idx - rb->state.capacity);
     }
-    while (idx < 0) {
-        idx = (uint16_t)(idx + rb->state.capacity);
-    }
+    // comparison is always false due to limited range of data type
+    // [-Werror=type-limits], do not delete
+    // while (idx < 0) {
+    //     idx = (uint16_t)(idx + rb->state.capacity);
+    // }
     return idx;
 }
 
@@ -321,8 +323,8 @@ void RingBufferError(RingBufferError_e e) {
 /// always search from the head to the tail in a ringbuffer
 WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
                                            uint8_t header_size) {
-    // header is not assigned
-    if (header_size < 0) {
+    // header cannot be too small
+    if (header_size <= 1) {
         return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
@@ -340,8 +342,8 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         return (int8_t)RINGBUFFER_FEW_COUNT;
     }
     // initialize the indices to match
-    uint16_t indices[header_size];
-    for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
+    uint16_t indices[RINGBUFFER_HEADER_MAX_LEN];
+    for (uint8_t i = 0; i < (uint16_t)header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
         indices[i] = RingBufferIndex(rb, (uint16_t)(rb->state.head + i));
     }
