@@ -3,6 +3,7 @@
 #include "comm.h"
 #include "protocol.h"
 #include <math.h>
+#include <stdint.h>
 
 uint8_t usart1_rx[100];
 
@@ -22,6 +23,18 @@ CommVelCmd_t vel_cmd = {
 // ============================================================================
 void Usart1IdleIrq(void) {
     usart1.ring.show('h', 10);
+}
+
+// ============================================================================
+void taskSend(void) {
+    static uint32_t loop_count = 0;
+    // ----------------
+    battery_info.voltage = (float)(10.5 + sin(loop_count / 100.));
+    send_packet((void*)&battery_info, sizeof(battery_info));
+    stime.delay.ms(100);
+    // (test only) ----------------
+    send_packet((void*)&vel_cmd, sizeof(vel_cmd));
+    loop_count++;
 }
 
 // ============================================================================
@@ -47,14 +60,8 @@ int main(void) {
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
 
-    // ----------------
-    send_packet((void*)&battery_info, sizeof(battery_info));
-    stime.delay.ms(100);
-    // (test only) ----------------
-    send_packet((void*)&vel_cmd, sizeof(vel_cmd));
-    stime.delay.ms(100);
-
     // tasks -----------
+    stime.scheduler.attach(1000, 200, taskSend, "taskSend");
     stime.scheduler.show();
 
     // system start to run -----------

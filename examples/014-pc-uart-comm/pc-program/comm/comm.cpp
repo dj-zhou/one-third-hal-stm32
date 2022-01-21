@@ -78,8 +78,20 @@ void PcComm::thread_send() {
 
 void PcComm::thread_recv() {
     pthread_setname_np(pthread_self(), "pc-comm-recv");
+    uint32_t loop_count = 0;
+    uint8_t recv[1024];
     for (;;) {
-        // ring_.show('h', 20);
+        ssize_t bytes = read(serial_->fd(), recv, sizeof(recv));
+        // if (bytes<0), error, serial cable loose, etc
+        if (bytes > 0) {
+            ring_.push(recv, (uint16_t)bytes);
+        }
+        // test
+        if (loop_count == 2000) {
+            loop_count = 0;
+            ring_.show('h', 20);
+        }
         usleep(500);  // 0.5ms
+        loop_count++;
     }
 }

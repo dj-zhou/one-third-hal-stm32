@@ -25,6 +25,8 @@ RingBuffer::RingBuffer() {
     state_.tail = 0;
     state_.count = 0;
     state_.state = RINGBUFFER_INITIALIZED;
+
+    // search indices initialization
     index_.count = 0;
     index_.searched = false;
 }
@@ -57,8 +59,8 @@ void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
     index_.size = max_header_found;
     index_.pos = (uint16_t*)malloc(index_.size);
     index_.dist = (uint16_t*)malloc(index_.size);
-    bzero(index_.pos, size);
-    bzero(index_.dist, size);
+    bzero(index_.pos, index_.size);
+    bzero(index_.dist, index_.size);
     index_.count = 0;
     index_.searched = false;
 }
