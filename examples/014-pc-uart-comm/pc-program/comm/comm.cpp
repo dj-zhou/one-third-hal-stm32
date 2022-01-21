@@ -79,6 +79,7 @@ void PcComm::thread_send() {
 void PcComm::thread_recv() {
     pthread_setname_np(pthread_self(), "pc-comm-recv");
     for (;;) {
+        // ring_.show('h', 20);
         usleep(500);  // 0.5ms
     }
 }
