@@ -15,12 +15,12 @@
 #endif
 
 // ============================================================================
-static uint16_t RingBufferIndex(RingBuffer_t* rb, uint16_t idx) {
+static int16_t RingBufferIndex(RingBuffer_t* rb, int16_t idx) {
     while (idx >= rb->state.capacity) {
-        idx = (uint16_t)(idx - rb->state.capacity);
+        idx = (int16_t)(idx - rb->state.capacity);
     }
     while (idx < 0) {
-        idx = (uint16_t)(idx + rb->state.capacity);
+        idx = (int16_t)(idx + rb->state.capacity);
     }
     return idx;
 }
@@ -54,9 +54,7 @@ WARN_UNUSED_RESULT RingBuffer_t RingBufferInit(uint8_t* buffer, uint16_t size) {
 // ============================================================================
 void RingBufferReset(RingBuffer_t* rb) {
     // data reset to zero
-    for (uint16_t i = 0; i < rb->state.capacity; i++) {
-        rb->data[i] = 0;
-    }
+    bzero(rb->data, rb->state.capacity);
     // state reset
     rb->state.head = -1;
     rb->state.tail = 0;
@@ -84,13 +82,13 @@ bool RingBufferPush(RingBuffer_t* rb, uint8_t data) {
 
     rb->data[rb->state.tail] = data;
     rb->state.tail++;
-    rb->state.tail = RingBufferIndex(rb, rb->state.tail);
+    rb->state.tail = (uint16_t)RingBufferIndex(rb, (int16_t)rb->state.tail);
 
     rb->state.count++;
     if (rb->state.count > rb->state.capacity) {
         rb->state.count--;
         rb->state.head++;
-        rb->state.head = (int16_t)RingBufferIndex(rb, (uint16_t)rb->state.head);
+        rb->state.head = RingBufferIndex(rb, rb->state.head);
     }
 
     return true;
@@ -121,7 +119,7 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     // reset to zero
     rb->data[rb->state.head] = 0;
     rb->state.head++;
-    rb->state.head = (int16_t)RingBufferIndex(rb, (uint16_t)rb->state.head);
+    rb->state.head = RingBufferIndex(rb, rb->state.head);
     rb->state.count--;
     // if the last byte is popped out, start from fresh
     if (rb->state.count == 0) {
@@ -213,7 +211,8 @@ bool RingBufferTail(RingBuffer_t* rb, uint16_t pos) {
 // UART DMA added a few bytes into the ringbuffer, so we just need to move tail
 // ahead
 bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
-    rb->state.tail = RingBufferIndex(rb, (uint16_t)(rb->state.tail + count));
+    rb->state.tail =
+        (uint16_t)RingBufferIndex(rb, (int16_t)(rb->state.tail + count));
     if (rb->state.head == rb->state.tail) {
         rb->state.head = (int16_t)rb->state.tail;
     }
@@ -254,7 +253,7 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
         ringbuffer_printk(0, HYLW "head & tail" NOC "\r\n");
     }
     else {
-        ringbuffer_printk(0, HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
+        ringbuffer_printk(0, HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
     }
     for (int16_t i = 0; i < rb->state.capacity; i++) {
         if ((rb->state.head == i) && (rb->state.tail == i)) {
@@ -321,8 +320,8 @@ void RingBufferError(RingBufferError_e e) {
 /// always search from the head to the tail in a ringbuffer
 WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
                                            uint8_t header_size) {
-    // header is not assigned
-    if (header_size < 0) {
+    // header cannot be too small
+    if (header_size <= 1) {
         return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
@@ -340,10 +339,11 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         return (int8_t)RINGBUFFER_FEW_COUNT;
     }
     // initialize the indices to match
-    uint16_t indices[header_size];
+    uint16_t indices[RINGBUFFER_HEADER_MAX_LEN];
     for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
-        indices[i] = RingBufferIndex(rb, (uint16_t)(rb->state.head + i));
+        indices[i] =
+            (uint16_t)RingBufferIndex(rb, (int16_t)(rb->state.head + i));
     }
 
     // start to search
@@ -382,8 +382,8 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         for (int i = 0; i < header_size - 1; i++) {
             indices[i] = indices[i + 1];
         }
-        indices[header_size - 1] =
-            RingBufferIndex(rb, (uint16_t)(indices[header_size - 1] + 1));
+        indices[header_size - 1] = (uint16_t)RingBufferIndex(
+            rb, (int16_t)(indices[header_size - 1] + 1));
         search_count++;
     }
     // the last one needs to add 1

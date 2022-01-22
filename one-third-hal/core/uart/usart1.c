@@ -91,17 +91,19 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
-    // for F767ZI DMA-USART-RX to work, this line must be on the top then
-    // HAL_DMA_Start(), for F407ZG, it does not matter
-    HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
-    // only use verified code
 #if defined(STM32F407xx)
+    // for F407xx, HAL_UART_Receive_DMA() CAN NOT be in front
+    // usart1 is tested
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->DR),
                   (uint32_t)buffer, len);
+    HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
 #elif defined(STM32F767xx)
-#error "not verified"
-    // HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
-    //               ( uint32_t )buffer, len);
+    HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
+    HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
+                  (uint32_t)buffer, len);
+#error "Usart2DmaConfig() STM32F767xx: not implemented"
+#else
+#error "Usart2DmaConfig(): not implemented"
 #endif
 
     usart1_dma_is_used = true;
