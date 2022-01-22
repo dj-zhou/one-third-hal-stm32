@@ -68,6 +68,7 @@ void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
 
 // ============================================================================
 void RingBuffer::reset() {
+    std::lock_guard guard(mutex_);
     // buffer reset to zero
     bzero(buffer_, state_.capacity);
     // state reset
@@ -109,6 +110,7 @@ bool RingBuffer::push(uint8_t data) {
 
 // ============================================================================
 bool RingBuffer::push(uint8_t* data, uint16_t len) {
+    std::lock_guard guard(mutex_);
     if (state_.state <= 0) {
         return false;
     }
@@ -145,6 +147,7 @@ bool RingBuffer::pop(uint8_t* ret) {
 
 // ============================================================================
 bool RingBuffer::pop(uint8_t* ret, uint16_t len) {
+    std::lock_guard guard(mutex_);
     // cannot get negative number of items, or try to get
     // more than count items
     if ((len < 1) || (len > state_.count)) {
@@ -217,6 +220,7 @@ bool RingBuffer::tail(uint16_t pos) {
 // UART DMA added a few bytes into the ringbuffer, so we just need to move tail
 // ahead
 bool RingBuffer::added(uint16_t count) {
+    std::lock_guard guard(mutex_);
     state_.tail = (uint16_t)index((int16_t)(state_.tail + count));
     if (state_.head == state_.tail) {
         state_.head = (int16_t)state_.tail;
@@ -262,7 +266,7 @@ void RingBuffer::show(char style, uint16_t width) {
         printf(HYLW "head & tail" NOC "\r\n");
     }
     else {
-        printf(HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
+        printf(HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
     }
     for (int16_t i = 0; i < state_.capacity; i++) {
         if ((state_.head == i) && (state_.tail == i)) {
@@ -329,6 +333,7 @@ void RingBuffer::error(RingBufferError_e e) {
 // ============================================================================
 /// always search from the head to the tail in a ringbuffer
 int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
+    std::lock_guard guard(mutex_);
     // header is not assigned
     if (header_size <= 1) {
         return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
@@ -401,6 +406,7 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
 
 // ============================================================================
 void RingBuffer::insight() {
+    std::lock_guard guard(mutex_);
     if (index_.searched == false) {
         printf("ringbuffer is not searched.\r\n");
         return;
@@ -417,6 +423,7 @@ void RingBuffer::insight() {
 
 // ============================================================================
 int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
+    std::lock_guard guard(mutex_);
     // not searched, or not found
     if (index_.count == 0) {
         return (int8_t)RINGBUFFER_FIND_NO_HEADER;

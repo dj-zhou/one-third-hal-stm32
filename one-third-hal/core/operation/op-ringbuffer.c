@@ -253,7 +253,7 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
         ringbuffer_printk(0, HYLW "head & tail" NOC "\r\n");
     }
     else {
-        ringbuffer_printk(0, HGRN "head" NOC ", " HCYN "tail" NOC "\r\n");
+        ringbuffer_printk(0, HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
     }
     for (int16_t i = 0; i < rb->state.capacity; i++) {
         if ((rb->state.head == i) && (rb->state.tail == i)) {

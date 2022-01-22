@@ -1,5 +1,6 @@
 #pragma once
 
+#include <mutex>
 #include <stdint.h>
 
 typedef enum RingBufferError {
@@ -63,6 +64,7 @@ private:
     uint8_t* buffer_;
     RingBufferState_t state_;
     RingBufferIndex_t index_;
+    std::mutex mutex_;
 };
 
 // WARN_UNUSED_RESULT
