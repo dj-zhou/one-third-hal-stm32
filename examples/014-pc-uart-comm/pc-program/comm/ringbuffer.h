@@ -59,7 +59,7 @@ public:
     int8_t fetch(uint8_t* array, uint16_t size);
 
 private:
-    uint16_t index(uint16_t idx);
+    int16_t index(int16_t idx);
     uint8_t* buffer_;
     RingBufferState_t state_;
     RingBufferIndex_t index_;

@@ -5,15 +5,15 @@
 #include <string.h>
 
 // ============================================================================
-uint16_t RingBuffer::index(uint16_t idx) {
+int16_t RingBuffer::index(int16_t idx) {
     while (idx >= state_.capacity) {
-        idx = (uint16_t)(idx - state_.capacity);
+        idx = (int16_t)(idx - state_.capacity);
     }
     // comparison is always false due to limited range of data type
     // [-Werror=type-limits], do not delete
-    // while (idx < 0) {
-    //     idx = (uint16_t)(idx + state_.capacity);
-    // }
+    while (idx < 0) {
+        idx = (int16_t)(idx + state_.capacity);
+    }
     return idx;
 }
 
@@ -45,6 +45,7 @@ RingBuffer::~RingBuffer() {
 
 // ============================================================================
 void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
+    // buffer initialization
     buffer_ = (uint8_t*)malloc(size);
     bzero(buffer_, size);
 
@@ -67,8 +68,7 @@ void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
 
 // ============================================================================
 void RingBuffer::reset() {
-    // data reset to zero
-
+    // buffer reset to zero
     bzero(buffer_, state_.capacity);
     // state reset
     state_.head = -1;
@@ -95,13 +95,13 @@ bool RingBuffer::push(uint8_t data) {
 
     buffer_[state_.tail] = data;
     state_.tail++;
-    state_.tail = index(state_.tail);
+    state_.tail = (int16_t)index((int16_t)state_.tail);
 
     state_.count++;
     if (state_.count > state_.capacity) {
         state_.count--;
         state_.head++;
-        state_.head = (int16_t)index((uint16_t)state_.head);
+        state_.head = index(state_.head);
     }
 
     return true;
@@ -131,7 +131,7 @@ bool RingBuffer::pop(uint8_t* ret) {
     // reset to zero
     buffer_[state_.head] = 0;
     state_.head++;
-    state_.head = (int16_t)index((uint16_t)state_.head);
+    state_.head = index(state_.head);
     state_.count--;
     // if the last byte is popped out, start from fresh
     if (state_.count == 0) {
@@ -217,7 +217,7 @@ bool RingBuffer::tail(uint16_t pos) {
 // UART DMA added a few bytes into the ringbuffer, so we just need to move tail
 // ahead
 bool RingBuffer::added(uint16_t count) {
-    state_.tail = index((uint16_t)(state_.tail + count));
+    state_.tail = (uint16_t)index((int16_t)(state_.tail + count));
     if (state_.head == state_.tail) {
         state_.head = (int16_t)state_.tail;
     }
@@ -352,7 +352,7 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
     uint16_t indices[RINGBUFFER_HEADER_MAX_LEN];
     for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
         // bug: after initialization, state.head = -1 == 65536
-        indices[i] = index((uint16_t)(state_.head + i));
+        indices[i] = (uint16_t)index((int16_t)(state_.head + i));
     }
 
     // start to search
@@ -391,7 +391,7 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
             indices[i] = indices[i + 1];
         }
         indices[header_size - 1] =
-            index((uint16_t)(indices[header_size - 1] + 1));
+            (uint16_t)index((int16_t)(indices[header_size - 1] + 1));
         search_count++;
     }
     // the last one needs to add 1
