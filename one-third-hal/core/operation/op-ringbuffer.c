@@ -229,61 +229,61 @@ bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
 // ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     if (rb->state.state <= 0) {
-        ringbuffer_printk(0, "ringbuffer | uninitialized!\r\n");
+        ringbuffer_printk(2, "ringbuffer | uninitialized!\r\n");
         return;
     }
-    ringbuffer_printk(0, "ringbuffer | %3d/%3d | ", rb->state.count,
+    ringbuffer_printk(2, "ringbuffer | %3d/%3d | ", rb->state.count,
                       rb->state.capacity);
     if (rb->state.head == -1) {
         switch (rb->state.state) {
         case RINGBUFFER_INITIALIZED:
-            ringbuffer_printk(0, "INITIALIZED\r\n");
+            ringbuffer_printk(2, "INITIALIZED\r\n");
             return;
         case RINGBUFFER_RESETTED:
-            ringbuffer_printk(0, "RESETTED\r\n");
+            ringbuffer_printk(2, "RESETTED\r\n");
             return;
         case RINGBUFFER_EMPTIED:
-            ringbuffer_printk(0, "EMPTIED\r\n");
+            ringbuffer_printk(2, "EMPTIED\r\n");
             return;
         }
     }
     // force to show at least 5 items in a row
     width = (width < 5) ? 5 : width;
     if (rb->state.head == rb->state.tail) {
-        ringbuffer_printk(0, HYLW "head & tail" NOC "\r\n");
+        ringbuffer_printk(2, HYLW "head & tail" NOC "\r\n");
     }
     else {
-        ringbuffer_printk(0, HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
+        ringbuffer_printk(2, HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
     }
     for (int16_t i = 0; i < rb->state.capacity; i++) {
         if ((rb->state.head == i) && (rb->state.tail == i)) {
-            ringbuffer_printk(0, HYLW);
+            ringbuffer_printk(2, HYLW);
         }
         else if (rb->state.head == i) {
-            ringbuffer_printk(0, HGRN);
+            ringbuffer_printk(2, HGRN);
         }
         else if (rb->state.tail == i) {
-            ringbuffer_printk(0, HCYN);
+            ringbuffer_printk(2, HCYN);
         }
         switch (style) {
         case 'd':
         case 'D':
-            ringbuffer_printk(0, "%3d  ", rb->data[i]);
+            ringbuffer_printk(2, "%3d  ", rb->data[i]);
             break;
         case 'h':
         case 'H':
         default:
-            ringbuffer_printk(0, "%02X  ", rb->data[i]);
+            ringbuffer_printk(2, "%02X  ", rb->data[i]);
             break;
         }
         if ((rb->state.head == i) || (rb->state.tail == i)) {
-            ringbuffer_printk(0, NOC);
+            ringbuffer_printk(2, NOC);
         }
         if ((i + 1) % width == 0) {
-            ringbuffer_printk(0, "\r\n");
+            ringbuffer_printk(2, "\r\n");
         }
     }
-    ringbuffer_printk(0, "\r\n");
+    ringbuffer_printk(2, "\r\n");
 }
 
 // ============================================================================
@@ -394,14 +394,14 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
 // ============================================================================
 void RingBufferInsight(RingBuffer_t* rb) {
     if (rb->index.searched == false) {
-        ringbuffer_printk(0, "ringbuffer is not searched.\r\n");
+        ringbuffer_printk(2, "ringbuffer is not searched.\r\n");
         return;
     }
     if (rb->index.count == 0) {
-        ringbuffer_printk(0, "no header is found in ringbuffer.\r\n");
+        ringbuffer_printk(2, "no header is found in ringbuffer.\r\n");
         return;
     }
-    ringbuffer_printk(0, "found %d header(s) in ringbuffer:\r\n",
+    ringbuffer_printk(2, "found %d header(s) in ringbuffer:\r\n",
                       rb->index.count);
     for (uint8_t i = 0; i < rb->index.count; i++) {
         ringbuffer_printf("%3d (%3d)\r\n", rb->index.pos[i], rb->index.dist[i]);
