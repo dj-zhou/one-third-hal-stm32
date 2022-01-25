@@ -23,6 +23,14 @@ PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found) {
     pthread_setschedparam(thread_recv_.native_handle(), SCHED_RR, &sch_params);
 }
 
+PcComm::~PcComm() {
+    if (thread_send_.joinable()) {
+        thread_send_.join();
+    }
+    if (thread_recv_.joinable()) {
+        thread_recv_.join();
+    }
+}
 void PcComm::send(const char* str, size_t size) {
     size_t packet_size = size + 9;
     uint8_t serialized_str[1024];  // FIXME: is 1024 enough?
@@ -41,7 +49,7 @@ void PcComm::send(const char* str, size_t size) {
 void PcComm::thread_send() {
     pthread_setname_np(pthread_self(), "pc-comm-send");
     CommSendPacket_t packet;
-    for (;;) {
+    while (!getStop()) {
         if (!send_queue_.empty()) {
             packet = send_queue_.front();
             send_queue_.pop();
@@ -52,6 +60,8 @@ void PcComm::thread_send() {
         else {
             usleep(500);  // 0.5ms
         }
+        // if (getStop())
+        //     break;
     }
 }
 
@@ -59,7 +69,7 @@ void PcComm::thread_recv() {
     pthread_setname_np(pthread_self(), "pc-comm-recv");
     uint32_t loop_count = 0;
     uint8_t recv[1024];
-    for (;;) {
+    while (!getStop()) {
         ssize_t bytes = read(serial_->fd(), recv, sizeof(recv));
         // if (bytes<0), error, serial cable loose, etc
         if (bytes > 0) {
@@ -72,7 +82,21 @@ void PcComm::thread_recv() {
         }
         usleep(500);  // 0.5ms
         loop_count++;
+        // if (getStop())
+        //     break;
     }
+}
+
+// ============================================================================
+void PcComm::setStop() {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    thread_stop_ = true;
+}
+
+bool PcComm::getStop() {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    bool stop = thread_stop_;
+    return stop;
 }
 
 // ============================================================================

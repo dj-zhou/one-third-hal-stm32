@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
     vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100));
     pc_comm.send(vel_cmd);
     sleep(1);
+    pc_comm.setStop();
     // }
     serial.quit();
     return 0;

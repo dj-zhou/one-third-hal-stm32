@@ -15,8 +15,10 @@ typedef struct {
 class PcComm {
 public:
     PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found);
-    ~PcComm(){};
+    ~PcComm();
     void send(const char* str, size_t len);
+    void setStop();
+    bool getStop();
     // seems not necessary
     void send(const CommVelCmd_t cmd);
     void send(const CommSwitchMode_t mode);
@@ -27,6 +29,8 @@ private:
     std::queue<CommSendPacket_t> send_queue_;
     std::thread thread_send_;
     std::thread thread_recv_;
+    std::mutex thread_mutex_;
+    bool thread_stop_;
 
 protected:
     void thread_send();
