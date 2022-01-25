@@ -68,7 +68,7 @@ void PcComm::thread_recv() {
         // test
         if (loop_count == 2000) {
             loop_count = 0;
-            ring_.show('h', 20);
+            ring_.show('h', 10);
         }
         usleep(500);  // 0.5ms
         loop_count++;

@@ -20,9 +20,25 @@ CommVelCmd_t vel_cmd = {
     .y_vel = (float)0.4,
     .yaw_vel = (float)0.2,
 };
+
 // ============================================================================
 void Usart1IdleIrq(void) {
-    usart1.ring.show('h', 20);
+    usart1.ring.show('h', 10);
+    uint8_t header[] = { 0xAB, 0xCD, 0xEF };
+    int8_t search_ret = usart1.ring.search(header, sizeof_array(header), 3, 2);
+    if (search_ret > 0) {
+        op.ringbuffer.insight(&usart1.rb);
+        console.printf("find %d packets\r\n", search_ret);
+        // uint8_t array[50] = { 0 };
+        // search_ret = usart1.ring.fetch(array, sizeof_array(array));
+        // for (int i = 0; i < 50; i++) {
+        //     console.printf("%02X ", array[i]);
+        // }
+        // console.printf("\r\n");
+    }
+    if (search_ret < 0) {
+        op.ringbuffer.error(search_ret);
+    }
 }
 
 // ============================================================================

@@ -146,6 +146,8 @@ typedef enum RingBufferError {
     RINGBUFFER_FEW_COUNT        = -4,
     RINGBUFFER_FIND_NO_HEADER   = -5,
     RINGBUFFER_FETCH_DES_SMALL  = -6,
+    RINGBUFFER_LEN_POS_ERROR    = -7,
+    RINGBUFFER_LEN_WIDTH_ERROR  = -8,
 } RingBufferError_e;
 
 typedef enum RingBufferInitState {

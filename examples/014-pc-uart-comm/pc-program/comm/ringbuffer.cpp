@@ -284,6 +284,8 @@ void RingBuffer::show(char style, uint16_t width) {
             printf("%3d  ", buffer_[i]);
             break;
         case 'h':
+            printf("%02x  ", buffer_[i]);
+            break;
         case 'H':
         default:
             printf("%02X  ", buffer_[i]);
