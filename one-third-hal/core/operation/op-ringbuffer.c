@@ -306,6 +306,8 @@ void RingBufferError(RingBufferError_e e) {
     case RINGBUFFER_LEN_POS_ERROR:
         ringbuffer_printf("len position error\r\n");
         break;
+    case RINGBUFFER_LEN_WIDTH_ERROR:
+        ringbuffer_printf("len width error\r\n");
     default:
         break;
     }
@@ -341,7 +343,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
         return (int8_t)RINGBUFFER_HEADER_TOO_LARGE;
     }
-    // ringbuffer is just initialized/resetted, or emptied
+    // ringbuffer is just initialized/resetted
     if (rb->state.head == -1) {
         return (int8_t)RINGBUFFER_JUST_INITIALIZED;
     }
@@ -357,6 +359,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
     if (len_width > 2) {
         return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
     }
+
     // mark it as searched
     rb->index.searched = true;
     // initialize the idx to match

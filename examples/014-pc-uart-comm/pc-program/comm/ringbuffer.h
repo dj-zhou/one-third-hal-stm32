@@ -11,12 +11,13 @@ typedef enum RingBufferError {
     RINGBUFFER_FEW_COUNT = -4,
     RINGBUFFER_FIND_NO_HEADER = -5,
     RINGBUFFER_FETCH_DES_SMALL = -6,
+    RINGBUFFER_LEN_POS_ERROR = -7,
+    RINGBUFFER_LEN_WIDTH_ERROR = -8,
 } RingBufferError_e;
 
 typedef enum RingBufferInitState {
     RINGBUFFER_INITIALIZED = 1,
     RINGBUFFER_RESETTED = 2,
-    RINGBUFFER_EMPTIED = 3,
 } RingBufferInitState_e;
 
 #pragma pack(1)
@@ -55,12 +56,15 @@ public:
     bool added(uint16_t count);
     void show(char style, uint16_t width);
     void error(RingBufferError_e e);
-    int8_t search(uint8_t* header, uint8_t header_size);
+    int8_t search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
+                  uint8_t len_width);
     void insight();
     int8_t fetch(uint8_t* array, uint16_t size);
 
 private:
     int16_t index(int16_t idx);
+    uint16_t getPacketLen(uint16_t head_pos, uint8_t len_pos,
+                          uint8_t len_width);
     uint8_t* buffer_;
     RingBufferState_t state_;
     RingBufferIndex_t index_;
