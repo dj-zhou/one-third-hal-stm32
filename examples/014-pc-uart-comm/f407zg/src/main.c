@@ -29,12 +29,13 @@ void Usart1IdleIrq(void) {
     if (search_ret > 0) {
         op.ringbuffer.insight(&usart1.rb);
         console.printf("find %d packets\r\n", search_ret);
-        // uint8_t array[50] = { 0 };
-        // search_ret = usart1.ring.fetch(array, sizeof_array(array));
-        // for (int i = 0; i < 50; i++) {
-        //     console.printf("%02X ", array[i]);
-        // }
-        // console.printf("\r\n");
+        uint8_t array[25] = { 0 };
+        search_ret = usart1.ring.fetch(array, sizeof_array(array));
+        for (int i = 0; i < 25; i++) {
+            console.printf("%02X  ", array[i]);
+        }
+        console.printf("\r\nafter fetch:\r\n");
+        usart1.ring.show('h', 10);
     }
     if (search_ret < 0) {
         op.ringbuffer.error(search_ret);

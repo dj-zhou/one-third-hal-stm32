@@ -33,15 +33,15 @@ int main(int argc, char* argv[]) {
 
     PcComm pc_comm(&serial, 100, 5);
     uint32_t loop_count = 0;
-    // for (;;) {
-    pc_comm.send(switch_mode);
-    usleep(10000);
-    vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100));
-    vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100));
-    pc_comm.send(vel_cmd);
-    sleep(1);
+    for (int i = 0; i < 2; i++) {
+        pc_comm.send(switch_mode);
+        usleep(10000);
+        vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100));
+        vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100));
+        pc_comm.send(vel_cmd);
+        sleep(1);
+    }
     pc_comm.setStop();
-    // }
     serial.quit();
     return 0;
 }

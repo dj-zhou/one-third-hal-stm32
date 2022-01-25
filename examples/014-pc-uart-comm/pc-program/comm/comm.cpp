@@ -60,8 +60,6 @@ void PcComm::thread_send() {
         else {
             usleep(500);  // 0.5ms
         }
-        // if (getStop())
-        //     break;
     }
 }
 
@@ -82,8 +80,6 @@ void PcComm::thread_recv() {
         }
         usleep(500);  // 0.5ms
         loop_count++;
-        // if (getStop())
-        //     break;
     }
 }
 

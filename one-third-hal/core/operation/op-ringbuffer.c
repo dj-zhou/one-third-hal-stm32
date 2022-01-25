@@ -121,13 +121,6 @@ bool RingBufferPop(RingBuffer_t* rb, uint8_t* ret) {
     rb->state.head++;
     rb->state.head = RingBufferIndex(rb, rb->state.head);
     rb->state.count--;
-    // if the last byte is popped out, start from fresh
-    if (rb->state.count == 0) {
-        rb->state.head = -1;
-        rb->state.tail = 0;
-        rb->state.state = RINGBUFFER_EMPTIED;
-        rb->index.searched = false;
-    }
     return true;
 }
 
@@ -241,9 +234,6 @@ void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
             return;
         case RINGBUFFER_RESETTED:
             ringbuffer_printk(2, "RESETTED\r\n");
-            return;
-        case RINGBUFFER_EMPTIED:
-            ringbuffer_printk(2, "EMPTIED\r\n");
             return;
         }
     }
@@ -393,14 +383,14 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         // record the position of found header
         if (match_count == header_size) {
             rb->index.pos[rb->index.count] = idx[0];
+            rb->index.dist[rb->index.count] = 0;
+            rb->index.count++;
             if (rb->index.count >= RINGBUFFER_PACKETS_MAX_FOUND) {
                 ringbuffer_printf(
                     HYLW "%s(): communication too heavy, need to expand the "
                          "ringbuffer or process it timely!\r\n" NOC,
                     __func__);
             }
-            rb->index.dist[rb->index.count] = 0;
-            rb->index.count++;
         }
         // increase the check idx
         for (int i = 0; i < header_size - 1; i++) {

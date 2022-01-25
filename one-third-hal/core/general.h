@@ -153,7 +153,6 @@ typedef enum RingBufferError {
 typedef enum RingBufferInitState {
     RINGBUFFER_INITIALIZED = 1,
     RINGBUFFER_RESETTED    = 2,
-    RINGBUFFER_EMPTIED     = 3,
 } RingBufferInitState_e;
 
 #pragma pack(1)
