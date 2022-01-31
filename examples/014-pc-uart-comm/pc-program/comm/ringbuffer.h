@@ -52,9 +52,8 @@ public:
     bool pop(uint8_t* ret);
     bool pop(uint8_t* ret, uint16_t len);
     bool tail(uint16_t pos);
-    bool added(uint16_t count);
     void show(char style, uint16_t width);
-    void error(RingBufferError e);
+    void error(int e);
     int8_t search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
                   uint8_t len_width);
     void insight();

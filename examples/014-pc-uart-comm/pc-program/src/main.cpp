@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
 
     PcComm pc_comm(&serial, 100, 5);
     uint32_t loop_count = 0;
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 10; i++) {
         pc_comm.send(switch_mode);
         usleep(10000);
         vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100));

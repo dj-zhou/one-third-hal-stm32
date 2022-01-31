@@ -73,12 +73,24 @@ void PcComm::thread_recv() {
         if (bytes > 0) {
             ring_.push(recv, (uint16_t)bytes);
         }
-        // test
-        if (loop_count == 2000) {
-            loop_count = 0;
-            ring_.show('h', 10);
+        uint8_t header[] = { 0xAB, 0xCD, 0xEF };
+        int8_t search_ret = ring_.search(header, 3, 3, 2);
+        if (search_ret > 0) {
+            ring_.insight();
+            printf("find %d packets\r\n", search_ret);
+            printf("\r\nbefore fetch:\r\n");
+            ring_.show('H', 10);
+            uint8_t array[25] = { 0 };
+            search_ret = ring_.fetch(array, 25);
+            for (int i = 0; i < 25; i++) {
+                printf("%02X  ", array[i]);
+            }
+            printf("\r\nafter fetch:\r\n");
+            ring_.show('H', 10);
         }
-        usleep(500);  // 0.5ms
+
+        // loop control --------------
+        usleep(100);  // 0.1ms
         loop_count++;
     }
 }

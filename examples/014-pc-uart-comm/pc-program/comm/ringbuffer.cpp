@@ -211,25 +211,6 @@ bool RingBuffer::tail(uint16_t pos) {
     return true;
 }
 
-// ============================================================================
-// UART DMA added a few bytes into the ringbuffer, so we just need to move tail
-// ahead
-bool RingBuffer::added(uint16_t count) {
-    std::lock_guard guard(mutex_);
-    state_.tail = (uint16_t)index((int16_t)(state_.tail + count));
-    if (state_.head == state_.tail) {
-        state_.head = (int16_t)state_.tail;
-    }
-    else if (count + state_.count >= state_.capacity) {
-        state_.count = state_.capacity;
-        state_.head = (int16_t)state_.tail;
-    }
-    else {
-        state_.count = (uint16_t)(state_.count + count);
-    }
-    return true;
-}
-
 #define NOC "\033[0m"
 #define HGRN "\033[1;32m"
 #define HYLW "\033[1;33m"
@@ -294,11 +275,13 @@ void RingBuffer::show(char style, uint16_t width) {
 }
 
 // ============================================================================
-void RingBuffer::error(RingBufferError e) {
+void RingBuffer::error(int e) {
     if ((int)e > 0) {
         return;
     }
-    std::basic_string_view<char> err_str = magic_enum::enum_name(e);
+
+    std::basic_string_view<char> err_str =
+        magic_enum::enum_name((RingBufferError)e);
     std::cout << "RingBufferError: " << err_str << std::endl;
 }
 
@@ -440,7 +423,8 @@ void RingBuffer::insight() {
 
 // ============================================================================
 int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
-    std::lock_guard guard(mutex_);
+    // fetch() uses pop(), so fetch() cannot use lock guard again!
+    // std::lock_guard guard(mutex_);
     // not searched, or not found
     if (index_.count == 0) {
         return (int8_t)RingBufferError::FIND_NO_HEADER;
