@@ -174,13 +174,19 @@ typedef struct {
 } RingBufferIndex_t;
 #pragma pack()
 
+typedef enum RinBufferSearchType {
+    RINGBUFFER_SEARCH_TFMINI = 1,
+    RINGBUFFER_SEARCH_MTI2   = 2,
+} RinBufferSearchType_e;
+
 #pragma pack(1)
 typedef struct RingBuffer_s {
-    uint8_t*           data;
-    RingBufferState_t  state;
-    RingBufferIndex_t  index;
+    uint8_t*          data;
+    RingBufferState_t state;
+    RingBufferIndex_t index;
 } RingBuffer_t;
 #pragma pack()
+// clang-format on
 
 // ============================================================================
 #ifdef __cplusplus

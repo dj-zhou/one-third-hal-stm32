@@ -95,7 +95,8 @@ void taskPrint(void) {
 void Usart2IdleIrq(void) {
     usart2.ring.show('h', 10);
     int8_t search_ret =
-        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header));
+        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header),
+                             RINGBUFFER_SEARCH_TFMINI, 0);
     while (search_ret > 0) {
         op.ringbuffer.insight(&usart2.rb);
         console.printf("find %d packets\r\n", search_ret);
@@ -130,7 +131,8 @@ int main(void) {
     usart2.ring.show('h', 10);
 
     int8_t search_ret =
-        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header));
+        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header),
+                             RINGBUFFER_SEARCH_TFMINI, 0);
     console.printf("search_ret = %d\r\n", search_ret);
     tfmini_set_mode(TFMINI_MODE_MM);
 

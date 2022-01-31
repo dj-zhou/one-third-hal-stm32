@@ -315,25 +315,43 @@ void RingBufferError(RingBufferError_e e) {
 
 // ============================================================================
 static uint16_t RingBufferGetPacketLen(RingBuffer_t* rb, uint16_t head_pos,
-                                       uint8_t len_pos, uint8_t len_width) {
-
-    uint16_t pos = (uint16_t)RingBufferIndex(rb, (int16_t)(head_pos + len_pos));
-    if (len_width == 1) {
-        return (uint16_t)(rb->data[pos]);
+                                       uint8_t len_pos_or_type,
+                                       uint8_t len_width) {
+    if (len_width != 0) {
+        uint8_t len_pos = len_pos_or_type;
+        uint16_t pos =
+            (uint16_t)RingBufferIndex(rb, (int16_t)(head_pos + len_pos));
+        if (len_width == 1) {
+            return (uint16_t)(rb->data[pos]);
+        }
+        else {
+            uint8_t data1 = rb->data[pos];
+            pos = (uint16_t)RingBufferIndex(rb, (int16_t)(pos + 1));
+            uint8_t data2 = rb->data[pos];
+            return (uint16_t)((data2 << 8) + data1);
+        }
     }
     else {
-        uint8_t data1 = rb->data[pos];
-        pos = (uint16_t)RingBufferIndex(rb, (int16_t)(pos + 1));
-        uint8_t data2 = rb->data[pos];
-        return (uint16_t)((data2 << 8) + data1);
+        switch (len_pos_or_type) {
+        case RINGBUFFER_SEARCH_TFMINI:
+            return 5;
+        case RINGBUFFER_SEARCH_MTI2:
+            ringbuffer_printf("RINGBUFFER_SEARCH_MTI2: todo\r\n");
+            return 0;
+        default:
+            return 0;
+        }
     }
 }
 
 // ============================================================================
 /// always search from the head to the tail in a ringbuffer
 /// len_pos is the position in a protocol, must be 1 or 2 bytes
+/// if len_width !=0, we use len_pos_or_type for len_pos and to calculate the
+/// length of a packet, otherwise, we use len_pos_or_type for a search type
 WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
-                                           uint8_t header_size, uint8_t len_pos,
+                                           uint8_t header_size,
+                                           uint8_t len_pos_or_type,
                                            uint8_t len_width) {
 
     // header cannot be too small
@@ -353,11 +371,14 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         return (int8_t)RINGBUFFER_FEW_COUNT;
     }
     // make sure the [length] is just behind
-    if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
-        return (int8_t)RINGBUFFER_LEN_POS_ERROR;
-    }
-    if (len_width > 2) {
-        return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
+    if (len_width != 0) {
+        uint8_t len_pos = len_pos_or_type;
+        if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
+            return (int8_t)RINGBUFFER_LEN_POS_ERROR;
+        }
+        if (len_width > 2) {
+            return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
+        }
     }
 
     // mark it as searched
@@ -421,7 +442,8 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
     }
     // use len_pos and len_width to check if a header is valid
     uint16_t len = RingBufferGetPacketLen(rb, rb->index.pos[last_packet],
-                                          len_pos, len_width);
+                                          len_pos_or_type, len_width);
+
     if (rb->state.count >= (uint16_t)(header_size + 2 + len)) {
         rb->index.dist[last_packet] = (uint16_t)(header_size + 2 + len);
     }

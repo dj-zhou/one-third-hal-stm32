@@ -109,7 +109,8 @@ int main(void) {
     uint8_t tfmini_header[] = { 0x59, 0x59 };
     console.printf("fetch the packets out from the ringbuffer\r\n");
     int8_t packets_count =
-        op.ringbuffer.search(&rb, tfmini_header, sizeof_array(tfmini_header));
+        op.ringbuffer.search(&rb, tfmini_header, sizeof_array(tfmini_header),
+                             RINGBUFFER_SEARCH_TFMINI, 0);
     op.ringbuffer.insight(&rb);
     while (packets_count > 0) {
         console.printf("packets_count = %d\r\n", packets_count);
