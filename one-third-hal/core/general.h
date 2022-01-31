@@ -146,12 +146,13 @@ typedef enum RingBufferError {
     RINGBUFFER_FEW_COUNT        = -4,
     RINGBUFFER_FIND_NO_HEADER   = -5,
     RINGBUFFER_FETCH_DES_SMALL  = -6,
+    RINGBUFFER_LEN_POS_ERROR    = -7,
+    RINGBUFFER_LEN_WIDTH_ERROR  = -8,
 } RingBufferError_e;
 
 typedef enum RingBufferInitState {
     RINGBUFFER_INITIALIZED = 1,
     RINGBUFFER_RESETTED    = 2,
-    RINGBUFFER_EMPTIED     = 3,
 } RingBufferInitState_e;
 
 #pragma pack(1)
@@ -173,13 +174,19 @@ typedef struct {
 } RingBufferIndex_t;
 #pragma pack()
 
+typedef enum RinBufferSearchType {
+    RINGBUFFER_SEARCH_TFMINI = 1,
+    RINGBUFFER_SEARCH_MTI2   = 2,
+} RinBufferSearchType_e;
+
 #pragma pack(1)
 typedef struct RingBuffer_s {
-    uint8_t*           data;
-    RingBufferState_t  state;
-    RingBufferIndex_t  index;
+    uint8_t*          data;
+    RingBufferState_t state;
+    RingBufferIndex_t index;
 } RingBuffer_t;
 #pragma pack()
+// clang-format on
 
 // ============================================================================
 #ifdef __cplusplus

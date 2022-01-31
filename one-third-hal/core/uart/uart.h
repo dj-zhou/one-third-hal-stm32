@@ -110,7 +110,8 @@ typedef struct {
 typedef struct {
     void (*config)(uint8_t* data, uint16_t len);
     void (*show)(char style, uint16_t width);
-    WARN_UNUSED_RESULT int8_t (*search)(uint8_t* header, uint8_t header_size);
+    WARN_UNUSED_RESULT int8_t (*search)(uint8_t* header, uint8_t header_size,
+                                        uint8_t len_pos, uint8_t len_width);
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
 } UartRingBuffer_t;
 

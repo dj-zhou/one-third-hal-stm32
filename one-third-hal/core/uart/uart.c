@@ -10,14 +10,14 @@ void init_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
     utils.clock.enableGpio(GPIOx_R);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // TX
-    GPIO_InitStructure.Pin = 1 << pin_nT;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nT);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_T, &GPIO_InitStructure);
     // RX
-    GPIO_InitStructure.Pin = 1 << pin_nR;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nR);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;

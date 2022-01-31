@@ -23,6 +23,14 @@ PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found) {
     pthread_setschedparam(thread_recv_.native_handle(), SCHED_RR, &sch_params);
 }
 
+PcComm::~PcComm() {
+    if (thread_send_.joinable()) {
+        thread_send_.join();
+    }
+    if (thread_recv_.joinable()) {
+        thread_recv_.join();
+    }
+}
 void PcComm::send(const char* str, size_t size) {
     size_t packet_size = size + 9;
     uint8_t serialized_str[1024];  // FIXME: is 1024 enough?
@@ -41,7 +49,7 @@ void PcComm::send(const char* str, size_t size) {
 void PcComm::thread_send() {
     pthread_setname_np(pthread_self(), "pc-comm-send");
     CommSendPacket_t packet;
-    for (;;) {
+    while (!getStop()) {
         if (!send_queue_.empty()) {
             packet = send_queue_.front();
             send_queue_.pop();
@@ -59,20 +67,44 @@ void PcComm::thread_recv() {
     pthread_setname_np(pthread_self(), "pc-comm-recv");
     uint32_t loop_count = 0;
     uint8_t recv[1024];
-    for (;;) {
+    while (!getStop()) {
         ssize_t bytes = read(serial_->fd(), recv, sizeof(recv));
         // if (bytes<0), error, serial cable loose, etc
         if (bytes > 0) {
             ring_.push(recv, (uint16_t)bytes);
         }
-        // test
-        if (loop_count == 2000) {
-            loop_count = 0;
-            ring_.show('h', 20);
+        uint8_t header[] = { 0xAB, 0xCD, 0xEF };
+        int8_t search_ret = ring_.search(header, 3, 3, 2);
+        if (search_ret > 0) {
+            ring_.insight();
+            printf("find %d packets\r\n", search_ret);
+            printf("\r\nbefore fetch:\r\n");
+            ring_.show('H', 10);
+            uint8_t array[25] = { 0 };
+            search_ret = ring_.fetch(array, 25);
+            for (int i = 0; i < 25; i++) {
+                printf("%02X  ", array[i]);
+            }
+            printf("\r\nafter fetch:\r\n");
+            ring_.show('H', 10);
         }
-        usleep(500);  // 0.5ms
+
+        // loop control --------------
+        usleep(100);  // 0.1ms
         loop_count++;
     }
+}
+
+// ============================================================================
+void PcComm::setStop() {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    thread_stop_ = true;
+}
+
+bool PcComm::getStop() {
+    std::lock_guard<std::mutex> lock(thread_mutex_);
+    bool stop = thread_stop_;
+    return stop;
 }
 
 // ============================================================================

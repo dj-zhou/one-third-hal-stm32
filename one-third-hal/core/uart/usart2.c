@@ -209,8 +209,10 @@ static void Usart2RingShow(char style, uint16_t width) {
 }
 
 // ----------------------------------------------------------------------------
-WARN_UNUSED_RESULT int8_t Usart2Search(uint8_t* header, uint8_t header_size) {
-    return op.ringbuffer.search(&usart2.rb, header, header_size);
+WARN_UNUSED_RESULT int8_t Usart2Search(uint8_t* header, uint8_t header_size,
+                                       uint8_t len_pos, uint8_t len_width) {
+    return op.ringbuffer.search(&usart2.rb, header, header_size, len_pos,
+                                len_width);
 }
 
 // ----------------------------------------------------------------------------

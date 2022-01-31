@@ -1,5 +1,7 @@
 #include "ringbuffer.h"
 
+#include <iostream>
+#include <magic_enum.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +26,7 @@ RingBuffer::RingBuffer() {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_INITIALIZED;
+    state_.state = RingBufferInitState::INITIALIZED;
 
     // search indices initialization
     index_.count = 0;
@@ -54,7 +56,7 @@ void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_INITIALIZED;
+    state_.state = RingBufferInitState::INITIALIZED;
 
     // search indices initialization
     index_.size = max_header_found;
@@ -75,7 +77,7 @@ void RingBuffer::reset() {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_RESETTED;
+    state_.state = RingBufferInitState::RESETTED;
 
     // search indices reset
     bzero(index_.pos, index_.size);
@@ -86,7 +88,7 @@ void RingBuffer::reset() {
 
 // ============================================================================
 bool RingBuffer::push(uint8_t data) {
-    if (state_.state <= 0) {
+    if ((int)state_.state <= 0) {
         return false;
     }
     // if the ringbuffer is just initialized or resetted
@@ -111,7 +113,7 @@ bool RingBuffer::push(uint8_t data) {
 // ============================================================================
 bool RingBuffer::push(uint8_t* data, uint16_t len) {
     std::lock_guard guard(mutex_);
-    if (state_.state <= 0) {
+    if ((int)state_.state <= 0) {
         return false;
     }
     // FIXME: this is not an efficient operation
@@ -135,13 +137,6 @@ bool RingBuffer::pop(uint8_t* ret) {
     state_.head++;
     state_.head = index(state_.head);
     state_.count--;
-    // if the last byte is popped out, start from fresh
-    if (state_.count == 0) {
-        state_.head = -1;
-        state_.tail = 0;
-        state_.state = RINGBUFFER_EMPTIED;
-        index_.searched = false;
-    }
     return true;
 }
 
@@ -216,25 +211,6 @@ bool RingBuffer::tail(uint16_t pos) {
     return true;
 }
 
-// ============================================================================
-// UART DMA added a few bytes into the ringbuffer, so we just need to move tail
-// ahead
-bool RingBuffer::added(uint16_t count) {
-    std::lock_guard guard(mutex_);
-    state_.tail = (uint16_t)index((int16_t)(state_.tail + count));
-    if (state_.head == state_.tail) {
-        state_.head = (int16_t)state_.tail;
-    }
-    else if (count + state_.count >= state_.capacity) {
-        state_.count = state_.capacity;
-        state_.head = (int16_t)state_.tail;
-    }
-    else {
-        state_.count = (uint16_t)(state_.count + count);
-    }
-    return true;
-}
-
 #define NOC "\033[0m"
 #define HGRN "\033[1;32m"
 #define HYLW "\033[1;33m"
@@ -242,31 +218,28 @@ bool RingBuffer::added(uint16_t count) {
 
 // ============================================================================
 void RingBuffer::show(char style, uint16_t width) {
-    if (state_.state <= 0) {
-        printf("ringbuffer | uninitialized!\r\n");
+    if ((int)state_.state <= 0) {
+        printf("ringbuffer | uninitialized!\n");
         return;
     }
     printf("ringbuffer | %3d/%3d | ", state_.count, state_.capacity);
     if (state_.head == -1) {
         switch (state_.state) {
-        case RINGBUFFER_INITIALIZED:
-            printf("INITIALIZED\r\n");
+        case RingBufferInitState::INITIALIZED:
+            printf("INITIALIZED\n");
             return;
-        case RINGBUFFER_RESETTED:
-            printf("RESETTED\r\n");
-            return;
-        case RINGBUFFER_EMPTIED:
-            printf("EMPTIED\r\n");
+        case RingBufferInitState::RESETTED:
+            printf("RESETTED\n");
             return;
         }
     }
     // force to show at least 5 items in a row
     width = (width < 5) ? 5 : width;
     if (state_.head == state_.tail) {
-        printf(HYLW "head & tail" NOC "\r\n");
+        printf(HYLW "head & tail" NOC "\n");
     }
     else {
-        printf(HGRN "head" NOC " | " HCYN "tail" NOC "\r\n");
+        printf(HGRN "head" NOC " | " HCYN "tail" NOC "\n");
     }
     for (int16_t i = 0; i < state_.capacity; i++) {
         if ((state_.head == i) && (state_.tail == i)) {
@@ -284,6 +257,8 @@ void RingBuffer::show(char style, uint16_t width) {
             printf("%3d  ", buffer_[i]);
             break;
         case 'h':
+            printf("%02x  ", buffer_[i]);
+            break;
         case 'H':
         default:
             printf("%02X  ", buffer_[i]);
@@ -293,81 +268,89 @@ void RingBuffer::show(char style, uint16_t width) {
             printf(NOC);
         }
         if ((i + 1) % width == 0) {
-            printf("\r\n");
+            printf("\n");
         }
     }
-    printf("\r\n");
+    printf("\n");
 }
 
 // ============================================================================
-void RingBuffer::error(RingBufferError_e e) {
-    if (e > 0) {
+void RingBuffer::error(int e) {
+    if ((int)e > 0) {
         return;
     }
-    printf("RingBufferError: ");
-    switch (e) {
-    case RINGBUFFER_HEADER_TOO_SMALL:
-        printf("header too small\r\n");
-        break;
-    case RINGBUFFER_HEADER_TOO_LARGE:
-        printf("header too large\r\n");
-        break;
-    case RINGBUFFER_JUST_INITIALIZED:
-        printf("just initialized\r\n");
-        break;
-    case RINGBUFFER_FEW_COUNT:
-        printf("few count\r\n");
-        break;
-    case RINGBUFFER_FIND_NO_HEADER:
-        printf("find no header\r\n");
-        break;
-    case RINGBUFFER_FETCH_DES_SMALL:
-        printf("fetch destination small\r\n");
-        break;
-    default:
-        break;
-    }
+
+    std::basic_string_view<char> err_str =
+        magic_enum::enum_name((RingBufferError)e);
+    std::cout << "RingBufferError: " << err_str << std::endl;
 }
 
 #define RINGBUFFER_HEADER_MAX_LEN 5
+
+// ============================================================================
+uint16_t RingBuffer::getPacketLen(uint16_t head_pos, uint8_t len_pos,
+                                  uint8_t len_width) {
+
+    uint16_t pos = (uint16_t)index((int16_t)(head_pos + len_pos));
+    if (len_width == 1) {
+        return (uint16_t)(buffer_[pos]);
+    }
+    else {
+        uint8_t data1 = buffer_[pos];
+        pos = (uint16_t)index((int16_t)(pos + 1));
+        uint8_t data2 = buffer_[pos];
+        return (uint16_t)((data2 << 8) + data1);
+    }
+}
+
 // ============================================================================
 /// always search from the head to the tail in a ringbuffer
-int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
+/// this search is only designed for DJ's protocol use, not defined for other
+/// devices
+int8_t RingBuffer::search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
+                          uint8_t len_width) {
     std::lock_guard guard(mutex_);
-    // header is not assigned
+    // header cannot be too small
     if (header_size <= 1) {
-        return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
+        return (int8_t)RingBufferError::HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
-        return (int8_t)RINGBUFFER_HEADER_TOO_LARGE;
+        return (int8_t)RingBufferError::HEADER_TOO_LARGE;
     }
-    // ringbuffer is just initialized/resetted, or emptied
+    // ringbuffer is just initialized/resetted
     if (state_.head == -1) {
-        return (int8_t)RINGBUFFER_JUST_INITIALIZED;
+        return (int8_t)RingBufferError::JUST_INITIALIZED;
     }
+    // ringbuffer does not have enough bytes (header + the length indicator)
+    // FIXME: what if the length indicator is not just behind the header?
+    if (state_.count < header_size + 2) {
+        return (int8_t)RingBufferError::FEW_COUNT;
+    }
+    // make sure the [length] is just behind
+    if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
+        return (int8_t)RingBufferError::LEN_POS_ERROR;
+    }
+    if (len_width > 2) {
+        return (int8_t)RingBufferError::LEN_WIDTH_ERROR;
+    }
+
     // mark it as searched
     index_.searched = true;
-
-    // ringbuffer does not have enough bytes
-    if (state_.count < header_size) {
-        return (int8_t)RINGBUFFER_FEW_COUNT;
-    }
-    // initialize the indices to match
-    // not a good way to initialize
-    uint16_t indices[RINGBUFFER_HEADER_MAX_LEN];
+    // initialize the idx to match
+    uint16_t idx[RINGBUFFER_HEADER_MAX_LEN] = { 0 };
     for (uint16_t i = 0; i < (uint16_t)header_size; i++) {
-        // bug: after initialization, state.head = -1 == 65536
-        indices[i] = (uint16_t)index((int16_t)(state_.head + i));
+        idx[i] = (uint16_t)index((int16_t)(state_.head + i));
     }
 
     // start to search
-    uint8_t search_count = 0;
+    uint8_t search_i = 0;
     index_.count = 0;
-    while (search_count < state_.count - header_size + 1) {
+
+    while (search_i < state_.count - header_size + 1) {
         // match test
-        int match_count = 0;
-        for (int i = 0; i < header_size; i++) {
-            if (buffer_[indices[i]] != header[i]) {
+        int8_t match_count = 0;
+        for (int8_t i = 0; i < header_size; i++) {
+            if (buffer_[idx[i]] != header[i]) {
                 break;  // break the for loop
             }
             else {
@@ -377,30 +360,47 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
 
         // record the position of found header
         if (match_count == header_size) {
+            index_.pos[index_.count] = idx[0];
             index_.dist[index_.count] = 0;
-            index_.pos[index_.count++] = indices[0];
+            index_.count++;
             if (index_.count >= index_.size) {
                 printf(HYLW "%s(): communication too heavy, need to expand the "
-                            "ringbuffer or process it timely!\r\n" NOC,
+                            "ringbuffer or process it timely!\n" NOC,
                        __func__);
-                // do not block here
             }
         }
-        // counts the effective number of bytes in a (potential) packet
-        if (index_.count > 0) {
-            index_.dist[index_.count - 1]++;
-        }
-
-        // increase the check indices
+        // increase the check idx
         for (int i = 0; i < header_size - 1; i++) {
-            indices[i] = indices[i + 1];
+            idx[i] = idx[i + 1];
         }
-        indices[header_size - 1] =
-            (uint16_t)index((int16_t)(indices[header_size - 1] + 1));
-        search_count++;
+        idx[header_size - 1] =
+            (uint16_t)index((int16_t)(idx[header_size - 1] + 1));
+        search_i++;
     }
-    // the last one needs to add 1
-    index_.dist[index_.count - 1]++;
+
+    if (index_.count == 0) {
+        return 0;
+    }
+    // if it has more bytes than [len] indicated, then it is a valid packet
+    int8_t last_packet = 0;
+    if (index_.count > 1) {
+        for (int8_t i = 0; i < index_.count - 1; i++) {
+            index_.dist[i] =
+                (uint16_t)index((int16_t)(index_.pos[i + 1] - index_.pos[i]));
+        }
+        last_packet = (int8_t)(index_.count - 1);
+    }
+    if (index_.count == 1) {
+        last_packet = 0;
+    }
+    // use len_pos and len_width to check if a header is valid
+    uint16_t len = getPacketLen(index_.pos[last_packet], len_pos, len_width);
+    if (state_.count >= (uint16_t)(header_size + 2 + len)) {
+        index_.dist[last_packet] = (uint16_t)(header_size + 2 + len);
+    }
+    else {
+        index_.count--;
+    }
     return index_.count;
 }
 
@@ -408,30 +408,31 @@ int8_t RingBuffer::search(uint8_t* header, uint8_t header_size) {
 void RingBuffer::insight() {
     std::lock_guard guard(mutex_);
     if (index_.searched == false) {
-        printf("ringbuffer is not searched.\r\n");
+        printf("ringbuffer is not searched.\n");
         return;
     }
     if (index_.count == 0) {
-        printf("no header is found in ringbuffer.\r\n");
+        printf("no header is found in ringbuffer.\n");
         return;
     }
-    printf("found %d header(s) in ringbuffer:\r\n", index_.count);
+    printf("found %d header(s) in ringbuffer:\n", index_.count);
     for (uint8_t i = 0; i < index_.count; i++) {
-        printf("%3d (%3d)\r\n", index_.pos[i], index_.dist[i]);
+        printf("%3d (%3d)\n", index_.pos[i], index_.dist[i]);
     }
 }
 
 // ============================================================================
 int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
-    std::lock_guard guard(mutex_);
+    // fetch() uses pop(), so fetch() cannot use lock guard again!
+    // std::lock_guard guard(mutex_);
     // not searched, or not found
     if (index_.count == 0) {
-        return (int8_t)RINGBUFFER_FIND_NO_HEADER;
+        return (int8_t)RingBufferError::FIND_NO_HEADER;
     }
     bzero(array, size);
     if (size < index_.dist[0]) {
-        printf("%s() argument \"size\" too small\r\n", __func__);
-        return (int8_t)RINGBUFFER_FETCH_DES_SMALL;
+        printf("%s() argument \"size\" too small\n", __func__);
+        return (int8_t)RingBufferError::FETCH_DES_SMALL;
     }
     uint8_t popout;
     while (state_.head != index_.pos[0]) {
