@@ -39,6 +39,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     zlib1g-dev \
     wget
 
+# install gcc-arm-none-eabi --------------------
 ARG file="gcc-arm-none-eabi-10.3-2021.10"
 ARG filename="${file}-x86_64-linux.tar.bz2"
 ARG url="https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm"
@@ -54,11 +55,18 @@ RUN ln -sf /usr/share/${file}/bin/arm-none-eabi-ar /usr/bin/arm-none-eabi-ar && 
     ln -sf /usr/share/${file}/bin/arm-none-eabi-objcopy /usr/bin/arm-none-eabi-objcopy  && \
     ln -sf /usr/share/${file}/bin/arm-none-eabi-size /usr/bin/arm-none-eabi-size
 
-WORKDIR /tmp
 
-# install fmt-8.0.1 from source
+# install fmt-8.0.1 from source --------------------
+WORKDIR /tmp
 RUN wget https://codeload.github.com/fmtlib/fmt/tar.gz/refs/tags/8.0.1 -O fmt.tar.gz && \
     tar -xvf fmt.tar.gz && cd fmt-8.0.1 && \
     rm -rf build && mkdir -p build && cd build && \
     cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE=TRUE && \
     make -j$(nproc) && make install
+
+# install magic enum --------------------
+WORKDIR /tmp
+RUN git clone https://github.com/Neargye/magic_enum && \
+    cd magic_enum && \
+    git checkout v0.7.3 && \
+    cp include/magic_enum.hpp /usr/local/include/
