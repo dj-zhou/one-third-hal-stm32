@@ -1,5 +1,7 @@
 #include "ringbuffer.h"
 
+#include <iostream>
+#include <magic_enum.hpp>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,7 +26,7 @@ RingBuffer::RingBuffer() {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_INITIALIZED;
+    state_.state = RingBufferInitState::INITIALIZED;
 
     // search indices initialization
     index_.count = 0;
@@ -54,7 +56,7 @@ void RingBuffer::init(uint16_t size, uint8_t max_header_found) {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_INITIALIZED;
+    state_.state = RingBufferInitState::INITIALIZED;
 
     // search indices initialization
     index_.size = max_header_found;
@@ -75,7 +77,7 @@ void RingBuffer::reset() {
     state_.head = -1;
     state_.tail = 0;
     state_.count = 0;
-    state_.state = RINGBUFFER_RESETTED;
+    state_.state = RingBufferInitState::RESETTED;
 
     // search indices reset
     bzero(index_.pos, index_.size);
@@ -86,7 +88,7 @@ void RingBuffer::reset() {
 
 // ============================================================================
 bool RingBuffer::push(uint8_t data) {
-    if (state_.state <= 0) {
+    if ((int)state_.state <= 0) {
         return false;
     }
     // if the ringbuffer is just initialized or resetted
@@ -111,7 +113,7 @@ bool RingBuffer::push(uint8_t data) {
 // ============================================================================
 bool RingBuffer::push(uint8_t* data, uint16_t len) {
     std::lock_guard guard(mutex_);
-    if (state_.state <= 0) {
+    if ((int)state_.state <= 0) {
         return false;
     }
     // FIXME: this is not an efficient operation
@@ -235,17 +237,17 @@ bool RingBuffer::added(uint16_t count) {
 
 // ============================================================================
 void RingBuffer::show(char style, uint16_t width) {
-    if (state_.state <= 0) {
+    if ((int)state_.state <= 0) {
         printf("ringbuffer | uninitialized!\n");
         return;
     }
     printf("ringbuffer | %3d/%3d | ", state_.count, state_.capacity);
     if (state_.head == -1) {
         switch (state_.state) {
-        case RINGBUFFER_INITIALIZED:
+        case RingBufferInitState::INITIALIZED:
             printf("INITIALIZED\n");
             return;
-        case RINGBUFFER_RESETTED:
+        case RingBufferInitState::RESETTED:
             printf("RESETTED\n");
             return;
         }
@@ -292,38 +294,12 @@ void RingBuffer::show(char style, uint16_t width) {
 }
 
 // ============================================================================
-void RingBuffer::error(RingBufferError_e e) {
-    if (e > 0) {
+void RingBuffer::error(RingBufferError e) {
+    if ((int)e > 0) {
         return;
     }
-    printf("RingBufferError: ");
-    switch (e) {
-    case RINGBUFFER_HEADER_TOO_SMALL:
-        printf("header too small\n");
-        break;
-    case RINGBUFFER_HEADER_TOO_LARGE:
-        printf("header too large\n");
-        break;
-    case RINGBUFFER_JUST_INITIALIZED:
-        printf("just initialized\n");
-        break;
-    case RINGBUFFER_FEW_COUNT:
-        printf("few count\n");
-        break;
-    case RINGBUFFER_FIND_NO_HEADER:
-        printf("find no header\n");
-        break;
-    case RINGBUFFER_FETCH_DES_SMALL:
-        printf("fetch destination small\n");
-        break;
-    case RINGBUFFER_LEN_POS_ERROR:
-        printf("len position error\n");
-        break;
-    case RINGBUFFER_LEN_WIDTH_ERROR:
-        printf("len width error\n");
-    default:
-        break;
-    }
+    std::basic_string_view<char> err_str = magic_enum::enum_name(e);
+    std::cout << "RingBufferError: " << err_str << std::endl;
 }
 
 #define RINGBUFFER_HEADER_MAX_LEN 5
@@ -346,31 +322,33 @@ uint16_t RingBuffer::getPacketLen(uint16_t head_pos, uint8_t len_pos,
 
 // ============================================================================
 /// always search from the head to the tail in a ringbuffer
+/// this search is only designed for DJ's protocol use, not defined for other
+/// devices
 int8_t RingBuffer::search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
                           uint8_t len_width) {
     std::lock_guard guard(mutex_);
     // header cannot be too small
     if (header_size <= 1) {
-        return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
+        return (int8_t)RingBufferError::HEADER_TOO_SMALL;
     }
     if (header_size > RINGBUFFER_HEADER_MAX_LEN) {
-        return (int8_t)RINGBUFFER_HEADER_TOO_LARGE;
+        return (int8_t)RingBufferError::HEADER_TOO_LARGE;
     }
     // ringbuffer is just initialized/resetted
     if (state_.head == -1) {
-        return (int8_t)RINGBUFFER_JUST_INITIALIZED;
+        return (int8_t)RingBufferError::JUST_INITIALIZED;
     }
     // ringbuffer does not have enough bytes (header + the length indicator)
     // FIXME: what if the length indicator is not just behind the header?
     if (state_.count < header_size + 2) {
-        return (int8_t)RINGBUFFER_FEW_COUNT;
+        return (int8_t)RingBufferError::FEW_COUNT;
     }
     // make sure the [length] is just behind
     if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
-        return (int8_t)RINGBUFFER_LEN_POS_ERROR;
+        return (int8_t)RingBufferError::LEN_POS_ERROR;
     }
     if (len_width > 2) {
-        return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
+        return (int8_t)RingBufferError::LEN_WIDTH_ERROR;
     }
 
     // mark it as searched
@@ -465,12 +443,12 @@ int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
     std::lock_guard guard(mutex_);
     // not searched, or not found
     if (index_.count == 0) {
-        return (int8_t)RINGBUFFER_FIND_NO_HEADER;
+        return (int8_t)RingBufferError::FIND_NO_HEADER;
     }
     bzero(array, size);
     if (size < index_.dist[0]) {
         printf("%s() argument \"size\" too small\n", __func__);
-        return (int8_t)RINGBUFFER_FETCH_DES_SMALL;
+        return (int8_t)RingBufferError::FETCH_DES_SMALL;
     }
     uint8_t popout;
     while (state_.head != index_.pos[0]) {

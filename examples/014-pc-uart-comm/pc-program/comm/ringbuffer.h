@@ -3,30 +3,29 @@
 #include <mutex>
 #include <stdint.h>
 
-typedef enum RingBufferError {
-    RINGBUFFER_NO_ERROR = 0,
-    RINGBUFFER_HEADER_TOO_SMALL = -1,
-    RINGBUFFER_HEADER_TOO_LARGE = -2,
-    RINGBUFFER_JUST_INITIALIZED = -3,
-    RINGBUFFER_FEW_COUNT = -4,
-    RINGBUFFER_FIND_NO_HEADER = -5,
-    RINGBUFFER_FETCH_DES_SMALL = -6,
-    RINGBUFFER_LEN_POS_ERROR = -7,
-    RINGBUFFER_LEN_WIDTH_ERROR = -8,
-} RingBufferError_e;
+enum class RingBufferError {
+    NO_ERROR = 0,
+    HEADER_TOO_SMALL = -1,
+    HEADER_TOO_LARGE = -2,
+    JUST_INITIALIZED = -3,
+    FEW_COUNT = -4,
+    FIND_NO_HEADER = -5,
+    FETCH_DES_SMALL = -6,
+    LEN_POS_ERROR = -7,
+    LEN_WIDTH_ERROR = -8,
+};
 
-typedef enum RingBufferInitState {
-    RINGBUFFER_INITIALIZED = 1,
-    RINGBUFFER_RESETTED = 2,
-} RingBufferInitState_e;
-
+enum class RingBufferInitState {
+    INITIALIZED = 1,
+    RESETTED = 2,
+};
 #pragma pack(1)
 typedef struct {
     int16_t head;
     uint16_t tail;
     uint16_t capacity;
     uint16_t count;
-    RingBufferInitState_e state;
+    RingBufferInitState state;
 } RingBufferState_t;
 #pragma pack()
 
@@ -55,7 +54,7 @@ public:
     bool tail(uint16_t pos);
     bool added(uint16_t count);
     void show(char style, uint16_t width);
-    void error(RingBufferError_e e);
+    void error(RingBufferError e);
     int8_t search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
                   uint8_t len_width);
     void insight();
