@@ -108,10 +108,15 @@ typedef struct {
 } UartDma_t;
 
 typedef struct {
-    void (*config)(uint8_t* data, uint16_t len);
     void (*header)(uint8_t* data, uint8_t len);
+    void (*length)(uint8_t pos, uint8_t width);
+} UartRingBufferSet_t;
+
+typedef struct {
+    void (*config)(uint8_t* data, uint16_t len);
+    UartRingBufferSet_t set;
     void (*show)(char style, uint16_t width);
-    WARN_UNUSED_RESULT int8_t (*search)(uint8_t len_pos, uint8_t len_width);
+    WARN_UNUSED_RESULT int8_t (*search)(void);
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
 } UartRingBuffer_t;
 

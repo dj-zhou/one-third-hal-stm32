@@ -104,7 +104,7 @@ CommVelCmd_t vel_cmd = {
 void Usart1IdleIrq(void) {
     // usart1.ring.show('h', 10);
 
-    int8_t search_ret = usart1.ring.search(3, 2);
+    int8_t search_ret = usart1.ring.search();
     if (search_ret > 0) {
         // op.ringbuffer.insight(&usart1.rb);
         console.printf("find %d packets\r\n", search_ret);
@@ -169,7 +169,8 @@ int main(void) {
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
     uint8_t header[] = { 0xAB, 0xCD, 0xEF };
-    usart1.ring.header(header, sizeof_array(header));
+    usart1.ring.set.header(header, sizeof_array(header));
+    usart1.ring.set.length(3, 2);
     usart1_msg_attach(CommVelCmd, VelCmdCallback);
     usart1_msg_attach(CommSwitchMode, SwitchModeCallback);
 
