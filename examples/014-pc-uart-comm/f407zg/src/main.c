@@ -74,6 +74,15 @@ static void VelCmdCallback(uint8_t* msg) {
     console.printf("VelCmdCallback: type = 0x%04X\r\n", type);
 }
 
+static void SwitchModeCallback(uint8_t* msg) {
+    uint8_t* ptr_msg = msg + 5;
+    uint16_t type;
+    uint8_t* ptr_type = (uint8_t*)&type;
+    *ptr_type++ = *ptr_msg++;
+    *ptr_type = *ptr_msg;
+    console.printf("SwitchModeCallback: type = 0x%04X\r\n", type);
+}
+
 // ============================================================================
 uint8_t usart1_rx[100];
 
@@ -161,6 +170,7 @@ int main(void) {
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
 
     usart1_msg_attach(CommVelCmd, VelCmdCallback);
+    usart1_msg_attach(CommSwitchMode, SwitchModeCallback);
 
     // tasks -----------
     stime.scheduler.attach(1000, 200, taskSend, "taskSend");
