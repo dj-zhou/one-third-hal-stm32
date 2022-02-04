@@ -278,7 +278,8 @@ static void Usart1RingShow(char style, uint16_t width) {
 
 // ----------------------------------------------------------------------------
 WARN_UNUSED_RESULT int8_t Usart1Search(void) {
-    if ((header_len_ == 0) || (len_width_ == 0)) {
+    // len_width_ can be 0 and then len_pos_ is a type indicator
+    if ((header_len_ == 0) || ((len_pos_ == 0) && (len_width_ == 0))) {
         uart_error("%s: header or length not set.\r\n", __func__);
     }
     return op.ringbuffer.search(&usart1.rb, header_, header_len_, len_pos_,
@@ -296,7 +297,9 @@ UartApi_t usart1 = {
     .config     = Usart1Config   ,
     .priority   = Usart1Priority ,
     .send       = Usart1Send     ,
-    .dma.config = Usart1DmaConfig,
+    .dma = {
+        .config = Usart1DmaConfig,
+    },
     .ring = {
         .config = Usart1RingConfig,
         .set = {
