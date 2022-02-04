@@ -66,6 +66,19 @@ static void Usart1RingConfig(uint8_t* data, uint16_t len) {
     usart1.rb = op.ringbuffer.init(data, len);
 }
 
+static uint8_t header_[RINGBUFFER_HEADER_MAX_LEN] = { 0 };
+static uint8_t header_len_ = 0;
+
+// ----------------------------------------------------------------------------
+static void Usart1RingHeader(uint8_t* data, uint8_t len) {
+    if (len > 5) {
+        uart_error("header too long, not supported\r\n");
+    }
+    for (uint8_t i = 0; i < len; i++) {
+        header_[i] = data[i];
+    }
+    header_len_ = len;
+}
 // ----------------------------------------------------------------------------
 static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     (void)buffer;
@@ -200,9 +213,8 @@ static void Usart1RingShow(char style, uint16_t width) {
 }
 
 // ----------------------------------------------------------------------------
-WARN_UNUSED_RESULT int8_t Usart1Search(uint8_t* header, uint8_t header_size,
-                                       uint8_t len_pos, uint8_t len_width) {
-    return op.ringbuffer.search(&usart1.rb, header, header_size, len_pos,
+WARN_UNUSED_RESULT int8_t Usart1Search(uint8_t len_pos, uint8_t len_width) {
+    return op.ringbuffer.search(&usart1.rb, header_, header_len_, len_pos,
                                 len_width);
 }
 
@@ -220,6 +232,7 @@ UartApi_t usart1 = {
     .dma.config = Usart1DmaConfig,
     .ring = {
         .config = Usart1RingConfig,
+        .header = Usart1RingHeader,
         .show   = Usart1RingShow  ,
         .search = Usart1Search    ,
         .fetch  = Usart1Fetch     ,

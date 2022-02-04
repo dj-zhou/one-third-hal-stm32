@@ -102,19 +102,19 @@ CommVelCmd_t vel_cmd = {
 
 // ============================================================================
 void Usart1IdleIrq(void) {
-    usart1.ring.show('h', 10);
-    uint8_t header[] = { 0xAB, 0xCD, 0xEF };
-    int8_t search_ret = usart1.ring.search(header, sizeof_array(header), 3, 2);
+    // usart1.ring.show('h', 10);
+
+    int8_t search_ret = usart1.ring.search(3, 2);
     if (search_ret > 0) {
-        op.ringbuffer.insight(&usart1.rb);
+        // op.ringbuffer.insight(&usart1.rb);
         console.printf("find %d packets\r\n", search_ret);
         uint8_t array[25] = { 0 };
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
-        for (int i = 0; i < 25; i++) {
-            console.printf("%02X  ", array[i]);
-        }
-        console.printf("\r\nafter fetch:\r\n");
-        usart1.ring.show('h', 10);
+        // for (int i = 0; i < 25; i++) {
+        //     console.printf("%02X  ", array[i]);
+        // }
+        // console.printf("\r\nafter fetch:\r\n");
+        // usart1.ring.show('h', 10);
 
         uint8_t* ptr_msg = array + 5;
         uint16_t type;
@@ -168,7 +168,8 @@ int main(void) {
     // usart1 is used for communication
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
-
+    uint8_t header[] = { 0xAB, 0xCD, 0xEF };
+    usart1.ring.header(header, sizeof_array(header));
     usart1_msg_attach(CommVelCmd, VelCmdCallback);
     usart1_msg_attach(CommSwitchMode, SwitchModeCallback);
 
