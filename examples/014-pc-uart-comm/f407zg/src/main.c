@@ -5,6 +5,76 @@
 #include <math.h>
 #include <stdint.h>
 
+// ----------------------------------------------------------------------------
+// clang-format off
+
+#ifndef _USART1_MESSAGE_NODE_MAX_NUM
+#define _USART1_MESSAGE_NODE_MAX_NUM 50
+#endif
+#ifndef _USART1_MESSAGE_DESCR_SIZE
+#define _USART1_MESSAGE_DESCR_SIZE 50
+#endif
+
+
+
+typedef void (*usart1_irq_hook)(uint8_t*msg);
+
+// clang-format off
+typedef struct Usart1MsgCpnt_s {
+    uint16_t     msg_type;
+    char         descr[_USART1_MESSAGE_DESCR_SIZE];
+    usart1_irq_hook hook;
+} Usart1MsgCpnt_t;
+
+typedef struct Usart1MsgNode_s {
+    struct Usart1MsgCpnt_s  this_;
+    struct Usart1MsgNode_s* next_;
+} Usart1MsgNode_t;
+// clang-format on
+
+static Usart1MsgNode_t usart1_node[_USART1_MESSAGE_NODE_MAX_NUM] = { 0 };
+static uint8_t usart1_node_num = 0;
+
+static bool usart1_msg_attach(uint16_t type, usart1_irq_hook hook) {
+    // you cannot attach too many callbacks
+    if (usart1_node_num >= _USART1_MESSAGE_NODE_MAX_NUM) {
+        console.error("usart1_msg_attach: too many messages attached!\r\n");
+    }
+    // you cannot attach two callback functions to one message type (on one
+    // port)
+    if (usart1_node_num > 0) {
+        for (uint8_t i = 0; i < usart1_node_num; i++) {
+            if (usart1_node[i].this_.msg_type == type) {
+                return false;
+            }
+        }
+    }
+    if (usart1_node_num == 0) {
+        usart1_node[0].this_.msg_type = type;
+        usart1_node[0].this_.hook = hook;
+        usart1_node[0].next_ = NULL;
+        usart1_node_num++;
+        return true;
+    }
+
+    usart1_node[usart1_node_num].this_.msg_type = type;
+    usart1_node[usart1_node_num].this_.hook = hook;
+    usart1_node[usart1_node_num - 1].next_ = &usart1_node[usart1_node_num];
+    usart1_node_num++;
+
+    return true;
+}
+
+static void VelCmdCallback(uint8_t* msg) {
+    uint8_t* ptr_msg = msg + 5;
+    uint16_t type;
+    uint8_t* ptr_type = (uint8_t*)&type;
+    *ptr_type++ = *ptr_msg++;
+    *ptr_type = *ptr_msg;
+    console.printf("VelCmdCallback: type = 0x%04X\r\n", type);
+}
+
+// ============================================================================
 uint8_t usart1_rx[100];
 
 CommBatteryInfo_t battery_info = {
@@ -36,6 +106,19 @@ void Usart1IdleIrq(void) {
         }
         console.printf("\r\nafter fetch:\r\n");
         usart1.ring.show('h', 10);
+
+        uint8_t* ptr_msg = array + 5;
+        uint16_t type;
+        uint8_t* ptr_type = (uint8_t*)&type;
+        *ptr_type++ = *ptr_msg++;
+        *ptr_type = *ptr_msg;
+
+        for (uint8_t i = 0; i < usart1_node_num; i++) {
+            if (usart1_node[i].this_.msg_type == type) {
+                usart1_node[i].this_.hook(array);
+                return;
+            }
+        }
     }
     if (search_ret < 0) {
         op.ringbuffer.error(search_ret);
@@ -76,6 +159,8 @@ int main(void) {
     // usart1 is used for communication
     usart1.config(2000000, 8, 'n', 1);
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
+
+    usart1_msg_attach(CommVelCmd, VelCmdCallback);
 
     // tasks -----------
     stime.scheduler.attach(1000, 200, taskSend, "taskSend");
