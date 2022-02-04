@@ -145,10 +145,63 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 }
 
 // ============================================================================
+static UsartMsgNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
+static uint8_t usart1_node_num = 0;
+
+static bool Usart1MsgAttach(uint16_t type, usart_irq_hook hook) {
+    // you cannot attach too many callbacks
+    if (usart1_node_num >= _UART_MESSAGE_NODE_MAX_NUM) {
+        uart_error("Usart1MsgAttach: too many messages attached!\r\n");
+    }
+    // you cannot attach two callback functions to one message type (on one
+    // port)
+    if (usart1_node_num > 0) {
+        for (uint8_t i = 0; i < usart1_node_num; i++) {
+            if (usart1_node[i].this_.msg_type == type) {
+                return false;
+            }
+        }
+    }
+    if (usart1_node_num == 0) {
+        usart1_node[0].this_.msg_type = type;
+        usart1_node[0].this_.hook = hook;
+        usart1_node[0].next_ = NULL;
+        usart1_node_num++;
+        return true;
+    }
+
+    usart1_node[usart1_node_num].this_.msg_type = type;
+    usart1_node[usart1_node_num].this_.hook = hook;
+    usart1_node[usart1_node_num - 1].next_ = &usart1_node[usart1_node_num];
+    usart1_node_num++;
+    return true;
+}
+
+// ----------------------------------------------------------------------------
 // this function can be redefined in projects
 __attribute__((weak)) void Usart1IdleIrq(void) {
-    uart_printf("Usart1 IDLE IRQ: you need to define \"void "
-                "Usart1IdleIrq(void){}\" in your project.\r\n");
+    int8_t search_ret = usart1.ring.search();
+    if (search_ret > 0) {
+        console.printf("find %d packets\r\n", search_ret);
+        uint8_t array[25] = { 0 };  // fix me
+        search_ret = usart1.ring.fetch(array, sizeof_array(array));
+
+        uint8_t* ptr_msg = array + 5;
+        uint16_t type;
+        uint8_t* ptr_type = (uint8_t*)&type;
+        *ptr_type++ = *ptr_msg++;
+        *ptr_type = *ptr_msg;
+
+        for (uint8_t i = 0; i < usart1_node_num; i++) {
+            if (usart1_node[i].this_.msg_type == type) {
+                usart1_node[i].this_.hook(array);
+                return;
+            }
+        }
+    }
+    if (search_ret < 0) {
+        op.ringbuffer.error(search_ret);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -250,10 +303,13 @@ UartApi_t usart1 = {
             .header = Usart1RingHeader,
             .length = Usart1RingLength,
         },
-        .show   = Usart1RingShow  ,
-        .search = Usart1Search    ,
-        .fetch  = Usart1Fetch     ,
+        .show   = Usart1RingShow,
+        .search = Usart1Search  ,
+        .fetch  = Usart1Fetch   ,
     },
+    .message = {
+        .attach = Usart1MsgAttach,
+    }
 };
 // clang-format on
 

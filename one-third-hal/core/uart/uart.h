@@ -93,6 +93,14 @@
 // clang-format on
 
 // ----------------------------------------------------------------------------
+#ifndef _UART_MESSAGE_NODE_MAX_NUM
+#define _UART_MESSAGE_NODE_MAX_NUM 50
+#endif
+#ifndef _UART_MESSAGE_DESCR_SIZE
+#define _UART_MESSAGE_DESCR_SIZE 50
+#endif
+
+// ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)
 void init_uart_pins(GPIO_TypeDef* GPIOx_T, uint8_t pin_nT,
                     GPIO_TypeDef* GPIOx_R, uint8_t pin_nR, uint32_t alter);
@@ -120,6 +128,25 @@ typedef struct {
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
 } UartRingBuffer_t;
 
+typedef void (*usart_irq_hook)(uint8_t* msg);
+
+// clang-format off
+typedef struct UsartMsgCpnt_s {
+    uint16_t     msg_type;
+    char         descr[_UART_MESSAGE_DESCR_SIZE];
+    usart_irq_hook hook;
+} UsartMsgCpnt_t;
+
+typedef struct UsartMsgNode_s {
+    struct UsartMsgCpnt_s  this_;
+    struct UsartMsgNode_s* next_;
+} UsartMsgNode_t;
+// clang-format on
+
+typedef struct {
+    bool (*attach)(uint16_t type, usart_irq_hook hook);
+} UartMsg_t;
+
 typedef struct {
     UART_HandleTypeDef huart;
     void (*config)(uint32_t, uint8_t, char, uint8_t);
@@ -128,6 +155,7 @@ typedef struct {
     UartDma_t dma;
     RingBuffer_t rb;
     UartRingBuffer_t ring;
+    UartMsg_t message;
 } UartApi_t;
 
 #ifdef CONSOLE_IS_USED
