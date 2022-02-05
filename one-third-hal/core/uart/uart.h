@@ -140,10 +140,15 @@ typedef struct {
     void (*header)(uint8_t* data, uint8_t len);
     void (*length)(uint8_t pos, uint8_t width);
     void (*type)(uint8_t pos, uint8_t width);
-} UartMsgSet;
+} UartMsgSet_t;
+typedef struct {
+    uint16_t (*length)(uint8_t *data);
+    uint16_t (*type)(uint8_t *data);
+} UartMsgGet_t;
 typedef struct {
     bool (*attach)(uint16_t type, usart_irq_hook hook);
-    UartMsgSet set;
+    UartMsgSet_t set;
+    UartMsgGet_t get;
 } UartMsg_t;
 
 typedef struct {

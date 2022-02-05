@@ -32,6 +32,34 @@ static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
     len_width_ = width;
 }
 
+static uint16_t Usart1MessageGetLength(uint8_t* data) {
+    if ((len_pos_ == 0) || (len_width_ == 0)) {
+        return 0;
+    }
+    uint16_t length = 0;
+    uint8_t* length_ptr = (uint8_t*)&length;
+    *length_ptr = data[len_pos_];
+    if (len_width_ == 2) {
+        length_ptr++;
+        *length_ptr = data[len_pos_ + 1];
+    }
+    return length;
+}
+
+static uint16_t Usart1MessageGetType(uint8_t* data) {
+    if ((type_pos_ == 0) || (type_width_ == 0)) {
+        return 0;
+    }
+    uint16_t type = 0;
+    uint8_t* type_ptr = (uint8_t*)&type;
+    *type_ptr = data[type_pos_];
+    if (type_width_ == 2) {
+        type_ptr++;
+        *type_ptr = data[type_pos_ + 1];
+    }
+    return type;
+}
+
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
     if (len_pos_ == pos) {
@@ -205,12 +233,8 @@ __attribute__((weak)) void Usart1IdleIrq(void) {
         uint8_t array[25] = { 0 };  // fix me
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
 
-        uint8_t* ptr_msg = array + type_pos_;
-        uint16_t type;
-        uint8_t* ptr_type = (uint8_t*)&type;
-        *ptr_type++ = *ptr_msg++;
-        *ptr_type = *ptr_msg;
-
+        // find the callback function and run it
+        uint16_t type = Usart1MessageGetType(array);
         for (uint8_t i = 0; i < usart1_node_num; i++) {
             if (usart1_node[i].this_.msg_type == type) {
                 usart1_node[i].this_.hook(array);
@@ -331,6 +355,10 @@ UartApi_t usart1 = {
             .header = Usart1MessageSetHeader,
             .length = Usart1MessageSetLength,
             .type   = Usart1MessageSetType  ,
+        },
+        .get = {
+            .length = Usart1MessageGetLength,
+            .type   = Usart1MessageGetType  ,
         },
     }
 };
