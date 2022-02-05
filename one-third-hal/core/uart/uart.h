@@ -116,13 +116,7 @@ typedef struct {
 } UartDma_t;
 
 typedef struct {
-    void (*header)(uint8_t* data, uint8_t len);
-    void (*length)(uint8_t pos, uint8_t width);
-} UartRingBufferSet_t;
-
-typedef struct {
     void (*config)(uint8_t* data, uint16_t len);
-    UartRingBufferSet_t set;
     void (*show)(char style, uint16_t width);
     WARN_UNUSED_RESULT int8_t (*search)(void);
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
@@ -141,10 +135,15 @@ typedef struct UsartMsgNode_s {
     struct UsartMsgCpnt_s  this_;
     struct UsartMsgNode_s* next_;
 } UsartMsgNode_t;
-// clang-format on
 
 typedef struct {
+    void (*header)(uint8_t* data, uint8_t len);
+    void (*length)(uint8_t pos, uint8_t width);
+    void (*type)(uint8_t pos, uint8_t width);
+} UartMsgSet;
+typedef struct {
     bool (*attach)(uint16_t type, usart_irq_hook hook);
+    UartMsgSet set;
 } UartMsg_t;
 
 typedef struct {
@@ -152,11 +151,12 @@ typedef struct {
     void (*config)(uint32_t, uint8_t, char, uint8_t);
     void (*priority)(uint16_t);
     void (*send)(uint8_t*, uint16_t);
-    UartDma_t dma;
-    RingBuffer_t rb;
+    UartDma_t        dma;
+    RingBuffer_t     rb;
     UartRingBuffer_t ring;
-    UartMsg_t message;
+    UartMsg_t        message;
 } UartApi_t;
+// clang-format on
 
 #ifdef CONSOLE_IS_USED
 #define uart_printf(...) (console.printf(__VA_ARGS__))

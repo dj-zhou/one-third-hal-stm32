@@ -75,8 +75,9 @@ int main(void) {
     uint8_t usart1_rx[100];
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
     uint8_t header[] = { 0xAB, 0xCD, 0xEF };
-    usart1.ring.set.header(header, sizeof_array(header));
-    usart1.ring.set.length(3, 2);
+    usart1.message.set.header(header, sizeof_array(header));
+    usart1.message.set.length(3, sizeof(uint16_t));
+    usart1.message.set.type(5, sizeof(uint16_t));
     if (!usart1.message.attach(CommVelCmd, VelCmdCallback)) {
         console.printf("failed?\r\n");
     }

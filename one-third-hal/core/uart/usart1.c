@@ -1,8 +1,50 @@
 #include "uart.h"
 
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
-// ============================================================================
 
+// ============================================================================
+static uint8_t header_[RINGBUFFER_HEADER_MAX_LEN] = { 0 };
+static uint8_t header_len_ = 0;
+static uint8_t len_pos_ = 0;
+static uint8_t len_width_ = 0;
+static uint8_t type_pos_ = 0;
+static uint8_t type_width_ = 0;
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
+    if (len > 5) {
+        uart_error("header too long, not supported!\r\n");
+    }
+    for (uint8_t i = 0; i < len; i++) {
+        header_[i] = data[i];
+    }
+    header_len_ = len;
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
+    if (type_pos_ == pos) {
+        uart_error("type and length cannot be of the same position!\r\n");
+    }
+    len_pos_ = pos;
+    if (width > 2) {
+        uart_error("too wide for length, not supported!\r\n");
+    }
+    len_width_ = width;
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
+    if (len_pos_ == pos) {
+        uart_error("type and length cannot be of the same position!\r\n");
+    }
+    type_pos_ = pos;
+    if (width > 2) {
+        uart_error("too wide for type, not supported!\r\n");
+    }
+    type_width_ = width;
+}
+
+// ============================================================================
 static DMA_HandleTypeDef hdma_usart1_rx;
 static bool usart1_dma_is_used = false;
 
@@ -64,30 +106,6 @@ static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
 // ----------------------------------------------------------------------------
 static void Usart1RingConfig(uint8_t* data, uint16_t len) {
     usart1.rb = op.ringbuffer.init(data, len);
-}
-
-// ----------------------------------------------------------------------------
-static uint8_t header_[RINGBUFFER_HEADER_MAX_LEN] = { 0 };
-static uint8_t header_len_ = 0;
-static void Usart1RingHeader(uint8_t* data, uint8_t len) {
-    if (len > 5) {
-        uart_error("header too long, not supported!\r\n");
-    }
-    for (uint8_t i = 0; i < len; i++) {
-        header_[i] = data[i];
-    }
-    header_len_ = len;
-}
-
-// ----------------------------------------------------------------------------
-static uint8_t len_pos_ = 0;
-static uint8_t len_width_ = 0;
-static void Usart1RingLength(uint8_t pos, uint8_t width) {
-    if (width > 2) {
-        uart_error("length too wide, not supported!\r\n");
-    }
-    len_pos_ = pos;
-    len_width_ = width;
 }
 
 // ----------------------------------------------------------------------------
@@ -178,7 +196,8 @@ static bool Usart1MsgAttach(uint16_t type, usart_irq_hook hook) {
 }
 
 // ----------------------------------------------------------------------------
-// this function can be redefined in projects
+/// warning: this function is only good for DJ's protocol, so it needs to be
+/// redefined in projects when that is not DJ's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
     int8_t search_ret = usart1.ring.search();
     if (search_ret > 0) {
@@ -186,7 +205,7 @@ __attribute__((weak)) void Usart1IdleIrq(void) {
         uint8_t array[25] = { 0 };  // fix me
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
 
-        uint8_t* ptr_msg = array + 5;
+        uint8_t* ptr_msg = array + type_pos_;
         uint16_t type;
         uint8_t* ptr_type = (uint8_t*)&type;
         *ptr_type++ = *ptr_msg++;
@@ -302,16 +321,17 @@ UartApi_t usart1 = {
     },
     .ring = {
         .config = Usart1RingConfig,
-        .set = {
-            .header = Usart1RingHeader,
-            .length = Usart1RingLength,
-        },
         .show   = Usart1RingShow,
         .search = Usart1Search  ,
         .fetch  = Usart1Fetch   ,
     },
     .message = {
         .attach = Usart1MsgAttach,
+        .set = {
+            .header = Usart1MessageSetHeader,
+            .length = Usart1MessageSetLength,
+            .type   = Usart1MessageSetType  ,
+        },
     }
 };
 // clang-format on
