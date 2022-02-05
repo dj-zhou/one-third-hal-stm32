@@ -146,10 +146,11 @@ typedef struct {
     uint16_t (*type)(uint8_t *data);
 } UartMsgGet_t;
 typedef struct {
-    bool (*attach)(uint16_t type, usart_irq_hook hook);
+    bool (*attach)(uint16_t type, usart_irq_hook hook, const char * descr);
+    void (*show)(void);
     UartMsgSet_t set;
     UartMsgGet_t get;
-} UartMsg_t;
+} UartMessage_t;
 
 typedef struct {
     UART_HandleTypeDef huart;
@@ -159,7 +160,7 @@ typedef struct {
     UartDma_t        dma;
     RingBuffer_t     rb;
     UartRingBuffer_t ring;
-    UartMsg_t        message;
+    UartMessage_t    message;
 } UartApi_t;
 // clang-format on
 

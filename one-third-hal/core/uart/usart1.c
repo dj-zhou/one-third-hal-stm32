@@ -1,4 +1,5 @@
 #include "uart.h"
+#include <string.h>
 
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
 
@@ -12,7 +13,7 @@ static uint8_t type_width_ = 0;
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
     if (len > 5) {
-        uart_error("header too long, not supported!\r\n");
+        uart_error("%s(): header too long, not supported!\r\n", __func__);
     }
     for (uint8_t i = 0; i < len; i++) {
         header_[i] = data[i];
@@ -23,11 +24,12 @@ static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
     if (type_pos_ == pos) {
-        uart_error("type and length cannot be of the same position!\r\n");
+        uart_error("%s(): type and length cannot be of the same position!\r\n",
+                   __func__);
     }
     len_pos_ = pos;
     if (width > 2) {
-        uart_error("too wide for length, not supported!\r\n");
+        uart_error("%s(): too wide for length, not supported!\r\n", __func__);
     }
     len_width_ = width;
 }
@@ -63,11 +65,12 @@ static uint16_t Usart1MessageGetType(uint8_t* data) {
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
     if (len_pos_ == pos) {
-        uart_error("type and length cannot be of the same position!\r\n");
+        uart_error("%s(): type and length cannot be of the same position!\r\n",
+                   __func__);
     }
     type_pos_ = pos;
     if (width > 2) {
-        uart_error("too wide for type, not supported!\r\n");
+        uart_error("%s(): too wide for type, not supported!\r\n", __func__);
     }
     type_width_ = width;
 }
@@ -106,7 +109,7 @@ static void Usart1Config_PB6PB7(void) {
 static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
                          uint8_t stop) {
     if (config_uart.check(USART1)) {
-        uart_error("USART1 is occupied\r\n");
+        uart_error("%s(): USART1 is occupied\r\n", __func__);
     }
     usart1.huart.Instance = USART1;
 #if defined(_USE_USART1_PA9PA10)
@@ -194,10 +197,11 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 static UsartMsgNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
 static uint8_t usart1_node_num = 0;
 
-static bool Usart1MsgAttach(uint16_t type, usart_irq_hook hook) {
+static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
+                                const char* descr) {
     // you cannot attach too many callbacks
     if (usart1_node_num >= _UART_MESSAGE_NODE_MAX_NUM) {
-        uart_error("Usart1MsgAttach: too many messages attached!\r\n");
+        uart_error("%s(): too many messages attached!\r\n", __func__);
     }
     // you cannot attach two callback functions to one message type (on one
     // port)
@@ -208,9 +212,20 @@ static bool Usart1MsgAttach(uint16_t type, usart_irq_hook hook) {
             }
         }
     }
+    uint8_t len;
+    size_t str_len = strlen(descr);
+    if (str_len >= _UART_MESSAGE_DESCR_SIZE - 1) {
+        len = (uint8_t)(_UART_MESSAGE_DESCR_SIZE - 1);
+    }
+    else {
+        len = (uint8_t)str_len;
+    }
+
     if (usart1_node_num == 0) {
         usart1_node[0].this_.msg_type = type;
         usart1_node[0].this_.hook = hook;
+        bzero(usart1_node[0].this_.descr, _UART_MESSAGE_DESCR_SIZE);
+        strncpy(usart1_node[0].this_.descr, descr, len);
         usart1_node[0].next_ = NULL;
         usart1_node_num++;
         return true;
@@ -218,19 +233,36 @@ static bool Usart1MsgAttach(uint16_t type, usart_irq_hook hook) {
 
     usart1_node[usart1_node_num].this_.msg_type = type;
     usart1_node[usart1_node_num].this_.hook = hook;
+    bzero(usart1_node[usart1_node_num].this_.descr, _UART_MESSAGE_DESCR_SIZE);
+    strncpy(usart1_node[usart1_node_num].this_.descr, descr, len);
     usart1_node[usart1_node_num - 1].next_ = &usart1_node[usart1_node_num];
     usart1_node_num++;
     return true;
 }
 
+static void Usart1MessageShow(void) {
+    CONSOLE_PRINTF_SEG;
+    uart_printk(0, "USART1 Message Registration | %2d callback",
+                usart1_node_num);
+    if (usart1_node_num <= 1) {
+        uart_printk(0, "\r\n");
+    }
+    else {
+        uart_printk(0, "s\r\n");
+    }
+    for (uint8_t i = 0; i < usart1_node_num; i++) {
+        uart_printk(0, "message type = 0x%03X : %s\r\n",
+                    usart1_node[i].this_.msg_type, usart1_node[i].this_.descr);
+    }
+    CONSOLE_PRINTF_SEG;
+}
 // ----------------------------------------------------------------------------
 /// warning: this function is only good for DJ's protocol, so it needs to be
 /// redefined in projects when that is not DJ's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
     int8_t search_ret = usart1.ring.search();
     if (search_ret > 0) {
-        console.printf("find %d packets\r\n", search_ret);
-        uint8_t array[25] = { 0 };  // fix me
+        uint8_t array[100] = { 0 };  // fix me
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
 
         // find the callback function and run it
@@ -323,7 +355,7 @@ static void Usart1RingShow(char style, uint16_t width) {
 WARN_UNUSED_RESULT int8_t Usart1Search(void) {
     // len_width_ can be 0 and then len_pos_ is a type indicator
     if ((header_len_ == 0) || ((len_pos_ == 0) && (len_width_ == 0))) {
-        uart_error("%s: header or length not set.\r\n", __func__);
+        uart_error("%s(): header or length not set.\r\n", __func__);
     }
     return op.ringbuffer.search(&usart1.rb, header_, header_len_, len_pos_,
                                 len_width_);
@@ -350,7 +382,8 @@ UartApi_t usart1 = {
         .fetch  = Usart1Fetch   ,
     },
     .message = {
-        .attach = Usart1MsgAttach,
+        .attach = Usart1MessageAttach,
+        .show   = Usart1MessageShow  ,
         .set = {
             .header = Usart1MessageSetHeader,
             .length = Usart1MessageSetLength,

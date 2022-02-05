@@ -22,21 +22,17 @@ CommVelCmd_t vel_cmd = {
 
 // ----------------------------------------------------------------------------
 static void VelCmdCallback(uint8_t* msg) {
-    uint8_t* ptr_msg = msg + 5;
-    uint16_t type;
-    uint8_t* ptr_type = (uint8_t*)&type;
-    *ptr_type++ = *ptr_msg++;
-    *ptr_type = *ptr_msg;
-    console.printf("VelCmdCallback: type = 0x%04X\r\n", type);
+    static uint32_t loop_count = 0;
+    uint16_t type = usart1.message.get.type(msg);
+    console.printf("%5d: VelCmdCallback: type = 0x%04X\r\n", loop_count++,
+                   type);
 }
 
 static void SwitchModeCallback(uint8_t* msg) {
-    uint8_t* ptr_msg = msg + 5;
-    uint16_t type;
-    uint8_t* ptr_type = (uint8_t*)&type;
-    *ptr_type++ = *ptr_msg++;
-    *ptr_type = *ptr_msg;
-    console.printf("SwitchModeCallback: type = 0x%04X\r\n", type);
+    static uint32_t loop_count = 0;
+    uint16_t type = usart1.message.get.type(msg);
+    console.printf("%5d: SwitchModeCallback: type = 0x%04X\r\n", loop_count++,
+                   type);
 }
 
 // ============================================================================
@@ -78,12 +74,14 @@ int main(void) {
     usart1.message.set.header(header, sizeof_array(header));
     usart1.message.set.length(3, sizeof(uint16_t));
     usart1.message.set.type(5, sizeof(uint16_t));
-    if (!usart1.message.attach(CommVelCmd, VelCmdCallback)) {
-        console.printf("failed?\r\n");
+    if (!usart1.message.attach(CommVelCmd, VelCmdCallback, "VelCmdCallback")) {
+        console.printf("message attach failed\r\n");
     }
-    if (!usart1.message.attach(CommSwitchMode, SwitchModeCallback)) {
-        console.printf("failedddddd?\r\n");
+    if (!usart1.message.attach(CommSwitchMode, SwitchModeCallback,
+                               "SwitchModeCallback")) {
+        console.printf("message attach failed\r\n");
     }
+    usart1.message.show();
 
     // tasks -----------
     stime.scheduler.attach(1000, 200, taskSend, "taskSend");
