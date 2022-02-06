@@ -26,13 +26,28 @@ static void VelCmdCallback(uint8_t* msg) {
     uint16_t type = usart1.message.get.type(msg);
     console.printf("%5d: VelCmdCallback: type = 0x%04X\r\n", loop_count++,
                    type);
+    CommVelCmd_t cmd;
+    uint8_t* ptr = (uint8_t*)&cmd;
+    for (size_t i = 0; i < sizeof(cmd); i++) {
+        *ptr++ = msg[5 + i];  // to fix
+    }
+    // todo: read CRC32 and calculate CRC32 and compare them
+    console.printf("\tx_vel = %f, y_vel = %f, yaw_vel = %f\r\n", cmd.x_vel,
+                   cmd.y_vel, cmd.yaw_vel);
 }
 
 static void SwitchModeCallback(uint8_t* msg) {
     static uint32_t loop_count = 0;
     uint16_t type = usart1.message.get.type(msg);
-    console.printf("%5d: SwitchModeCallback: type = 0x%04X\r\n", loop_count++,
+    console.printf("%5d: SwitchModeCallback: type = 0x%04X: ", loop_count++,
                    type);
+    CommSwitchMode_t switch_mode;
+    uint8_t* ptr = (uint8_t*)&switch_mode;
+    for (size_t i = 0; i < sizeof(switch_mode); i++) {
+        *ptr++ = msg[5 + i];  // to fix
+    }
+    // todo: read CRC32 and calculate CRC32 and compare them
+    console.printf("mode = %d\r\n", switch_mode.mode);
 }
 
 // ============================================================================
@@ -56,15 +71,6 @@ int main(void) {
     console.config(2000000);
     console.printf("\r\n\r\n");
     led.config(LED_BREATH);
-
-    console.printf("sizeof(CommVelCmd_t) = %ld\r\n", sizeof(CommVelCmd_t));
-    console.printf("sizeof(CommSwitchMode_t) = %ld\r\n",
-                   sizeof(CommSwitchMode_t));
-    console.printf("sizeof(CommPoseInfo_t) = %ld\r\n", sizeof(CommPoseInfo_t));
-    console.printf("sizeof(CommBatteryInfo_t) = %ld\r\n",
-                   sizeof(CommBatteryInfo_t));
-    console.printf("sizeof(CommFirmwareInfo_t) = %ld\r\n",
-                   sizeof(CommFirmwareInfo_t));
 
     // usart1 is used for communication
     usart1.config(2000000, 8, 'n', 1);
