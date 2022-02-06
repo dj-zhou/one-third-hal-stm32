@@ -1,8 +1,42 @@
 #include "uart.h"
 
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
-// ============================================================================
 
+// ============================================================================
+static UartMessageInfo_t msg_info = {
+    .header_len = 0,
+    .len_pos = 0,
+    .len_width = 0,
+    .type_pos = 0,
+    .type_width = 0,
+};
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
+    uart_message_set_header(data, len, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
+    uart_message_set_length(pos, width, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static uint16_t Usart1MessageGetLength(uint8_t* data) {
+    return uart_message_get_length(data, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
+    uart_message_set_type(pos, width, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static uint16_t Usart1MessageGetType(uint8_t* data) {
+    return uart_message_get_type(data, &msg_info);
+}
+
+// ============================================================================
 static DMA_HandleTypeDef hdma_usart1_rx;
 static bool usart1_dma_is_used = false;
 
@@ -36,7 +70,7 @@ static void Usart1Config_PB6PB7(void) {
 static void Usart1Config(uint32_t baud, uint8_t data_size, char parity,
                          uint8_t stop) {
     if (config_uart.check(USART1)) {
-        uart_error("USART1 is occupied\r\n");
+        uart_error("%s(): USART1 is occupied\r\n", __func__);
     }
     usart1.huart.Instance = USART1;
 #if defined(_USE_USART1_PA9PA10)
@@ -88,8 +122,9 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     }
 
     __HAL_LINKDMA(&(usart1.huart), hdmarx, hdma_usart1_rx);
-    HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
+    // this is not needed, otherwise, f767 will get stuck
+    // HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
+    // HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 
 #if defined(STM32F407xx)
     // for F407xx, HAL_UART_Receive_DMA() CAN NOT be in front
@@ -101,9 +136,9 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
                   (uint32_t)buffer, len);
-#error "Usart2DmaConfig() STM32F767xx: not implemented"
+#error "Usart1DmaConfig() STM32F767xx: not implemented"
 #else
-#error "Usart2DmaConfig(): not implemented"
+#error "Usart1DmaConfig(): not implemented"
 #endif
 
     usart1_dma_is_used = true;
@@ -121,10 +156,56 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 }
 
 // ============================================================================
-// this function can be redefined in projects
+static UartMessageNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
+static uint8_t usart1_node_num = 0;
+
+static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
+                                const char* descr) {
+    if (uart_message_attach(type, hook, descr, usart1_node, usart1_node_num)) {
+        usart1_node_num++;
+        return true;
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageShow(void) {
+    uart_message_show("USART1", usart1_node, usart1_node_num);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart1MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
+    // todo: read CRC32 and calculate CRC32 and compare them
+    for (size_t i = 0; i < size; i++) {
+        *dest++ = msg[msg_info.type_pos + i];
+    }
+}
+
+// ----------------------------------------------------------------------------
+/// warning: this function is only good for DJ's protocol, so it needs to be
+/// redefined in projects when that is not DJ's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
-    uart_printf("Usart1 IDLE IRQ: you need to define \"void "
-                "Usart1IdleIrq(void){}\" in your project.\r\n");
+    int8_t search_ret = usart1.ring.search();
+    if (search_ret > 0) {
+        uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
+        if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
+            uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
+                       "larger than %d\r\n",
+                       __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
+        }
+        search_ret = usart1.ring.fetch(array, sizeof_array(array));
+        // find the callback function and run it
+        uint16_t type = Usart1MessageGetType(array);
+        for (uint8_t i = 0; i < usart1_node_num; i++) {
+            if (usart1_node[i].this_.msg_type == type) {
+                usart1_node[i].this_.hook(array);
+                return;
+            }
+        }
+    }
+    if (search_ret < 0) {
+        op.ringbuffer.error(search_ret);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -200,10 +281,15 @@ static void Usart1RingShow(char style, uint16_t width) {
 }
 
 // ----------------------------------------------------------------------------
-WARN_UNUSED_RESULT int8_t Usart1Search(uint8_t* header, uint8_t header_size,
-                                       uint8_t len_pos, uint8_t len_width) {
-    return op.ringbuffer.search(&usart1.rb, header, header_size, len_pos,
-                                len_width);
+WARN_UNUSED_RESULT int8_t Usart1Search(void) {
+    // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
+    if ((msg_info.header_len == 0)
+        || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
+        uart_error("%s(): header or length not set.\r\n", __func__);
+    }
+    return op.ringbuffer.search(&usart1.rb, msg_info.header,
+                                msg_info.header_len, msg_info.len_pos,
+                                msg_info.len_width);
 }
 
 // ----------------------------------------------------------------------------
@@ -214,15 +300,31 @@ WARN_UNUSED_RESULT int8_t Usart1Fetch(uint8_t* array, uint16_t size) {
 // ============================================================================
 // clang-format off
 UartApi_t usart1 = {
-    .config     = Usart1Config   ,
-    .priority   = Usart1Priority ,
-    .send       = Usart1Send     ,
-    .dma.config = Usart1DmaConfig,
+    .config   = Usart1Config  ,
+    .priority = Usart1Priority,
+    .send     = Usart1Send    ,
+    .dma = {
+        .config = Usart1DmaConfig,
+    },
     .ring = {
         .config = Usart1RingConfig,
         .show   = Usart1RingShow  ,
         .search = Usart1Search    ,
         .fetch  = Usart1Fetch     ,
+    },
+    .message = {
+        .attach = Usart1MessageAttach,
+        .show   = Usart1MessageShow  ,
+        .copy   = Usart1MessageCopy  ,
+        .set = {
+            .header = Usart1MessageSetHeader,
+            .length = Usart1MessageSetLength,
+            .type   = Usart1MessageSetType  ,
+        },
+        .get = {
+            .length = Usart1MessageGetLength,
+            .type   = Usart1MessageGetType  ,
+        },
     },
 };
 // clang-format on

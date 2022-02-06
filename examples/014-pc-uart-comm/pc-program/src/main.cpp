@@ -14,12 +14,6 @@ int main(int argc, char* argv[]) {
     }
     Serial serial(argv[1], 2000000, 'n');
 
-    printf("sizeof(CommVelCmd_t) = %ld\n", sizeof(CommVelCmd_t));
-    printf("sizeof(CommSwitchMode_t) = %ld\n", sizeof(CommSwitchMode_t));
-    printf("sizeof(CommPoseInfo_t) = %ld\n", sizeof(CommPoseInfo_t));
-    printf("sizeof(CommBatteryInfo_t) = %ld\n", sizeof(CommBatteryInfo_t));
-    printf("sizeof(CommFirmwareInfo_t) = %ld\n", sizeof(CommFirmwareInfo_t));
-
     CommVelCmd_t vel_cmd = {
         .type = CommVelCmd,
         .x_vel = (float)0.8,
@@ -32,12 +26,13 @@ int main(int argc, char* argv[]) {
     };
 
     PcComm pc_comm(&serial, 100, 5);
-    uint32_t loop_count = 0;
-    for (int i = 0; i < 10; i++) {
+    for (int loop_count = 0; loop_count < 10; loop_count++) {
+        switch_mode.mode = (uint8_t)(loop_count % 256);
         pc_comm.send(switch_mode);
         usleep(10000);
-        vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100));
-        vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100));
+        vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100.));
+        vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100.));
+        vel_cmd.yaw_vel = (float)(0.2 + cos(loop_count / 50.));
         pc_comm.send(vel_cmd);
         sleep(1);
     }

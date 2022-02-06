@@ -1,8 +1,42 @@
 #include "uart.h"
 
 #if defined(USART2_EXISTS) && defined(USART2_IS_USED)
-// ============================================================================
 
+// ============================================================================
+static UartMessageInfo_t msg_info = {
+    .header_len = 0,
+    .len_pos = 0,
+    .len_width = 0,
+    .type_pos = 0,
+    .type_width = 0,
+};
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageSetHeader(uint8_t* data, uint8_t len) {
+    uart_message_set_header(data, len, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageSetLength(uint8_t pos, uint8_t width) {
+    uart_message_set_length(pos, width, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static uint16_t Usart2MessageGetLength(uint8_t* data) {
+    return uart_message_get_length(data, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageSetType(uint8_t pos, uint8_t width) {
+    uart_message_set_type(pos, width, &msg_info);
+}
+
+// ----------------------------------------------------------------------------
+static uint16_t Usart2MessageGetType(uint8_t* data) {
+    return uart_message_get_type(data, &msg_info);
+}
+
+// ============================================================================
 static DMA_HandleTypeDef hdma_usart2_rx;
 static bool usart2_dma_is_used = false;
 
@@ -74,6 +108,7 @@ static void Usart2Config(uint32_t baud, uint8_t data_size, char parity,
 static void Usart2RingConfig(uint8_t* data, uint16_t len) {
     usart2.rb = op.ringbuffer.init(data, len);
 }
+
 // ----------------------------------------------------------------------------
 static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     (void)buffer;
@@ -96,8 +131,9 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     }
 
     __HAL_LINKDMA(&(usart2.huart), hdmarx, hdma_usart2_rx);
-    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+    // this is not needed, otherwise, f767 will get stuck
+    // HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+    // HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 #if defined(STM32F407xx)
     // for F407xx, HAL_UART_Receive_DMA() CAN NOT be in front
@@ -130,10 +166,57 @@ static void Usart2Send(uint8_t* data, uint16_t size) {
 }
 
 // ============================================================================
-// this function can be redefined in projects
+static UartMessageNode_t usart2_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
+static uint8_t usart2_node_num = 0;
+
+static bool Usart2MessageAttach(uint16_t type, usart_irq_hook hook,
+                                const char* descr) {
+    if (uart_message_attach(type, hook, descr, usart2_node, usart2_node_num)) {
+        usart2_node_num++;
+        return true;
+    }
+    return false;
+}
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageShow(void) {
+    uart_message_show("USART2", usart2_node, usart2_node_num);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
+    // todo: read CRC32 and calculate CRC32 and compare them
+    for (size_t i = 0; i < size; i++) {
+        *dest++ = msg[msg_info.type_pos + i];
+    }
+}
+
+// ----------------------------------------------------------------------------
+/// warning: this function is only good for DJ's protocol, so it needs to be
+/// redefined in projects when that is not DJ's protocol
 __attribute__((weak)) void Usart2IdleIrq(void) {
-    uart_printf("Usart2 IDLE IRQ: you need to define \"void "
-                "Usart2IdleIrq(void){}\" in your project.\r\n");
+    int8_t search_ret = usart2.ring.search();
+    if (search_ret > 0) {
+        uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
+        if (usart2.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
+            uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
+                       "larger than %d\r\n",
+                       __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
+        }
+        search_ret = usart2.ring.fetch(array, sizeof_array(array));
+
+        // find the callback function and run it
+        uint16_t type = Usart2MessageGetType(array);
+        for (uint8_t i = 0; i < usart2_node_num; i++) {
+            if (usart2_node[i].this_.msg_type == type) {
+                usart2_node[i].this_.hook(array);
+                return;
+            }
+        }
+    }
+    if (search_ret < 0) {
+        op.ringbuffer.error(search_ret);
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -209,10 +292,16 @@ static void Usart2RingShow(char style, uint16_t width) {
 }
 
 // ----------------------------------------------------------------------------
-WARN_UNUSED_RESULT int8_t Usart2Search(uint8_t* header, uint8_t header_size,
-                                       uint8_t len_pos, uint8_t len_width) {
-    return op.ringbuffer.search(&usart2.rb, header, header_size, len_pos,
-                                len_width);
+WARN_UNUSED_RESULT int8_t Usart2Search(void) {
+    // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
+    if ((msg_info.header_len == 0)
+        || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
+        // uart_error("%s(): header or length not set.\r\n", __func__);
+        return 0;
+    }
+    return op.ringbuffer.search(&usart2.rb, msg_info.header,
+                                msg_info.header_len, msg_info.len_pos,
+                                msg_info.len_width);
 }
 
 // ----------------------------------------------------------------------------
@@ -223,15 +312,31 @@ WARN_UNUSED_RESULT int8_t Usart2Fetch(uint8_t* array, uint16_t size) {
 // ============================================================================
 // clang-format off
 UartApi_t usart2 = {
-    .config     = Usart2Config   ,
-    .priority   = Usart2Priority ,
-    .send       = Usart2Send     ,
-    .dma.config = Usart2DmaConfig,
+    .config   = Usart2Config  ,
+    .priority = Usart2Priority,
+    .send     = Usart2Send    ,
+    .dma = {
+        .config = Usart2DmaConfig,
+    },
     .ring = {
         .config = Usart2RingConfig,
         .show   = Usart2RingShow  ,
         .search = Usart2Search    ,
         .fetch  = Usart2Fetch     ,
+    },
+    .message = {
+        .attach = Usart2MessageAttach,
+        .show   = Usart2MessageShow  ,
+        .copy   = Usart2MessageCopy  ,
+        .set = {
+            .header = Usart2MessageSetHeader,
+            .length = Usart2MessageSetLength,
+            .type   = Usart2MessageSetType  ,
+        },
+        .get = {
+            .length = Usart2MessageGetLength,
+            .type   = Usart2MessageGetType  ,
+        },
     },
 };
 // clang-format on

@@ -151,10 +151,14 @@ bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
     else {
         len = (uint8_t)str_len;
     }
+    // you cannot attach too many callbacks
+    if (num >= _CAN_IRQ_MAX_NUM) {
+        return false;
+    }
     // you cannot attach two callback functions to one ID
     if (num > 0) {
         for (uint8_t i = 0; i < num; i++) {
-            if (node[0].this_.cob_id == cob_id) {
+            if (node[i].this_.cob_id == cob_id) {
                 return false;
             }
         }
@@ -166,15 +170,16 @@ bool can_irq_attach(CanIrqNode_t* node, uint8_t num, uint16_t cob_id,
         node[0].this_.descr[len] = '\0';
         node[0].this_.hook = hook;
         node[0].next_ = NULL;
+        return true;
     }
-    else {
-        node[num].this_.cob_id = cob_id;
-        bzero(node[num].this_.descr, _CAN_IRQ_DESCR_SIZE);
-        strncpy(node[num].this_.descr, str, len);
-        node[num].this_.descr[len] = '\0';
-        node[num].this_.hook = hook;
-        node[num - 1].next_ = &node[num];
-    }
+
+    node[num].this_.cob_id = cob_id;
+    bzero(node[num].this_.descr, _CAN_IRQ_DESCR_SIZE);
+    strncpy(node[num].this_.descr, str, len);
+    node[num].this_.descr[len] = '\0';
+    node[num].this_.hook = hook;
+    node[num - 1].next_ = &node[num];
+
     return true;
 }
 

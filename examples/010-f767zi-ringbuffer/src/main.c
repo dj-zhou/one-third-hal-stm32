@@ -10,7 +10,7 @@ static void tfmini_parse(uint8_t* data, uint16_t len) {
     }
     uint16_t check_sum = 0;
     for (int i = 0; i < 9 - 1; i++) {
-        check_sum += data[i];
+        check_sum = (uint16_t)(check_sum + data[i]);
     }
     check_sum &= 0xFF;
     // check the checksum ----------

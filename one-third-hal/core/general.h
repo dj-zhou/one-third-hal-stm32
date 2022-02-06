@@ -176,7 +176,7 @@ typedef struct {
 
 typedef enum RinBufferSearchType {
     RINGBUFFER_SEARCH_TFMINI = 1,
-    RINGBUFFER_SEARCH_MTI2   = 2,
+    RINGBUFFER_SEARCH_MTI2   = 2, // TODO
 } RinBufferSearchType_e;
 
 #pragma pack(1)

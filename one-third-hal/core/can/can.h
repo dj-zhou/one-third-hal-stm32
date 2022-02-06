@@ -84,7 +84,7 @@ typedef struct CanIrqCpnt_s {
 
 typedef struct CanIrqNode_s {
     struct CanIrqCpnt_s  this_;
-    struct CanIrqNode_s* next_;
+    struct CanIrqNode_s* next_; // this is defined but not used
 } CanIrqNode_t;
 // clang-format on
 

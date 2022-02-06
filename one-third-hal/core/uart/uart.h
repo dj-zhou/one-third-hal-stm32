@@ -6,6 +6,7 @@
 #include "config-uart.h"
 #include "general.h"
 #include "operation.h"
+#include <string.h>
 
 // ============================================================================
 // clang-format off
@@ -84,11 +85,22 @@
 // bare-metal
 #else
     #ifndef _UART_PREEMPTION_PRIORITY
-        #define _UART_PREEMPTION_PRIORITY     10
+        #define _UART_PREEMPTION_PRIORITY    10
     #endif
     #ifndef _UART_SUB_PRIORITY
         #define _UART_SUB_PRIORITY            0
     #endif
+#endif
+
+// ----------------------------------------------------------------------------
+#ifndef _UART_MESSAGE_NODE_MAX_NUM
+    #define _UART_MESSAGE_NODE_MAX_NUM       50
+#endif
+#ifndef _UART_MESSAGE_DESCR_SIZE
+    #define _UART_MESSAGE_DESCR_SIZE         50
+#endif
+#ifndef _UART_MESSAGE_MAX_PACKET_SIZE
+    #define _UART_MESSAGE_MAX_PACKET_SIZE   100
 #endif
 // clang-format on
 
@@ -110,20 +122,77 @@ typedef struct {
 typedef struct {
     void (*config)(uint8_t* data, uint16_t len);
     void (*show)(char style, uint16_t width);
-    WARN_UNUSED_RESULT int8_t (*search)(uint8_t* header, uint8_t header_size,
-                                        uint8_t len_pos, uint8_t len_width);
+    WARN_UNUSED_RESULT int8_t (*search)(void);
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
 } UartRingBuffer_t;
 
+typedef void (*usart_irq_hook)(uint8_t* msg);
+
+// clang-format off
+typedef struct UartMessageCpnt_s {
+    uint16_t     msg_type;
+    char         descr[_UART_MESSAGE_DESCR_SIZE];
+    usart_irq_hook hook;
+} UartMessageCpnt_t;
+
+typedef struct UartMessageNode_s {
+    struct UartMessageCpnt_s  this_;
+    struct UartMessageNode_s* next_;
+} UartMessageNode_t;
+
+typedef struct {
+    uint8_t header[RINGBUFFER_HEADER_MAX_LEN];
+    uint8_t header_len;
+    uint8_t len_pos;
+    uint8_t len_width;
+    uint8_t type_pos;
+    uint8_t type_width;
+}UartMessageInfo_t;
+
+typedef struct {
+    void (*header)(uint8_t* data, uint8_t len);
+    void (*length)(uint8_t pos, uint8_t width);
+    void (*type)(uint8_t pos, uint8_t width);
+} UartMessageSet_t;
+
+typedef struct {
+    uint16_t (*length)(uint8_t *data);
+    uint16_t (*type)(uint8_t *data);
+} UartMessageGet_t;
+
+typedef struct {
+    bool (*attach)(uint16_t type, usart_irq_hook hook, const char * descr);
+    void (*show)(void);
+    void (*copy)(uint8_t*msg, uint8_t*dest, size_t size);
+    UartMessageSet_t set;
+    UartMessageGet_t get;
+} UartMessage_t;
+// clang-format on
+
+void uart_message_set_header(uint8_t* header, uint8_t len,
+                             UartMessageInfo_t* msg_info);
+void uart_message_set_length(uint8_t pos, uint8_t width,
+                             UartMessageInfo_t* msg_info);
+uint16_t uart_message_get_length(uint8_t* data, UartMessageInfo_t* msg_info);
+void uart_message_set_type(uint8_t pos, uint8_t width,
+                           UartMessageInfo_t* msg_info);
+uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info);
+bool uart_message_attach(uint16_t type, usart_irq_hook hook, const char* descr,
+                         UartMessageNode_t* node, uint8_t node_num);
+void uart_message_show(const char* port, UartMessageNode_t* node,
+                       uint8_t node_num);
+// clang-format off
 typedef struct {
     UART_HandleTypeDef huart;
     void (*config)(uint32_t, uint8_t, char, uint8_t);
     void (*priority)(uint16_t);
     void (*send)(uint8_t*, uint16_t);
-    UartDma_t dma;
-    RingBuffer_t rb;
+    UartDma_t        dma;
+    RingBuffer_t     rb;
     UartRingBuffer_t ring;
+    UartMessage_t    message;
 } UartApi_t;
+// clang-format on
 
 #ifdef CONSOLE_IS_USED
 #define uart_printf(...) (console.printf(__VA_ARGS__))
