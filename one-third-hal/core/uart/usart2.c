@@ -108,6 +108,7 @@ static void Usart2Config(uint32_t baud, uint8_t data_size, char parity,
 static void Usart2RingConfig(uint8_t* data, uint16_t len) {
     usart2.rb = op.ringbuffer.init(data, len);
 }
+
 // ----------------------------------------------------------------------------
 static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     (void)buffer;
@@ -179,6 +180,14 @@ static bool Usart2MessageAttach(uint16_t type, usart_irq_hook hook,
 // ----------------------------------------------------------------------------
 static void Usart2MessageShow(void) {
     uart_message_show("USART2", usart2_node, usart2_node_num);
+}
+
+// ----------------------------------------------------------------------------
+static void Usart2MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
+    // todo: read CRC32 and calculate CRC32 and compare them
+    for (size_t i = 0; i < size; i++) {
+        *dest++ = msg[msg_info.type_pos + i];
+    }
 }
 
 // ----------------------------------------------------------------------------
@@ -286,7 +295,8 @@ WARN_UNUSED_RESULT int8_t Usart2Search(void) {
     // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
     if ((msg_info.header_len == 0)
         || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
-        uart_error("%s(): header or length not set.\r\n", __func__);
+        // uart_error("%s(): header or length not set.\r\n", __func__);
+        return 0;
     }
     return op.ringbuffer.search(&usart2.rb, msg_info.header,
                                 msg_info.header_len, msg_info.len_pos,
@@ -316,6 +326,7 @@ UartApi_t usart2 = {
     .message = {
         .attach = Usart2MessageAttach,
         .show   = Usart2MessageShow  ,
+        .copy   = Usart2MessageCopy  ,
         .set = {
             .header = Usart2MessageSetHeader,
             .length = Usart2MessageSetLength,
