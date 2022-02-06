@@ -301,9 +301,9 @@ WARN_UNUSED_RESULT int8_t Usart2Fetch(uint8_t* array, uint16_t size) {
 // ============================================================================
 // clang-format off
 UartApi_t usart2 = {
-    .config     = Usart2Config   ,
-    .priority   = Usart2Priority ,
-    .send       = Usart2Send     ,
+    .config   = Usart2Config  ,
+    .priority = Usart2Priority,
+    .send     = Usart2Send    ,
     .dma = {
         .config = Usart2DmaConfig,
     },
