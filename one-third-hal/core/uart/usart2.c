@@ -131,8 +131,9 @@ static void Usart2DmaConfig(uint8_t* buffer, uint16_t len) {
     }
 
     __HAL_LINKDMA(&(usart2.huart), hdmarx, hdma_usart2_rx);
-    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
-    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+    // this is not needed, otherwise, f767 will get stuck
+    // HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 0, 0);
+    // HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
 
 #if defined(STM32F407xx)
     // for F407xx, HAL_UART_Receive_DMA() CAN NOT be in front
