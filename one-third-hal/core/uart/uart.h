@@ -125,31 +125,42 @@ typedef struct {
 typedef void (*usart_irq_hook)(uint8_t* msg);
 
 // clang-format off
-typedef struct UsartMsgCpnt_s {
+typedef struct UartMessageCpnt_s {
     uint16_t     msg_type;
     char         descr[_UART_MESSAGE_DESCR_SIZE];
     usart_irq_hook hook;
-} UsartMsgCpnt_t;
+} UartMessageCpnt_t;
 
-typedef struct UsartMsgNode_s {
-    struct UsartMsgCpnt_s  this_;
-    struct UsartMsgNode_s* next_;
-} UsartMsgNode_t;
+typedef struct UartMessageNode_s {
+    struct UartMessageCpnt_s  this_;
+    struct UartMessageNode_s* next_;
+} UartMessageNode_t;
+
+typedef struct {
+    uint8_t header[RINGBUFFER_HEADER_MAX_LEN];
+    uint8_t header_len;
+    uint8_t len_pos;
+    uint8_t len_width;
+    uint8_t type_pos;
+    uint8_t type_width;
+}UartMessageInfo_t;
 
 typedef struct {
     void (*header)(uint8_t* data, uint8_t len);
     void (*length)(uint8_t pos, uint8_t width);
     void (*type)(uint8_t pos, uint8_t width);
-} UartMsgSet_t;
+} UartMessageSet_t;
+
 typedef struct {
     uint16_t (*length)(uint8_t *data);
     uint16_t (*type)(uint8_t *data);
-} UartMsgGet_t;
+} UartMessageGet_t;
+
 typedef struct {
     bool (*attach)(uint16_t type, usart_irq_hook hook, const char * descr);
     void (*show)(void);
-    UartMsgSet_t set;
-    UartMsgGet_t get;
+    UartMessageSet_t set;
+    UartMessageGet_t get;
 } UartMessage_t;
 
 typedef struct {

@@ -4,75 +4,78 @@
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
 
 // ============================================================================
-static uint8_t header_[RINGBUFFER_HEADER_MAX_LEN] = { 0 };
-static uint8_t header_len_ = 0;
-static uint8_t len_pos_ = 0;
-static uint8_t len_width_ = 0;
-static uint8_t type_pos_ = 0;
-static uint8_t type_width_ = 0;
+static UartMessageInfo_t msg_info = {
+    .header_len = 0,
+    .len_pos = 0,
+    .len_width = 0,
+    .type_pos = 0,
+    .type_width = 0,
+};
+
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
     if (len > 5) {
         uart_error("%s(): header too long, not supported!\r\n", __func__);
     }
     for (uint8_t i = 0; i < len; i++) {
-        header_[i] = data[i];
+        msg_info.header[i] = data[i];
     }
-    header_len_ = len;
+    msg_info.header_len = len;
 }
 
 // ----------------------------------------------------------------------------
 static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
-    if (type_pos_ == pos) {
+    if (msg_info.type_pos == pos) {
         uart_error("%s(): type and length cannot be of the same position!\r\n",
                    __func__);
     }
-    len_pos_ = pos;
+    msg_info.len_pos = pos;
     if (width > 2) {
         uart_error("%s(): too wide for length, not supported!\r\n", __func__);
     }
-    len_width_ = width;
+    msg_info.len_width = width;
 }
 
 static uint16_t Usart1MessageGetLength(uint8_t* data) {
-    if ((len_pos_ == 0) || (len_width_ == 0)) {
+    if ((msg_info.len_pos == 0) || (msg_info.len_width == 0)) {
         return 0;
     }
     uint16_t length = 0;
     uint8_t* length_ptr = (uint8_t*)&length;
-    *length_ptr = data[len_pos_];
-    if (len_width_ == 2) {
+    *length_ptr = data[msg_info.len_pos];
+    if (msg_info.len_width == 2) {
         length_ptr++;
-        *length_ptr = data[len_pos_ + 1];
+        *length_ptr = data[msg_info.len_pos + 1];
     }
     return length;
 }
 
+// ----------------------------------------------------------------------------
+static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
+    if (msg_info.len_pos == pos) {
+        uart_error("%s(): type and length cannot be of the same position!\r\n",
+                   __func__);
+    }
+    msg_info.type_pos = pos;
+    if (width > 2) {
+        uart_error("%s(): too wide for type, not supported!\r\n", __func__);
+    }
+    msg_info.type_width = width;
+}
+
+// ----------------------------------------------------------------------------
 static uint16_t Usart1MessageGetType(uint8_t* data) {
-    if ((type_pos_ == 0) || (type_width_ == 0)) {
+    if ((msg_info.type_pos == 0) || (msg_info.type_width == 0)) {
         return 0;
     }
     uint16_t type = 0;
     uint8_t* type_ptr = (uint8_t*)&type;
-    *type_ptr = data[type_pos_];
-    if (type_width_ == 2) {
+    *type_ptr = data[msg_info.type_pos];
+    if (msg_info.type_width == 2) {
         type_ptr++;
-        *type_ptr = data[type_pos_ + 1];
+        *type_ptr = data[msg_info.type_pos + 1];
     }
     return type;
-}
-
-// ----------------------------------------------------------------------------
-static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
-    if (len_pos_ == pos) {
-        uart_error("%s(): type and length cannot be of the same position!\r\n",
-                   __func__);
-    }
-    type_pos_ = pos;
-    if (width > 2) {
-        uart_error("%s(): too wide for type, not supported!\r\n", __func__);
-    }
-    type_width_ = width;
 }
 
 // ============================================================================
@@ -194,7 +197,7 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 }
 
 // ============================================================================
-static UsartMsgNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
+static UartMessageNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
 static uint8_t usart1_node_num = 0;
 
 static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
@@ -240,6 +243,7 @@ static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
     return true;
 }
 
+// ----------------------------------------------------------------------------
 static void Usart1MessageShow(void) {
     CONSOLE_PRINTF_SEG;
     uart_printk(0, "USART1 Message Registration | %2d callback",
@@ -256,6 +260,7 @@ static void Usart1MessageShow(void) {
     }
     CONSOLE_PRINTF_SEG;
 }
+
 // ----------------------------------------------------------------------------
 /// warning: this function is only good for DJ's protocol, so it needs to be
 /// redefined in projects when that is not DJ's protocol
@@ -353,12 +358,14 @@ static void Usart1RingShow(char style, uint16_t width) {
 
 // ----------------------------------------------------------------------------
 WARN_UNUSED_RESULT int8_t Usart1Search(void) {
-    // len_width_ can be 0 and then len_pos_ is a type indicator
-    if ((header_len_ == 0) || ((len_pos_ == 0) && (len_width_ == 0))) {
+    // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
+    if ((msg_info.header_len == 0)
+        || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
         uart_error("%s(): header or length not set.\r\n", __func__);
     }
-    return op.ringbuffer.search(&usart1.rb, header_, header_len_, len_pos_,
-                                len_width_);
+    return op.ringbuffer.search(&usart1.rb, msg_info.header,
+                                msg_info.header_len, msg_info.len_pos,
+                                msg_info.len_width);
 }
 
 // ----------------------------------------------------------------------------
@@ -393,7 +400,7 @@ UartApi_t usart1 = {
             .length = Usart1MessageGetLength,
             .type   = Usart1MessageGetType  ,
         },
-    }
+    },
 };
 // clang-format on
 
