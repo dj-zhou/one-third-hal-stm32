@@ -6,6 +6,7 @@
 #include "config-uart.h"
 #include "general.h"
 #include "operation.h"
+#include <string.h>
 
 // ============================================================================
 // clang-format off
@@ -172,6 +173,10 @@ uint16_t uart_message_get_length(uint8_t* data, UartMessageInfo_t* msg_info);
 void uart_message_set_type(uint8_t pos, uint8_t width,
                            UartMessageInfo_t* msg_info);
 uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info);
+bool uart_message_attach(uint16_t type, usart_irq_hook hook, const char* descr,
+                         UartMessageNode_t* node, uint8_t node_num);
+void uart_message_show(const char* port, UartMessageNode_t* node,
+                       uint8_t node_num);
 // clang-format off
 typedef struct {
     UART_HandleTypeDef huart;

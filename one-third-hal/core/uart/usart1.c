@@ -1,5 +1,4 @@
 #include "uart.h"
-#include <string.h>
 
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
 
@@ -161,63 +160,16 @@ static uint8_t usart1_node_num = 0;
 
 static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
                                 const char* descr) {
-    // you cannot attach too many callbacks
-    if (usart1_node_num >= _UART_MESSAGE_NODE_MAX_NUM) {
-        uart_error("%s(): too many messages attached!\r\n", __func__);
-    }
-    // you cannot attach two callback functions to one message type (on one
-    // port)
-    if (usart1_node_num > 0) {
-        for (uint8_t i = 0; i < usart1_node_num; i++) {
-            if (usart1_node[i].this_.msg_type == type) {
-                return false;
-            }
-        }
-    }
-    uint8_t len;
-    size_t str_len = strlen(descr);
-    if (str_len >= _UART_MESSAGE_DESCR_SIZE - 1) {
-        len = (uint8_t)(_UART_MESSAGE_DESCR_SIZE - 1);
-    }
-    else {
-        len = (uint8_t)str_len;
-    }
-
-    if (usart1_node_num == 0) {
-        usart1_node[0].this_.msg_type = type;
-        usart1_node[0].this_.hook = hook;
-        bzero(usart1_node[0].this_.descr, _UART_MESSAGE_DESCR_SIZE);
-        strncpy(usart1_node[0].this_.descr, descr, len);
-        usart1_node[0].next_ = NULL;
+    if (uart_message_attach(type, hook, descr, usart1_node, usart1_node_num)) {
         usart1_node_num++;
         return true;
     }
-
-    usart1_node[usart1_node_num].this_.msg_type = type;
-    usart1_node[usart1_node_num].this_.hook = hook;
-    bzero(usart1_node[usart1_node_num].this_.descr, _UART_MESSAGE_DESCR_SIZE);
-    strncpy(usart1_node[usart1_node_num].this_.descr, descr, len);
-    usart1_node[usart1_node_num - 1].next_ = &usart1_node[usart1_node_num];
-    usart1_node_num++;
-    return true;
+    return false;
 }
 
 // ----------------------------------------------------------------------------
 static void Usart1MessageShow(void) {
-    CONSOLE_PRINTF_SEG;
-    uart_printk(0, "USART1 Message Registration | %2d callback",
-                usart1_node_num);
-    if (usart1_node_num <= 1) {
-        uart_printk(0, "\r\n");
-    }
-    else {
-        uart_printk(0, "s\r\n");
-    }
-    for (uint8_t i = 0; i < usart1_node_num; i++) {
-        uart_printk(0, "message type = 0x%03X : %s\r\n",
-                    usart1_node[i].this_.msg_type, usart1_node[i].this_.descr);
-    }
-    CONSOLE_PRINTF_SEG;
+    uart_message_show("USART1", usart1_node, usart1_node_num);
 }
 
 // ----------------------------------------------------------------------------

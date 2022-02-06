@@ -154,5 +154,67 @@ uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info) {
     }
     return type;
 }
+
+// ----------------------------------------------------------------------------
+bool uart_message_attach(uint16_t type, usart_irq_hook hook, const char* descr,
+                         UartMessageNode_t* node, uint8_t node_num) {
+    // you cannot attach too many callbacks
+    if (node_num >= _UART_MESSAGE_NODE_MAX_NUM) {
+        uart_error("%s(): too many messages attached!\r\n", __func__);
+    }
+    // you cannot attach two callback functions to one message type (on one
+    // port)
+    if (node_num > 0) {
+        for (uint8_t i = 0; i < node_num; i++) {
+            if (node[i].this_.msg_type == type) {
+                return false;
+            }
+        }
+    }
+    uint8_t len;
+    size_t str_len = strlen(descr);
+    if (str_len >= _UART_MESSAGE_DESCR_SIZE - 1) {
+        len = (uint8_t)(_UART_MESSAGE_DESCR_SIZE - 1);
+    }
+    else {
+        len = (uint8_t)str_len;
+    }
+
+    if (node_num == 0) {
+        node[0].this_.msg_type = type;
+        node[0].this_.hook = hook;
+        bzero(node[0].this_.descr, _UART_MESSAGE_DESCR_SIZE);
+        strncpy(node[0].this_.descr, descr, len);
+        node[0].next_ = NULL;
+        return true;
+    }
+
+    node[node_num].this_.msg_type = type;
+    node[node_num].this_.hook = hook;
+    bzero(node[node_num].this_.descr, _UART_MESSAGE_DESCR_SIZE);
+    strncpy(node[node_num].this_.descr, descr, len);
+    node[node_num - 1].next_ = &node[node_num];
+    return true;
+}
+
+// ----------------------------------------------------------------------------
+void uart_message_show(const char* port, UartMessageNode_t* node,
+                       uint8_t node_num) {
+    CONSOLE_PRINTF_SEG;
+    uart_printk(0, "%s Message Registration | %2d callback", port, node_num);
+    if (node_num <= 1) {
+        uart_printk(0, "\r\n");
+    }
+    else {
+        uart_printk(0, "s\r\n");
+    }
+    uart_printk(0, "   type | function\r\n");
+    for (uint8_t i = 0; i < node_num; i++) {
+        uart_printk(0, " 0X%04X | %s\r\n", node[i].this_.msg_type,
+                    node[i].this_.descr);
+    }
+    CONSOLE_PRINTF_SEG;
+}
+
 // ============================================================================
 #endif  // UART_IS_USED
