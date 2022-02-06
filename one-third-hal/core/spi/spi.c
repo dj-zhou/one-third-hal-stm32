@@ -179,20 +179,20 @@ void InitSpiPins(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo, GPIO_TypeDef* GPIOx_MI,
 
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // MOSI
-    GPIO_InitStructure.Pin = 1 << pin_mo;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_mo);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStructure.Alternate = alter;
     HAL_GPIO_Init(GPIOx_MO, &GPIO_InitStructure);
     // MISO
-    GPIO_InitStructure.Pin = 1 << pin_mi;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_mi);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     HAL_GPIO_Init(GPIOx_MI, &GPIO_InitStructure);
     // SCK
-    GPIO_InitStructure.Pin = 1 << pin_sck;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_sck);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -209,7 +209,7 @@ void InitSpiPinsHardNss(GPIO_TypeDef* GPIOx_MO, uint8_t pin_mo,
     utils.clock.enableGpio(GPIOx_SCK);
     GPIO_InitTypeDef GPIO_InitStructure = { 0 };
     // NSS
-    GPIO_InitStructure.Pin = 1 << pin_nss;
+    GPIO_InitStructure.Pin = (uint32_t)(1 << pin_nss);
     GPIO_InitStructure.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStructure.Pull = GPIO_PULLUP;
     GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
