@@ -85,21 +85,24 @@
 // bare-metal
 #else
     #ifndef _UART_PREEMPTION_PRIORITY
-        #define _UART_PREEMPTION_PRIORITY     10
+        #define _UART_PREEMPTION_PRIORITY    10
     #endif
     #ifndef _UART_SUB_PRIORITY
         #define _UART_SUB_PRIORITY            0
     #endif
 #endif
-// clang-format on
 
 // ----------------------------------------------------------------------------
 #ifndef _UART_MESSAGE_NODE_MAX_NUM
-#define _UART_MESSAGE_NODE_MAX_NUM 50
+    #define _UART_MESSAGE_NODE_MAX_NUM       50
 #endif
 #ifndef _UART_MESSAGE_DESCR_SIZE
-#define _UART_MESSAGE_DESCR_SIZE 50
+    #define _UART_MESSAGE_DESCR_SIZE         50
 #endif
+#ifndef _UART_MESSAGE_MAX_PACKET_SIZE
+    #define _UART_MESSAGE_MAX_PACKET_SIZE   100
+#endif
+// clang-format on
 
 // ----------------------------------------------------------------------------
 #if defined(STM32F746xx) || defined(STM32F767xx)

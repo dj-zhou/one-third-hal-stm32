@@ -135,9 +135,9 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
                   (uint32_t)buffer, len);
-#error "Usart2DmaConfig() STM32F767xx: not implemented"
+#error "Usart1DmaConfig() STM32F767xx: not implemented"
 #else
-#error "Usart2DmaConfig(): not implemented"
+#error "Usart1DmaConfig(): not implemented"
 #endif
 
     usart1_dma_is_used = true;
@@ -178,9 +178,13 @@ static void Usart1MessageShow(void) {
 __attribute__((weak)) void Usart1IdleIrq(void) {
     int8_t search_ret = usart1.ring.search();
     if (search_ret > 0) {
-        uint8_t array[100] = { 0 };  // fix me
+        uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
+        if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
+            uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
+                       "larger than %d\r\n",
+                       __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
+        }
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
-
         // find the callback function and run it
         uint16_t type = Usart1MessageGetType(array);
         for (uint8_t i = 0; i < usart1_node_num; i++) {
@@ -295,9 +299,9 @@ UartApi_t usart1 = {
     },
     .ring = {
         .config = Usart1RingConfig,
-        .show   = Usart1RingShow,
-        .search = Usart1Search  ,
-        .fetch  = Usart1Fetch   ,
+        .show   = Usart1RingShow  ,
+        .search = Usart1Search    ,
+        .fetch  = Usart1Fetch     ,
     },
     .message = {
         .attach = Usart1MessageAttach,
