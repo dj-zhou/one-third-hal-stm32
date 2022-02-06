@@ -16,7 +16,6 @@ uint16_t strength;
 float temp_c;
 
 uint8_t tfmini_buffer[50];
-uint8_t tfmini_header[] = { 0x59, 0x59 };
 
 // ============================================================================
 void tfmini_set_mode(TFminiMeasureMode_e mode) {
@@ -94,9 +93,11 @@ void taskPrint(void) {
 // =============================================================================
 void Usart2IdleIrq(void) {
     usart2.ring.show('h', 10);
-    int8_t search_ret =
-        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header),
-                           RINGBUFFER_SEARCH_TFMINI, 0);
+    // FIXME: if not header and length set, the irq will have some error
+    uint8_t tfmini_header[] = { 0x59, 0x59 };
+    usart2.message.set.header(tfmini_header, sizeof_array(tfmini_header));
+    usart2.message.set.length(RINGBUFFER_SEARCH_TFMINI, 0);
+    int8_t search_ret = usart2.ring.search();
     while (search_ret > 0) {
         op.ringbuffer.insight(&usart2.rb);
         console.printf("find %d packets\r\n", search_ret);
@@ -129,10 +130,10 @@ int main(void) {
     // try to use dma? failed!
     // usart2.dma.config(tfmini_buffer, sizeof_array(tfmini_buffer));
     usart2.ring.show('h', 10);
-
-    int8_t search_ret =
-        usart2.ring.search(tfmini_header, sizeof_array(tfmini_header),
-                           RINGBUFFER_SEARCH_TFMINI, 0);
+    uint8_t tfmini_header[] = { 0x59, 0x59 };
+    usart2.message.set.header(tfmini_header, sizeof_array(tfmini_header));
+    usart2.message.set.length(RINGBUFFER_SEARCH_TFMINI, 0);
+    int8_t search_ret = usart2.ring.search();
     console.printf("search_ret = %d\r\n", search_ret);
     tfmini_set_mode(TFMINI_MODE_MM);
 
