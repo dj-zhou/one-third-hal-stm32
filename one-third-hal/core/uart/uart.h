@@ -163,6 +163,7 @@ typedef struct {
 typedef struct {
     bool (*attach)(uint16_t type, usart_irq_hook hook, const char * descr);
     void (*show)(void);
+    void (*copy)(uint8_t*msg, uint8_t*dest, size_t size);
     UartMessageSet_t set;
     UartMessageGet_t get;
 } UartMessage_t;

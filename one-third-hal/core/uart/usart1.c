@@ -173,6 +173,14 @@ static void Usart1MessageShow(void) {
 }
 
 // ----------------------------------------------------------------------------
+static void Usart1MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
+    // todo: read CRC32 and calculate CRC32 and compare them
+    for (size_t i = 0; i < size; i++) {
+        *dest++ = msg[msg_info.type_pos + i];
+    }
+}
+
+// ----------------------------------------------------------------------------
 /// warning: this function is only good for DJ's protocol, so it needs to be
 /// redefined in projects when that is not DJ's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
@@ -306,6 +314,7 @@ UartApi_t usart1 = {
     .message = {
         .attach = Usart1MessageAttach,
         .show   = Usart1MessageShow  ,
+        .copy   = Usart1MessageCopy  ,
         .set = {
             .header = Usart1MessageSetHeader,
             .length = Usart1MessageSetLength,

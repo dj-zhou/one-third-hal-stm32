@@ -27,11 +27,7 @@ static void VelCmdCallback(uint8_t* msg) {
     console.printf("%5d: VelCmdCallback: type = 0x%04X\r\n", loop_count++,
                    type);
     CommVelCmd_t cmd;
-    uint8_t* ptr = (uint8_t*)&cmd;
-    for (size_t i = 0; i < sizeof(cmd); i++) {
-        *ptr++ = msg[5 + i];  // to fix
-    }
-    // todo: read CRC32 and calculate CRC32 and compare them
+    usart1.message.copy(msg, (uint8_t*)&cmd, sizeof(cmd));
     console.printf("\tx_vel = %f, y_vel = %f, yaw_vel = %f\r\n", cmd.x_vel,
                    cmd.y_vel, cmd.yaw_vel);
 }
@@ -42,11 +38,7 @@ static void SwitchModeCallback(uint8_t* msg) {
     console.printf("%5d: SwitchModeCallback: type = 0x%04X: ", loop_count++,
                    type);
     CommSwitchMode_t switch_mode;
-    uint8_t* ptr = (uint8_t*)&switch_mode;
-    for (size_t i = 0; i < sizeof(switch_mode); i++) {
-        *ptr++ = msg[5 + i];  // to fix
-    }
-    // todo: read CRC32 and calculate CRC32 and compare them
+    usart1.message.copy(msg, (uint8_t*)&switch_mode, sizeof(switch_mode));
     console.printf("mode = %d\r\n", switch_mode.mode);
 }
 
