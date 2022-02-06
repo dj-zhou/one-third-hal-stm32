@@ -86,4 +86,73 @@ void init_uart_nvic(IRQn_Type ch, uint16_t p) {
 }
 
 // ============================================================================
+void uart_message_set_header(uint8_t* header, uint8_t len,
+                             UartMessageInfo_t* msg_info) {
+    if (len > 5) {
+        uart_error("%s(): header too long, not supported!\r\n", __func__);
+    }
+    for (uint8_t i = 0; i < len; i++) {
+        msg_info->header[i] = header[i];
+    }
+    msg_info->header_len = len;
+}
+
+// ----------------------------------------------------------------------------
+void uart_message_set_length(uint8_t pos, uint8_t width,
+                             UartMessageInfo_t* msg_info) {
+    if (msg_info->type_pos == pos) {
+        uart_error("%s(): type and length cannot be of the same position!\r\n",
+                   __func__);
+    }
+    msg_info->len_pos = pos;
+    if (width > 2) {
+        uart_error("%s(): too wide for length, not supported!\r\n", __func__);
+    }
+    msg_info->len_width = width;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t uart_message_get_length(uint8_t* data, UartMessageInfo_t* msg_info) {
+    if ((msg_info->len_pos == 0) || (msg_info->len_width == 0)) {
+        return 0;
+    }
+    uint16_t length = 0;
+    uint8_t* length_ptr = (uint8_t*)&length;
+    *length_ptr = data[msg_info->len_pos];
+    if (msg_info->len_width == 2) {
+        length_ptr++;
+        *length_ptr = data[msg_info->len_pos + 1];
+    }
+    return length;
+}
+
+// ----------------------------------------------------------------------------
+void uart_message_set_type(uint8_t pos, uint8_t width,
+                           UartMessageInfo_t* msg_info) {
+    if (msg_info->len_pos == pos) {
+        uart_error("%s(): type and length cannot be of the same position!\r\n",
+                   __func__);
+    }
+    msg_info->type_pos = pos;
+    if (width > 2) {
+        uart_error("%s(): too wide for type, not supported!\r\n", __func__);
+    }
+    msg_info->type_width = width;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info) {
+    if ((msg_info->type_pos == 0) || (msg_info->type_width == 0)) {
+        return 0;
+    }
+    uint16_t type = 0;
+    uint8_t* type_ptr = (uint8_t*)&type;
+    *type_ptr = data[msg_info->type_pos];
+    if (msg_info->type_width == 2) {
+        type_ptr++;
+        *type_ptr = data[msg_info->type_pos + 1];
+    }
+    return type;
+}
+// ============================================================================
 #endif  // UART_IS_USED

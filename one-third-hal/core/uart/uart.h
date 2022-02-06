@@ -162,7 +162,17 @@ typedef struct {
     UartMessageSet_t set;
     UartMessageGet_t get;
 } UartMessage_t;
+// clang-format on
 
+void uart_message_set_header(uint8_t* header, uint8_t len,
+                             UartMessageInfo_t* msg_info);
+void uart_message_set_length(uint8_t pos, uint8_t width,
+                             UartMessageInfo_t* msg_info);
+uint16_t uart_message_get_length(uint8_t* data, UartMessageInfo_t* msg_info);
+void uart_message_set_type(uint8_t pos, uint8_t width,
+                           UartMessageInfo_t* msg_info);
+uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info);
+// clang-format off
 typedef struct {
     UART_HandleTypeDef huart;
     void (*config)(uint32_t, uint8_t, char, uint8_t);
