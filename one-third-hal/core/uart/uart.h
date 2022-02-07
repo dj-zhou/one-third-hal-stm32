@@ -126,13 +126,13 @@ typedef struct {
     WARN_UNUSED_RESULT int8_t (*fetch)(uint8_t* array, uint16_t size);
 } UartRingBuffer_t;
 
-typedef void (*usart_irq_hook)(uint8_t* msg);
+typedef void (*uart_irq_hook)(uint8_t* msg);
 
 // clang-format off
 typedef struct UartMessageCpnt_s {
     uint16_t     msg_type;
     char         descr[_UART_MESSAGE_DESCR_SIZE];
-    usart_irq_hook hook;
+    uart_irq_hook hook;
 } UartMessageCpnt_t;
 
 typedef struct UartMessageNode_s {
@@ -161,7 +161,7 @@ typedef struct {
 } UartMessageGet_t;
 
 typedef struct {
-    bool (*attach)(uint16_t type, usart_irq_hook hook, const char * descr);
+    bool (*attach)(uint16_t type, uart_irq_hook hook, const char * descr);
     void (*show)(void);
     void (*copy)(uint8_t*msg, uint8_t*dest, size_t size);
     UartMessageSet_t set;
@@ -177,7 +177,7 @@ uint16_t uart_message_get_length(uint8_t* data, UartMessageInfo_t* msg_info);
 void uart_message_set_type(uint8_t pos, uint8_t width,
                            UartMessageInfo_t* msg_info);
 uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info);
-bool uart_message_attach(uint16_t type, usart_irq_hook hook, const char* descr,
+bool uart_message_attach(uint16_t type, uart_irq_hook hook, const char* descr,
                          UartMessageNode_t* node, uint8_t node_num);
 void uart_message_show(const char* port, UartMessageNode_t* node,
                        uint8_t node_num);

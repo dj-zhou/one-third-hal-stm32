@@ -169,7 +169,7 @@ static void Usart2Send(uint8_t* data, uint16_t size) {
 static UartMessageNode_t usart2_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
 static uint8_t usart2_node_num = 0;
 
-static bool Usart2MessageAttach(uint16_t type, usart_irq_hook hook,
+static bool Usart2MessageAttach(uint16_t type, uart_irq_hook hook,
                                 const char* descr) {
     if (uart_message_attach(type, hook, descr, usart2_node, usart2_node_num)) {
         usart2_node_num++;
@@ -296,8 +296,7 @@ WARN_UNUSED_RESULT int8_t Usart2Search(void) {
     // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
     if ((msg_info.header_len == 0)
         || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
-        // uart_error("%s(): header or length not set.\r\n", __func__);
-        return 0;
+        uart_error("%s(): header or length not set.\r\n", __func__);
     }
     return op.ringbuffer.search(&usart2.rb, msg_info.header,
                                 msg_info.header_len, msg_info.len_pos,

@@ -159,7 +159,7 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 static UartMessageNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
 static uint8_t usart1_node_num = 0;
 
-static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
+static bool Usart1MessageAttach(uint16_t type, uart_irq_hook hook,
                                 const char* descr) {
     if (uart_message_attach(type, hook, descr, usart1_node, usart1_node_num)) {
         usart1_node_num++;
@@ -194,6 +194,7 @@ __attribute__((weak)) void Usart1IdleIrq(void) {
                        __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
         }
         search_ret = usart1.ring.fetch(array, sizeof_array(array));
+
         // find the callback function and run it
         uint16_t type = Usart1MessageGetType(array);
         for (uint8_t i = 0; i < usart1_node_num; i++) {

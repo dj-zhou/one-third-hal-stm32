@@ -156,7 +156,7 @@ uint16_t uart_message_get_type(uint8_t* data, UartMessageInfo_t* msg_info) {
 }
 
 // ----------------------------------------------------------------------------
-bool uart_message_attach(uint16_t type, usart_irq_hook hook, const char* descr,
+bool uart_message_attach(uint16_t type, uart_irq_hook hook, const char* descr,
                          UartMessageNode_t* node, uint8_t node_num) {
     // you cannot attach too many callbacks
     if (node_num >= _UART_MESSAGE_NODE_MAX_NUM) {
