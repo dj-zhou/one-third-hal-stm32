@@ -182,31 +182,36 @@ static void Usart1MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
 }
 
 // ----------------------------------------------------------------------------
-/// warning: this function is only good for DJ's protocol, so it needs to be
-/// redefined in projects when that is not DJ's protocol
+/// warning: this function is only good for one-third's protocol, so it needs to
+/// be redefined in projects when that is not one-third's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
     int8_t search_ret = usart1.ring.search();
-    if (search_ret > 0) {
-        uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
-        if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
-            uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
-                       "larger than %d\r\n",
-                       __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
-        }
-        search_ret = usart1.ring.fetch(array, sizeof_array(array));
-
-        // find the callback function and run it
-        uint16_t type = Usart1MessageGetType(array);
-        for (uint8_t i = 0; i < usart1_node_num; i++) {
-            if (usart1_node[i].this_.msg_type == type) {
-                usart1_node[i].this_.hook(array);
-                return;
-            }
-        }
-    }
+    // search returns error code
     if (search_ret < 0) {
         op.ringbuffer.error(search_ret);
     }
+    // search returns nothing
+    if (search_ret == 0) {
+        return;
+    }
+
+    uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
+    if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
+        uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
+                   "larger than %d\r\n",
+                   __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
+    }
+    search_ret = usart1.ring.fetch(array, sizeof_array(array));
+
+    // find the callback function and run it
+    uint16_t type = Usart1MessageGetType(array);
+    for (uint8_t i = 0; i < usart1_node_num; i++) {
+        if (usart1_node[i].this_.msg_type == type) {
+            usart1_node[i].this_.hook(array);
+            return;
+        }
+    }
+    uart_printf("%s(): unknown message type: 0x%04X\r\n", __func__, type);
 }
 
 // ----------------------------------------------------------------------------

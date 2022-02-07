@@ -317,7 +317,7 @@ void RingBufferError(RingBufferError_e e) {
 static uint16_t RingBufferGetPacketLen(RingBuffer_t* rb, uint16_t head_pos,
                                        uint8_t len_pos_or_type,
                                        uint8_t len_width) {
-    if (len_width != 0) {
+    if (len_width != 0) {  // one-third's protocol
         uint8_t len_pos = len_pos_or_type;
         uint16_t pos =
             (uint16_t)RingBufferIndex(rb, (int16_t)(head_pos + len_pos));
