@@ -1,20 +1,19 @@
 #include "config.h"
-#include <math.h>
 
-uint8_t usart1_dma_buffer[30];
+uint8_t usart2_irq_buffer[30];
 
 // =============================================================================
 void taskPrint(void) {
-    for (int i = 0; i < sizeof_array(usart1_dma_buffer); i++) {
-        console.printf("%02X ", usart1_dma_buffer[i]);
+    for (int i = 0; i < sizeof_array(usart2_irq_buffer); i++) {
+        console.printf("%02X ", usart2_irq_buffer[i]);
     }
     console.printf("\r\n");
-    usart1.ring.show('h', 10);
+    usart2.ring.show('h', 10);
 }
 
 // ============================================================================
 int main(void) {
-    utils.system.initClock(168, 42, 84);
+    utils.system.initClock(216, 54, 108);
     utils.system.initNvic(4);
     stime.config();
     stime.scheduler.config();
@@ -22,12 +21,12 @@ int main(void) {
     console.printf("\r\n-------------- main() starts\r\n");
     led.config(LED_BREATH);
 
-    // setup usart1 and its ringbuffer
-    usart1.config(2000000, 8, 'n', 1);
-    usart1.ring.show('h', 10);
-    // setup ringbuffer using DMA
-    usart1.dma.config(usart1_dma_buffer, sizeof_array(usart1_dma_buffer));
-    usart1.ring.show('h', 10);
+    // setup usart2 and its ringbuffer -----------
+    usart2.config(2000000, 8, 'n', 1);
+    usart2.ring.show('h', 10);
+    // setup ringbuffer, do not use DMA -----------
+    usart2.ring.config(usart2_irq_buffer, sizeof_array(usart2_irq_buffer));
+    usart2.ring.show('h', 10);
 
     // tasks -----------
     stime.scheduler.attach(2000, 2, taskPrint, "taskPrint");

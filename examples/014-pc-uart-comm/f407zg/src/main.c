@@ -23,7 +23,7 @@ CommVelCmd_t vel_cmd = {
 // ----------------------------------------------------------------------------
 static void VelCmdCallback(uint8_t* msg) {
     static uint32_t loop_count = 0;
-    uint16_t type = usart1.message.get.type(msg);
+    uint16_t type = usart1.ring.get.type(msg);
     console.printf("%5d: VelCmdCallback: type = 0x%04X\r\n", loop_count++,
                    type);
     CommVelCmd_t cmd;
@@ -34,7 +34,7 @@ static void VelCmdCallback(uint8_t* msg) {
 
 static void SwitchModeCallback(uint8_t* msg) {
     static uint32_t loop_count = 0;
-    uint16_t type = usart1.message.get.type(msg);
+    uint16_t type = usart1.ring.get.type(msg);
     console.printf("%5d: SwitchModeCallback: type = 0x%04X: ", loop_count++,
                    type);
     CommSwitchMode_t switch_mode;
@@ -69,9 +69,9 @@ int main(void) {
     uint8_t usart1_rx[100];
     usart1.dma.config(usart1_rx, sizeof_array(usart1_rx));
     uint8_t header[] = { 0xAB, 0xCD, 0xEF };
-    usart1.message.set.header(header, sizeof_array(header));
-    usart1.message.set.length(3, sizeof(uint16_t));
-    usart1.message.set.type(5, sizeof(uint16_t));
+    usart1.ring.set.header(header, sizeof_array(header));
+    usart1.ring.set.length(3, sizeof(uint16_t));
+    usart1.ring.set.type(5, sizeof(uint16_t));
     if (!usart1.message.attach(CommVelCmd, VelCmdCallback, "VelCmdCallback")) {
         console.printf("message attach failed\r\n");
     }
