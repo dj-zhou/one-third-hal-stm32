@@ -174,10 +174,26 @@ typedef struct {
 } RingBufferIndex_t;
 #pragma pack()
 
-typedef enum RinBufferSearchType {
-    RINGBUFFER_SEARCH_TFMINI = 1,
-    RINGBUFFER_SEARCH_MTI2   = 2, // TODO
-} RinBufferSearchType_e;
+typedef enum RinBufferSearchDevice {
+    RINGBUFFER_SEARCH_TFMINI    = 1,
+    RINGBUFFER_SEARCH_MTI2      = 2, // TODO
+    RINGBUFFER_SEARCH_ONE_THIRD = 255,
+} RinBufferSearchDevice_e;
+
+
+#pragma pack(1)
+typedef struct {
+    RinBufferSearchDevice_e device;
+    uint8_t header[RINGBUFFER_HEADER_MAX_LEN];
+    // if device is not RINGBUFFER_SEARCH_ONE_THIRD, the following is
+    // meaningless
+    uint8_t header_len;
+    uint8_t len_pos;
+    uint8_t len_width;
+    uint8_t type_pos;
+    uint8_t type_width;
+}RingBufferInfo_t;
+#pragma pack()
 
 #pragma pack(1)
 typedef struct RingBuffer_s {

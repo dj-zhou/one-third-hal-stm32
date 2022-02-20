@@ -222,7 +222,7 @@ bool RingBufferAdded(RingBuffer_t* rb, uint16_t count) {
 // ============================================================================
 void RingBufferShow(RingBuffer_t* rb, char style, uint16_t width) {
     if (rb->state.state <= 0) {
-        ringbuffer_printk(2, "ringbuffer | uninitialized!\r\n");
+        ringbuffer_printk(2, "ringbuffer |  --/ -- | UNINITIALIZED!\r\n");
         return;
     }
     ringbuffer_printk(2, "ringbuffer | %3d/%3d | ", rb->state.count,
@@ -315,46 +315,38 @@ void RingBufferError(RingBufferError_e e) {
 
 // ============================================================================
 static uint16_t RingBufferGetPacketLen(RingBuffer_t* rb, uint16_t head_pos,
-                                       uint8_t len_pos_or_type,
-                                       uint8_t len_width) {
-    if (len_width != 0) {
-        uint8_t len_pos = len_pos_or_type;
-        uint16_t pos =
-            (uint16_t)RingBufferIndex(rb, (int16_t)(head_pos + len_pos));
-        if (len_width == 1) {
-            return (uint16_t)(rb->data[pos]);
-        }
-        else {
-            uint8_t data1 = rb->data[pos];
-            pos = (uint16_t)RingBufferIndex(rb, (int16_t)(pos + 1));
-            uint8_t data2 = rb->data[pos];
-            return (uint16_t)((data2 << 8) + data1);
-        }
+                                       const RingBufferInfo_t ring_info) {
+    if (ring_info.device == RINGBUFFER_SEARCH_TFMINI) {
+        return 5;
+    }
+    else if (ring_info.device == RINGBUFFER_SEARCH_MTI2) {
+        ringbuffer_printf("RINGBUFFER_SEARCH_MTI2: todo\r\n");
+        return 0;
+    }
+
+    // one-third's protocol
+    uint8_t len_width = ring_info.len_width;
+
+    uint8_t len_pos = ring_info.len_pos;
+    uint16_t pos = (uint16_t)RingBufferIndex(rb, (int16_t)(head_pos + len_pos));
+    if (len_width == 1) {
+        return (uint16_t)(rb->data[pos]);
     }
     else {
-        switch (len_pos_or_type) {
-        case RINGBUFFER_SEARCH_TFMINI:
-            return 5;
-        case RINGBUFFER_SEARCH_MTI2:
-            ringbuffer_printf("RINGBUFFER_SEARCH_MTI2: todo\r\n");
-            return 0;
-        default:
-            return 0;
-        }
+        uint8_t data1 = rb->data[pos];
+        pos = (uint16_t)RingBufferIndex(rb, (int16_t)(pos + 1));
+        uint8_t data2 = rb->data[pos];
+        return (uint16_t)((data2 << 8) + data1);
     }
 }
 
 // ============================================================================
 /// always search from the head to the tail in a ringbuffer
-/// len_pos is the position in a protocol, must be 1 or 2 bytes
-/// if len_width !=0, we use len_pos_or_type for len_pos and to calculate the
-/// length of a packet, otherwise, we use len_pos_or_type for a search type
-WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
-                                           uint8_t header_size,
-                                           uint8_t len_pos_or_type,
-                                           uint8_t len_width) {
+WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb,
+                                           const RingBufferInfo_t ring_info) {
 
     // header cannot be too small
+    uint8_t header_size = ring_info.header_len;
     if (header_size <= 1) {
         return (int8_t)RINGBUFFER_HEADER_TOO_SMALL;
     }
@@ -367,17 +359,21 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
     }
     // ringbuffer does not have enough bytes (header + the length indicator)
     // FIXME: what if the length indicator is not just behind the header?
-    if (rb->state.count < header_size + 2) {
-        return (int8_t)RINGBUFFER_FEW_COUNT;
-    }
-    // make sure the [length] is just behind
-    if (len_width != 0) {
-        uint8_t len_pos = len_pos_or_type;
-        if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
-            return (int8_t)RINGBUFFER_LEN_POS_ERROR;
+    // those only good for one-third protocol
+    if (ring_info.device == RINGBUFFER_SEARCH_ONE_THIRD) {
+        if (rb->state.count < header_size + 2) {
+            return (int8_t)RINGBUFFER_FEW_COUNT;
         }
-        if (len_width > 2) {
-            return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
+        // make sure the [length] is just behind
+        uint8_t len_width = ring_info.len_width;
+        if (len_width != 0) {
+            uint8_t len_pos = ring_info.len_pos;
+            if ((len_pos < header_size) || (len_pos >= header_size + 2)) {
+                return (int8_t)RINGBUFFER_LEN_POS_ERROR;
+            }
+            if (len_width > 2) {
+                return (int8_t)RINGBUFFER_LEN_WIDTH_ERROR;
+            }
         }
     }
 
@@ -397,7 +393,7 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         // match test
         uint8_t match_count = 0;
         for (uint8_t i = 0; i < header_size; i++) {
-            if (rb->data[idx[i]] != header[i]) {
+            if (rb->data[idx[i]] != ring_info.header[i]) {
                 break;  // break the for loop
             }
             else {
@@ -441,8 +437,8 @@ WARN_UNUSED_RESULT int8_t RingBufferSearch(RingBuffer_t* rb, uint8_t* header,
         last_packet = 0;
     }
     // use len_pos and len_width to check if a header is valid
-    uint16_t len = RingBufferGetPacketLen(rb, rb->index.pos[last_packet],
-                                          len_pos_or_type, len_width);
+    uint16_t len =
+        RingBufferGetPacketLen(rb, rb->index.pos[last_packet], ring_info);
 
     if (rb->state.count >= (uint16_t)(header_size + 2 + len)) {
         rb->index.dist[last_packet] = (uint16_t)(header_size + 2 + len);
@@ -463,10 +459,11 @@ void RingBufferInsight(RingBuffer_t* rb) {
         ringbuffer_printk(2, "no header is found in ringbuffer.\r\n");
         return;
     }
-    ringbuffer_printk(2, "found %d header(s) in ringbuffer:\r\n",
+    ringbuffer_printk(2, "found %d header(s) in ringbuffer:\r\n pos | len\r\n",
                       rb->index.count);
-    for (uint8_t i = 0; i < rb->index.count; i++) {
-        ringbuffer_printf("%3d (%3d)\r\n", rb->index.pos[i], rb->index.dist[i]);
+    for (int8_t i = 0; i < rb->index.count; i++) {
+        ringbuffer_printf(" %3d | %3d\r\n", rb->index.pos[i],
+                          rb->index.dist[i]);
     }
 }
 
@@ -493,4 +490,91 @@ WARN_UNUSED_RESULT int8_t RingBufferFetch(RingBuffer_t* rb, uint8_t* array,
         rb->index.dist[i] = rb->index.dist[i + 1];
     }
     return rb->index.count;
+}
+
+// ============================================================================
+void ringbuffer_set_header(uint8_t* header, uint8_t len,
+                           RingBufferInfo_t* ring_info) {
+
+    if (len > RINGBUFFER_HEADER_MAX_LEN) {
+        ringbuffer_error("%s(): header too long, not supported!\r\n", __func__);
+    }
+    for (uint8_t i = 0; i < len; i++) {
+        ring_info->header[i] = header[i];
+    }
+    ring_info->header_len = len;
+}
+
+// ----------------------------------------------------------------------------
+void ringbuffer_set_length(uint8_t pos, uint8_t width,
+                           RingBufferInfo_t* ring_info) {
+    if (ring_info->device != RINGBUFFER_SEARCH_ONE_THIRD) {
+        return;
+    }
+    if (ring_info->type_pos == pos) {
+        ringbuffer_error(
+            "%s(): type and length cannot be of the same position!\r\n",
+            __func__);
+    }
+    ring_info->len_pos = pos;
+    if (width > 2) {
+        ringbuffer_error("%s(): too wide for length, not supported!\r\n",
+                         __func__);
+    }
+    ring_info->len_width = width;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t ringbuffer_get_length(uint8_t* data, RingBufferInfo_t* ring_info) {
+    if (ring_info->device != RINGBUFFER_SEARCH_ONE_THIRD) {
+        return 0;
+    }
+    uint16_t length = 0;
+    uint8_t* length_ptr = (uint8_t*)&length;
+    *length_ptr = data[ring_info->len_pos];
+    if (ring_info->len_width == 2) {
+        length_ptr++;
+        *length_ptr = data[ring_info->len_pos + 1];
+    }
+    return length;
+}
+
+// ----------------------------------------------------------------------------
+void ringbuffer_set_type(uint8_t pos, uint8_t width,
+                         RingBufferInfo_t* ring_info) {
+    if (ring_info->device != RINGBUFFER_SEARCH_ONE_THIRD) {
+        return;
+    }
+    if (ring_info->len_pos == pos) {
+        ringbuffer_error(
+            "%s(): type and length cannot be of the same position!\r\n",
+            __func__);
+    }
+    ring_info->type_pos = pos;
+    if (width > 2) {
+        ringbuffer_error("%s(): too wide for type, not supported!\r\n",
+                         __func__);
+    }
+    ring_info->type_width = width;
+}
+
+// ----------------------------------------------------------------------------
+uint16_t ringbuffer_get_type(uint8_t* data, RingBufferInfo_t* ring_info) {
+    if (ring_info->device != RINGBUFFER_SEARCH_ONE_THIRD) {
+        return 0;
+    }
+    uint16_t type = 0;
+    uint8_t* type_ptr = (uint8_t*)&type;
+    *type_ptr = data[ring_info->type_pos];
+    if (ring_info->type_width == 2) {
+        type_ptr++;
+        *type_ptr = data[ring_info->type_pos + 1];
+    }
+    return type;
+}
+
+// ----------------------------------------------------------------------------
+void ringbuffer_set_device(RinBufferSearchDevice_e dev,
+                           RingBufferInfo_t* ring_info) {
+    ring_info->device = dev;
 }

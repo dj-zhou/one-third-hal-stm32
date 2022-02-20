@@ -1,8 +1,5 @@
 #include "config.h"
-#include "operation.h"
 #include <string.h>
-
-uint8_t tfmini_packet[9];
 
 typedef enum TFminiMeasureMode {
     TFMINI_MODE_CM = 1,
@@ -10,12 +7,9 @@ typedef enum TFminiMeasureMode {
     TFMINI_MODE_MM = 3,
 } TFminiMeasureMode_e;
 
-TFminiMeasureMode_e measure_mode;
-uint16_t dist_mm;
-uint16_t strength;
-float temp_c;
+static TFminiMeasureMode_e measure_mode;
 
-uint8_t tfmini_buffer[50];
+static uint8_t tfmini_buffer[30];
 
 // ============================================================================
 void tfmini_set_mode(TFminiMeasureMode_e mode) {
@@ -81,22 +75,9 @@ static void tfmini_parse(uint8_t* data, uint16_t len) {
 }
 
 // =============================================================================
-void taskPrint(void) {
-    static uint32_t loop_count = 0;
-    console.printf("%5d: ", loop_count++);
-    for (int i = 0; i < sizeof_array(tfmini_buffer); i++) {
-        console.printf("%02X ", tfmini_buffer[i]);
-    }
-    console.printf("\r\n");
-}
-
-// =============================================================================
 void Usart2IdleIrq(void) {
     usart2.ring.show('h', 10);
-    // FIXME: if not header and length set, the irq will have some error
-    uint8_t tfmini_header[] = { 0x59, 0x59 };
-    usart2.message.set.header(tfmini_header, sizeof_array(tfmini_header));
-    usart2.message.set.length(RINGBUFFER_SEARCH_TFMINI, 0);
+
     int8_t search_ret = usart2.ring.search();
     while (search_ret > 0) {
         op.ringbuffer.insight(&usart2.rb);
@@ -121,29 +102,31 @@ int main(void) {
     stime.config();
     stime.scheduler.config();
     console.config(2000000);
-    console.printf("\r\n\r\n");
+    console.printf("\r\n-------------- main() starts\r\n");
     led.config(LED_BREATH);
 
     usart2.config(115200, 8, 'n', 1);
     usart2.ring.show('h', 10);
-    usart2.ring.config(tfmini_buffer, sizeof_array(tfmini_buffer));
-    // try to use dma? failed!
-    // usart2.dma.config(tfmini_buffer, sizeof_array(tfmini_buffer));
+
+    usart2.dma.config(tfmini_buffer, sizeof_array(tfmini_buffer));
     usart2.ring.show('h', 10);
+
     uint8_t tfmini_header[] = { 0x59, 0x59 };
-    usart2.message.set.header(tfmini_header, sizeof_array(tfmini_header));
-    usart2.message.set.length(RINGBUFFER_SEARCH_TFMINI, 0);
+    usart2.ring.set.header(tfmini_header, sizeof_array(tfmini_header));
+    usart2.ring.set.device(RINGBUFFER_SEARCH_TFMINI);
     int8_t search_ret = usart2.ring.search();
     console.printf("search_ret = %d\r\n", search_ret);
+    op.ringbuffer.error(search_ret);
     tfmini_set_mode(TFMINI_MODE_MM);
 
     // tasks -----------
-    stime.scheduler.attach(1000, 2, taskPrint, "taskPrint");
+    // stime.scheduler.attach(1000, 2, taskPrint, "taskPrint");
     stime.scheduler.show();
 
     // system start to run -----------
     stime.scheduler.run();
 
-    console.printf("main ends.\r\n");
+    // main() should never reach to this point
+    console.printf("\r\n-------------- main() ends\r\n");
     return 0;
 }

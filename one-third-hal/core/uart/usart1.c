@@ -3,7 +3,8 @@
 #if defined(USART1_EXISTS) && defined(USART1_IS_USED)
 
 // ============================================================================
-static UartMessageInfo_t msg_info = {
+static RingBufferInfo_t ring_info = {
+    .device = RINGBUFFER_SEARCH_ONE_THIRD,
     .header_len = 0,
     .len_pos = 0,
     .len_width = 0,
@@ -12,28 +13,33 @@ static UartMessageInfo_t msg_info = {
 };
 
 // ----------------------------------------------------------------------------
-static void Usart1MessageSetHeader(uint8_t* data, uint8_t len) {
-    uart_message_set_header(data, len, &msg_info);
+static void Uart1RingSetHeader(uint8_t* data, uint8_t len) {
+    ringbuffer_set_header(data, len, &ring_info);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart1MessageSetLength(uint8_t pos, uint8_t width) {
-    uart_message_set_length(pos, width, &msg_info);
+static void Uart1RingSetLength(uint8_t pos, uint8_t width) {
+    ringbuffer_set_length(pos, width, &ring_info);
 }
 
 // ----------------------------------------------------------------------------
-static uint16_t Usart1MessageGetLength(uint8_t* data) {
-    return uart_message_get_length(data, &msg_info);
+static uint16_t Uart1RingGetLength(uint8_t* data) {
+    return ringbuffer_get_length(data, &ring_info);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart1MessageSetType(uint8_t pos, uint8_t width) {
-    uart_message_set_type(pos, width, &msg_info);
+static void Uart1RingSetType(uint8_t pos, uint8_t width) {
+    ringbuffer_set_type(pos, width, &ring_info);
 }
 
 // ----------------------------------------------------------------------------
-static uint16_t Usart1MessageGetType(uint8_t* data) {
-    return uart_message_get_type(data, &msg_info);
+static uint16_t Uart1RingGetType(uint8_t* data) {
+    return ringbuffer_get_type(data, &ring_info);
+}
+
+// ----------------------------------------------------------------------------
+static void Uart1RingSetDevice(RinBufferSearchDevice_e dev) {
+    ringbuffer_set_device(dev, &ring_info);
 }
 
 // ============================================================================
@@ -133,10 +139,12 @@ static void Usart1DmaConfig(uint8_t* buffer, uint16_t len) {
                   (uint32_t)buffer, len);
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
 #elif defined(STM32F767xx)
+    // for F767xx, HAL_UART_Receive_DMA() has to be in front
+    // usart1 is NOT tested
     HAL_UART_Receive_DMA(&(usart1.huart), buffer, len);
     HAL_DMA_Start(&hdma_usart1_rx, (uint32_t) & (usart1.huart.Instance->RDR),
                   (uint32_t)buffer, len);
-#error "Usart1DmaConfig() STM32F767xx: not implemented"
+#error "Usart1DmaConfig() STM32F767xx: not tested"
 #else
 #error "Usart1DmaConfig(): not implemented"
 #endif
@@ -159,8 +167,8 @@ static void Usart1Send(uint8_t* data, uint16_t size) {
 static UartMessageNode_t usart1_node[_UART_MESSAGE_NODE_MAX_NUM] = { 0 };
 static uint8_t usart1_node_num = 0;
 
-static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
-                                const char* descr) {
+static bool Uart1RingAttach(uint16_t type, uart_irq_hook hook,
+                            const char* descr) {
     if (uart_message_attach(type, hook, descr, usart1_node, usart1_node_num)) {
         usart1_node_num++;
         return true;
@@ -169,43 +177,49 @@ static bool Usart1MessageAttach(uint16_t type, usart_irq_hook hook,
 }
 
 // ----------------------------------------------------------------------------
-static void Usart1MessageShow(void) {
+static void Uart1RingShow(void) {
     uart_message_show("USART1", usart1_node, usart1_node_num);
 }
 
 // ----------------------------------------------------------------------------
-static void Usart1MessageCopy(uint8_t* msg, uint8_t* dest, size_t size) {
+static void Uart1RingCopy(uint8_t* msg, uint8_t* dest, size_t size) {
     // todo: read CRC32 and calculate CRC32 and compare them
     for (size_t i = 0; i < size; i++) {
-        *dest++ = msg[msg_info.type_pos + i];
+        *dest++ = msg[ring_info.type_pos + i];
     }
 }
 
 // ----------------------------------------------------------------------------
-/// warning: this function is only good for DJ's protocol, so it needs to be
-/// redefined in projects when that is not DJ's protocol
+/// warning: this function is only good for one-third's protocol, so it needs to
+/// be redefined in projects when that is not one-third's protocol
 __attribute__((weak)) void Usart1IdleIrq(void) {
     int8_t search_ret = usart1.ring.search();
-    if (search_ret > 0) {
-        uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
-        if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
-            uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
-                       "larger than %d\r\n",
-                       __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
-        }
-        search_ret = usart1.ring.fetch(array, sizeof_array(array));
-        // find the callback function and run it
-        uint16_t type = Usart1MessageGetType(array);
-        for (uint8_t i = 0; i < usart1_node_num; i++) {
-            if (usart1_node[i].this_.msg_type == type) {
-                usart1_node[i].this_.hook(array);
-                return;
-            }
-        }
-    }
+    // search returns error code
     if (search_ret < 0) {
         op.ringbuffer.error(search_ret);
     }
+    // search returns nothing
+    if (search_ret == 0) {
+        return;
+    }
+
+    uint8_t array[_UART_MESSAGE_MAX_PACKET_SIZE] = { 0 };
+    if (usart1.rb.index.dist[0] > _UART_MESSAGE_MAX_PACKET_SIZE) {
+        uart_error("%s(): need to make _UART_MESSAGE_MAX_PACKET_SIZE "
+                   "larger than %d\r\n",
+                   __func__, _UART_MESSAGE_MAX_PACKET_SIZE);
+    }
+    search_ret = usart1.ring.fetch(array, sizeof_array(array));
+
+    // find the callback function and run it
+    uint16_t type = Uart1RingGetType(array);
+    for (uint8_t i = 0; i < usart1_node_num; i++) {
+        if (usart1_node[i].this_.msg_type == type) {
+            usart1_node[i].this_.hook(array);
+            return;
+        }
+    }
+    uart_printf("%s(): unknown message type: 0x%04X\r\n", __func__, type);
 }
 
 // ----------------------------------------------------------------------------
@@ -282,14 +296,13 @@ static void Usart1RingShow(char style, uint16_t width) {
 
 // ----------------------------------------------------------------------------
 WARN_UNUSED_RESULT int8_t Usart1Search(void) {
-    // msg_info.len_width can be 0 and then msg_info.len_pos is a type indicator
-    if ((msg_info.header_len == 0)
-        || ((msg_info.len_pos == 0) && (msg_info.len_width == 0))) {
-        uart_error("%s(): header or length not set.\r\n", __func__);
+    if (ring_info.device == RINGBUFFER_SEARCH_ONE_THIRD) {
+        if ((ring_info.header_len == 0) || (ring_info.len_pos == 0)
+            || (ring_info.type_pos == 0)) {
+            return 0;
+        }
     }
-    return op.ringbuffer.search(&usart1.rb, msg_info.header,
-                                msg_info.header_len, msg_info.len_pos,
-                                msg_info.len_width);
+    return op.ringbuffer.search(&usart1.rb, ring_info);
 }
 
 // ----------------------------------------------------------------------------
@@ -311,20 +324,22 @@ UartApi_t usart1 = {
         .show   = Usart1RingShow  ,
         .search = Usart1Search    ,
         .fetch  = Usart1Fetch     ,
-    },
-    .message = {
-        .attach = Usart1MessageAttach,
-        .show   = Usart1MessageShow  ,
-        .copy   = Usart1MessageCopy  ,
         .set = {
-            .header = Usart1MessageSetHeader,
-            .length = Usart1MessageSetLength,
-            .type   = Usart1MessageSetType  ,
+            .header = Uart1RingSetHeader,
+            .length = Uart1RingSetLength,
+            .type   = Uart1RingSetType  ,
+            .device = Uart1RingSetDevice,
         },
         .get = {
-            .length = Usart1MessageGetLength,
-            .type   = Usart1MessageGetType  ,
+            .length = Uart1RingGetLength,
+            .type   = Uart1RingGetType  ,
         },
+    },
+    .message = {
+        .attach = Uart1RingAttach,
+        .show   = Uart1RingShow  ,
+        .copy   = Uart1RingCopy  ,
+
     },
 };
 // clang-format on

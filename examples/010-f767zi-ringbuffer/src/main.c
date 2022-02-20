@@ -106,12 +106,16 @@ int main(void) {
                                0x01, 0xA8, 0x09, 0x10 };
     op.ringbuffer.pushN(&rb, tfmini_data3, sizeof_array(tfmini_data3));
     op.ringbuffer.show(&rb, 'H', 10);
-    uint8_t tfmini_header[] = { 0x59, 0x59 };
-    console.printf("fetch the packets out from the ringbuffer\r\n");
-    int8_t packets_count =
-        op.ringbuffer.search(&rb, tfmini_header, sizeof_array(tfmini_header),
-                             RINGBUFFER_SEARCH_TFMINI, 0);
+
+    RingBufferInfo_t ring_info;
+    ring_info.device = RINGBUFFER_SEARCH_TFMINI;
+    ring_info.header[0] = 0x59;
+    ring_info.header[1] = 0x59;
+    ring_info.header_len = 2;
+    console.printf("search the ringbuffer and fetch packet out from it:\r\n");
+    int8_t packets_count = op.ringbuffer.search(&rb, ring_info);
     op.ringbuffer.insight(&rb);
+
     while (packets_count > 0) {
         console.printf("packets_count = %d\r\n", packets_count);
         uint8_t array[30] = { 0 };
