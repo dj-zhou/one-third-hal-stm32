@@ -84,7 +84,7 @@ LDFLAGS  = $(MCU) -specs=nano.specs -T$(LD_SCRIPT) $(LIBS)
 LDFLAGS += -Wl,-Map=$(PRJ_OUT)/$(PRJ_NAME).map,--cref -Wl,--gc-sections
 LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
-CFLAGS_PROJ  = -Werror=conversion
+CFLAGS_PROJ  = -Werror=conversion -Werror=type-limits
 CFLAGS_PROJ += -Werror=unused-parameter
 # =============================================================================
 .PHONY:
