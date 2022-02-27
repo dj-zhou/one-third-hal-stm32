@@ -1,5 +1,4 @@
-#ifndef __UART_CONSOLE_H
-#define __UART_CONSOLE_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,5 +158,3 @@ extern Console_t console;
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __UART_CONSOLE_H

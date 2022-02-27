@@ -1,5 +1,4 @@
-#ifndef __CONSOLE_CLI_H
-#define __CONSOLE_CLI_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,5 +73,3 @@ HAL_StatusTypeDef CliSuspend(int argc, char** argv);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __CONSOLE_CLI_H

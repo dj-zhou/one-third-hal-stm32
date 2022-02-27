@@ -1,5 +1,4 @@
-#ifndef __IIC_EEPROM_H
-#define __IIC_EEPROM_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -208,5 +207,3 @@ extern EepromApi_t eeprom;
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __IIC_EEPROM_H

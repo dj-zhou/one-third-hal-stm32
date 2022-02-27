@@ -1,5 +1,4 @@
-#ifndef __GENERAL_H
-#define __GENERAL_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -208,5 +207,3 @@ typedef struct RingBuffer_s {
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __GENERAL_H

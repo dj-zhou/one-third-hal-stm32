@@ -1,5 +1,4 @@
-#ifndef __LED_STATUS_H
-#define __LED_STATUS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -99,5 +98,3 @@ extern LedStatusApi_t led;
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __LED_STATUS_H

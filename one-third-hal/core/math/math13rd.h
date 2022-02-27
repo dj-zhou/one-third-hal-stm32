@@ -1,5 +1,4 @@
-#ifndef __MATH_ONE_THIRD_H
-#define __MATH_ONE_THIRD_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,5 +13,3 @@ int htoi(char s[]);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __MATH_ONE_THIRD_H

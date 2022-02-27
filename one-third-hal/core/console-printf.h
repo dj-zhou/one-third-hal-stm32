@@ -1,5 +1,4 @@
-#ifndef __CONSOLE_PRINTF_H
-#define __CONSOLE_PRINTF_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,5 +37,3 @@ void ConsolePrintf(char* sign_data, char* format, va_list ap);
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __CONSOLE_PRINTF_H
