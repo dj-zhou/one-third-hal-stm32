@@ -1,5 +1,4 @@
-#ifndef __GENERAL_UTILS_H
-#define __GENERAL_UTILS_H
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
@@ -135,5 +134,3 @@ extern UtilsApi_t utils;
 #ifdef __cplusplus
 }
 #endif
-
-#endif  // __GENERAL_UTILS_H
