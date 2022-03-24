@@ -21,7 +21,7 @@ ifneq (,$(findstring STM32F7,$(STM32Fx)))
     LIB_SHARE  = f7-share
     LIB_HAL    = f7-v1.16.2
     STM32Family= STM32F7xx
-	HAL_INCH   = $(LIB_PATH)/${LIB_HAL}/inc/Legacy
+    HAL_INCH   = $(LIB_PATH)/${LIB_HAL}/inc/Legacy
 else
     $(info not a STM32F7xx family device, you need to revise the Makefile)
 endif
@@ -86,6 +86,7 @@ LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
 CFLAGS_PROJ  = -Werror=conversion
 CFLAGS_PROJ += -Werror=unused-parameter
+
 # =============================================================================
 .PHONY:
 # -----------------

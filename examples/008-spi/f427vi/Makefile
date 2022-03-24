@@ -21,6 +21,7 @@ ifneq (,$(findstring STM32F4,$(STM32Fx)))
     LIB_SHARE  = f4-share
     LIB_HAL    = f4-v1.25.2
     STM32Family= STM32F4xx
+    HAL_INCH   = $(LIB_PATH)/${LIB_HAL}/inc/Legacy
 else
     $(info not a STM32F4xx family device, you need to revise the Makefile)
 endif
@@ -61,7 +62,7 @@ vpath %.c $(sort $(dir $(PRJ_SRCS)))
 PRJ_OBJS+= $(addprefix $(PRJ_OUT)/,$(notdir $(ASM_SRC:.s=.o)))
 vpath %.s $(sort $(dir $(ASM_SRC)))
 
-HAL_INCH = \
+HAL_INCH += \
     $(LIB_PATH)/CMSIS/Include \
     $(LIB_PATH)/CMSIS/Device/ST/${STM32Family}/Include \
     $(LIB_PATH)/${LIB_HAL}/inc \
@@ -85,6 +86,7 @@ LDFLAGS += -l$(STM32Fx) -L$(HAL_OUT)/
 
 CFLAGS_PROJ  = -Werror=conversion
 CFLAGS_PROJ += -Werror=unused-parameter
+
 # =============================================================================
 .PHONY:
 # -----------------
