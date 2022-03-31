@@ -6,10 +6,11 @@
 #include <unistd.h>
 
 using namespace std;
-const auto on_recv = [](const uint8_t* array, const size_t size) {
-    std::cout << "receive message: " << std::endl;
-    for (size_t i = 0; i < size; i++) {
-        std::cout << (int)array[i] << " ";
+const auto packet_parse = [](const uint8_t* array, const uint16_t size) {
+    // todo: use actual parse functions for each CommType
+    std::cout << "receive message (" << size << ") bytes: " << std::endl;
+    for (uint16_t i = 0; i < size; i++) {
+        printf("%3d ", array[i]);
     }
     std::cout << std::endl;
 };
@@ -32,7 +33,7 @@ int main(int argc, char* argv[]) {
         .mode = 1,
     };
 
-    PcComm pc_comm(&serial, 100, 5, on_recv);
+    PcComm pc_comm(&serial, 100, 5, packet_parse);
     for (int loop_count = 0; loop_count < 10; loop_count++) {
         switch_mode.mode = (uint8_t)(loop_count % 256);
         pc_comm.send(switch_mode);

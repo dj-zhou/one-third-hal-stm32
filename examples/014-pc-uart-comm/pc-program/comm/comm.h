@@ -15,7 +15,8 @@ typedef struct {
 
 class PcComm {
 
-    using OnRecv = std::function<void(const uint8_t* array, const size_t size)>;
+    using OnRecv =
+        std::function<void(const uint8_t* array, const uint16_t size)>;
 
 public:
     PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found,
