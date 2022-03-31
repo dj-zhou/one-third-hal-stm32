@@ -10,7 +10,7 @@ const auto packet_parse = [](const uint8_t* array, const uint16_t size) {
     // todo: use actual parse functions for each CommType
     std::cout << "receive message (" << size << ") bytes: " << std::endl;
     for (uint16_t i = 0; i < size; i++) {
-        printf("%3d ", array[i]);
+        printf("%02X ", array[i]);
     }
     std::cout << std::endl;
 };

@@ -50,6 +50,9 @@ void taskSend(void) {
     send_packet((void*)&battery_info, sizeof(battery_info));
     stime.delay.ms(100);
     // (test only) ----------------
+    vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100.));
+    vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100.));
+    vel_cmd.yaw_vel = (float)(0.2 + cos(loop_count / 50.));
     send_packet((void*)&vel_cmd, sizeof(vel_cmd));
     loop_count++;
 }
@@ -80,6 +83,10 @@ int main(void) {
         console.printf("message attach failed\r\n");
     }
     usart1.message.show();
+
+    console.printf("sizeof(CommVelCmd_t) = %d\r\n", sizeof(CommVelCmd_t));
+    console.printf("sizeof(CommBatteryInfo_t) = %d\r\n",
+                   sizeof(CommBatteryInfo_t));
 
     // tasks -----------
     stime.scheduler.attach(1000, 200, taskSend, "taskSend");
