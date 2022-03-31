@@ -4,7 +4,8 @@
 #include <string.h>
 #include <unistd.h>
 
-PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found) {
+PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found,
+               OnRecv on_recv) {
     if (serial->fd() != -1) {
         serial_ = serial;
     }
@@ -13,7 +14,7 @@ PcComm::PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found) {
     }
     ring_.init(buffer_size, max_header_found);
     thread_send_ = std::thread(&PcComm::thread_send, this);
-    thread_recv_ = std::thread(&PcComm::thread_recv, this);
+    thread_recv_ = std::thread(&PcComm::thread_recv, this, on_recv);
 
     // set thread priority
     sched_param sch_params;
@@ -63,7 +64,7 @@ void PcComm::thread_send() {
     }
 }
 
-void PcComm::thread_recv() {
+void PcComm::thread_recv(OnRecv on_recv) {
     pthread_setname_np(pthread_self(), "pc-comm-recv");
     uint32_t loop_count = 0;
     uint8_t recv[1024];
@@ -77,16 +78,10 @@ void PcComm::thread_recv() {
         int8_t search_ret = ring_.search(header, 3, 3, 2);
         if (search_ret > 0) {
             ring_.insight();
-            printf("find %d packets\r\n", search_ret);
-            printf("\r\nbefore fetch:\r\n");
-            ring_.show('H', 10);
+
             uint8_t array[25] = { 0 };
             search_ret = ring_.fetch(array, 25);
-            for (int i = 0; i < 25; i++) {
-                printf("%02X  ", array[i]);
-            }
-            printf("\r\nafter fetch:\r\n");
-            ring_.show('H', 10);
+            on_recv((const uint8_t*)array, sizeof(array));
         }
 
         // loop control --------------

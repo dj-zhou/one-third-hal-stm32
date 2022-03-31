@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 class Serial {
+
 public:
     Serial(const char* dev, int baud_rate, char parity);
     ~Serial();

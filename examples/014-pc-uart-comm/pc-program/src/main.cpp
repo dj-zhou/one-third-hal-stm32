@@ -6,6 +6,13 @@
 #include <unistd.h>
 
 using namespace std;
+const auto on_recv = [](const uint8_t* array, const size_t size) {
+    std::cout << "receive message: " << std::endl;
+    for (size_t i = 0; i < size; i++) {
+        std::cout << (int)array[i] << " ";
+    }
+    std::cout << std::endl;
+};
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -25,7 +32,7 @@ int main(int argc, char* argv[]) {
         .mode = 1,
     };
 
-    PcComm pc_comm(&serial, 100, 5);
+    PcComm pc_comm(&serial, 100, 5, on_recv);
     for (int loop_count = 0; loop_count < 10; loop_count++) {
         switch_mode.mode = (uint8_t)(loop_count % 256);
         pc_comm.send(switch_mode);
