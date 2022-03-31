@@ -77,7 +77,7 @@ void PcComm::thread_recv(OnRecv on_recv) {
         uint8_t header[] = { 0xAB, 0xCD, 0xEF };
         int8_t search_ret = ring_.search(header, 3, 3, 2);
         if (search_ret > 0) {
-            uint8_t array[25] = { 0 };
+            uint8_t array[1024] = { 0 };  // just make it large
             uint16_t packet_size;
             search_ret = ring_.fetch(array, sizeof(array), &packet_size);
             on_recv((const uint8_t*)array, packet_size);
