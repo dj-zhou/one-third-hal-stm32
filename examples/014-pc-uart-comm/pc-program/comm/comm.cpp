@@ -35,7 +35,7 @@ PcComm::~PcComm() {
 void PcComm::send(const char* str, size_t size) {
     size_t packet_size = size + 9;
     uint8_t serialized_str[1024];  // FIXME: is 1024 enough?
-    comm_serialize(str, size, serialized_str);
+    protocol_serialize(str, size, serialized_str);
     CommSendPacket_t packet;
     packet.data = (uint8_t*)malloc(packet_size);
     packet.size = packet_size;

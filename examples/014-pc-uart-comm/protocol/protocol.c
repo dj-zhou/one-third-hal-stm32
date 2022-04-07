@@ -12,7 +12,7 @@
 #define COMM_TAIL_3 0xBA
 
 // ----------------------------------------------------------------------------
-uint32_t crc32_table[256] = {
+static const uint32_t crc32_table[256] = {
     0x00000000, 0x04C11DB7, 0x09823B6E, 0x0D4326D9, 0x130476DC, 0x17C56B6B,
     0x1A864DB2, 0x1E475005, 0x2608EDB8, 0x22C9F00F, 0x2F8AD6D6, 0x2B4BCB61,
     0x350C9B64, 0x31CD86D3, 0x3C8EA00A, 0x384FBDBD, 0x4C11DB70, 0x48D0C6C7,
@@ -59,7 +59,11 @@ uint32_t crc32_table[256] = {
 };
 
 // ----------------------------------------------------------------------------
-uint32_t crc32_soft_32bit_from_8bit(uint8_t* data, size_t len) {
+#if !defined(STM32F407xx) && !defined(STM32F767xx)
+static
+#endif
+    uint32_t
+    crc32_soft_32bit_from_8bit(uint8_t* data, size_t len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
     for (size_t n = 0; n < len; n++) {
@@ -75,7 +79,7 @@ uint32_t crc32_soft_32bit_from_8bit(uint8_t* data, size_t len) {
 
 // ----------------------------------------------------------------------------
 /// make sure packet is set zero before use
-void comm_serialize(const char* data, size_t data_size, uint8_t* packet) {
+void protocol_serialize(const char* data, size_t data_size, uint8_t* packet) {
     // len = payload (data_size) + CRC32 (4)
     size_t len = data_size + 4;
     uint8_t* ptr = packet;
