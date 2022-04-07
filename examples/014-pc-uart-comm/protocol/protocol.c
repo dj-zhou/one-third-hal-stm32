@@ -115,5 +115,5 @@ CommType_e protocol_get_type(const uint8_t* data, uint16_t data_size) {
     if (data_size < 7) {
         return 0;
     }
-    return data[5] + (data[6] << 8);
+    return (CommType_e)(data[5] + (data[6] << 8));
 }
