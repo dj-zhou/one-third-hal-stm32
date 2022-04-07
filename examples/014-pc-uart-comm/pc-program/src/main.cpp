@@ -7,8 +7,28 @@
 
 using namespace std;
 const auto packet_parse = [](const uint8_t* array, const uint16_t size) {
-    // todo: use actual parse functions for each CommType
-    std::cout << "receive message (" << size << ") bytes: " << std::endl;
+    CommType_e type = protocol_get_type(array, size);
+    switch (type) {
+    case CommVelCmd:
+        std::cout << "receive CommVelCmd message" << std::endl;
+        return;
+    case CommSwitchMode:
+        std::cout << "receive CommSwitchMode message" << std::endl;
+        return;
+    case CommPoseInfo:
+        std::cout << "receive CommPoseInfo message" << std::endl;
+        return;
+    case CommBatteryInfo:
+        std::cout << "receive CommBatteryInfo message" << std::endl;
+        return;
+    case CommFirmwareInfo:
+        std::cout << "receive CommFirmwareInfo message" << std::endl;
+        return;
+    default:
+        break;
+    }
+    std::cout << "receive unknown message (" << size
+              << ") bytes: " << std::endl;
     for (uint16_t i = 0; i < size; i++) {
         printf("%02X ", array[i]);
     }

@@ -109,3 +109,11 @@ void protocol_serialize(const char* data, size_t data_size, uint8_t* packet) {
         *ptr++ = *ptr_crc32++;
     }
 }
+
+// ----------------------------------------------------------------------------
+CommType_e protocol_get_type(const uint8_t* data, uint16_t data_size) {
+    if (data_size < 7) {
+        return 0;
+    }
+    return data[5] + (data[6] << 8);
+}

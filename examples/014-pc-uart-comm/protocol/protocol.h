@@ -91,7 +91,7 @@ typedef struct {
 #pragma pack()
 
 void protocol_serialize(const char* data, size_t data_size, uint8_t* packet);
-
+CommType_e protocol_get_type(const uint8_t* data, uint16_t data_size);
 #ifdef __cplusplus
 }
 #endif
