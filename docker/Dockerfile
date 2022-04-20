@@ -70,3 +70,11 @@ RUN git clone https://github.com/Neargye/magic_enum && \
     cd magic_enum && \
     git checkout v0.7.3 && \
     cp include/magic_enum.hpp /usr/local/include/
+
+# error seem from ./build-in-container:
+# fatal: unsafe repository ('/one-third-in-container' is owned by someone else)
+# To add an exception for this directory, call:
+
+# solution:
+ARG git_safe_dir
+RUN git config --global --add safe.directory "${git_safe_dir}"
