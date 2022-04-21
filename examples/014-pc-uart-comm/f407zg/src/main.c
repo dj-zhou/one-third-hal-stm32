@@ -45,8 +45,10 @@ static void SwitchModeCallback(uint8_t* msg) {
 // ============================================================================
 void taskSend(void) {
     static uint32_t loop_count = 0;
-    // ----------------
+    // (test only) ----------------
+    battery_info.soc = (float)(0.9 + 0.1 * sin(loop_count / 100.));
     battery_info.voltage = (float)(10.5 + sin(loop_count / 100.));
+    battery_info.current = (float)(10.5 + sin(loop_count / 100.));
     send_packet((void*)&battery_info, sizeof(battery_info));
     stime.delay.ms(100);
     // (test only) ----------------

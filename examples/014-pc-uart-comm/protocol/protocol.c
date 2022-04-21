@@ -59,16 +59,15 @@ static const uint32_t crc32_table[256] = {
 };
 
 // ----------------------------------------------------------------------------
-#if !defined(STM32F407xx) && !defined(STM32F767xx)
-static
-#endif
-    uint32_t
-    crc32_soft_32bit_from_8bit(uint8_t* data, size_t len) {
+// #if !defined(STM32F407xx) && !defined(STM32F767xx)
+// static
+// #endif
+static uint32_t crc32_soft_32bit_from_8bit(uint8_t* data, int len) {
     uint32_t ret = 0xFFFFFFFF;
     uint32_t temp = 0;
-    for (size_t n = 0; n < len; n++) {
+    for (int n = 0; n < len; n++) {
         ret ^= (uint32_t)data[n];
-        for (uint16_t i = 0; i < 4; i++) {
+        for (int i = 0; i < 4; i++) {
             temp = crc32_table[(uint8_t)((ret >> 24) & 0xff)];
             ret <<= 8;
             ret ^= temp;
@@ -102,7 +101,7 @@ void protocol_serialize(const char* data, size_t data_size, uint8_t* packet) {
     }
     uint32_t crc32 = crc.hard._32bit8(packet, len + 1);
 #else
-    uint32_t crc32 = crc32_soft_32bit_from_8bit(packet, len + 1);
+    uint32_t crc32 = crc32_soft_32bit_from_8bit(packet, (int)len + 1);
 #endif
     uint8_t* ptr_crc32 = (uint8_t*)&crc32;
     for (int i = 0; i < 4; i++) {
@@ -111,9 +110,41 @@ void protocol_serialize(const char* data, size_t data_size, uint8_t* packet) {
 }
 
 // ----------------------------------------------------------------------------
+uint16_t protocol_get_length(const uint8_t* data, uint16_t data_size) {
+    if (data_size < 7) {
+        return 0;
+    }
+    return (CommType_e)(data[3] + (data[4] << 8));
+}
+
+// ----------------------------------------------------------------------------
 CommType_e protocol_get_type(const uint8_t* data, uint16_t data_size) {
     if (data_size < 7) {
         return 0;
     }
     return (CommType_e)(data[5] + (data[6] << 8));
+}
+
+// ----------------------------------------------------------------------------
+uint32_t protocol_get_crc32(const uint8_t* data, uint16_t data_size) {
+    if (data_size < 7) {
+        return 0;
+    }
+    uint16_t len = protocol_get_length(data, data_size);
+    uint32_t crc32 = 0;
+    uint8_t* ptr = (uint8_t*)&crc32;
+    for (int i = 0; i < 4; i++) {
+        *ptr++ = data[len + 1 + i];
+    }
+    return crc32;
+}
+
+// ----------------------------------------------------------------------------
+uint32_t protocol_calculate_crc32(const uint8_t* data, uint16_t data_size) {
+    if (data_size < 7) {
+        return 0;
+    }
+    uint16_t len = protocol_get_length(data, data_size);
+    uint32_t crc32 = crc32_soft_32bit_from_8bit((uint8_t*)data, (int)len + 1);
+    return crc32;
 }
