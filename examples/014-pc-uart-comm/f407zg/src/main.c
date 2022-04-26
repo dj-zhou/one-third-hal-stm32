@@ -13,11 +13,11 @@ CommBatteryInfo_t battery_info = {
     .soc = (float)0.78,
 };
 
-CommVelCmd_t vel_cmd = {
-    .type = CommVelCmd,
-    .x_vel = (float)0.8,
-    .y_vel = (float)0.4,
-    .yaw_vel = (float)0.2,
+CommPoseInfo_t pose_info = {
+    .type = CommPoseInfo,
+    .x = (float)0.8,
+    .y = (float)0.4,
+    .yaw = (float)0.2,
 };
 
 // ----------------------------------------------------------------------------
@@ -49,13 +49,13 @@ void taskSend(void) {
     battery_info.soc = (float)(0.9 + 0.1 * sin(loop_count / 100.));
     battery_info.voltage = (float)(10.5 + sin(loop_count / 100.));
     battery_info.current = (float)(10.5 + sin(loop_count / 100.));
-    send_packet((void*)&battery_info, sizeof(battery_info));
+    send_packet(&usart1, (void*)&battery_info, sizeof(battery_info));
     stime.delay.ms(100);
     // (test only) ----------------
-    vel_cmd.x_vel = (float)(0.8 + sin(loop_count / 100.));
-    vel_cmd.y_vel = (float)(0.8 + cos(loop_count / 100.));
-    vel_cmd.yaw_vel = (float)(0.2 + cos(loop_count / 50.));
-    send_packet((void*)&vel_cmd, sizeof(vel_cmd));
+    pose_info.x = (float)(0.8 + sin(loop_count / 100.));
+    pose_info.y = (float)(0.8 + cos(loop_count / 100.));
+    pose_info.yaw = (float)(0.2 + cos(loop_count / 50.));
+    send_packet(&usart1, (void*)&pose_info, sizeof(pose_info));
     loop_count++;
 }
 
@@ -85,10 +85,6 @@ int main(void) {
         console.printf("message attach failed\r\n");
     }
     usart1.message.show();
-
-    console.printf("sizeof(CommVelCmd_t) = %d\r\n", sizeof(CommVelCmd_t));
-    console.printf("sizeof(CommBatteryInfo_t) = %d\r\n",
-                   sizeof(CommBatteryInfo_t));
 
     // tasks -----------
     stime.scheduler.attach(1000, 200, taskSend, "taskSend");
