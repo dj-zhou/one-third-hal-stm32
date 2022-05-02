@@ -23,7 +23,6 @@ fi
 echo -e "${GRN}Build the image \"${image_name}\"${NOC} ..."
 DOCKER_BUILDKIT=1 docker build \
     -t ${image_name} \
-    --build-arg git_safe_dir="$target_path" \
     -f docker/Dockerfile docker
 
 # create a container and run it ------------------------
