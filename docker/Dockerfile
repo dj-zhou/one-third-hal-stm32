@@ -24,20 +24,31 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     build-essential \
     cmake \
     flex \
-    git \
+    gettext \
     libncurses-dev \
     libftdi-dev \
     libgmp3-dev \
+    liblz4-tool \
     libmpfr-dev \
     libmpc-dev \
     libncurses5-dev \
     libtool \
     libusb-1.0-0-dev \
+    openssh-client \
     python-yaml \
     texinfo \
     zlib1g \
     zlib1g-dev \
     wget
+
+# error seen from ./build-in-container:
+# fatal: unsafe repository ('/one-third-in-container' is owned by someone else)
+# a good solution is to downgrade the git version
+WORKDIR /tmp
+RUN wget https://mirrors.edge.kernel.org/pub/software/scm/git/git-2.15.1.tar.xz --no-check-certificate && \
+    tar -xvf git-2.15.1.tar.xz && cd git-2.15.1 && \
+    make configure && ./configure --prefix=/usr && \
+    make -j$(nproc) && make install
 
 # install gcc-arm-none-eabi --------------------
 ARG file="gcc-arm-none-eabi-10.3-2021.10"
@@ -66,15 +77,6 @@ RUN wget https://codeload.github.com/fmtlib/fmt/tar.gz/refs/tags/8.0.1 -O fmt.ta
 
 # install magic enum --------------------
 WORKDIR /tmp
-RUN git clone https://github.com/Neargye/magic_enum && \
-    cd magic_enum && \
-    git checkout v0.7.3 && \
+RUN wget https://codeload.github.com/Neargye/magic_enum/tar.gz/refs/tags/v0.7.3 -O magic_enum.tar.gz && \
+   tar -xvf magic_enum.tar.gz && cd magic_enum-0.7.3 && \
     cp include/magic_enum.hpp /usr/local/include/
-
-# error seem from ./build-in-container:
-# fatal: unsafe repository ('/one-third-in-container' is owned by someone else)
-# To add an exception for this directory, call:
-
-# solution:
-ARG git_safe_dir
-RUN git config --global --add safe.directory "${git_safe_dir}"
