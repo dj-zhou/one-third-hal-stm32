@@ -90,7 +90,11 @@ typedef struct {
 } CommFirmwareInfo_t;
 #pragma pack()
 
-void comm_serialize(const char* data, size_t data_size, uint8_t* packet);
+void protocol_serialize(const char* data, size_t data_size, uint8_t* packet);
+uint16_t protocol_get_length(const uint8_t* data, uint16_t data_size);
+CommType_e protocol_get_type(const uint8_t* data, uint16_t data_size);
+uint32_t protocol_get_crc32(const uint8_t* data, uint16_t data_size);
+uint32_t protocol_calculate_crc32(const uint8_t* data, uint16_t data_size);
 
 #ifdef __cplusplus
 }

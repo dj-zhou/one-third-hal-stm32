@@ -57,7 +57,7 @@ public:
     int8_t search(uint8_t* header, uint8_t header_size, uint8_t len_pos,
                   uint8_t len_width);
     void insight();
-    int8_t fetch(uint8_t* array, uint16_t size);
+    int8_t fetch(uint8_t* array, uint16_t size, uint16_t* ret_size);
 
 private:
     int16_t index(int16_t idx);

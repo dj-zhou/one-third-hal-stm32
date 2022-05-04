@@ -422,15 +422,17 @@ void RingBuffer::insight() {
 }
 
 // ============================================================================
-int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
+int8_t RingBuffer::fetch(uint8_t* array, uint16_t size, uint16_t* ret_size) {
     // fetch() uses pop(), so fetch() cannot use lock guard again!
     // std::lock_guard guard(mutex_);
     // not searched, or not found
     if (index_.count == 0) {
+        *ret_size = 0;
         return (int8_t)RingBufferError::FIND_NO_HEADER;
     }
     bzero(array, size);
-    if (size < index_.dist[0]) {
+    *ret_size = index_.dist[0];
+    if (size < *ret_size) {
         printf("%s() argument \"size\" too small\n", __func__);
         return (int8_t)RingBufferError::FETCH_DES_SMALL;
     }
@@ -438,7 +440,7 @@ int8_t RingBuffer::fetch(uint8_t* array, uint16_t size) {
     while (state_.head != index_.pos[0]) {
         pop(&popout);
     }
-    pop(array, index_.dist[0]);
+    pop(array, *ret_size);
     index_.count--;
     for (int i = 0; i < index_.size - 1; i++) {
         index_.pos[i] = index_.pos[i + 1];

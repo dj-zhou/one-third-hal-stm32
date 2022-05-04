@@ -3,6 +3,7 @@
 #include "protocol.h"
 #include "ringbuffer.h"
 #include "serial.h"
+#include <functional>
 #include <queue>
 #include <stdint.h>
 #include <thread>
@@ -13,8 +14,13 @@ typedef struct {
 } CommSendPacket_t;
 
 class PcComm {
+
+    using OnRecv =
+        std::function<void(const uint8_t* array, const uint16_t size)>;
+
 public:
-    PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found);
+    PcComm(Serial* serial, uint16_t buffer_size, uint8_t max_header_found,
+           OnRecv on_recv);
     ~PcComm();
     void send(const char* str, size_t len);
     void setStop();
@@ -34,5 +40,5 @@ private:
 
 protected:
     void thread_send();
-    void thread_recv();
+    void thread_recv(OnRecv on_recv);
 };
