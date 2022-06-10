@@ -7,3 +7,15 @@ YLW='\033[0;33m'
 image_name="one-third-hal-stm32-image"
 container_name="one-third-hal-stm32-container"
 target_path="/proj-in-container"
+
+function _show_and_run() {
+    # show
+    printf >&2 "run:"
+    for arg_show_and_run in "$@"; do
+        arg_show_and_run="${arg_show_and_run%\'/\'\\\'\'}"
+        printf >&2 " $GRN'%s'$NOC" "$arg_show_and_run"
+    done
+    printf >&2 "\n"
+    # run
+    "$@"
+}
