@@ -9,37 +9,30 @@ build_dir="${1:-"."}"
 # stop the container if it is running ------------------------
 if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" &&
 "$(docker container inspect -f '{{.State.Running}}' ${container_name})" == "true" ]]; then
-    echo -e "${YLW}Stop container ${container_name}${NOC} ..."
-    docker stop ${container_name}
+    _show_and_run docker stop ${container_name}
 fi
 
 # remove the container if it exists but not running (is this needed? not sure now) ------------------------
 if [[ $(docker ps --filter "name=^/${container_name}$" --format '{{.Names}}') == "${container_name}" ]]; then
-    echo -e "${YLW}Remove container ${container_name}${NOC} ..."
-    docker rm ${container_name} &>/dev/null
+    _show_and_run docker rm ${container_name} &>/dev/null
 fi
 
 # build an image from Dockerfile ------------------------
-echo -e "${GRN}Build the image \"${image_name}\"${NOC} ..."
-DOCKER_BUILDKIT=1 docker build \
+DOCKER_BUILDKIT=1 _show_and_run docker build \
     -t ${image_name} \
     -f docker/Dockerfile docker
 
 # create a container and run it ------------------------
-echo -e "${GRN}Run container \"${container_name}\" from image \"${image_name}\"${NOC} ..."
-docker run -d -it --rm \
+_show_and_run docker run -d -it --rm \
+    --user "$UID:$(id -g)" \
     --name ${container_name} \
     --mount type=bind,source="$(pwd)",target=${target_path} \
     ${image_name}
 
 # build the project in the container ------------------------
 # ${target_path} ${build_dir}: arguments passed into ./docker/build
-docker exec ${container_name} ${target_path}/docker/build \
+_show_and_run docker exec ${container_name} ${target_path}/docker/build \
     ${target_path} ${build_dir}
-
-# play some trick ------------------------
-sudo chown $(whoami):$(whoami) ./examples -R
-sudo chown $(whoami):$(whoami) ./one-third-hal/*-hal -R
 
 echo -e "${GRN}Project is built successfully.${NOC}"
 popd &>/dev/null
