@@ -27,6 +27,9 @@ extern "C" {
 #include "../CMSIS/Device/ST/STM32F7xx/Include/stm32f7xx.h"
 #elif defined(STM32H750xx)
 #include "../CMSIS/Device/ST/STM32H7xx/Include/stm32h7xx.h"
+#elif defined(STM32MP1xx)
+// #include "../CMSIS/Device/ST/STM32MP1xx/Include/stm32mp1xx.h"
+#include "../CMSIS/Device/ST/STM32MP1xx/Include/stm32mp157dxx_cm4.h"
 #endif
 
 #include <stdbool.h>
