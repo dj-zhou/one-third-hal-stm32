@@ -1,6 +1,5 @@
 #include "config.h"
 
-#include "console-cli.h"
 #include "math13rd.h"
 #include <stdlib.h>
 #include <string.h>

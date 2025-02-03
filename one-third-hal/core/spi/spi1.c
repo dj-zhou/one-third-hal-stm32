@@ -25,7 +25,7 @@ static void InitSpi1_PA7PA6(void) {
 // ============================================================================
 #if defined(_USE_SPI1_PB5PB4)
 static void InitSpi1_PB5PB4(void) {
-    // todo
+    spi_error("not implemented!\r\n")
 }
 #endif  //  _USE_SPI1_PB5PB4
 

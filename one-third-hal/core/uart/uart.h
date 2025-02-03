@@ -3,7 +3,6 @@
 // ============================================================================
 #include "config.h"
 
-#include "config-uart.h"
 #include "general.h"
 #include "operation.h"
 #include <string.h>
